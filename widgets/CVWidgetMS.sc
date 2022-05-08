@@ -1,0 +1,3 @@
+CVWidgetMS : AbstractCVWidget {
+
+}
