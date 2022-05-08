@@ -5,9 +5,6 @@ CVWidgetKnobGui : AbstractCVWidgetGui {
 	}
 
 	init {
-		var mc = widget.wmc;
-
 
 	}
-
 }

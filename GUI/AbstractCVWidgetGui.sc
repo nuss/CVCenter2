@@ -24,4 +24,17 @@ AbstractCVWidgetGui {
 		this.actionsBackgroundColor = Color(0.0, 0.5, 0.5);
 	}
 
+	*defaultOscDisplayModel {
+		^Ref((
+			but: ["edit OSC", AbstractCVWidgetGui.stringColor, AbstractCVWidget.backgroundColor],
+			numConnections: 0,
+			ipField: nil,
+			portField: nil,
+			nameField: "/my/cmd/name",
+			index: 1,
+			connectorButVal: 0,
+			editEnabled: true
+		))
+	}
+
 }

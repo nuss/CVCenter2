@@ -61,6 +61,20 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc.cvGuiConnections.model = Ref([true, true])
 		};
 
+		wmc.widgetDisplay ?? { wmc.widgetDisplay = () };
+		wmc.widgetDisplay.model ?? {
+			wmc.widgetDisplay.model = Ref((
+				oscButton: ["edit OSC", AbstractCVWidgetGui.stringColor, AbstractCVWidget.backgroundColor],
+				// midiSrc: "source",
+				// midiChan: "chan",
+				// midiCtrl: "ctrl",
+				// midiLearn: "L",
+				midiButton: ["edit MIDI", AbstractCVWidgetGui.stringColor, AbstractCVWidgetGui.backgroundColor],
+				specButton: ["edit Spec", AbstractCVWidgetGui.specsStringColor, AbstractCVWidgetGui.specsBackgroundColor],
+				actionButton: ["actions (0/0)", AbstractCVWidgetGui.actionsStringColor, AbstractCVWidgetGui.actionsBackgroundColor]
+			))
+		};
+
 		// we want to allow more than one MIDI/OSC connection...
 		// hence, we need name slots for each connection
 
@@ -100,15 +114,7 @@ CVWidgetKnob : AbstractCVWidget {
 
 			thisWmc.oscDisplay ?? { thisWmc.oscDisplay = () };
 			thisWmc.oscDisplay.model ?? {
-				thisWmc.oscDisplay.model = Ref((
-					but: ["edit OSC", AbstractCVWidgetGui.stringColor, AbstractCVWidget.backgroundColor],
-					ipField: nil,
-					portField: nil,
-					nameField: "/my/cmd/name",
-					index: 1,
-					connectorButVal: 0,
-					editEnabled: true
-				))
+				thisWmc.oscDisplay.model = AbstractCVWidgetGui.defaultOscDisplayModel
 			}
 		};
 	}
