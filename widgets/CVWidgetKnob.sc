@@ -56,15 +56,25 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc.actions.model = Ref((numActions: 0, activeActions: 0))
 		};
 
+		wmc.midiOptions ?? { wmc.midiOptions = () };
+		wmc.midiOptions.model ?? {
+			wmc.midiOptions.model = Ref((
+				midiMode: this.class.midiMode,
+				midiMean: this.class.midiMean,
+				ctrlButtonBank: this.class.ctrlButtonBank,
+				midiResolution: this.class.midiResolution,
+				softWithin: this.class.softWithin
+			))
+		}
+
 		wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
 		wmc.cvGuiConnections.model ?? {
 			wmc.cvGuiConnections.model = Ref([true, true])
 		};
 
-		wmc.widgetDisplay ?? { wmc.widgetDisplay = () };
+		/*wmc.widgetDisplay ?? { wmc.widgetDisplay = () };
 		wmc.widgetDisplay.model ?? {
 			wmc.widgetDisplay.model = Ref((
-				oscButton: ["edit OSC", AbstractCVWidgetGui.stringColor, AbstractCVWidget.backgroundColor],
 				// midiSrc: "source",
 				// midiChan: "chan",
 				// midiCtrl: "ctrl",
@@ -73,7 +83,7 @@ CVWidgetKnob : AbstractCVWidget {
 				specButton: ["edit Spec", AbstractCVWidgetGui.specsStringColor, AbstractCVWidgetGui.specsBackgroundColor],
 				actionButton: ["actions (0/0)", AbstractCVWidgetGui.actionsStringColor, AbstractCVWidgetGui.actionsBackgroundColor]
 			))
-		};
+		};*/
 
 		// we want to allow more than one MIDI/OSC connection...
 		// hence, we need name slots for each connection
@@ -89,34 +99,43 @@ CVWidgetKnob : AbstractCVWidget {
 	}
 
 	initOscModelsControllers { |name|
-		var thisWmc;
+		var thisWmcOsc, thisWmcMidi;
 
 		// sanitize 'name'
 		name = name.asSymbol;
 		wmc.osc[name] ?? {
 			wmc.osc.put(name, ());
-			thisWmc = wmc.osc[name];
+			thisWmcOsc = wmc.osc[name];
 
-			thisWmc.oscCalibration ?? { thisWmc.oscCalibration = () };
-			thisWmc.oscCalibration.model ?? {
-				thisWmc.oscCalibration.model = Ref(this.oscCalibration);
+			thisWmcOsc.oscCalibration ?? { thisWmcOsc.oscCalibration = () };
+			thisWmcOsc.oscCalibration.model ?? {
+				thisWmcOsc.oscCalibration.model = Ref(this.oscCalibration);
 			};
 
-			thisWmc.oscInputRange ?? { thisWmc.oscInputRange = () };
-			thisWmc.oscInputRange.model ?? {
-				thisWmc.oscInputRange.model = Ref([0.0001, 0.0001])
+			thisWmcOsc.oscInputRange ?? { thisWmcOsc.oscInputRange = () };
+			thisWmcOsc.oscInputRange.model ?? {
+				thisWmcOsc.oscInputRange.model = Ref([0.0001, 0.0001])
 			};
 
-			thisWmc.oscConnection ?? { thisWmc.oscConnection = () };
-			thisWmc.oscConnection.model ?? {
-				thisWmc.oscConnection.model = Ref(false);
+			thisWmcOsc.oscConnection ?? { thisWmcOsc.oscConnection = () };
+			thisWmcOsc.oscConnection.model ?? {
+				thisWmcOsc.oscConnection.model = Ref(false);
 			};
 
-			thisWmc.oscDisplay ?? { thisWmc.oscDisplay = () };
-			thisWmc.oscDisplay.model ?? {
-				thisWmc.oscDisplay.model = AbstractCVWidgetGui.defaultOscDisplayModel
+			thisWmcOsc.oscDisplay ?? { thisWmcOsc.oscDisplay = () };
+			thisWmcOsc.oscDisplay.model ?? {
+				thisWmcOsc.oscDisplay.model = AbstractCVWidgetGui.defaultOscDisplayModel
 			}
 		};
+		wmc.midi[name] ?? {
+			wmc.midi.put(name, ());
+			thisWmcMidi = wmc.midi[name];
+
+			thisWmcMidi.midiConnection ?? { thisWmcMidi.midiConnection = () };
+			thisWmcMidi.midiConnection.model ?? {
+				thisWmcMidi.midiConnection.model = Red(nil);
+			}
+		}
 	}
 
 	// the CV's ControlSpec

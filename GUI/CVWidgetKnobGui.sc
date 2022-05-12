@@ -1,4 +1,4 @@
-CVWidgetKnobGui : AbstractCVWidgetGui {
+CVWidgetKnobGui {
 
 	*new { |window, widget|
 		^super.newCopyArgs(window, widget).init;

@@ -1,13 +1,12 @@
-AbstractCVWidgetGui {
-	classvar <all;
+AbstractCVWidgetView : SCViewHolder {
+
 	classvar <>stringColor, <>backgroundColor;
 	classvar <>tfStringColor, <>tfBackgroundColor;
 	classvar <>oscStringColor, <>oscBackgroundColor;
 	classvar <>midiStringColor, <>midiBackgroundColor;
 	classvar <>specsStringColor, <>specsBackgroundColor;
 	classvar <>actionsStringColor, <>actionsBackgroundColor;
-
-	var <window, <widget;
+	classvar <defaultOscDisplayModel, <defaultMidiOscDisplayModel;
 
 	*initClass {
 		this.stringColor = Color(0.3, 0.3, 0.3);
@@ -22,11 +21,8 @@ AbstractCVWidgetGui {
 		this.specsBackgroundColor = Color(0.8, 0.3);
 		this.actionsStringColor = Color.white;
 		this.actionsBackgroundColor = Color(0.0, 0.5, 0.5);
-	}
-
-	*defaultOscDisplayModel {
-		^Ref((
-			but: ["edit OSC", AbstractCVWidgetGui.stringColor, AbstractCVWidget.backgroundColor],
+		defaultOscDisplayModel = Ref((
+			but: ["edit OSC", this.stringColor, this.backgroundColor],
 			numConnections: 0,
 			ipField: nil,
 			portField: nil,
@@ -34,7 +30,14 @@ AbstractCVWidgetGui {
 			index: 1,
 			connectorButVal: 0,
 			editEnabled: true
-		))
+		));
+		defaultMidiDisplayModel = Ref((
+			midiButton: ["edit MIDI", AbstractCVWidgetGui.stringColor, AbstractCVWidgetGui.backgroundColor],
+			numConnections: 0,
+			midiSrc: "source",
+			midiChan: "chan",
+			midiCtrl: "ctrl",
+			midiLearn: "L"
+		));
 	}
-
 }
