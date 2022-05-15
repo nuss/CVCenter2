@@ -65,7 +65,7 @@ CVWidgetKnob : AbstractCVWidget {
 				midiResolution: this.class.midiResolution,
 				softWithin: this.class.softWithin
 			))
-		}
+		};
 
 		wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
 		wmc.cvGuiConnections.model ?? {

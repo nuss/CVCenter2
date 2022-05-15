@@ -6,10 +6,10 @@ AbstractCVWidgetView : SCViewHolder {
 	classvar <>midiStringColor, <>midiBackgroundColor;
 	classvar <>specsStringColor, <>specsBackgroundColor;
 	classvar <>actionsStringColor, <>actionsBackgroundColor;
-	classvar <defaultOscDisplayModel, <defaultMidiOscDisplayModel;
+	classvar <defaultOscDisplayModel, <defaultMidiDisplayModel;
 
 	*initClass {
-		this.stringColor = Color(0.3, 0.3, 0.3);
+		this.stringColor_(Color(0.3, 0.3, 0.3));
 		this.backgroundColor = Color(0.95, 0.95, 0.95);
 		this.tfStringColor = Color(0.05, 0.05, 0.05);
 		this.tfBackgroundColor = Color(0.95, 0.95, 0.95);
@@ -32,12 +32,12 @@ AbstractCVWidgetView : SCViewHolder {
 			editEnabled: true
 		));
 		defaultMidiDisplayModel = Ref((
-			midiButton: ["edit MIDI", AbstractCVWidgetGui.stringColor, AbstractCVWidgetGui.backgroundColor],
+			midiButton: ["edit MIDI", this.stringColor, this.backgroundColor],
 			numConnections: 0,
 			midiSrc: "source",
 			midiChan: "chan",
 			midiCtrl: "ctrl",
 			midiLearn: "L"
-		));
+		))
 	}
 }
