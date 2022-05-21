@@ -45,7 +45,7 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc ?? { wmc = () }
 		};
 
-
+		// TODO: should be separate in CVWidget class because CVWidget2D needs two...
 		wmc.cvSpec ?? { wmc.cvSpec = () };
 		wmc.cvSpec.model ?? {
 			wmc.cvSpec.model = Ref(this.getSpec);
@@ -56,17 +56,8 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc.actions.model = Ref((numActions: 0, activeActions: 0))
 		};
 
-		wmc.midiOptions ?? { wmc.midiOptions = () };
-		wmc.midiOptions.model ?? {
-			wmc.midiOptions.model = Ref((
-				midiMode: this.class.midiMode,
-				midiMean: this.class.midiMean,
-				ctrlButtonBank: this.class.ctrlButtonBank,
-				midiResolution: this.class.midiResolution,
-				softWithin: this.class.softWithin
-			))
-		};
 
+		// should probly go to an appropriate place in the widget's view
 		wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
 		wmc.cvGuiConnections.model ?? {
 			wmc.cvGuiConnections.model = Ref([true, true])
@@ -103,38 +94,20 @@ CVWidgetKnob : AbstractCVWidget {
 
 		// sanitize 'name'
 		name = name.asSymbol;
-		wmc.osc[name] ?? {
-			wmc.osc.put(name, ());
-			thisWmcOsc = wmc.osc[name];
-
-			thisWmcOsc.oscCalibration ?? { thisWmcOsc.oscCalibration = () };
-			thisWmcOsc.oscCalibration.model ?? {
-				thisWmcOsc.oscCalibration.model = Ref(this.oscCalibration);
-			};
-
-			thisWmcOsc.oscInputRange ?? { thisWmcOsc.oscInputRange = () };
-			thisWmcOsc.oscInputRange.model ?? {
-				thisWmcOsc.oscInputRange.model = Ref([0.0001, 0.0001])
-			};
-
-			thisWmcOsc.oscConnection ?? { thisWmcOsc.oscConnection = () };
-			thisWmcOsc.oscConnection.model ?? {
-				thisWmcOsc.oscConnection.model = Ref(false);
-			};
-
-			thisWmcOsc.oscDisplay ?? { thisWmcOsc.oscDisplay = () };
-			thisWmcOsc.oscDisplay.model ?? {
-				thisWmcOsc.oscDisplay.model = AbstractCVWidgetGui.defaultOscDisplayModel
-			}
-		};
+		// wmc.osc[name] ?? {
+		// 	wmc.osc.put(name, ());
+		// 	thisWmcOsc = wmc.osc[name];
+		//
+		// 	thisWmcOsc.oscCalibration ?? { thisWmcOsc.oscCalibration = () };
+		// 	thisWmcOsc.oscCalibration.model ?? {
+		// 		thisWmcOsc.oscCalibration.model = Ref(this.oscCalibration);
+		// 	};
+		//
+		// };
 		wmc.midi[name] ?? {
 			wmc.midi.put(name, ());
 			thisWmcMidi = wmc.midi[name];
 
-			thisWmcMidi.midiConnection ?? { thisWmcMidi.midiConnection = () };
-			thisWmcMidi.midiConnection.model ?? {
-				thisWmcMidi.midiConnection.model = Red(nil);
-			}
 		}
 	}
 

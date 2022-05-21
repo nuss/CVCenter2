@@ -6,7 +6,7 @@ AbstractCVWidgetView : SCViewHolder {
 	classvar <>midiStringColor, <>midiBackgroundColor;
 	classvar <>specsStringColor, <>specsBackgroundColor;
 	classvar <>actionsStringColor, <>actionsBackgroundColor;
-	classvar <defaultOscDisplayModel, <defaultMidiDisplayModel;
+	classvar <oscDisplayModelTemplate, <midiDisplayModelTemplate;
 
 	*initClass {
 		this.stringColor_(Color(0.3, 0.3, 0.3));
@@ -21,9 +21,9 @@ AbstractCVWidgetView : SCViewHolder {
 		this.specsBackgroundColor = Color(0.8, 0.3);
 		this.actionsStringColor = Color.white;
 		this.actionsBackgroundColor = Color(0.0, 0.5, 0.5);
-		defaultOscDisplayModel = Ref((
+		oscDisplayModelTemplate = Ref((
 			but: ["edit OSC", this.stringColor, this.backgroundColor],
-			numConnections: 0,
+			// numConnections: 0,
 			ipField: nil,
 			portField: nil,
 			nameField: "/my/cmd/name",
@@ -31,9 +31,9 @@ AbstractCVWidgetView : SCViewHolder {
 			connectorButVal: 0,
 			editEnabled: true
 		));
-		defaultMidiDisplayModel = Ref((
+		midiDisplayModelTemplate = Ref((
 			midiButton: ["edit MIDI", this.stringColor, this.backgroundColor],
-			numConnections: 0,
+			// numConnections: 0,
 			midiSrc: "source",
 			midiChan: "chan",
 			midiCtrl: "ctrl",
