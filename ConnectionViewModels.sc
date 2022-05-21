@@ -1,7 +1,6 @@
 OscConnectionViewModel {
 	classvar <all;
 	var <oscConnection;
-	var <mc; // models and controllers
 
 	*new { |oscConnection|
 		^super.newCopyArgs(oscConnection).init;
@@ -14,15 +13,16 @@ OscConnectionViewModel {
 	}
 
 	initModelsAndControllers { |modelsControllers|
+		var mmc = oscConnection.mc;
 		if (modelsControllers.notNil) {
-			mc = modelsControllers;
+			mmc = mmc ++ modelsControllers;
 		} {
-			mc ?? { mc = () };
+			Error("No parent OscConnectionModel given for OscConnectionViewModel given.").throw;
 		};
 
-		mc.oscDisplay ?? { mc.oscDisplay = () };
-		mc.oscDisplay.model ?? {
-			mc.oscDiplay.mudel = Ref((
+		mmc.oscDisplay ?? { mmc.oscDisplay = () };
+		mmc.oscDisplay.model ?? {
+			mmc.oscDiplay.mudel = Ref((
 				ipField: nil,
 				portField: nil,
 				nameField: "/my/cmd/name",
@@ -30,14 +30,15 @@ OscConnectionViewModel {
 				connectorButVal: 0,
 				editEnabled: true
 			))
-		}
+		};
+
+
 	}
 }
 
 MidiConnectionViewModel {
 	classvar <all;
 	var <midiConnection;
-	var <mc; // models and controllers
 
 	*new { |midiConnection|
 		^super.newCopyArgs(midiConnection).init;
@@ -50,15 +51,16 @@ MidiConnectionViewModel {
 	}
 
 	initModelsAndControllers { |modelsControllers|
+		var mmc = midiConnection.mc;
 		if (modelsControllers.notNil) {
-			mc = modelsControllers;
+			mmc = mmc ++ modelsControllers;
 		} {
-			mc ?? { mc = () };
+			Error("No parent MidiConnectionModel given for MidiConnectionViewModel given.").throw;
 		};
 
-		mc.midiDisplay ?? { mc.midiDisplay = () };
-		mc.midiDisplay.model ?? {
-			mc.midiDisplay.model = Ref((
+		mmc.midiDisplay ?? { mmc.midiDisplay = () };
+		mmc.midiDisplay.model ?? {
+			mmc.midiDisplay.model = Ref((
 				src: "source",
 				chan: "chan",
 				ctrl: "ctrl",

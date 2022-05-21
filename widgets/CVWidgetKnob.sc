@@ -1,7 +1,7 @@
 CVWidgetKnob : AbstractCVWidget {
 	var <name, <cv;
-
 	var <wmc; //widget models and controllers
+
 	var <syncKeys, syncedActions;
 	var <oscConnections, <midiConnections;
 
@@ -63,56 +63,37 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc.cvGuiConnections.model = Ref([true, true])
 		};
 
-		/*wmc.widgetDisplay ?? { wmc.widgetDisplay = () };
-		wmc.widgetDisplay.model ?? {
-			wmc.widgetDisplay.model = Ref((
-				// midiSrc: "source",
-				// midiChan: "chan",
-				// midiCtrl: "ctrl",
-				// midiLearn: "L",
-				midiButton: ["edit MIDI", AbstractCVWidgetGui.stringColor, AbstractCVWidgetGui.backgroundColor],
-				specButton: ["edit Spec", AbstractCVWidgetGui.specsStringColor, AbstractCVWidgetGui.specsBackgroundColor],
-				actionButton: ["actions (0/0)", AbstractCVWidgetGui.actionsStringColor, AbstractCVWidgetGui.actionsBackgroundColor]
-			))
-		};*/
-
-		// we want to allow more than one MIDI/OSC connection...
-		// hence, we need name slots for each connection
-
 		/***
 		* OSC connections - namespace: \osc
 		* expecting a unique name for every connection
 		*/
-		wmc.osc ?? { wmc.osc = () };
-		wmc.midi ?? { wmc.midi = () };
-
-		"wmc: %".format(wmc).postln;
+		wmc.osc ?? { wmc.osc = List[] };
+		wmc.midi ?? { wmc.midi = List[] };
 	}
 
-	initOscModelsControllers { |name|
-		var thisWmcOsc, thisWmcMidi;
-
-		// sanitize 'name'
-		name = name.asSymbol;
-		// wmc.osc[name] ?? {
-		// 	wmc.osc.put(name, ());
-		// 	thisWmcOsc = wmc.osc[name];
-		//
-		// 	thisWmcOsc.oscCalibration ?? { thisWmcOsc.oscCalibration = () };
-		// 	thisWmcOsc.oscCalibration.model ?? {
-		// 		thisWmcOsc.oscCalibration.model = Ref(this.oscCalibration);
-		// 	};
-		//
-		// };
-		wmc.midi[name] ?? {
-			wmc.midi.put(name, ());
-			thisWmcMidi = wmc.midi[name];
-
+	initControllerActions {
+		#[
+			prInitOscCalibration,
+			prInitSpecControl,
+			prInitMidiConnect,
+			prInitMidiOptions,
+			prInitOscConnect,
+			prInitOscInputRange,
+			prInitActionsControl
+		].do { |method|
+			this.perform(method, wmc, cv)
 		}
 	}
 
 	// the CV's ControlSpec
-	setSpec {}
+	setSpec { |spec|
+		var thisSpec;
+		if((thisSpec = spec.asSpec).isKindOf(ControlSpec).not, {
+			Error("No valid ControlSpec given for setSpec.").throw;
+		});
+		wmc.cvSpec.model.value_(thisSpec).changedKeys(synchKeys);
+	}
+
 	getSpec {}
 	// CV actions
 	addAction {}
@@ -140,7 +121,4 @@ CVWidgetKnob : AbstractCVWidget {
 	getOscInputConstraints {}
 	oscConnect {}
 	oscDisconnect {}
-
-	initControllerActions {}
-
 }

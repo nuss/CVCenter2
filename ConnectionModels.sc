@@ -40,11 +40,9 @@ OscConnectionModel {
 			mc.oscConnection.model = Ref(false);
 		};
 
-		// TODO: must go into GUI specific class
-		mc.oscDisplay ?? { mc.oscDisplay = () };
-		mc.oscDisplay.model ?? {
-			mc.oscDisplay.model = AbstractCVWidgetGui.defaultOscDisplayModel
-		}
+		// add model to list of connection
+		// models in the instance' model
+		widget.wmc.osc.add(mc);
 	}
 }
 
@@ -89,6 +87,10 @@ MidiConnectionModel {
 		mc.midiConnection ?? { mc.midiConnection = () };
 		mc.midiConnection.model ?? {
 			mc.midiConnection.model = Red(nil);
-		}
+		};
+
+		// add model to list of connection
+		// models in the instance' model
+		widget.wmc.midi.add(mc);
 	}
 }
