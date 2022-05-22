@@ -18,7 +18,7 @@ OscConnectionModel {
 		this.initModelsAndControllers;
 	}
 
-	initModelsAndControllers { |modelsControllers|
+	initModels { |modelsControllers|
 		if (modelsControllers.notNil) {
 			mc = modelsControllers;
 		} {
@@ -66,7 +66,7 @@ MidiConnectionModel {
 		this.initModelsAndControllers();
 	}
 
-	initModelsAndControllers { |modelsControllers|
+	initModels { |modelsControllers|
 		if (modelsControllers.notNil) {
 			mc = modelsControllers;
 		} {

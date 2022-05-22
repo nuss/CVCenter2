@@ -15,6 +15,7 @@ CVWidgetKnob : AbstractCVWidget {
 		};
 
 		cv ?? { cv = CV.new };
+		syncKeys ?? { syncKeys = [\default] };
 
 		all[name] ?? { all.put(this) };
 		#oscConnections, midiConnections = ()!2;
@@ -35,10 +36,10 @@ CVWidgetKnob : AbstractCVWidget {
 
 		syncKeys ?? { syncKeys = [\default] };
 
-		this.initModelsAndControllers;
+		this.initModels;
 	}
 
-	initModelsAndControllers { |modelsControllers|
+	initModels { |modelsControllers|
 		if (modelsControllers.notNil) {
 			wmc = modelsControllers
 		} {
@@ -63,15 +64,14 @@ CVWidgetKnob : AbstractCVWidget {
 			wmc.cvGuiConnections.model = Ref([true, true])
 		};
 
-		/***
-		* OSC connections - namespace: \osc
-		* expecting a unique name for every connection
-		*/
+		// each OSC/MIDI connection needs its own model
 		wmc.osc ?? { wmc.osc = List[] };
 		wmc.midi ?? { wmc.midi = List[] };
+
+		this.initControllers;
 	}
 
-	initControllerActions {
+	initControllers {
 		#[
 			prInitOscCalibration,
 			prInitSpecControl,
@@ -87,21 +87,42 @@ CVWidgetKnob : AbstractCVWidget {
 
 	// the CV's ControlSpec
 	setSpec { |spec|
-		var thisSpec;
-		if((thisSpec = spec.asSpec).isKindOf(ControlSpec).not, {
+		if((spec = spec.asSpec).isKindOf(ControlSpec).not, {
 			Error("No valid ControlSpec given for setSpec.").throw;
 		});
-		wmc.cvSpec.model.value_(thisSpec).changedKeys(synchKeys);
+		wmc.cvSpec.model.value_(spec).changedKeys(syncKeys);
 	}
 
-	getSpec {}
+	getSpec {
+		^cv.spec;
+	}
+
 	// CV actions
 	addAction {}
 	removeAction {}
 	activateAction {}
 	// MIDI
-	setMidiMode {}
-	getMidiMode {}
+	// TODO: needs to be handled by connection
+	setMidiMode { |mode, connection|
+		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
+			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
+		};
+		if (connection.isNil) {
+			midiConnections.do(_.setMidiMode(mode))
+		} {
+			// what is a connection - the instance? its name? can it be both?
+			connection.setMidiMode(mode)
+		}
+	}
+
+	getMidiMode { |connection|
+		if (connection.isNil) {
+			^midiConnections.collect(_.getMidiMode);
+		} {
+			^connection.getMidiMode;
+		}
+	}
+
 	setMidiMean {}
 	getMidiMean {}
 	setSoftWithin {}
@@ -121,4 +142,22 @@ CVWidgetKnob : AbstractCVWidget {
 	getOscInputConstraints {}
 	oscConnect {}
 	oscDisconnect {}
+	// init controllers (private)
+	prInitOscCalibration {}
+
+	prInitSpecControl {
+		var controller = wmc.cvSpec.controller;
+		controller ?? {
+			controller = SimpleController(wmc.cvSpec.model);
+		};
+		controller.put(\default, { |changer, what, moreArgs|
+			cv.spec_(changer.value);
+		})
+	}
+
+	prInitMidiConnect {}
+	prInitMidiOptions {}
+	prInitOscConnect {}
+	prInitOscInputRange {}
+	prInitActionsControl {}
 }

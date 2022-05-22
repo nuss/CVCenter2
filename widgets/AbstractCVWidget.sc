@@ -69,6 +69,6 @@ AbstractCVWidget {
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
 
 	/*** Initializing models and controllers ***/
-	initControllersAndModels { this.subclassResponsibility(thisMethod) }
-	initControllerActions { this.subclassResponsibility(thisMethod) }
+	initModels { this.subclassResponsibility(thisMethod) }
+	initControllers { this.subclassResponsibility(thisMethod) }
 }

@@ -1,4 +1,4 @@
-OscConnectionViewModel {
+OscConnectionViewMC {
 	classvar <all;
 	var <oscConnection;
 
@@ -9,15 +9,15 @@ OscConnectionViewModel {
 	init {
 		all ?? { all = List[] };
 		all.add(this);
-		this.initModelAndControllers
+		this.initModels
 	}
 
-	initModelsAndControllers { |modelsControllers|
+	initModels { |modelsControllers|
 		var mmc = oscConnection.mc;
 		if (modelsControllers.notNil) {
 			mmc = mmc ++ modelsControllers;
 		} {
-			Error("No parent OscConnectionModel given for OscConnectionViewModel given.").throw;
+			Error("No parent OscConnectionModel given for OscConnectionViewMC given.").throw;
 		};
 
 		mmc.oscDisplay ?? { mmc.oscDisplay = () };
@@ -36,7 +36,7 @@ OscConnectionViewModel {
 	}
 }
 
-MidiConnectionViewModel {
+MidiConnectionViewMC {
 	classvar <all;
 	var <midiConnection;
 
@@ -47,15 +47,15 @@ MidiConnectionViewModel {
 	init {
 		all ?? { all = List[] };
 		all.add(this);
-		this.initModelAndControllers
+		this.initModels
 	}
 
-	initModelsAndControllers { |modelsControllers|
+	initModels { |modelsControllers|
 		var mmc = midiConnection.mc;
 		if (modelsControllers.notNil) {
 			mmc = mmc ++ modelsControllers;
 		} {
-			Error("No parent MidiConnectionModel given for MidiConnectionViewModel given.").throw;
+			Error("No parent MidiConnectionModel given for MidiConnectionViewMC given.").throw;
 		};
 
 		mmc.midiDisplay ?? { mmc.midiDisplay = () };
