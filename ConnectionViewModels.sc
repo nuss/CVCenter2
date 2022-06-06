@@ -17,7 +17,7 @@ OscConnectionViewMC {
 		if (modelsControllers.notNil) {
 			mmc = mmc ++ modelsControllers;
 		} {
-			Error("No parent OscConnectionModel given for OscConnectionViewMC given.").throw;
+			Error("No parent OscConnection given for OscConnectionViewMC given.").throw;
 		};
 
 		mmc.oscDisplay ?? { mmc.oscDisplay = () };
@@ -55,7 +55,7 @@ MidiConnectionViewMC {
 		if (modelsControllers.notNil) {
 			mmc = mmc ++ modelsControllers;
 		} {
-			Error("No parent MidiConnectionModel given for MidiConnectionViewMC given.").throw;
+			Error("No parent MidiConnection given for MidiConnectionViewMC given.").throw;
 		};
 
 		mmc.midiDisplay ?? { mmc.midiDisplay = () };
@@ -68,4 +68,5 @@ MidiConnectionViewMC {
 			))
 		}
 	}
+
 }

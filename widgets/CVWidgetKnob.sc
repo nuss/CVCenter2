@@ -87,9 +87,9 @@ CVWidgetKnob : AbstractCVWidget {
 
 	// the CV's ControlSpec
 	setSpec { |spec|
-		if((spec = spec.asSpec).isKindOf(ControlSpec).not, {
+		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
 			Error("No valid ControlSpec given for setSpec.").throw;
-		});
+		};
 		wmc.cvSpec.model.value_(spec).changedKeys(syncKeys);
 	}
 
@@ -101,21 +101,26 @@ CVWidgetKnob : AbstractCVWidget {
 	addAction {}
 	removeAction {}
 	activateAction {}
+
 	// MIDI
-	// TODO: needs to be handled by connection
 	setMidiMode { |mode, connection|
-		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
-			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
+		// connection can be a Symbol or a MidiConnection instance
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
 		};
+
 		if (connection.isNil) {
 			midiConnections.do(_.setMidiMode(mode))
 		} {
-			// what is a connection - the instance? its name? can it be both?
 			connection.setMidiMode(mode)
 		}
 	}
 
 	getMidiMode { |connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection];
+		};
+
 		if (connection.isNil) {
 			^midiConnections.collect(_.getMidiMode);
 		} {
@@ -123,14 +128,103 @@ CVWidgetKnob : AbstractCVWidget {
 		}
 	}
 
-	setMidiMean {}
-	getMidiMean {}
-	setSoftWithin {}
-	getSoftWithin {}
-	setCtrlButtonBank {}
-	getCtrlButtonBank {}
-	setMidiResolution {}
-	getMidiResolution {}
+	setMidiMean { |meanval, connection|
+		// connection can be a Symbol or a MidiConnection instance
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			midiConnections.do(_.setMidiMean(meanval))
+		} {
+			connection.setMidiMean(meanval)
+		}
+	}
+
+	getMidiMean { |connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection];
+		};
+
+		if (connection.isNil) {
+			^midiConnections.collect(_.getMidiMean)
+		} {
+			^connection.getMidiMean;
+		}
+	}
+
+	setSoftWithin { |threshold, connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			midiConnections.do(_.setSoftWithin(threshold));
+		} {
+			connection.setSoftWithin(threshold);
+		}
+	}
+
+	getSoftWithin { |connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			^midiConnections.collect(_.getSoftWithin);
+		} {
+			^connection.getSoftWithin;
+		}
+	}
+
+	setCtrlButtonBank { |numSliders, connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			midiConnections.do(_.setCtrlButtonBank(numSliders));
+		} {
+			connection.setCtrlButtonBank(numSliders);
+		}
+	}
+
+	getCtrlButtonBank {	|connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			^midiConnections.collect(_.getCtrlButtonBank);
+		} {
+			^connection.getCtrlButtonBank;
+		}
+	}
+
+	setMidiResolution { |resolution, connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			midiConnections.do(_.setMidiResolution(resolution));
+		} {
+			connection.setMidiResolution(resolution);
+		}
+	}
+
+	getMidiResolution {
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		if (connection.isNil) {
+			^midiConnections.collect(_.getMidiResolution);
+		} {
+			^connection.getMidiResolution;
+		}
+	}
+
 	midiConnect {}
 	midiDisconnect {}
 	// OSC

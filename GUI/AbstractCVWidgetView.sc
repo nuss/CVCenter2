@@ -8,7 +8,7 @@ AbstractCVWidgetView : SCViewHolder {
 	classvar <>actionsStringColor, <>actionsBackgroundColor;
 
 	*initClass {
-		this.stringColor_(Color(0.3, 0.3, 0.3));
+		this.stringColor = Color(0.3, 0.3, 0.3);
 		this.backgroundColor = Color(0.95, 0.95, 0.95);
 		this.tfStringColor = Color(0.05, 0.05, 0.05);
 		this.tfBackgroundColor = Color(0.95, 0.95, 0.95);
