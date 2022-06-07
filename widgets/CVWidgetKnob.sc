@@ -213,7 +213,7 @@ CVWidgetKnob : AbstractCVWidget {
 		}
 	}
 
-	getMidiResolution {
+	getMidiResolution { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections[connection]
 		};
