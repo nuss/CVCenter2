@@ -1,7 +1,8 @@
 AbstractCVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>midiSources, <>shortcuts, prefs;
-	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 0.1, <>ctrlButtonBank, <>softWithin = 0.1, <>oscCalibration = true;
+	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 0.1, <>ctrlButtonBank, <>softWithin = 0.1;
+	classvar <>oscCalibration = true;
 
 	*initClass {
 		var scPrefs = false;

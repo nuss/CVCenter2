@@ -73,12 +73,7 @@ CVWidgetKnob : AbstractCVWidget {
 
 	initControllers {
 		#[
-			prInitOscCalibration,
 			prInitSpecControl,
-			prInitMidiConnect,
-			prInitMidiOptions,
-			prInitOscConnect,
-			prInitOscInputRange,
 			prInitActionsControl
 		].do { |method|
 			this.perform(method, wmc, cv)
@@ -225,8 +220,31 @@ CVWidgetKnob : AbstractCVWidget {
 		}
 	}
 
-	midiConnect {}
-	midiDisconnect {}
+	midiConnect { |connection, uid, chan, num|
+		// create new annonymous connection if none is given
+		connection ?? {
+			connection = MidiConnection(this);
+		};
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection];
+		};
+
+		// pass execution to connection
+		connection.midiConnect(uid, chan, num);
+	}
+
+	midiDisconnect { |connection|
+		connection ?? {
+			Error("No connection given. Don't know which connection to disconnect!");
+		};
+		if (connection.class == Symbol) {
+			connection = midiConnections[connection]
+		};
+
+		// pass execution to connection
+		connection.midiDisconnect
+	}
+
 	// OSC
 	setOscCalibration {}
 	getOscCalibration {}
@@ -237,8 +255,6 @@ CVWidgetKnob : AbstractCVWidget {
 	oscConnect {}
 	oscDisconnect {}
 	// init controllers (private)
-	prInitOscCalibration {}
-
 	prInitSpecControl {
 		var controller = wmc.cvSpec.controller;
 		controller ?? {
@@ -249,9 +265,5 @@ CVWidgetKnob : AbstractCVWidget {
 		})
 	}
 
-	prInitMidiConnect {}
-	prInitMidiOptions {}
-	prInitOscConnect {}
-	prInitOscInputRange {}
 	prInitActionsControl {}
 }
