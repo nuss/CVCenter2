@@ -5,8 +5,8 @@ CVWidgetKnob : AbstractCVWidget {
 	var <syncKeys, syncedActions;
 	var <oscConnections, <midiConnections;
 
-	*new { |name, cv|
-		^super.newCopyArgs(name, cv).init/*(setup, action)*/;
+	*new { |name, cv, setup, action|
+		^super.newCopyArgs(name, cv).init(setup, action);
 	}
 
 	init { |setupArgs, action|
@@ -59,10 +59,10 @@ CVWidgetKnob : AbstractCVWidget {
 
 
 		// should probly go to an appropriate place in the widget's view
-		wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
+		/*wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
 		wmc.cvGuiConnections.model ?? {
 			wmc.cvGuiConnections.model = Ref([true, true])
-		};
+		};*/
 
 		// each OSC/MIDI connection needs its own model
 		wmc.osc ?? { wmc.osc = List[] };
