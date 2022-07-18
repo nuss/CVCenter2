@@ -1,10 +1,14 @@
 OscConnection {
-	classvar <all;
+	classvar <all, cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
-	var cAnons = 0;
 
 	*new { |widget, name|
+		if (widget.isNil or: {
+			widget.isKindOf(AbstractCVWidget).not
+		}) {
+			Error("An OscConnection can only be created for an existing CVWidget").throw;
+		};
 		^super.newCopyArgs(widget, name).init;
 	}
 
@@ -13,8 +17,9 @@ OscConnection {
 		all.add(this);
 		this.name ?? {
 			cAnons = cAnons + 1;
-			this.name_("New OSC Connection %".format(cAnons));
+			this.name_("OSC Connection %".format(cAnons).asSymbol);
 		};
+		widget.oscConnections.put(this.name, this);
 		this.initModels;
 	}
 
@@ -63,23 +68,27 @@ OscConnection {
 }
 
 MidiConnection {
-	classvar <all;
+	classvar <all, cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
-	var cAnons = 0;
 
 	*new { |widget, name|
+		if (widget.isNil or: {
+			widget.isKindOf(AbstractCVWidget).not
+		}) {
+			Error("A MidiConnection can only be created for an existing CVWidget").throw;
+		};
 		^super.newCopyArgs(widget, name).init;
 	}
 
 	init {
-		var anons;
 		all ?? { all = List[] };
-		all.add[this];
+		all.add(this);
 		this.name ?? {
 			cAnons = cAnons + 1;
-			this.name_("New MIDI Connection %".format(cAnons));
+			this.name_("MIDI Connection %".format(cAnons).asSymbol);
 		};
+		widget.midiConnections.put(this.name, this);
 		this.initModels;
 	}
 
@@ -120,6 +129,18 @@ MidiConnection {
 		].do { |method|
 			this.perform(method, mc, widget.cv)
 		}
+	}
+
+	// private: default controllers
+	prInitMidiOptions {}
+
+	prInitMidiConnect {
+		mc.midiConnection.controller ?? {
+			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
+		};
+		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
+
+		})
 	}
 
 	setMidiMode { |mode|
@@ -220,17 +241,6 @@ MidiConnection {
 
 	midiDisconnect {
 		mc.midiConnection.model.value_(nil).changedKeys(widget.syncKeys);
-	}
-
-	prInitMidiOptions {}
-
-	prInitMidiConnect {
-		mc.midiConnection.controller ?? {
-			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
-		};
-		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
-
-		})
 	}
 
 }
