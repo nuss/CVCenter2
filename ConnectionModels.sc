@@ -1,5 +1,5 @@
 OscConnection {
-	classvar <all, cAnons = 0;
+	classvar cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
 
@@ -13,13 +13,12 @@ OscConnection {
 	}
 
 	init {
-		all ?? { all = List[] };
-		all.add(this);
 		this.name ?? {
-			cAnons = cAnons + 1;
-			this.name_("OSC Connection %".format(cAnons).asSymbol);
+			widget.cOscConnections = widget.cOscConnections + 1;
+			this.name_("OSC Connection %".format(widget.cOscConnections).asSymbol);
 		};
-		widget.oscConnections.put(this.name, this);
+		// add to the widget's oscConnection and automatically update GUI
+		widget.oscConnections.add(this).changed(\value);
 		this.initModels;
 	}
 
@@ -65,10 +64,50 @@ OscConnection {
 	prInitOscCalibration {}
 	prInitOscInputRange {}
 	prInitOscConnect {}
+
+	gui {
+		widget.oscConnectionsDialog = OscConnectionView(this).front;
+	}
+
+	remove {
+		// remove views, OSCdefs...
+		^nil;
+	}
+
+	setMidiMode { |mode|
+
+	}
+}
+
+OscConnectionViewModel {
+	var <oscConnection;
+
+	*new { |oscConnection|
+		^super.newCopyArgs(oscConnection).init;
+	}
+
+	init {
+		this.initModels;
+	}
+
+	initModels {
+		var mmc = oscConnection.mc;
+		mmc.oscDisplay ?? { mmc.oscDisplay = () };
+		mmc.oscDisplay.model ?? {
+			mmc.oscDiplay.mudel = Ref((
+				ipField: nil,
+				portField: nil,
+				nameField: "/my/cmd/name",
+				index: 1,
+				connectorButVal: 0,
+				editEnabled: true
+			))
+		}
+	}
 }
 
 MidiConnection {
-	classvar <all, cAnons = 0;
+	classvar cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
 
@@ -82,13 +121,11 @@ MidiConnection {
 	}
 
 	init {
-		all ?? { all = List[] };
-		all.add(this);
 		this.name ?? {
-			cAnons = cAnons + 1;
-			this.name_("MIDI Connection %".format(cAnons).asSymbol);
+			widget.cMidiConnections = widget.cMidiConnections + 1;
+			this.name_("MIDI Connection %".format(widget.cMidiConnections).asSymbol);
 		};
-		widget.midiConnections.put(this.name, this);
+		widget.midiConnections.add(this).changed(\value);
 		this.initModels;
 	}
 
@@ -241,6 +278,38 @@ MidiConnection {
 
 	midiDisconnect {
 		mc.midiConnection.model.value_(nil).changedKeys(widget.syncKeys);
+	}
+
+	remove {
+		// remove views, MIDIdefs...
+		^nil;
+	}
+
+}
+
+MidiConnectionViewModel {
+	var <midiConnection;
+
+	*new { |midiConnection|
+		^super.newCopyArgs(midiConnection).init;
+	}
+
+	init {
+		this.initModels;
+	}
+
+	initModels {
+		var mmc = midiConnection.mc;
+		//
+		mmc.midiDisplay ?? { mmc.midiDisplay = () };
+		mmc.midiDisplay.model ?? {
+			mmc.midiDisplay.model = Ref((
+				src: "source",
+				chan: "chan",
+				ctrl: "ctrl",
+				learn: "L"
+			))
+		}
 	}
 
 }

@@ -1,6 +1,8 @@
 CVWidgetKnob : AbstractCVWidget {
 	var <name, <cv;
 	var <wmc; //widget models and controllers
+	var <>cOscConnections = 0, <>cMidiConnections = 0;
+	var oscConnectionsDialog, midiConnectionsDialog;
 
 	var <syncKeys, syncedActions;
 	var <oscConnections, <midiConnections;
@@ -17,8 +19,19 @@ CVWidgetKnob : AbstractCVWidget {
 		cv ?? { cv = CV.new };
 		syncKeys ?? { syncKeys = [\default] };
 
-		all[name] ?? { all.put(this) };
-		#oscConnections, midiConnections = ()!2;
+		all[name] ?? { all.put(name, this) };
+		#oscConnections, midiConnections = List[]!2;
+		oscConnections.addDependant({
+			// if dropdown menu is present automatically add/remove item to/from items
+			if (oscConnectionsDialog.notNil or:{ oscConnectionsDialog.isClosed.not }) {
+				oscConnectionsDialog.conSelect.items_(oscConnections.collect(_.name));
+			};
+		});
+		midiConnections.addDependant({
+			if (midiConnectionsDialog.notNil or:{ midiConnectionsDialog.isClosed.not }) {
+				midiConnectionsDialog.conSelect.items_(midiConnections.collect(_.name));
+			}
+		});
 
 		setupArgs !? {
 			setupArgs.isKindOf(Dictionary).not.if {
@@ -61,7 +74,7 @@ CVWidgetKnob : AbstractCVWidget {
 		// should probly go to an appropriate place in the widget's view
 		/*wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
 		wmc.cvGuiConnections.model ?? {
-			wmc.cvGuiConnections.model = Ref([true, true])
+		wmc.cvGuiConnections.model = Ref([true, true])
 		};*/
 
 		// each OSC/MIDI connection needs its own model

@@ -30,7 +30,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.wmc.keys, Set[\cvSpec, \actions, \osc, \midi], "A CVWidgetKnob's wmc variable (an Event) should by default hold 4 keys: \cvSpec, \actions, \osc, \midi");
 		oscConnection = OscConnection(widget);
 		this.assertEquals(widget.oscConnections.size, 1, "After adding an empty OscConnection to the widget the widget's 'oscConnections' should hold one OscConnection");
-		this.assertEquals(widget.oscConnections.keys.includes('OSC Connection 1'), true, "A new anonymous OscConnection should be named 'OSC Connection', appended by a number")
+		this.assertEquals(widget.oscConnections.keys.includes('OSC Connection 1'), true, "A new anonymous OscConnection should be named 'OSC Connection', appended by a number");
 		midiConnection = MidiConnection(widget);
 		this.assertEquals(widget.midiConnections.size, 1, "After adding an empty MidiConnection to the widget the widget's 'midiConnections' should hold one MidiConnection");
 		this.assertEquals(widget.midiConnections.keys.includes('MIDI Connection 1'), true, "A new anonymous MidiConnection should be named 'MIDI Connection', appended by a number")
