@@ -1,35 +1,9 @@
-ConnectionStackView : CompositeView {
-	var <widget;
-	var parent;
-	var connectionSelect, editorStack;
-
-	*new { |widget, parent|
-		^super.new.init(widget, parent);
-	}
-
-	init { |wdgt, parent|
-		widget = wdgt;
-		parent ?? {
-			parent = Window("%: OSC connections".format(widget.name)).front
-		};
-		parent.layout_(
-			VLayout([
-				connectionSelect = PopUpMenu(),
-				editorStack = StackLayout()
-			])
-		)l
-	}
-
-	front {
-		this.front;
-	}
-}
-
 OscConnectionEditorView : CompositeView {
-	var <widget;
+	var <widget, <parent;
 	// GUI elements
+	var connectionSelect;
 	var ipSelect, restrictToPortCheckBox;
-	var deviceSelect, oscMsgSelect, newDeviceBut;
+	var deviceSelect, oscCmdSelect, newDeviceBut;
 	var oscCmdTextField, oscCmdSlotNumBox;
 	var inputConstraintsLoNumBox, inputConstraintsHiNumBox, zeroCrossCorrectStaticText;
 	var calibrationButton, resetButton;
@@ -42,11 +16,50 @@ OscConnectionEditorView : CompositeView {
 	// -> must be considered when adding the model to the widget's
 	// model - maybe the model can't be kept with the view?
 	*new { |widget, parent|
-		^super.newCopyArgs(widget).init(parent.asView);
+		^super.new.init(widget, parent.asView);
 	}
 
-	init { |parent|
+	init { |wdgt, parentView|
+		widget = wdgt;
+		parentView ?? {
+			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
+		};
+		parent.layout_(
+			VLayout(
+				connectionSelect = PopUpMenu(this),
+				HLayout(
+					ipSelect = PopUpMenu(this),
+					StaticText(this).string_("restrict to port"),
+					restrictToPortCheckBox = CheckBox(this)
+				),
+				StaticText(this).string_("OSC command name - either select from list provided by the selected device or set custom one"),
+				HLayout(
+					deviceSelect = PopUpMenu(this),
+					oscCmdSelect = PopUpMenu(this),
+					newDeviceBut = Button(this)
+				),
+				HLayout(
+					oscCmdTextField = TextField(this),
+					oscCmdSlotNumBox = NumberBox(this)
+				),
+				StaticText(this).string_("OSC input constraints, zero-crossing correction"),
+				HLayout(
+					inputConstraintsLoNumBox = NumberBox(this),
+					inputConstraintsHiNumBox = NumberBox(this),
+					zeroCrossCorrectStaticText = StaticText(this),
+					calibrationButton = Button(this),
+					resetButton = Button(this),
+				),
+				specConstraintsStaticText = StaticText(this).string_("current widget spec constraints (lo/hi): 0/0"),
+				StaticText(this).string_("input to output mapping"),
+				inOutMappingSelect = PopUpMenu(this),
+				connectionButton = Button(this)
+			)
+		)
+	}
 
+	front {
+		parent.front;
 	}
 }
 
