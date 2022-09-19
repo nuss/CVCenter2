@@ -1,7 +1,7 @@
 OscConnectionEditorView : CompositeView {
-	var <widget, <parent;
+	var <widget, <parent, <mc;
 	// GUI elements
-	var connectionSelect;
+	var connectionSelect, addButton, removeButton;
 	var ipSelect, restrictToPortCheckBox;
 	var deviceSelect, oscCmdSelect, newDeviceBut;
 	var oscCmdTextField, oscCmdSlotNumBox;
@@ -24,9 +24,21 @@ OscConnectionEditorView : CompositeView {
 		parentView ?? {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
 		};
+		// Just create a new OscConnection if none exists
+		// it will automatically be added to the widget's list
+		// of OscConnections within OscConnection:-init - should
+		// also update the connectionSelect's items
+		if (widget.oscConnections.isEmpty) {
+			OscConnection(widget)
+		};
+		mc = widget.oscConnections;
 		parent.layout_(
 			VLayout(
-				connectionSelect = PopUpMenu(this),
+				HLayout(
+					connectionSelect = PopUpMenu(this),
+					addButton = Button(this).states_([["+"]]),
+					removeButton = Button(this).states_([["-"]])
+				),
 				HLayout(
 					ipSelect = PopUpMenu(this),
 					StaticText(this).string_("restrict to port"),
@@ -55,7 +67,7 @@ OscConnectionEditorView : CompositeView {
 				inOutMappingSelect = PopUpMenu(this),
 				connectionButton = Button(this)
 			)
-		)
+		);
 	}
 
 	front {

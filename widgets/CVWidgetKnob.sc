@@ -23,7 +23,7 @@ CVWidgetKnob : AbstractCVWidget {
 		#oscConnections, midiConnections = List[]!2;
 		oscConnections.addDependant({
 			// if dropdown menu is present automatically add/remove item to/from items
-			if (oscConnectionsDialog.notNil or:{ oscConnectionsDialog.isClosed.not }) {
+			if (oscConnectionsDialog.notNil and:{ oscConnectionsDialog.isClosed.not }) {
 				oscConnectionsDialog.conSelect.items_(oscConnections.collect(_.name));
 			};
 		});

@@ -44,6 +44,18 @@ OscConnection {
 			mc.oscConnection.model = Ref(false);
 		};
 
+		mc.oscDisplay ?? { mc.oscDisplay = () };
+		mc.oscDisplay.model ?? {
+			mc.oscDisplay.model = Ref((
+				ipField: nil,
+				portField: nil,
+				nameField: "/my/cmd/name",
+				index: 1,
+				connectorButVal: 0,
+				editEnabled: true
+			))
+		};
+
 		// add model to list of connection
 		// models in the instance' model
 		widget.wmc.osc.add(mc);
@@ -55,7 +67,8 @@ OscConnection {
 		#[
 			prInitOscCalibration,
 			prInitOscInputRange,
-			prInitOscConnect
+			prInitOscConnect,
+			prInitOscDisplay
 		].do { |method|
 			this.perform(method, mc, widget.cv)
 		}
@@ -64,10 +77,7 @@ OscConnection {
 	prInitOscCalibration {}
 	prInitOscInputRange {}
 	prInitOscConnect {}
-
-	gui {
-		widget.oscConnectionsDialog = OscConnectionView(this).front;
-	}
+	prInitOscDisplay {}
 
 	remove {
 		// remove views, OSCdefs...
@@ -76,33 +86,6 @@ OscConnection {
 
 	setMidiMode { |mode|
 
-	}
-}
-
-OscConnectionViewModel {
-	var <oscConnection;
-
-	*new { |oscConnection|
-		^super.newCopyArgs(oscConnection).init;
-	}
-
-	init {
-		this.initModels;
-	}
-
-	initModels {
-		var mmc = oscConnection.mc;
-		mmc.oscDisplay ?? { mmc.oscDisplay = () };
-		mmc.oscDisplay.model ?? {
-			mmc.oscDiplay.mudel = Ref((
-				ipField: nil,
-				portField: nil,
-				nameField: "/my/cmd/name",
-				index: 1,
-				connectorButVal: 0,
-				editEnabled: true
-			))
-		}
 	}
 }
 
@@ -152,6 +135,16 @@ MidiConnection {
 			mc.midiConnection.model = Ref(nil);
 		};
 
+		mc.midiDisplay ?? { mc.midiDisplay = () };
+		mc.midiDisplay.model ?? {
+			mc.midiDisplay.model = Ref((
+				src: "source",
+				chan: "chan",
+				ctrl: "ctrl",
+				learn: "L"
+			))
+		};
+
 		// add model to list of connection
 		// models in the instance' model
 		widget.wmc.midi.add(mc);
@@ -162,7 +155,8 @@ MidiConnection {
 	initControllers {
 		#[
 			prInitMidiOptions,
-			prInitMidiConnect
+			prInitMidiConnect,
+			prInitMidiDisplay
 		].do { |method|
 			this.perform(method, mc, widget.cv)
 		}
@@ -179,6 +173,8 @@ MidiConnection {
 
 		})
 	}
+
+	prInitMidiDisplay {}
 
 	setMidiMode { |mode|
 		// 14-bit MIDI mode?
@@ -283,33 +279,6 @@ MidiConnection {
 	remove {
 		// remove views, MIDIdefs...
 		^nil;
-	}
-
-}
-
-MidiConnectionViewModel {
-	var <midiConnection;
-
-	*new { |midiConnection|
-		^super.newCopyArgs(midiConnection).init;
-	}
-
-	init {
-		this.initModels;
-	}
-
-	initModels {
-		var mmc = midiConnection.mc;
-		//
-		mmc.midiDisplay ?? { mmc.midiDisplay = () };
-		mmc.midiDisplay.model ?? {
-			mmc.midiDisplay.model = Ref((
-				src: "source",
-				chan: "chan",
-				ctrl: "ctrl",
-				learn: "L"
-			))
-		}
 	}
 
 }
