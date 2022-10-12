@@ -466,7 +466,7 @@ CVCenterPreferences {
 					}
 				}, {
 					prefs[\shortcuts][\cvwidgeteditor]
-				}, { AbstractCVWidgetEditor.shortcuts }),
+				}, { CVWidgetEditor.shortcuts }),
 				true
 			);
 			// "prefs.globalShortcuts: %\n".postf(prefs.globalShortcuts);

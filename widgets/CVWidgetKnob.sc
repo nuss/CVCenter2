@@ -1,6 +1,7 @@
-CVWidgetKnob : AbstractCVWidget {
+CVWidgetKnob : CVWidget {
 	var <name, <cv;
-	var <wmc; //widget models and controllers
+	// ... see if I can move them to CVWidget
+	// var <wmc; //widget models and controllers
 	var <>cOscConnections = 0, <>cMidiConnections = 0;
 	var oscConnectionsDialog, midiConnectionsDialog;
 
@@ -8,15 +9,18 @@ CVWidgetKnob : AbstractCVWidget {
 	var <oscConnections, <midiConnections;
 
 	*new { |name, cv, setup, action|
-		^super.newCopyArgs(name, cv).init(setup, action);
+		^super.new.init(name, cv, setup, action);
 	}
 
-	init { |setupArgs, action|
-		name ?? {
+	init { |wdgtName, wdgtCV, setupArgs, action|
+		wdgtName ?? {
 			Error("No name provided for new CVWidgetKnob").throw;
 		};
 
-		cv ?? { cv = CV.new };
+		name = wdgtName.asSymbol;
+
+		if (wdgtCV.isNil) { cv = CV.new } { cv = wdgtCV };
+
 		syncKeys ?? { syncKeys = [\default] };
 
 		all[name] ?? { all.put(name, this) };
@@ -28,7 +32,7 @@ CVWidgetKnob : AbstractCVWidget {
 			};
 		});
 		midiConnections.addDependant({
-			if (midiConnectionsDialog.notNil or:{ midiConnectionsDialog.isClosed.not }) {
+			if (midiConnectionsDialog.notNil and:{ midiConnectionsDialog.isClosed.not }) {
 				midiConnectionsDialog.conSelect.items_(midiConnections.collect(_.name));
 			}
 		});

@@ -1,3 +1,3 @@
-CVWidget2D : AbstractCVWidget {
+CVWidget2D : CVWidget {
 
 }

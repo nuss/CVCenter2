@@ -1,4 +1,4 @@
-AbstractCVWidgetView : SCViewHolder {
+CVWidgetView : SCViewHolder {
 
 	classvar <>stringColor, <>backgroundColor;
 	classvar <>tfStringColor, <>tfBackgroundColor;

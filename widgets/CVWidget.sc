@@ -1,8 +1,13 @@
-AbstractCVWidget {
+CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>midiSources, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 0.1, <>ctrlButtonBank, <>softWithin = 0.1;
 	classvar <>oscCalibration = true;
+
+	// widget models and controllers
+	// defined individually in subclasses
+	var <wmc;
+	var syncKeys, syncedActions;
 
 	*initClass {
 		var scPrefs = false;
@@ -72,4 +77,38 @@ AbstractCVWidget {
 	/*** Initializing models and controllers ***/
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
+
+	// extend the API with custom controllers
+	extend { |key, func, proto=false ... controllers|
+		var thisKey, thisControllers;
+
+		thisKey = key.asSymbol;
+		thisControllers = controllers.collect({ |c| c.asSymbol });
+		syncedActions ?? { syncedActions = IdentityDictionary.new };
+
+		this.addSyncKey(thisKey, proto);
+		syncedActions.put(thisKey, func);
+
+		if (syncKeys.includes(thisKey)) {
+			Error("Sync key '%' is already in use!".format(thisKey)).throw
+		} {
+			// controllers -> must be a list of existing controllers
+			if (controllers.size == 0) {
+				// models and controllers are not a simply list of model/controller
+				// pairs - it will contain sub-Events for each Midi-/OscConnection
+				// FIXME: create recursive function to handle nesting
+				wmc.pairsDo { |k, v|
+					if (v.class == Event) {
+						// recurse
+					} {
+						if(k != \mapConstrainterHi and:{
+							k != \mapConstrainterLo
+						}) {
+							v.controller.put(thisKey, syncedActions[thisKey])
+						}
+					}
+				}
+			}
+		}
+	}
 }

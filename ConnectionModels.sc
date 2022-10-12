@@ -5,7 +5,7 @@ OscConnection {
 
 	*new { |widget, name|
 		if (widget.isNil or: {
-			widget.isKindOf(AbstractCVWidget).not
+			widget.isKindOf(CVWidget).not
 		}) {
 			Error("An OscConnection can only be created for an existing CVWidget").throw;
 		};
@@ -31,7 +31,7 @@ OscConnection {
 
 		mc.oscCalibration ?? { mc.oscCalibration = () };
 		mc.oscCalibration.model ?? {
-			mc.oscCalibration.model = Ref(AbstractCVWidget.oscCalibration);
+			mc.oscCalibration.model = Ref(CVWidget.oscCalibration);
 		};
 
 		mc.oscInputRange ?? { mc.oscInputRange = () };
@@ -77,7 +77,14 @@ OscConnection {
 	prInitOscCalibration {}
 	prInitOscInputRange {}
 	prInitOscConnect {}
-	prInitOscDisplay {}
+	prInitOscDisplay {
+		mc.oscDisplay.controller ?? {
+			mc.oscDisplay.controller = SimpleController(mc.oscDisplay.model);
+		};
+		mc.oscDisplay.controller.put(\default, { |changer, what, moreArgs|
+
+		})
+	}
 
 	remove {
 		// remove views, OSCdefs...
@@ -96,7 +103,7 @@ MidiConnection {
 
 	*new { |widget, name|
 		if (widget.isNil or: {
-			widget.isKindOf(AbstractCVWidget).not
+			widget.isKindOf(CVWidget).not
 		}) {
 			Error("A MidiConnection can only be created for an existing CVWidget").throw;
 		};
@@ -122,11 +129,11 @@ MidiConnection {
 		mc.midiOptions ?? { mc.midiOptions = () };
 		mc.midiOptions.model ?? {
 			mc.midiOptions.model = Ref((
-				midiMode: AbstractCVWidget.midiMode,
-				midiMean: AbstractCVWidget.midiMean,
-				ctrlButtonBank: AbstractCVWidget.ctrlButtonBank,
-				midiResolution: AbstractCVWidget.midiResolution,
-				softWithin: AbstractCVWidget.softWithin
+				midiMode: CVWidget.midiMode,
+				midiMean: CVWidget.midiMean,
+				ctrlButtonBank: CVWidget.ctrlButtonBank,
+				midiResolution: CVWidget.midiResolution,
+				softWithin: CVWidget.softWithin
 			))
 		};
 

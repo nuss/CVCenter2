@@ -1,12 +1,12 @@
-TestAbstractCVWidget : UnitTest {
+TestCVWidget : UnitTest {
 
 	test_globalSetup {
-		var setup = AbstractCVWidget.globalSetup;
-		this.assertEquals(setup.midiMode, 0, "AbstractCVWidget.midiMode should be 0 by default");
-		this.assertEquals(setup.midiResolution, 1, "AbstractCVWidget.midiResolution should be 1 by default");
-		this.assertEquals(setup.midiMean, 0.1, "AbstractCVWidget.midiMean should be 0.1 by default");
-		this.assertEquals(setup.ctrlButtonBank, nil, "AbstractCVWidget.ctrlButtonBank should be nil by default");
-		this.assertEquals(setup.softWithin, 0.1, "AbstractCVWidget.softWithin should be 0.1 by default");
+		var setup = CVWidget.globalSetup;
+		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default");
+		this.assertEquals(setup.midiResolution, 1, "CVWidget.midiResolution should be 1 by default");
+		this.assertEquals(setup.midiMean, 0.1, "CVWidget.midiMean should be 0.1 by default");
+		this.assertEquals(setup.ctrlButtonBank, nil, "CVWidget.ctrlButtonBank should be nil by default");
+		this.assertEquals(setup.softWithin, 0.1, "CVWidget.softWithin should be 0.1 by default");
 	}
 
 }
