@@ -2,10 +2,9 @@ CVWidgetKnob : CVWidget {
 	var <name, <cv;
 	// ... see if I can move them to CVWidget
 	// var <wmc; //widget models and controllers
-	var <>cOscConnections = 0, <>cMidiConnections = 0;
+	var <>numOscConnections = 0, <>numMidiConnections = 0;
 	var oscConnectionsDialog, midiConnectionsDialog;
 
-	var <syncKeys, syncedActions;
 	var <oscConnections, <midiConnections;
 
 	*new { |name, cv, setup, action|
@@ -21,7 +20,9 @@ CVWidgetKnob : CVWidget {
 
 		if (wdgtCV.isNil) { cv = CV.new } { cv = wdgtCV };
 
-		syncKeys ?? { syncKeys = [\default] };
+		syncKeysEvent ?? {
+			syncKeysEvent = (proto: List[\default], user: List[])
+		};
 
 		all[name] ?? { all.put(name, this) };
 		#oscConnections, midiConnections = List[]!2;
@@ -50,8 +51,6 @@ CVWidgetKnob : CVWidget {
 		};
 
 		action !? { this.addAction(\default, action) };
-
-		syncKeys ?? { syncKeys = [\default] };
 
 		this.initModels;
 	}
@@ -86,6 +85,12 @@ CVWidgetKnob : CVWidget {
 		wmc.midi ?? { wmc.midi = List[] };
 
 		this.initControllers;
+		// every new CVWidget should
+		// immediately be amended by
+		// an empty OscConnection
+		// resp. an empty MidiConnection
+		OscConnection(this);
+		MidiConnection(this);
 	}
 
 	initControllers {
@@ -102,7 +107,7 @@ CVWidgetKnob : CVWidget {
 		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
 			Error("No valid ControlSpec given for setSpec.").throw;
 		};
-		wmc.cvSpec.model.value_(spec).changedKeys(syncKeys);
+		wmc.cvSpec.model.value_(spec).changedKeys(this.syncKeys);
 	}
 
 	getSpec {
@@ -271,16 +276,24 @@ CVWidgetKnob : CVWidget {
 	getOscInputConstraints {}
 	oscConnect {}
 	oscDisconnect {}
+
 	// init controllers (private)
-	prInitSpecControl {
-		var controller = wmc.cvSpec.controller;
-		controller ?? {
-			controller = SimpleController(wmc.cvSpec.model);
+	prInitSpecControl { |wmc, cv|
+		wmc.cvSpec.controller ?? {
+			wmc.cvSpec.controller = SimpleController(wmc.cvSpec.model);
 		};
-		controller.put(\default, { |changer, what, moreArgs|
+		wmc.cvSpec.controller.put(\default, { |changer, what, moreArgs|
 			cv.spec_(changer.value);
 		})
 	}
 
-	prInitActionsControl {}
+	prInitActionsControl { |wmc, cv|
+		wmc.actions.controller ?? {
+			wmc.actions.controller = SimpleController(wmc.actions.model);
+		};
+		wmc.actions.controller.put(\default, { |changer, what, moreArgs|
+			// do something with changer.value
+		})
+	}
+
 }

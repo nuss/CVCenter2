@@ -14,8 +14,8 @@ OscConnection {
 
 	init {
 		this.name ?? {
-			widget.cOscConnections = widget.cOscConnections + 1;
-			this.name_("OSC Connection %".format(widget.cOscConnections).asSymbol);
+			widget.numOscConnections = widget.numOscConnections + 1;
+			this.name_("OSC Connection %".format(widget.numOscConnections).asSymbol);
 		};
 		// add to the widget's oscConnection and automatically update GUI
 		widget.oscConnections.add(this).changed(\value);
@@ -74,15 +74,39 @@ OscConnection {
 		}
 	}
 
-	prInitOscCalibration {}
-	prInitOscInputRange {}
-	prInitOscConnect {}
-	prInitOscDisplay {
+	prInitOscCalibration { |mc, cv|
+		mc.oscCalibration.controller ?? {
+			mc.oscCalibration.controller = SimpleController(mc.oscCalibration.model)
+		};
+		mc.oscCalibration.controller.put(\default, { |changer, what, moreArgs|
+			// do something with changer.value
+		})
+	}
+
+	prInitOscInputRange { |mc, cv|
+		mc.oscInputRange.controller ?? {
+			mc.oscInputRange.controller = SimpleController(mc.oscInputRange.model)
+		};
+		mc.oscInputRange.controller.put(\default, { |changer, what, moreArgs|
+			// do something with changer.value
+		})
+	}
+
+	prInitOscConnect { |mc, cv|
+		mc.oscConnection.controller ?? {
+			mc.oscConnection.controller = SimpleController(mc.oscConnection.model)
+		};
+		mc.oscConnection.controller.put(\default, { |changer, what, moreArgs|
+			// do something with changer.value
+		})
+	}
+
+	prInitOscDisplay { |mc, cv|
 		mc.oscDisplay.controller ?? {
 			mc.oscDisplay.controller = SimpleController(mc.oscDisplay.model);
 		};
 		mc.oscDisplay.controller.put(\default, { |changer, what, moreArgs|
-
+			// do something with changer.value
 		})
 	}
 
@@ -112,8 +136,8 @@ MidiConnection {
 
 	init {
 		this.name ?? {
-			widget.cMidiConnections = widget.cMidiConnections + 1;
-			this.name_("MIDI Connection %".format(widget.cMidiConnections).asSymbol);
+			widget.numMidiConnections = widget.numMidiConnections + 1;
+			this.name_("MIDI Connection %".format(widget.numMidiConnections).asSymbol);
 		};
 		widget.midiConnections.add(this).changed(\value);
 		this.initModels;
@@ -170,18 +194,32 @@ MidiConnection {
 	}
 
 	// private: default controllers
-	prInitMidiOptions {}
+	prInitMidiOptions {
+		mc.midiOptions.controller ?? {
+			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
+		};
+		mc.midiOptions.controller.put(\default, { |changer, what, moreArgs|
+			// ...
+		})
+	}
 
 	prInitMidiConnect {
 		mc.midiConnection.controller ?? {
 			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
 		};
 		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
-
+			// ...
 		})
 	}
 
-	prInitMidiDisplay {}
+	prInitMidiDisplay {
+		mc.midiDisplay.controller ?? {
+			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
+		};
+		mc.midiDisplay.controller.put(\default, { |changer, what, moreArgs|
+			// ...
+		})
+	}
 
 	setMidiMode { |mode|
 		// 14-bit MIDI mode?

@@ -7,7 +7,7 @@ CVWidget {
 	// widget models and controllers
 	// defined individually in subclasses
 	var <wmc;
-	var syncKeys, syncedActions;
+	var syncKeysEvent, syncedActions;
 
 	*initClass {
 		var scPrefs = false;
@@ -78,37 +78,97 @@ CVWidget {
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
 
+	// private
+	prAddSyncKey { |key, proto|
+		var thisKey = key.asSymbol;
+
+		if (proto) {
+			syncKeysEvent.proto.add(thisKey)
+		} { syncKeysEvent.user.add(thisKey) }
+	}
+
+	// private
+	prRemoveSyncKey { |key, proto|
+		var thisKey = key.asSymbol;
+
+		if (proto) {
+			if (syncKeysEvent.proto.includes(thisKey)) {
+				syncKeysEvent.proto.remove(thisKey)
+			}
+		};
+		if (syncKeysEvent.user.includes(thisKey)) {
+			syncKeysEvent.user.remove(thisKey)
+		}
+	}
+
+	syncKeys {
+		^syncKeysEvent.proto ++ syncKeysEvent.user;
+	}
+
 	// extend the API with custom controllers
 	extend { |key, func, proto=false ... controllers|
 		var thisKey, thisControllers;
+		var recursion = { |col, ctrl|
+			var res;
+			res = case
+			{ col.class == Event } {
+				col.pairsDo { |k, v|
+					if (v.class == List) { recursion.(v, ctrl) };
+					if (v.class == Event) {
+						if (v.controller.isNil) {
+							recursion.(v, ctrl)
+						} {
+							if (k != \mapConstrainterHi and: {
+								k != \mapConstrainterLo
+							}) {
+								if (ctrl.isNil or: { k === ctrl }) {
+									v.controller.put(thisKey, func)
+								}
+							}
+						}
+					}
+				}
+			}
+			{ col.class == List } {
+				col.do { |it|
+					if ((it.class == Event).or(it.class == List)) {
+						recursion.(it, ctrl)
+					}
+				}
+			};
+		};
 
 		thisKey = key.asSymbol;
 		thisControllers = controllers.collect({ |c| c.asSymbol });
-		syncedActions ?? { syncedActions = IdentityDictionary.new };
+		syncedActions ?? { syncedActions = () };
 
-		this.addSyncKey(thisKey, proto);
-		syncedActions.put(thisKey, func);
-
-		if (syncKeys.includes(thisKey)) {
+		if (this.syncKeys.includes(thisKey)) {
 			Error("Sync key '%' is already in use!".format(thisKey)).throw
 		} {
 			// controllers -> must be a list of existing controllers
 			if (controllers.size == 0) {
 				// models and controllers are not a simply list of model/controller
 				// pairs - it will contain sub-Events for each Midi-/OscConnection
-				// FIXME: create recursive function to handle nesting
-				wmc.pairsDo { |k, v|
-					if (v.class == Event) {
-						// recurse
-					} {
-						if(k != \mapConstrainterHi and:{
-							k != \mapConstrainterLo
-						}) {
-							v.controller.put(thisKey, syncedActions[thisKey])
-						}
-					}
-				}
+				recursion.(wmc)
+			} {
+				thisControllers.do { |c| recursion.(wmc, c) }
 			}
+		};
+
+		this.prAddSyncKey(thisKey, proto);
+		syncedActions.put(thisKey, func);
+	}
+
+	// remove controllers that have been added through CVWidget:-extend
+	reduce { |key, proto=false|
+		var thisKey = key.asSymbol;
+
+		// FIXME: maybe use an Event to hold keys - hold keys that should not be deletable in
+		// the Event's proto?
+		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
+			syncedActions[thisKey] = nil;
+			this.prRemoveSyncKey(thisKey, proto);
 		}
 	}
+
 }
