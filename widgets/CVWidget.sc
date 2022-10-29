@@ -7,7 +7,7 @@ CVWidget {
 	// widget models and controllers
 	// defined individually in subclasses
 	var <wmc;
-	var syncKeysEvent, syncedActions;
+	var syncKeysEvent;
 
 	*initClass {
 		var scPrefs = false;
@@ -121,6 +121,8 @@ CVWidget {
 							if (k != \mapConstrainterHi and: {
 								k != \mapConstrainterLo
 							}) {
+								"k: %, ctrl: %".format(k, ctrl).postln;
+								(ctrl.isNil or: { k === ctrl }).postln;
 								if (ctrl.isNil or: { k === ctrl }) {
 									v.controller.put(thisKey, func)
 								}
@@ -135,19 +137,18 @@ CVWidget {
 						recursion.(it, ctrl)
 					}
 				}
-			};
+			}
 		};
 
 		thisKey = key.asSymbol;
 		thisControllers = controllers.collect({ |c| c.asSymbol });
-		syncedActions ?? { syncedActions = () };
 
 		if (this.syncKeys.includes(thisKey)) {
 			Error("Sync key '%' is already in use!".format(thisKey)).throw
 		} {
 			// controllers -> must be a list of existing controllers
 			if (controllers.size == 0) {
-				// models and controllers are not a simply list of model/controller
+				// models and controllers are not a simple list of model/controller
 				// pairs - it will contain sub-Events for each Midi-/OscConnection
 				recursion.(wmc)
 			} {
@@ -156,17 +157,43 @@ CVWidget {
 		};
 
 		this.prAddSyncKey(thisKey, proto);
-		syncedActions.put(thisKey, func);
 	}
 
 	// remove controllers that have been added through CVWidget:-extend
 	reduce { |key, proto=false|
 		var thisKey = key.asSymbol;
+		var recursion = { |col|
+			var res;
+			res = case
+			{ col.class == Event } {
+				col.pairsDo { |k, v|
+					if (v.class == List) { recursion.(v) };
+					if (v.class == Event) {
+						if (v.controller.isNil) {
+							recursion.(v)
+						} {
+							if (k != \mapConstrainterHi and: {
+								k != \mapConstrainterLo
+							}) {
+								v.controller.removeAt(thisKey)
+							}
+						}
+					}
+				}
+			}
+			{ col.class == List } {
+				col.do { |it|
+					if ((it.class == Event).or(it.class == List)) {
+						recursion.(it)
+					}
+				}
+			}
+		};
 
-		// FIXME: maybe use an Event to hold keys - hold keys that should not be deletable in
-		// the Event's proto?
 		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
-			syncedActions[thisKey] = nil;
+			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
+				recursion.(thisKey)
+			};
 			this.prRemoveSyncKey(thisKey, proto);
 		}
 	}

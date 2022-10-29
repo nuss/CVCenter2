@@ -9,6 +9,17 @@ TestCVWidget : UnitTest {
 		this.assertEquals(setup.softWithin, 0.1, "CVWidget.softWithin should be 0.1 by default");
 	}
 
+	test_syncKeys {
+
+	}
+
+	test_extend {
+
+	}
+
+	test_reduce {
+
+	}
 }
 
 
