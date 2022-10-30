@@ -42,7 +42,7 @@ TestCVWidgetKnob : UnitTest {
 	var widget, midiConnection, oscConnection;
 
 	setUp {
-		widget = CVWidgetKnob(\knob);
+		widget = CVWidgetKnob(\test);
 	}
 
 	test_new {
@@ -53,12 +53,10 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
 		this.assertEquals(widget.wmc.keys, Set[\cvSpec, \actions, \osc, \midi], "A CVWidgetKnob's wmc variable (an Event) should by default hold 4 keys: \cvSpec, \actions, \osc, \midi");
-		oscConnection = OscConnection(widget);
-		this.assertEquals(widget.oscConnections.size, 1, "After adding an empty OscConnection to the widget the widget's 'oscConnections' should hold one OscConnection");
-		this.assertEquals(widget.oscConnections.keys.includes('OSC Connection 1'), true, "A new anonymous OscConnection should be named 'OSC Connection', appended by a number");
-		midiConnection = MidiConnection(widget);
-		this.assertEquals(widget.midiConnections.size, 1, "After adding an empty MidiConnection to the widget the widget's 'midiConnections' should hold one MidiConnection");
-		this.assertEquals(widget.midiConnections.keys.includes('MIDI Connection 1'), true, "A new anonymous MidiConnection should be named 'MIDI Connection', appended by a number")
+		this.assertEquals(widget.oscConnections.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnections'");
+		this.assertEquals(widget.oscConnections[0].name, 'OSC Connection 1', "The default OscConnection should be named 'OSC Connection 1'");
+		this.assertEquals(widget.midiConnections.size, 1, "A new CVWidgetKnob should hold one MidiConnection in 'midiConnections");
+		this.assertEquals(widget.midiConnections[0].name, 'MIDI Connection 1', "The default MidiConnection should be named 'Midi Connection 1'")
 	}
 
 	test_setSpec {
