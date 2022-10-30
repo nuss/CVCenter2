@@ -106,11 +106,10 @@ CVWidget {
 	}
 
 	// extend the API with custom controllers
-	extend { |key, func, proto=false ... controllers|
+	extend { |key, func, controllers, proto=false|
 		var thisKey, thisControllers;
 		var recursion = { |col, ctrl|
-			var res;
-			res = case
+			case
 			{ col.class == Event } {
 				col.pairsDo { |k, v|
 					if (v.class == List) { recursion.(v, ctrl) };
@@ -121,8 +120,6 @@ CVWidget {
 							if (k != \mapConstrainterHi and: {
 								k != \mapConstrainterLo
 							}) {
-								"k: %, ctrl: %".format(k, ctrl).postln;
-								(ctrl.isNil or: { k === ctrl }).postln;
 								if (ctrl.isNil or: { k === ctrl }) {
 									v.controller.put(thisKey, func)
 								}
@@ -141,8 +138,8 @@ CVWidget {
 		};
 
 		thisKey = key.asSymbol;
+		controllers.size.postln;
 		thisControllers = controllers.collect({ |c| c.asSymbol });
-
 		if (this.syncKeys.includes(thisKey)) {
 			Error("Sync key '%' is already in use!".format(thisKey)).throw
 		} {
@@ -163,8 +160,7 @@ CVWidget {
 	reduce { |key, proto=false|
 		var thisKey = key.asSymbol;
 		var recursion = { |col|
-			var res;
-			res = case
+			case
 			{ col.class == Event } {
 				col.pairsDo { |k, v|
 					if (v.class == List) { recursion.(v) };
@@ -175,6 +171,7 @@ CVWidget {
 							if (k != \mapConstrainterHi and: {
 								k != \mapConstrainterLo
 							}) {
+								[k, v].postln;
 								v.controller.removeAt(thisKey)
 							}
 						}
@@ -192,7 +189,7 @@ CVWidget {
 
 		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
 			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
-				recursion.(thisKey)
+				recursion.(wmc)
 			};
 			this.prRemoveSyncKey(thisKey, proto);
 		}
