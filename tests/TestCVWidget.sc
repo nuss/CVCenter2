@@ -1,4 +1,9 @@
 TestCVWidget : UnitTest {
+	var widget, test_output;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+	}
 
 	test_globalSetup {
 		var setup = CVWidget.globalSetup;
@@ -10,15 +15,24 @@ TestCVWidget : UnitTest {
 	}
 
 	test_syncKeys {
-
+		this.assertEquals(widget.syncKeys, [\default], "Any new CVWidget instance should return an Array holding a key 'default' upon calling syncKeys");
 	}
 
 	test_extend {
-
+		widget.extend(\test, { |c, w, m| test_output = c.value }, [\cvSpec]);
+		this.assertEquals(widget.syncKeys, [\default, \test], "Calling the widget's syncKeys method should return the default syncKeys amended by the key given in extend");
+		widget.setSpec(\freq);
+		this.assertEquals(test_output, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "The function given as second argument to 'extend' should have set the variable 'test_output' to a ControlSpec(20, 20000, 'exp', 0, 440, \" Hz\")");
 	}
 
 	test_reduce {
-
+		widget.reduce(\test);
+		this.assertEquals(widget.syncKeys, [\default], "After calling 'reduce' with a key \\test the widget's 'syncKeys' method should return an Array [\default]");
+		widget.extend(\test, { |c, w, m| test_output = c.value }, [\cvSpec], true);
+		widget.reduce(\test);
+		this.assertEquals(widget.syncKeys, [\default, \test], "After calling 'reduce' with a key \\test the widget's 'syncKeys' method should return an Array [\default, \test] as 'extend' has been called with the argument 'proto' set to true");
+		widget.reduce(\test, true);
+		this.assertEquals(widget.syncKeys, [\default], "After calling 'reduce' with the argument 'proto' set tu true the widget's 'syncKeys' method should return an Array [\default]");
 	}
 }
 

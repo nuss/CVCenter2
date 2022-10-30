@@ -138,7 +138,6 @@ CVWidget {
 		};
 
 		thisKey = key.asSymbol;
-		controllers.size.postln;
 		thisControllers = controllers.collect({ |c| c.asSymbol });
 		if (this.syncKeys.includes(thisKey)) {
 			Error("Sync key '%' is already in use!".format(thisKey)).throw
@@ -171,7 +170,6 @@ CVWidget {
 							if (k != \mapConstrainterHi and: {
 								k != \mapConstrainterLo
 							}) {
-								[k, v].postln;
 								v.controller.removeAt(thisKey)
 							}
 						}
