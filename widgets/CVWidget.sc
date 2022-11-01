@@ -52,6 +52,8 @@ CVWidget {
 	removeAction { this.subclassResponsibility(thisMethod) }
 	activateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
+	addMidiConnection { this.subclassResponsibility(thisMethod) }
+	removeMidiConnection { this.subclassResponsibility(thisMethod) }
 	setMidiMode { this.subclassResponsibility(thisMethod) }
 	getMidiMode { this.subclassResponsibility(thisMethod) }
 	setMidiMean { this.subclassResponsibility(thisMethod) }
@@ -65,6 +67,8 @@ CVWidget {
 	midiConnect { this.subclassResponsibility(thisMethod) }
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 	// OSC
+	addOscConnection { this.subclassResponsibility(thisMethod) }
+	removeOscConnection { this.subclassResponsibility(thisMethod) }
 	setOscCalibration { this.subclassResponsibility(thisMethod) }
 	getOscCalibration { this.subclassResponsibility(thisMethod) }
 	setOscMapping { this.subclassResponsibility(thisMethod) }

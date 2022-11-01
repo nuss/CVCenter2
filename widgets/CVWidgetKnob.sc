@@ -115,15 +115,23 @@ CVWidgetKnob : CVWidget {
 	}
 
 	// CV actions
-	addAction {}
-	removeAction {}
-	activateAction {}
+	addAction {
+
+	}
+
+	removeAction {
+
+	}
+
+	activateAction {
+
+	}
 
 	// MIDI
 	setMidiMode { |mode, connection|
 		// connection can be a Symbol or a MidiConnection instance
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -135,7 +143,7 @@ CVWidgetKnob : CVWidget {
 
 	getMidiMode { |connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection];
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -148,7 +156,7 @@ CVWidgetKnob : CVWidget {
 	setMidiMean { |meanval, connection|
 		// connection can be a Symbol or a MidiConnection instance
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -160,7 +168,7 @@ CVWidgetKnob : CVWidget {
 
 	getMidiMean { |connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection];
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -172,7 +180,7 @@ CVWidgetKnob : CVWidget {
 
 	setSoftWithin { |threshold, connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -184,7 +192,7 @@ CVWidgetKnob : CVWidget {
 
 	getSoftWithin { |connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -196,7 +204,7 @@ CVWidgetKnob : CVWidget {
 
 	setCtrlButtonBank { |numSliders, connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -208,7 +216,7 @@ CVWidgetKnob : CVWidget {
 
 	getCtrlButtonBank {	|connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -220,7 +228,7 @@ CVWidgetKnob : CVWidget {
 
 	setMidiResolution { |resolution, connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -232,7 +240,7 @@ CVWidgetKnob : CVWidget {
 
 	getMidiResolution { |connection|
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		if (connection.isNil) {
@@ -248,7 +256,7 @@ CVWidgetKnob : CVWidget {
 			connection = MidiConnection(this);
 		};
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection];
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		// pass execution to connection
@@ -260,7 +268,7 @@ CVWidgetKnob : CVWidget {
 			Error("No connection given. Don't know which connection to disconnect!");
 		};
 		if (connection.class == Symbol) {
-			connection = midiConnections[connection]
+			connection = midiConnections.detect { |c| c.name == connection }
 		};
 
 		// pass execution to connection
@@ -276,6 +284,35 @@ CVWidgetKnob : CVWidget {
 	getOscInputConstraints {}
 	oscConnect {}
 	oscDisconnect {}
+
+	// connections handling
+	addOscConnection { |name|
+		name !? { name = name.asSymbol };
+		oscConnections.add(OscConnection(this, name));
+	}
+
+	removeOscConnection { |connection|
+		if (connection.class == Symbol) {
+			connection = oscConnections.detect { |c| c.name == connection }
+		};
+		// FIXME: should call connection.remove instead?
+		connection.oscDisconnect;
+		oscConnections.remove(connection);
+	}
+
+	addMidiConnection { |name|
+		name !? { name = name.asSymbol };
+		midiConnections.add(MidiConnection(this, name));
+	}
+
+	removeMidiConnection { |connection|
+		if (connection.class == Symbol) {
+			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		// FIXME: should call connection.remove instead?
+		connection.midiDisconnect;
+		midiConnections.remove(connection);
+	}
 
 	// init controllers (private)
 	prInitSpecControl { |wmc, cv|

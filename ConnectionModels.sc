@@ -115,9 +115,8 @@ OscConnection {
 		^nil;
 	}
 
-	setMidiMode { |mode|
-
-	}
+	oscConnect {}
+	oscDisconnect {}
 }
 
 MidiConnection {
@@ -325,5 +324,4 @@ MidiConnection {
 		// remove views, MIDIdefs...
 		^nil;
 	}
-
 }
