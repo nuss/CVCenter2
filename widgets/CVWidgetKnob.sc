@@ -288,7 +288,7 @@ CVWidgetKnob : CVWidget {
 	// connections handling
 	addOscConnection { |name|
 		name !? { name = name.asSymbol };
-		oscConnections.add(OscConnection(this, name));
+		^OscConnection(this, name);
 	}
 
 	removeOscConnection { |connection|
@@ -302,7 +302,7 @@ CVWidgetKnob : CVWidget {
 
 	addMidiConnection { |name|
 		name !? { name = name.asSymbol };
-		midiConnections.add(MidiConnection(this, name));
+		^MidiConnection(this, name);
 	}
 
 	removeMidiConnection { |connection|

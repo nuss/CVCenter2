@@ -226,12 +226,12 @@ MidiConnection {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
 		};
 
-		mc.optionsModel.value_((
+		mc.midiOptions.model.value_((
 			midiMode: mode,
-			midiMean: mc.optionsModel.midiMean,
-			ctrlButtonBank: mc.optionsModel.ctrlButtonBank,
-			midiResolution: mc.optionsModel.midiResolution,
-			softWithin: mc.optionsModel.softWithin
+			midiMean: mc.midiOptions.model.value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model.value.midiResolution,
+			softWithin: mc.midiOptions.model.value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
@@ -242,12 +242,12 @@ MidiConnection {
 	setMidiMean { |meanval|
 		meanval = meanval.asInteger;
 
-		mc.optionsModel.value_((
-			midiMode: mc.optionsModel.midiMode,
+		mc.midiOptions.model.value_((
+			midiMode: mc.midiOptions.model.value.midiMode,
 			midiMean: meanval,
-			ctrlButtonBank: mc.optionsModel.ctrlButtonBank,
-			midiResolution: mc.optionsModel.midiResolution,
-			softWithin: mc.optionsModel.softWithin
+			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model.value.midiResolution,
+			softWithin: mc.midiOptions.model.value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
@@ -258,11 +258,11 @@ MidiConnection {
 	setSoftWithin { |threshold|
 		threshold = threshold.asFloat;
 
-		mc.optionsModel.value_((
-			midiMode: mc.optionsModel.midiMode,
-			midiMean: mc.optionsModel.midiMean,
-			ctrlButtonBank: mc.optionsModel.ctrlButtonBank,
-			midiResolution: mc.optionsModel.midiResolution,
+		mc.midiOptions.model.value_((
+			midiMode: mc.midiOptions.model.value.midiMode,
+			midiMean: mc.midiOptions.model.value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model.value.midiResolution,
 			softWithin: threshold
 		)).changedKeys(widget.syncKeys);
 	}
@@ -276,12 +276,12 @@ MidiConnection {
 			Error("setCtrlButtonBank: 'numSliders' must either be an Integer or nil!").throw;
 		};
 
-		mc.optionsModel.value_((
-			midiMode: mc.optionsModel.midiMode,
-			midiMean: mc.optionsModel.midiMean,
+		mc.midiOptions.model.value_((
+			midiMode: mc.midiOptions.model.value.midiMode,
+			midiMean: mc.midiOptions.model.value.midiMean,
 			ctrlButtonBank: numSliders,
-			midiResolution: mc.optionsModel.midiResolution,
-			softWithin: mc.optionsModel.softWithin
+			midiResolution: mc.midiOptions.model.value.midiResolution,
+			softWithin: mc.midiOptions.model.value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
@@ -290,12 +290,12 @@ MidiConnection {
 	}
 
 	setMidiResolution { |resolution|
-		mc.optionsModel.value_((
-			midiMode: mc.optionsModel.midiMode,
-			midiMean: mc.optionsModel.midiMean,
-			ctrlButtonBank: mc.optionsModel.ctrlButtonBank,
-			midiResolution: mc.resolution,
-			softWithin: mc.optionsModel.softWithin
+		mc.midiOptions.model.value_((
+			midiMode: mc.midiOptions.model.value.midiMode,
+			midiMean: mc.midiOptions.model.value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
+			midiResolution: resolution,
+			softWithin: mc.midiOptions.model.value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 

@@ -38,8 +38,8 @@ TestCVWidget : UnitTest {
 
 
 TestCVWidgetKnob : UnitTest {
-
 	var widget, midiConnection, oscConnection;
+	var connection1, connection2;
 
 	setUp {
 		widget = CVWidgetKnob(\test);
@@ -72,11 +72,29 @@ TestCVWidgetKnob : UnitTest {
 		this.assert(widget.getSpec === widget.cv.spec, "The widget's CV's' spec and the return value of widget.getSpec should be identical");
 	}
 
-	test_setMidiMode {
-
+	test_add_removeMidiConnection {
+		this.assertEquals(widget.midiConnections.size, 1, "widget.midiConnections should by default contain one midiConnection after widget instantiation");
+		connection1 = widget.addMidiConnection;
+		this.assertEquals(widget.midiConnections.size, 2, "widget.midiConnections should contain two midiConnections after calling widget.addMidiConnection");
+		this.assertEquals(connection1.name, 'MIDI Connection 2', "The anonymously added MidiConnection should have been named 'MIDI Connection 2'");
+		connection2 = widget.addMidiConnection(\test);
+		this.assertEquals(widget.midiConnections.size, 3, "widget.midiConnections should contain three midiConnections after calling widget.addMidiConnection");
+		this.assertEquals(connection2.name, \test, "The added MidiConnection should have been named 'test'");
+		widget.removeMidiConnection(connection1);
+		this.assertEquals(widget.midiConnections.size, 2, "widget.midiConnections should contain two midiConnections after removing connection1");
+		this.assertEquals(widget.midiConnections.collect(_.name), ['MIDI Connection 1', \test], "widget.midiConnections should contain two midiConnections, named 'MIDI Connection 1' and 'test'");
+		widget.removeMidiConnection(\test);
+		this.assertEquals(widget.midiConnections.size, 1, "widget.midiConnections should contain one MidiConnection");
 	}
 
-	test_getMidiMode {}
+	test_set_getMidiMode {
+		connection1 = widget.addMidiConnection;
+		connection2 = widget.addMidiConnection;
+		widget.setMidiMode(1);
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnections should have been set to 1");
+		widget.setMidiMode(0, connection1);
+		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnections midiMode should equal [1, 0, 1]");
+	}
 
 	test_setMidiMean {}
 
@@ -97,6 +115,10 @@ TestCVWidgetKnob : UnitTest {
 	test_midiConnect {}
 
 	test_midiDisconnect {}
+
+	test_removeMidiConnection {
+
+	}
 
 	test_setOscCalibration {}
 
