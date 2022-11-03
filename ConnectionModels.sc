@@ -252,7 +252,7 @@ MidiConnection {
 	}
 
 	getMidiMean {
-		^mc.midiOptions.value.midiMean;
+		^mc.midiOptions.model.value.midiMean;
 	}
 
 	setSoftWithin { |threshold|
@@ -268,7 +268,7 @@ MidiConnection {
 	}
 
 	getSoftWithin {
-		^mc.midiOptions.value.softWithin;
+		^mc.midiOptions.model.value.softWithin;
 	}
 
 	setCtrlButtonBank { |numSliders|
@@ -286,7 +286,7 @@ MidiConnection {
 	}
 
 	getCtrlButtonBank {
-		^mc.midiOptions.value.ctrlButtonBank;
+		^mc.midiOptions.model.value.ctrlButtonBank;
 	}
 
 	setMidiResolution { |resolution|
@@ -300,7 +300,7 @@ MidiConnection {
 	}
 
 	getMidiResolution {
-		^mc.midiOptions.value.midiResolution;
+		^mc.midiOptions.model.value.midiResolution;
 	}
 
 	midiConnect { |uid, chan, num|

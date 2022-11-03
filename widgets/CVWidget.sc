@@ -1,13 +1,16 @@
 CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>midiSources, <>shortcuts, prefs;
-	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 0.1, <>ctrlButtonBank, <>softWithin = 0.1;
+	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 64, <>ctrlButtonBank, <>softWithin = 0.1;
 	classvar <>oscCalibration = true;
 
 	// widget models and controllers
 	// defined individually in subclasses
 	var <wmc;
 	var syncKeysEvent;
+
+	// custom actions
+	var <widgetActions;
 
 	*initClass {
 		var scPrefs = false;
@@ -99,9 +102,10 @@ CVWidget {
 			if (syncKeysEvent.proto.includes(thisKey)) {
 				syncKeysEvent.proto.remove(thisKey)
 			}
-		};
-		if (syncKeysEvent.user.includes(thisKey)) {
-			syncKeysEvent.user.remove(thisKey)
+		} {
+			if (syncKeysEvent.user.includes(thisKey)) {
+				syncKeysEvent.user.remove(thisKey)
+			}
 		}
 	}
 

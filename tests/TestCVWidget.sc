@@ -9,7 +9,7 @@ TestCVWidget : UnitTest {
 		var setup = CVWidget.globalSetup;
 		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default");
 		this.assertEquals(setup.midiResolution, 1, "CVWidget.midiResolution should be 1 by default");
-		this.assertEquals(setup.midiMean, 0.1, "CVWidget.midiMean should be 0.1 by default");
+		this.assertEquals(setup.midiMean, 64, "CVWidget.midiMean should be 64 by default");
 		this.assertEquals(setup.ctrlButtonBank, nil, "CVWidget.ctrlButtonBank should be nil by default");
 		this.assertEquals(setup.softWithin, 0.1, "CVWidget.softWithin should be 0.1 by default");
 	}
@@ -90,27 +90,62 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getMidiMode {
 		connection1 = widget.addMidiConnection;
 		connection2 = widget.addMidiConnection;
+		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnections should be set to midiMode 0 by default");
 		widget.setMidiMode(1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnections should have been set to 1");
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnections should have been set to midiMode 1");
 		widget.setMidiMode(0, connection1);
 		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnections midiMode should equal [1, 0, 1]");
+		widget.setMidiMode(0, 'MIDI Connection 1');
+		this.assertEquals(widget.getMidiMode, [0, 0, 1], "widget.midiConnections midiMode should equal [0, 0, 1]");
 	}
 
-	test_setMidiMean {}
+	test_set_getMidiMean {
+		connection1 = widget.addMidiConnection;
+		connection2 = widget.addMidiConnection;
+		this.assertEquals(widget.getMidiMean, [64, 64, 64], "All widget.midiConnections should be set to midiMean 64 by default");
+		widget.setMidiMean(0);
+		this.assertEquals(widget.getMidiMean, [0, 0, 0], "All widget.midiConnections should have been set to midiMean 0");
+		widget.setMidiMean(64, connection1);
+		this.assertEquals(widget.getMidiMean, [0, 64, 0], "widget.midiConnections midiMean should equal [64, 0, 0]");
+		widget.setMidiMean(64, 'MIDI Connection 1');
+		this.assertEquals(widget.getMidiMean, [64, 64, 0], "widget.midiConnections midiMean should equal [64, 64, 0]");
+	}
 
-	test_getMidiMean {}
+	test_set_getSoftWithin {
+		connection1 = widget.addMidiConnection;
+		connection2 = widget.addMidiConnection;
+		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.1], "All widget.midiConnections should be set to softWithin 0.1 by default");
+		widget.setSoftWithin(0.5);
+		this.assertEquals(widget.getSoftWithin, [0.5, 0.5, 0.5], "All widget.midiConnections should have been set to softWithin 0.5");
+		widget.setSoftWithin(0.1, connection1);
+		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnections softWithin should equal [0.5, 0.1, 0.5]");
+		widget.setSoftWithin(0.1, 'MIDI Connection 1');
+		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.5], "widget.midiConnections softWithin should equal [0.1, 0.1, 0.5]");
+	}
 
-	test_setSoftWithin {}
+	test_set_getCtrlButtonBank {
+		connection1 = widget.addMidiConnection;
+		connection2 = widget.addMidiConnection;
+		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, nil], "All widget.midiConnections should be set to ctrlButtonBank nil by default");
+		widget.setCtrlButtonBank(16);
+		this.assertEquals(widget.getCtrlButtonBank, [16, 16, 16], "All widget.midiConnections should have been set to ctrlButtonBank 16");
+		widget.setCtrlButtonBank(nil, connection1);
+		this.assertEquals(widget.getCtrlButtonBank, [16, nil, 16], "widget.midiConnections ctrlButtonBank should equal [16, nil, 16]");
+		widget.setCtrlButtonBank(nil, 'MIDI Connection 1');
+		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, 16], "widget.midiConnections ctrlButtonBank should equal [nil, nil, 16]");
+	}
 
-	test_getSoftWithin {}
-
-	test_setCtrlButtonBank {}
-
-	test_getCtrlButtonBank {}
-
-	test_setMidiResolution {}
-
-	test_getMidiResolution {}
+	test_set_getMidiResolution {
+		connection1 = widget.addMidiConnection;
+		connection2 = widget.addMidiConnection;
+		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnections should be set to midiResolution 1 by default");
+		widget.setMidiResolution(0.5);
+		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnections should have been set to midiResolution 0.5");
+		widget.setMidiResolution(1, connection1);
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnections midiResolution should equal [0.5, 1, 0.5]");
+		widget.setMidiResolution(1, 'MIDI Connection 1');
+		this.assertEquals(widget.getMidiResolution, [1, 1, 0.5], "widget.midiConnections midiResolution should equal [1, 1, 0.5]");
+	}
 
 	test_midiConnect {}
 

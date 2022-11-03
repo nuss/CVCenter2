@@ -50,6 +50,7 @@ CVWidgetKnob : CVWidget {
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
 		};
 
+		widgetActions = ();
 		action !? { this.addAction(\default, action) };
 
 		this.initModels;
@@ -115,8 +116,16 @@ CVWidgetKnob : CVWidget {
 	}
 
 	// CV actions
-	addAction {
-
+	addAction { |name, action, active=true|
+		name ?? { Error("Please provide a name under which the action will be added to the widget").throw };
+		action ?? { Error("Please provide an action!").throw };
+		if(action.isFunction.not and:{
+			action.class !== FunctionList and:{
+				action.interpret.isFunction.not
+			}
+		}, {
+			Error("'action' must be a function or a string that compiles to one").throw;
+		});
 	}
 
 	removeAction {
