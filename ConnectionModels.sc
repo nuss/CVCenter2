@@ -202,12 +202,36 @@ MidiConnection {
 		})
 	}
 
-	prInitMidiConnect {
+	prInitMidiConnect { |mc, cv|
+		var ccAction;
+		var softWithin = this.getSoftWithin;
+		var meanval = this.getMidiMean;
+		var midiResolution = this.getMidiResolution;
+
 		mc.midiConnection.controller ?? {
 			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
 		};
 		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
-			// ...
+			if (changer.value.class == Event) {
+				// connect
+				ccAction = { |src, chan, num, val|
+					this.getMidiMode.switch(
+						//  0-127
+						0, {
+							if ((softWithin <= 0).or(
+								val/127 < (cv.input + (softWithin/2)) and: {
+									val/127 > (cv.input + (softWithin/2))
+							})) { cv.input_(val/127)}
+						},
+						// +/-
+						1, {
+							cv.input_(cv.input + (val-meanval)/127*midiResolution)
+						}
+					)
+				};
+			} {
+				// disconnect
+			}
 		})
 	}
 
@@ -305,6 +329,7 @@ MidiConnection {
 
 	midiConnect { |uid, chan, num|
 		// any further checks
+
 		mc.midiConnection.model.value_(
 			(src: uid, chan: chan, num: num)
 		).changedKeys(widget.syncKeys);
