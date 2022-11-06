@@ -50,8 +50,8 @@ CVWidgetKnob : CVWidget {
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
 		};
 
-		// an Environment to be used within user supplied actions
-		widgetEnvironment = Environment.make;
+		// an Event to be used for variables defined outside actions
+		env = ();
 		// the functions that will be evaluated by a SimpleController that's added by calling addAction
 		widgetActions = ();
 		// the user-supplied actions, added as argument to addAction
@@ -152,9 +152,7 @@ CVWidgetKnob : CVWidget {
 
 		if (active) {
 			widgetActions[name].key = cv.addController({ |cv|
-				widgetEnvironment.use {
-					widgetActions[name].value[0].interpret.value(cv, this)
-				}
+				widgetActions[name].value[0].interpret.value(cv, this)
 			})
 		};
 
@@ -193,9 +191,7 @@ CVWidgetKnob : CVWidget {
 				// avoid memory leak, only create new SimpleController if key is nil!
 				widgetActions[name].key ?? {
 					widgetActions[name].key = cv.addController({ |cv|
-						widgetEnvironment.use {
-							widgetActions[name].value[0].interpret.value(cv, this)
-						}
+						widgetActions[name].value[0].interpret.value(cv, this)
 					})
 				}
 			} {

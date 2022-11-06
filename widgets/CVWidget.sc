@@ -11,7 +11,7 @@ CVWidget {
 
 	// custom actions
 	// to be evaluated on cv.value_ or cv.input_
-	var <widgetEnvironment; // environment variables to be used inside actions
+	var <env; // variables to be used inside actions
 	var <widgetActions/*, <userActions*/;
 
 	*initClass {
