@@ -177,12 +177,15 @@ TestCVWidgetKnob : UnitTest {
 
 	test_addAction {
 		widget.addAction("active", { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling addAction with arg 'active' set to true");
 		this.assertEquals(widget.widgetActions[\active].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'active'");
 		widget.addAction(\inactive, { |cv, wdgt| wdgt.env.res2_(nil) }, false);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one marked as active after calling addAction with arg 'active' set to false");
 		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold a SimpleController as key at key 'inactive'");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'active' should be [0.5, 'test'] after setting the widgets cv's value");
 		widget.addAction(\stringAction, "{ |cv, wdgt| wdgt.env.res3_([cv.value, wdgt.name]) }", true);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two marked as active after calling addAction with arg 'active' set to true");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env[\res3], [0.5, \test], "The result of the evaluation of the custom action 'stringAction' should be [0.5, 'test'] after setting the widgets cv's value");
 	}
@@ -191,7 +194,36 @@ TestCVWidgetKnob : UnitTest {
 		widget.addAction(\inactive, { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, false);
 		widget.activateAction(\inactive, true);
 		this.assertEquals(widget.widgetActions[\inactive].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'inactive' after calling activateAction");
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling activateAction with arg 'active' set to true");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'inactive' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.activateAction(\inactive, false);
+		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold nil as key at key 'inactive' after calling activateAction with arg 'active' set to false");
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 1, activeActions: 0), "The widget should hold one action and one marked as inactive after calling activateAction with arg 'active' set to false");
+	}
+
+	test_removeAction {
+		widget.addAction("active", {}, true);
+		widget.addAction(\inactive, {}, false);
+		widget.addAction(\stringAction, "{}", true);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two of them should be marked as active");
+		widget.removeAction(\active);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one of them should be marked as active after removing the action 'active'");
+		widget.removeAction(\inactive);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one should be marked as active after removing the action 'inactive'");
+		widget.removeAction(\stringAction);
+		this.assertEquals(widget.wmc.actions.model.value, (numActions: 0, activeActions: 0), "The widget should hold no actions after removing the action 'stringAction'");
+	}
+
+	test_updateAction {
+		widget.addAction("active", { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, \test] after setting the widget cv's value");
+		widget.updateAction(\active, { |cv, wdgt| wdgt.env.res1 = [cv.value, wdgt.getSpec] });
+		widget.cv.value_(0);
+		this.assertEquals(widget.env.res1, [0.0, ControlSpec(0, 1, 'linear', 0.0, 0.0, "")], "widget.env.res1 should equal [0.0, ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
+		widget.updateAction(\active, "{ |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
 	}
 }
