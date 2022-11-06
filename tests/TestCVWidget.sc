@@ -5,6 +5,10 @@ TestCVWidget : UnitTest {
 		widget = CVWidgetKnob(\test);
 	}
 
+	tearDown {
+		widget.remove;
+	}
+
 	test_globalSetup {
 		var setup = CVWidget.globalSetup;
 		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default");
@@ -171,4 +175,23 @@ TestCVWidgetKnob : UnitTest {
 
 	test_oscDisconnect {}
 
+	test_addAction {
+		widget.addAction("active", { |cv, wdgt| ~res1 = [cv.value, wdgt.name] }, true);
+		this.assertEquals(widget.widgetActions[\active].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'active'");
+		widget.addAction(\inactive, { |cv, wdgt| ~res2 = nil }, false);
+		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold a SimpleController as key at key 'inactive'");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.widgetEnvironment[\res1], [0.5, \test], "The result of the evaluation of the custom action 'active' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.addAction(\stringAction, "{ |cv, wdgt| ~res3 = [cv.value, wdgt.name] }", true);
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.widgetEnvironment[\res3], [0.5, \test], "The result of the evaluation of the custom action 'stringAction' should be [0.5, 'test'] after setting the widgets cv's value");
+	}
+
+	test_activateAction {
+		widget.addAction(\inactive, { |cv, wdgt| ~res1 = [cv.value, wdgt.name] }, false);
+		widget.activateAction(\inactive, true);
+		this.assertEquals(widget.widgetActions[\inactive].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'inactive' after calling activateAction");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.widgetEnvironment[\res1], [0.5, \test], "The result of the evaluation of the custom action 'inactive' should be [0.5, 'test'] after setting the widgets cv's value");
+	}
 }

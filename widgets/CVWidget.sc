@@ -10,7 +10,9 @@ CVWidget {
 	var syncKeysEvent;
 
 	// custom actions
-	var <widgetActions;
+	// to be evaluated on cv.value_ or cv.input_
+	var <widgetEnvironment; // environment variables to be used inside actions
+	var <widgetActions/*, <userActions*/;
 
 	*initClass {
 		var scPrefs = false;
@@ -47,6 +49,8 @@ CVWidget {
 		);
 	}
 
+	/*** common interface ***/
+
 	// the CV's ControlSpec
 	setSpec { this.subclassResponsibility(thisMethod) }
 	getSpec { this.subclassResponsibility(thisMethod) }
@@ -54,6 +58,7 @@ CVWidget {
 	addAction { this.subclassResponsibility(thisMethod) }
 	removeAction { this.subclassResponsibility(thisMethod) }
 	activateAction { this.subclassResponsibility(thisMethod) }
+	updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
 	addMidiConnection { this.subclassResponsibility(thisMethod) }
 	removeMidiConnection { this.subclassResponsibility(thisMethod) }
@@ -80,8 +85,7 @@ CVWidget {
 	getOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
-
-	/*** Initializing models and controllers ***/
+	// Initializing models and controllers
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
 

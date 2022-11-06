@@ -50,7 +50,14 @@ CVWidgetKnob : CVWidget {
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
 		};
 
+		// an Environment to be used within user supplied actions
+		widgetEnvironment = Environment.make;
+		// the functions that will be evaluated by a SimpleController that's added by calling addAction
 		widgetActions = ();
+		// the user-supplied actions, added as argument to addAction
+		// the actions are evaluated within the outer widgetAction
+		// userActions = ();
+		// add a 'default' action, if given
 		action !? { this.addAction(\default, action) };
 
 		this.initModels;
@@ -117,23 +124,117 @@ CVWidgetKnob : CVWidget {
 
 	// CV actions
 	addAction { |name, action, active=true|
+		var testAction;
 		name ?? { Error("Please provide a name under which the action will be added to the widget").throw };
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			Error("An action under the given name '%' already exists. Please choose a different name".format(name)).throw;
+		};
 		action ?? { Error("Please provide an action!").throw };
-		if(action.isFunction.not and:{
+		if (action.isFunction.not and:{
 			action.class !== FunctionList and:{
 				action.interpret.isFunction.not
 			}
 		}, {
-			Error("'action' must be a function or a string that compiles to one").throw;
+			Error("'action' must be a Function/FunctionList or a string that compiles to a Function or a FunctionList").throw;
 		});
+		if (action.class == String) { testAction = action.interpret } { testAction = action };
+		if (testAction.isClosed.not) {
+			"The function you have provided contains variables that have been defined outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
+		};
+
+		widgetActions.put(name, nil -> nil);
+		if (action.class == String) {
+			widgetActions[name].value = [action, active];
+		} {
+			widgetActions[name].value = [action.asCompileString, active];
+		};
+
+		if (active) {
+			widgetActions[name].key = cv.addController({ |cv|
+				widgetEnvironment.use {
+					widgetActions[name].value[0].interpret.value(cv, this)
+				}
+			})
+		};
+
+		wmc.actions.model.value_((
+			numActions: widgetActions.size,
+			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+		)).changedKeys(this.syncKeys);
+
+		// TODO: Take care of editor views
 	}
 
-	removeAction {
+	removeAction { |name|
+		name ?? { Error("Please provide the action's name!").throw };
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			if (widgetActions[name].key.class == SimpleController) {
+				widgetActions[name].key.remove
+			};
+			widgetActions.removeAt(name);
+			wmc.actions.model.value_((
+				numActions: widgetActions.size,
+				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+			)).changedKeys(this.syncKeys);
+		};
 
+		// TODO: Take care of editor views
 	}
 
-	activateAction {
+	activateAction { |name, activate=true|
+		var action, containerFunc, controller;
+		name ?? { Error("Please provide the action's name!").throw };
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			action = widgetActions[name].value[0];
+			if (activate) {
+				// avoid memory leak, only create new SimpleController if key is nil!
+				widgetActions[name].key ?? {
+					widgetActions[name].key = cv.addController({ |cv|
+						widgetEnvironment.use {
+							widgetActions[name].value[0].interpret.value(cv, this)
+						}
+					})
+				}
+			} {
+				if (widgetActions[name].key.class == SimpleController) {
+					widgetActions[name].key.remove;
+					widgetActions[name].key = nil;
+				}
+			};
+			widgetActions[name].value[1] = activate;
+			wmc.actions.model.value_((
+				numActions: widgetActions.size,
+				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+			)).changedKeys(this.syncKeys);
+		};
 
+		// TODO: Take care of editor views
+	}
+
+	updateAction { |name, action|
+		var testAction;
+		name ?? { Error("Please provide the action's name!").throw };
+		name = name.asSymbol;
+		if (action.class == String) { testAction = action.interpret } { testAction = action };
+		if (testAction.isClosed.not) {
+			"The function you have provided contains variables that have been defined outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
+		};
+		widgetActions[name] !? {
+			if (action.class == String) {
+				widgetActions[name].value[0] = action
+			} {
+				widgetActions[name].value[0] = action.asCompileString
+			}
+		};
+		wmc.actions.model.value_((
+			numActions: widgetActions.size,
+			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+		)).changedKeys(this.syncKeys);
+
+		// TODO: Take care of editor views
 	}
 
 	// MIDI
