@@ -123,6 +123,7 @@ MidiConnection {
 	classvar cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
+	var midiFunc;
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -203,10 +204,7 @@ MidiConnection {
 	}
 
 	prInitMidiConnect { |mc, cv|
-		var ccAction;
-		var softWithin = this.getSoftWithin;
-		var meanval = this.getMidiMean;
-		var midiResolution = this.getMidiResolution;
+		var ccAction, makeCCconnection;
 
 		mc.midiConnection.controller ?? {
 			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
@@ -214,21 +212,26 @@ MidiConnection {
 		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
 			if (changer.value.class == Event) {
 				// connect
-				ccAction = { |src, chan, num, val|
+				ccAction = { |val, num, chan, src|
 					this.getMidiMode.switch(
 						//  0-127
 						0, {
-							if ((softWithin <= 0).or(
-								val/127 < (cv.input + (softWithin/2)) and: {
-									val/127 > (cv.input + (softWithin/2))
+							if ((this.getSoftWithin <= 0).or(
+								val/127 < (cv.input + (this.getSoftWithin/2)) and: {
+									val/127 > (cv.input + (this.getSoftWithin/2))
 							})) { cv.input_(val/127)}
 						},
 						// +/-
 						1, {
-							cv.input_(cv.input + (val-meanval)/127*midiResolution)
+							cv.input_(cv.input + (val-this.getMidiMean)/127*this.getMidiResolution)
 						}
 					)
 				};
+				makeCCconnection = { |argSrc, argChan, argNum|
+					midiFunc ?? {
+						midiFunc = MIDIFunc.cc(ccAction)
+					}
+				}
 			} {
 				// disconnect
 			}
