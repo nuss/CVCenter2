@@ -221,31 +221,30 @@ MidiConnection {
 									val/127 > (cv.input - (this.getSoftWithin/2))
 							})) {
 								cv.input_(val/127);
-								[val, cv.input, cv.value].postln;
+								// [val, cv.input, cv.value].postln;
 							};
 						},
 						// +/-
 						1, {
 							cv.input_(cv.input + (val-this.getMidiMean/127*this.getMidiResolution));
-							[val, cv.input, cv.value].postln;
+							// [val, cv.input, cv.value].postln;
 						}
 					)
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
-					midiFunc ?? {
-						midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
-					}
+					midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
 				};
 
 				if (changer.value.isEmpty) {
 					"MIDIFunc should learn".postln;
 					makeCCconnection.().learn;
 				} {
-					"MIDIFunc should be set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).postln;
+					"MIDIFunc was set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).postln;
 					makeCCconnection.(changer.value.src, changer.value.chan, changer.value.num);
 				}
 			} {
-				// disconnect
+				midiFunc.clear;
+				midiFunc.free;
 			};
 		})
 	}
@@ -350,8 +349,8 @@ MidiConnection {
 		).changedKeys(widget.syncKeys);
 		// TODO - check settings system
 		CmdPeriod.add({
-			if (this.class.removeResponders) {
-				this !? { this.midiDisconnect }
+			this.widget !? {
+				this.midiFunc.permanent_(this.widget.class.removeResponders)
 			}
 		})
 	}

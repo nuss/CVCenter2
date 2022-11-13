@@ -404,7 +404,7 @@ CVWidgetKnob : CVWidget {
 
 	midiDisconnect { |connection|
 		connection ?? {
-			Error("No connection given. Don't know which connection to disconnect!");
+			Error("No connection given. Don't know which connection to disconnect!").throw;
 		};
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
