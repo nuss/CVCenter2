@@ -181,6 +181,8 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.wmc.midi[0].midiConnection.model.value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 		widget.midiDisconnect(0);
 		this.assertEquals(widget.wmc.midi[0].midiConnection.model.value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
+		widget.midiConnect(0, num: 1);
+		this.assertEquals(widget.wmc.midi[0].midiConnection.model.value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 	}
 
 	test_removeMidiConnection {

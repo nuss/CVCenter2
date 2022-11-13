@@ -232,7 +232,14 @@ MidiConnection {
 					)
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
-					midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
+					// no need to create a new MIDIFunc any time midiDisconnect is called
+					// midiFunc remains anyway - re-use instead of overwriting and potentially
+					// creating a pile of orphaned MIDIFuncs (memory leak)
+					if (midiFunc.isNil) {
+						midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
+					} {
+						midiFunc.add(ccAction)
+					}
 				};
 
 				if (changer.value.isEmpty) {
@@ -244,7 +251,6 @@ MidiConnection {
 				}
 			} {
 				midiFunc.clear;
-				midiFunc.free;
 			};
 		})
 	}
