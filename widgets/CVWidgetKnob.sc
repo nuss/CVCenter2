@@ -356,7 +356,7 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
-	midiConnect { |connection, uid, chan, num|
+	midiConnect { |connection, src, chan, num|
 		// create new annonymous connection if none is given
 		connection ?? {
 			connection = MidiConnection(this);
@@ -366,7 +366,7 @@ CVWidgetKnob : CVWidget {
 		};
 
 		// pass execution to connection
-		connection.midiConnect(uid, chan, num);
+		connection.midiConnect(src, chan, num);
 	}
 
 	midiDisconnect { |connection|

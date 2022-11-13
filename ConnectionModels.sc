@@ -123,7 +123,7 @@ MidiConnection {
 	classvar cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
-	var midiFunc;
+	var <midiFunc;
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -194,7 +194,7 @@ MidiConnection {
 	}
 
 	// private: default controllers
-	prInitMidiOptions {
+	prInitMidiOptions { |mc, cv|
 		mc.midiOptions.controller ?? {
 			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
 		};
@@ -218,23 +218,35 @@ MidiConnection {
 						0, {
 							if ((this.getSoftWithin <= 0).or(
 								val/127 < (cv.input + (this.getSoftWithin/2)) and: {
-									val/127 > (cv.input + (this.getSoftWithin/2))
-							})) { cv.input_(val/127)}
+									val/127 > (cv.input - (this.getSoftWithin/2))
+							})) {
+								cv.input_(val/127);
+								[val, cv.input, cv.value].postln;
+							};
 						},
 						// +/-
 						1, {
-							cv.input_(cv.input + (val-this.getMidiMean)/127*this.getMidiResolution)
+							cv.input_(cv.input + (val-this.getMidiMean/127*this.getMidiResolution));
+							[val, cv.input, cv.value].postln;
 						}
 					)
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
 					midiFunc ?? {
-						midiFunc = MIDIFunc.cc(ccAction)
+						midiFunc = MIDIFunc.cc(ccAction);
 					}
+				};
+
+				if (changer.value.isEmpty) {
+					"MIDIFunc should learn".postln;
+					makeCCconnection.().learn;
+				} {
+					"MIDIFunc should be set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).postln;
+					makeCCconnection.(changer.value.src, changer.value.chan, changer.value.num);
 				}
 			} {
 				// disconnect
-			}
+			};
 		})
 	}
 
@@ -330,11 +342,11 @@ MidiConnection {
 		^mc.midiOptions.model.value.midiResolution;
 	}
 
-	midiConnect { |uid, chan, num|
+	midiConnect { |src, chan, num|
 		// any further checks
 
 		mc.midiConnection.model.value_(
-			(src: uid, chan: chan, num: num)
+			(src: src, chan: chan, num: num)
 		).changedKeys(widget.syncKeys);
 		// TODO - check settings system
 		CmdPeriod.add({
