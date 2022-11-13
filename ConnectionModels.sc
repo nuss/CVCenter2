@@ -233,7 +233,7 @@ MidiConnection {
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
 					midiFunc ?? {
-						midiFunc = MIDIFunc.cc(ccAction);
+						midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
 					}
 				};
 

@@ -239,6 +239,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		if (connection.isNil) {
 			midiConnections.do(_.setMidiMode(mode))
@@ -250,6 +253,9 @@ CVWidgetKnob : CVWidget {
 	getMidiMode { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		if (connection.isNil) {
@@ -264,6 +270,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		if (connection.isNil) {
 			midiConnections.do(_.setMidiMean(meanval))
@@ -275,6 +284,9 @@ CVWidgetKnob : CVWidget {
 	getMidiMean { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		if (connection.isNil) {
@@ -288,6 +300,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		if (connection.isNil) {
 			midiConnections.do(_.setSoftWithin(threshold));
@@ -299,6 +314,9 @@ CVWidgetKnob : CVWidget {
 	getSoftWithin { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		if (connection.isNil) {
@@ -312,6 +330,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		if (connection.isNil) {
 			midiConnections.do(_.setCtrlButtonBank(numSliders));
@@ -323,6 +344,9 @@ CVWidgetKnob : CVWidget {
 	getCtrlButtonBank {	|connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		if (connection.isNil) {
@@ -336,6 +360,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		if (connection.isNil) {
 			midiConnections.do(_.setMidiResolution(resolution));
@@ -347,6 +374,9 @@ CVWidgetKnob : CVWidget {
 	getMidiResolution { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		if (connection.isNil) {
@@ -364,6 +394,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 
 		// pass execution to connection
 		connection.midiConnect(src, chan, num);
@@ -375,6 +408,9 @@ CVWidgetKnob : CVWidget {
 		};
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 
 		// pass execution to connection
@@ -401,6 +437,9 @@ CVWidgetKnob : CVWidget {
 		if (connection.class == Symbol) {
 			connection = oscConnections.detect { |c| c.name == connection }
 		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
+		};
 		// FIXME: should call connection.remove instead?
 		connection.oscDisconnect;
 		oscConnections.remove(connection);
@@ -414,6 +453,9 @@ CVWidgetKnob : CVWidget {
 	removeMidiConnection { |connection|
 		if (connection.class == Symbol) {
 			connection = midiConnections.detect { |c| c.name == connection }
+		};
+		if(connection.isInteger) {
+			connection = midiConnections[connection]
 		};
 		// FIXME: should call connection.remove instead?
 		connection.midiDisconnect;
