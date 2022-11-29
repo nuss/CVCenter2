@@ -123,7 +123,7 @@ MidiConnection {
 	classvar cAnons = 0;
 	var <widget, <>name;
 	var <mc; // models and controllers
-	var <midiFunc;
+	var midiFunc;
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -243,10 +243,10 @@ MidiConnection {
 				};
 
 				if (changer.value.isEmpty) {
-					"MIDIFunc should learn".postln;
+					"MIDIFunc should learn".inform;
 					makeCCconnection.().learn;
 				} {
-					"MIDIFunc was set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).postln;
+					"MIDIFunc was set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).inform;
 					makeCCconnection.(changer.value.src, changer.value.chan, changer.value.num);
 				}
 			} {
@@ -365,8 +365,13 @@ MidiConnection {
 		mc.midiConnection.model.value_(nil).changedKeys(widget.syncKeys);
 	}
 
+	gui { |parent, bounds|
+
+	}
+
 	remove {
-		// remove views, MIDIdefs...
-		^nil;
+		this.midiDisconnect;
+		widget.midiConnections.remove(this).changed(\value);
+		midiFunc.remove;
 	}
 }
