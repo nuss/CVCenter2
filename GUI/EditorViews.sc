@@ -1,5 +1,5 @@
-OscConnectionEditorView : CompositeView {
-	var <widget, <parent, <mc;
+OscConnectionsEditorView : CompositeView {
+	var <widget, <mc, <parent;
 	// GUI elements
 	var connectionSelect, addButton, removeButton;
 	var ipSelect, restrictToPortCheckBox;
@@ -21,9 +21,9 @@ OscConnectionEditorView : CompositeView {
 
 	init { |wdgt, parentView|
 		widget = wdgt;
-		parentView ?? {
+		if (parentView.isNil) {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
-		};
+		} { parent = parentView };
 		// Just create a new OscConnection if none exists
 		// it will automatically be added to the widget's list
 		// of OscConnections within OscConnection:-init - should
@@ -35,37 +35,37 @@ OscConnectionEditorView : CompositeView {
 		parent.layout_(
 			VLayout(
 				HLayout(
-					connectionSelect = PopUpMenu(this),
-					addButton = Button(this).states_([["+"]]),
-					removeButton = Button(this).states_([["-"]])
+					connectionSelect = PopUpMenu(parent),
+					addButton = Button(parent).states_([["+"]]),
+					removeButton = Button(parent).states_([["-"]])
 				),
 				HLayout(
-					ipSelect = PopUpMenu(this),
-					StaticText(this).string_("restrict to port"),
-					restrictToPortCheckBox = CheckBox(this)
+					ipSelect = PopUpMenu(parent),
+					StaticText(parent).string_("restrict to port"),
+					restrictToPortCheckBox = CheckBox(parent)
 				),
-				StaticText(this).string_("OSC command name - either select from list provided by the selected device or set custom one"),
+				StaticText(parent).string_("OSC command name - either select from list provided by the selected device or set custom one"),
 				HLayout(
-					deviceSelect = PopUpMenu(this),
-					oscCmdSelect = PopUpMenu(this),
-					newDeviceBut = Button(this)
+					deviceSelect = PopUpMenu(parent),
+					oscCmdSelect = PopUpMenu(parent),
+					newDeviceBut = Button(parent)
 				),
 				HLayout(
-					oscCmdTextField = TextField(this),
-					oscCmdSlotNumBox = NumberBox(this)
+					oscCmdTextField = TextField(parent),
+					oscCmdSlotNumBox = NumberBox(parent)
 				),
-				StaticText(this).string_("OSC input constraints, zero-crossing correction"),
+				StaticText(parent).string_("OSC input constraints, zero-crossing correction"),
 				HLayout(
-					inputConstraintsLoNumBox = NumberBox(this),
-					inputConstraintsHiNumBox = NumberBox(this),
-					zeroCrossCorrectStaticText = StaticText(this),
-					calibrationButton = Button(this),
-					resetButton = Button(this),
+					inputConstraintsLoNumBox = NumberBox(parent),
+					inputConstraintsHiNumBox = NumberBox(parent),
+					zeroCrossCorrectStaticText = StaticText(parent),
+					calibrationButton = Button(parent),
+					resetButton = Button(parent),
 				),
-				specConstraintsStaticText = StaticText(this).string_("current widget spec constraints (lo/hi): 0/0"),
-				StaticText(this).string_("input to output mapping"),
-				inOutMappingSelect = PopUpMenu(this),
-				connectionButton = Button(this)
+				specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0"),
+				StaticText(parent).string_("input to output mapping"),
+				inOutMappingSelect = PopUpMenu(parent),
+				connectionButton = Button(parent)
 			)
 		);
 	}
@@ -75,7 +75,7 @@ OscConnectionEditorView : CompositeView {
 	}
 }
 
-MidiConnectionEditorView : CompositeView {
+MidiConnectionsEditorView : CompositeView {
 	var <widget;
 	// GUI elements
 	var connectionSelect;
