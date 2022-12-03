@@ -2,12 +2,15 @@ MidiLearnButton : SCViewHolder {
 	classvar all;
 	var widget, mc;
 
+	*initClass {
+		all = ();
+	}
+
 	*new { |parent, widget, rect|
 		^super.new.init(parent, widget, rect);
 	}
 
 	init { |parentView, wdgt, rect|
-		all ?? { all = () };
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
 
@@ -19,6 +22,7 @@ MidiLearnButton : SCViewHolder {
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
 		]);
+		"mc: %".format(mc).postln;
 	}
 
 	set { |connection|
@@ -37,12 +41,15 @@ MidiSrcField : SCViewHolder {
 	classvar all;
 	var widget, mc;
 
+	*initClass {
+		all = ();
+	}
+
 	*new { |parent, widget, rect|
 		^super.new.init(parent, widget, rect);
 	}
 
 	init { |parentView, wdgt, rect|
-		all ?? { all = () };
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
 
@@ -61,12 +68,15 @@ MidiChanField : SCViewHolder {
 	classvar all;
 	var widget, mc;
 
+	*initClass {
+		all = ();
+	}
+
 	*new { |parent, widget, rect|
 		^super.new.init(parent, widget, rect);
 	}
 
 	init { |parentView, wdgt, rect|
-		all ?? { all = () };
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
 
@@ -85,12 +95,15 @@ MidiCtrlField : SCViewHolder {
 	classvar all;
 	var widget, mc;
 
+	*initClass {
+		all = ();
+	}
+
 	*new { |parent, widget, rect|
 		^super.new.init(parent, widget, rect);
 	}
 
 	init { |parentView, wdgt, rect|
-		all ?? { all = () };
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
 
