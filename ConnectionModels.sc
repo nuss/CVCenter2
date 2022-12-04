@@ -19,58 +19,52 @@ OscConnection {
 		};
 		// add to the widget's oscConnection and automatically update GUI
 		widget.oscConnections.add(this).changed(\value);
-		this.initModels;
+		this.initModels(widget.wmc);
 	}
 
-	initModels { |modelsControllers|
-		if (modelsControllers.notNil) {
-			mc = modelsControllers;
-		} {
-			mc ?? { mc = () };
+	initModels { |wmc|
+		wmc.oscCalibration ?? { wmc.oscCalibration = () };
+		wmc.oscCalibration.model ?? {
+			wmc.oscCalibration.model = List[];
 		};
+		wmc.oscCalibration.model.add(Ref(CVWidget.oscCalibration));
 
-		mc.oscCalibration ?? { mc.oscCalibration = () };
-		mc.oscCalibration.model ?? {
-			mc.oscCalibration.model = Ref(CVWidget.oscCalibration);
+		wmc.oscInputRange ?? { wmc.oscInputRange = () };
+		wmc.oscInputRange.model ?? {
+			wmc.oscInputRange.model = List[];
 		};
+		wmc.oscInputRange.model.add(Ref([0.0001, 0.0001]));
 
-		mc.oscInputRange ?? { mc.oscInputRange = () };
-		mc.oscInputRange.model ?? {
-			mc.oscInputRange.model = Ref([0.0001, 0.0001])
+		wmc.oscConnections ?? { wmc.oscConnections = () };
+		wmc.oscConnections.model ?? {
+			wmc.oscConnections.model = List[];
 		};
+		wmc.oscConnections.model.add(Ref(false));
 
-		mc.oscConnection ?? { mc.oscConnection = () };
-		mc.oscConnection.model ?? {
-			mc.oscConnection.model = Ref(false);
+		wmc.oscDisplay ?? { wmc.oscDisplay = () };
+		wmc.oscDisplay.model ?? {
+			wmc.oscDisplay.model = List[];
 		};
+		wmc.oscDisplay.model.add(Ref((
+			ipField: nil,
+			portField: nil,
+			nameField: "/my/cmd/name",
+			index: 1,
+			connectorButVal: 0,
+			editEnabled: true
+		)));
 
-		mc.oscDisplay ?? { mc.oscDisplay = () };
-		mc.oscDisplay.model ?? {
-			mc.oscDisplay.model = Ref((
-				ipField: nil,
-				portField: nil,
-				nameField: "/my/cmd/name",
-				index: 1,
-				connectorButVal: 0,
-				editEnabled: true
-			))
-		};
-
-		// add model to list of connection
-		// models in the instance' model
-		widget.wmc.osc.add(mc);
-
-		this.initControllers;
+		this.initControllers(wmc);
 	}
 
-	initControllers {
+	initControllers { |wmc|
 		#[
 			prInitOscCalibration,
 			prInitOscInputRange,
 			prInitOscConnect,
 			prInitOscDisplay
 		].do { |method|
-			this.perform(method, mc, widget.cv)
+			this.perform(method, wmc, widget.cv)
 		}
 	}
 
@@ -93,10 +87,10 @@ OscConnection {
 	}
 
 	prInitOscConnect { |mc, cv|
-		mc.oscConnection.controller ?? {
-			mc.oscConnection.controller = SimpleController(mc.oscConnection.model)
+		mc.oscConnections.controller ?? {
+			mc.oscConnections.controller = SimpleController(mc.oscConnections.model)
 		};
-		mc.oscConnection.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscConnections.controller.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
@@ -140,56 +134,49 @@ MidiConnection {
 			this.name_("MIDI Connection %".format(widget.numMidiConnections).asSymbol);
 		};
 		widget.midiConnections.add(this).changed(\value);
-		this.initModels;
+		this.initModels(widget.wmc);
 	}
 
-	initModels { |modelsControllers|
-		if (modelsControllers.notNil) {
-			mc = modelsControllers;
-		} {
-			mc ?? { mc = () };
+	initModels { |wmc|
+		wmc.midiOptions ?? { wmc.midiOptions = () };
+		wmc.midiOptions.model ?? {
+			wmc.midiOptions.model = List[];
 		};
+		wmc.midiOptions.model.add(Ref((
+			midiMode: CVWidget.midiMode,
+			midiMean: CVWidget.midiMean,
+			ctrlButtonBank: CVWidget.ctrlButtonBank,
+			midiResolution: CVWidget.midiResolution,
+			softWithin: CVWidget.softWithin
+		)));
 
-		mc.midiOptions ?? { mc.midiOptions = () };
-		mc.midiOptions.model ?? {
-			mc.midiOptions.model = Ref((
-				midiMode: CVWidget.midiMode,
-				midiMean: CVWidget.midiMean,
-				ctrlButtonBank: CVWidget.ctrlButtonBank,
-				midiResolution: CVWidget.midiResolution,
-				softWithin: CVWidget.softWithin
-			))
+		wmc.midiConnections ?? { wmc.midiConnections = () };
+		wmc.midiConnections.model ?? {
+			wmc.midiConnections.model = List[];
 		};
+		wmc.midiConnections.model.add(Ref(nil));
 
-		mc.midiConnection ?? { mc.midiConnection = () };
-		mc.midiConnection.model ?? {
-			mc.midiConnection.model = Ref(nil);
+		wmc.midiDisplay ?? { wmc.midiDisplay = () };
+		wmc.midiDisplay.model ?? {
+			wmc.midiDisplay.model = List[];
 		};
-
-		mc.midiDisplay ?? { mc.midiDisplay = () };
-		mc.midiDisplay.model ?? {
-			mc.midiDisplay.model = Ref((
-				src: "source",
-				chan: "chan",
-				ctrl: "ctrl",
-				learn: "L"
-			))
-		};
-
-		// add model to list of connection
-		// models in the instance' model
-		widget.wmc.midi.add(mc);
-
-		this.initControllers
+		wmc.midiDisplay.model.add(Ref((
+			src: "source",
+			chan: "chan",
+			ctrl: "ctrl",
+			learn: "L"
+		)));
+		"widget.wmc.midiConnections: %".format(widget.wmc.midiConnections).postcs;
+		this.initControllers(wmc);
 	}
 
-	initControllers {
+	initControllers { |wmc|
 		#[
 			prInitMidiOptions,
 			prInitMidiConnect,
 			prInitMidiDisplay
 		].do { |method|
-			this.perform(method, mc, widget.cv)
+			this.perform(method, wmc, widget.cv)
 		}
 	}
 
@@ -204,13 +191,16 @@ MidiConnection {
 	}
 
 	prInitMidiConnect { |mc, cv|
-		var ccAction, makeCCconnection;
+		var ccAction, makeCCconnection, index;
+		var slotChanger;
 
-		mc.midiConnection.controller ?? {
-			mc.midiConnection.controller = SimpleController(mc.midiConnection.model);
+		mc.midiConnections.controller ?? {
+			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
-		mc.midiConnection.controller.put(\default, { |changer, what, moreArgs|
-			if (changer.value.class == Event) {
+		mc.midiConnections.controller.put(\default, { |changer, what, moreArgs|
+			index = widget.midiConnections.indexOf(this);
+			if (changer[index].value.class == Event) {
+				slotChanger = changer[index].value;
 				// connect
 				ccAction = { |val, num, chan, src|
 					this.getMidiMode.switch(
@@ -242,12 +232,12 @@ MidiConnection {
 					}
 				};
 
-				if (changer.value.isEmpty) {
+				if (slotChanger.isEmpty) {
 					"MIDIFunc should learn".inform;
 					makeCCconnection.().learn;
 				} {
-					"MIDIFunc was set to src: %, channel: %, number: %".format(changer.value.src, changer.value.chan, changer.value.num).inform;
-					makeCCconnection.(changer.value.src, changer.value.chan, changer.value.num);
+					"MIDIFunc was set to src: %, channel: %, number: %".format(slotChanger.src, slotChanger.chan, slotChanger.num).inform;
+					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
 				}
 			} {
 				midiFunc.clear;
@@ -255,7 +245,7 @@ MidiConnection {
 		})
 	}
 
-	prInitMidiDisplay {
+	prInitMidiDisplay { |mc, cv|
 		mc.midiDisplay.controller ?? {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
@@ -265,94 +255,114 @@ MidiConnection {
 	}
 
 	setMidiMode { |mode|
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
 		// 14-bit MIDI mode?
 		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
 		};
 
-		mc.midiOptions.model.value_((
+		mc.midiOptions.model[index].value_((
 			midiMode: mode,
-			midiMean: mc.midiOptions.model.value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
-			midiResolution: mc.midiOptions.model.value.midiResolution,
-			softWithin: mc.midiOptions.model.value.softWithin
+			midiMean: mc.midiOptions.model[index].value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model[index].value.midiResolution,
+			softWithin: mc.midiOptions.model[index].value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
 	getMidiMode {
-		^mc.midiOptions.model.value.midiMode;
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		^mc.midiOptions.model[index].value.midiMode;
 	}
 
 	setMidiMean { |meanval|
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
 		meanval = meanval.asInteger;
 
-		mc.midiOptions.model.value_((
-			midiMode: mc.midiOptions.model.value.midiMode,
+		mc.midiOptions.model[index].value_((
+			midiMode: mc.midiOptions.model[index].value.midiMode,
 			midiMean: meanval,
-			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
-			midiResolution: mc.midiOptions.model.value.midiResolution,
-			softWithin: mc.midiOptions.model.value.softWithin
+			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model[index].value.midiResolution,
+			softWithin: mc.midiOptions.model[index].value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
 	getMidiMean {
-		^mc.midiOptions.model.value.midiMean;
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		^mc.midiOptions.model[index].value.midiMean;
 	}
 
 	setSoftWithin { |threshold|
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
 		threshold = threshold.asFloat;
 
-		mc.midiOptions.model.value_((
-			midiMode: mc.midiOptions.model.value.midiMode,
-			midiMean: mc.midiOptions.model.value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
-			midiResolution: mc.midiOptions.model.value.midiResolution,
+		mc.midiOptions.model[index].value_((
+			midiMode: mc.midiOptions.model[index].value.midiMode,
+			midiMean: mc.midiOptions.model[index].value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiResolution: mc.midiOptions.model[index].value.midiResolution,
 			softWithin: threshold
 		)).changedKeys(widget.syncKeys);
 	}
 
 	getSoftWithin {
-		^mc.midiOptions.model.value.softWithin;
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		^mc.midiOptions.model[index].value.softWithin;
 	}
 
 	setCtrlButtonBank { |numSliders|
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
 		if (numSliders.notNil and:{ numSliders.isInteger.not }) {
 			Error("setCtrlButtonBank: 'numSliders' must either be an Integer or nil!").throw;
 		};
 
-		mc.midiOptions.model.value_((
-			midiMode: mc.midiOptions.model.value.midiMode,
-			midiMean: mc.midiOptions.model.value.midiMean,
+		mc.midiOptions.model[index].value_((
+			midiMode: mc.midiOptions.model[index].value.midiMode,
+			midiMean: mc.midiOptions.model[index].value.midiMean,
 			ctrlButtonBank: numSliders,
-			midiResolution: mc.midiOptions.model.value.midiResolution,
-			softWithin: mc.midiOptions.model.value.softWithin
+			midiResolution: mc.midiOptions.model[index].value.midiResolution,
+			softWithin: mc.midiOptions.model[index].value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
 	getCtrlButtonBank {
-		^mc.midiOptions.model.value.ctrlButtonBank;
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		^mc.midiOptions.model[index].value.ctrlButtonBank;
 	}
 
 	setMidiResolution { |resolution|
-		mc.midiOptions.model.value_((
-			midiMode: mc.midiOptions.model.value.midiMode,
-			midiMean: mc.midiOptions.model.value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model.value.ctrlButtonBank,
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		mc.midiOptions.model[index].value_((
+			midiMode: mc.midiOptions.model[index].value.midiMode,
+			midiMean: mc.midiOptions.model[index].value.midiMean,
+			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
 			midiResolution: resolution,
-			softWithin: mc.midiOptions.model.value.softWithin
+			softWithin: mc.midiOptions.model[index].value.softWithin
 		)).changedKeys(widget.syncKeys);
 	}
 
 	getMidiResolution {
-		^mc.midiOptions.model.value.midiResolution;
+		var index = widget.midiConnections.indexOf(this);
+		^widget.wmc.midiOptions.model[index].value.midiResolution;
 	}
 
 	midiConnect { |src, chan, num|
-		// any further checks
-
-		mc.midiConnection.model.value_(
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		mc.midiConnections.model[index].value_(
 			(src: src, chan: chan, num: num)
-		).changedKeys(widget.syncKeys);
+		);
+		mc.midiConnections.model.changedKeys(widget.syncKeys);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -362,7 +372,10 @@ MidiConnection {
 	}
 
 	midiDisconnect {
-		mc.midiConnection.model.value_(nil).changedKeys(widget.syncKeys);
+		var index = widget.midiConnections.indexOf(this);
+		var mc = widget.wmc;
+		mc.midiConnections.model[index].value_(nil);
+		mc.midiConnections.model.changedKeys(widget.syncKeys);
 	}
 
 	gui { |parent, bounds|

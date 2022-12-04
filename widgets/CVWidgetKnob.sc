@@ -11,7 +11,7 @@ CVWidgetKnob : CVWidget {
 		^super.new.init(name, cv, setup, action);
 	}
 
-	init { |wdgtName, wdgtCV, setupArgs, action|
+	init { |wdgtName, wdgtCV, setupArgs, action, modelsControllers|
 		wdgtName ?? {
 			Error("No name provided for new CVWidgetKnob").throw;
 		};
@@ -60,7 +60,7 @@ CVWidgetKnob : CVWidget {
 		// add a 'default' action, if given
 		action !? { this.addAction(\default, action) };
 
-		this.initModels;
+		this.initModels(modelsControllers);
 	}
 
 	initModels { |modelsControllers|
@@ -88,11 +88,7 @@ CVWidgetKnob : CVWidget {
 		wmc.cvGuiConnections.model = Ref([true, true])
 		};*/
 
-		// each OSC/MIDI connection needs its own model
-		wmc.osc ?? { wmc.osc = List[] };
-		wmc.midi ?? { wmc.midi = List[] };
-
-		this.initControllers;
+		this.initControllers(wmc);
 		// every new CVWidget should
 		// immediately be amended by
 		// an empty OscConnection
@@ -101,7 +97,7 @@ CVWidgetKnob : CVWidget {
 		MidiConnection(this);
 	}
 
-	initControllers {
+	initControllers { |wmc|
 		#[
 			prInitSpecControl,
 			prInitActionsControl
