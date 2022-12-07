@@ -120,35 +120,6 @@ CVWidget {
 	// extend the API with custom controllers
 	extend { |key, func, controllers, proto=false|
 		var thisKey, thisControllers;
-		var recursion = { |col, ctrl|
-			case
-			{ col.class == Event } {
-				col.pairsDo { |k, v|
-					if (v.class == List) { recursion.(v, ctrl) };
-					if (v.class == Event) {
-						if (v.controller.isNil) {
-							recursion.(v, ctrl)
-						} {
-							if (k != \mapConstrainterHi and: {
-								k != \mapConstrainterLo
-							}) {
-								if (ctrl.isNil or: { k === ctrl }) {
-									v.controller.put(thisKey, func)
-								}
-							}
-						}
-					}
-				}
-			}
-			{ col.class == List } {
-				col.do { |it|
-					if ((it.class == Event).or(it.class == List)) {
-						recursion.(it, ctrl)
-					}
-				}
-			}
-		};
-
 		thisKey = key.asSymbol;
 		thisControllers = controllers.collect({ |c| c.asSymbol });
 		if (this.syncKeys.includes(thisKey)) {
@@ -156,11 +127,23 @@ CVWidget {
 		} {
 			// controllers -> must be a list of existing controllers
 			if (controllers.size == 0) {
-				// models and controllers are not a simple list of model/controller
-				// pairs - it will contain sub-Events for each Midi-/OscConnection
-				recursion.(wmc)
+				wmc.pairsDo { |k, v|
+					if (k != \mapConstrainterHi and:{
+						k != \mapConstrainterLo
+					}) {
+						v.controller.put(thisKey, func)
+					}
+				}
 			} {
-				thisControllers.do { |c| recursion.(wmc, c) }
+				thisControllers.do { |c|
+					if (wmc[c].notNil and: {
+						c != \mapConstrainterHi and: {
+							c != \mapConstrainterLo
+						}
+					}) {
+						wmc[c].controller.put(thisKey, func)
+					}
+				}
 			}
 		};
 
@@ -170,7 +153,7 @@ CVWidget {
 	// remove controllers that have been added through CVWidget:-extend
 	reduce { |key, proto=false|
 		var thisKey = key.asSymbol;
-		var recursion = { |col|
+		/*var recursion = { |col|
 			case
 			{ col.class == Event } {
 				col.pairsDo { |k, v|
@@ -195,11 +178,18 @@ CVWidget {
 					}
 				}
 			}
-		};
+		};*/
 
 		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
 			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
-				recursion.(wmc)
+				// recursion.(wmc)
+				wmc.pairsDo { |k, v|
+					if (k != \mapConstrainterHi and: {
+						k != \mapConstrainterLo
+					}) {
+						v.controller.removeAt(thisKey)
+					}
+				}
 			};
 			this.prRemoveSyncKey(thisKey, proto);
 		}
