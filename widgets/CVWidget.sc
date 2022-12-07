@@ -153,32 +153,6 @@ CVWidget {
 	// remove controllers that have been added through CVWidget:-extend
 	reduce { |key, proto=false|
 		var thisKey = key.asSymbol;
-		/*var recursion = { |col|
-			case
-			{ col.class == Event } {
-				col.pairsDo { |k, v|
-					if (v.class == List) { recursion.(v) };
-					if (v.class == Event) {
-						if (v.controller.isNil) {
-							recursion.(v)
-						} {
-							if (k != \mapConstrainterHi and: {
-								k != \mapConstrainterLo
-							}) {
-								v.controller.removeAt(thisKey)
-							}
-						}
-					}
-				}
-			}
-			{ col.class == List } {
-				col.do { |it|
-					if ((it.class == Event).or(it.class == List)) {
-						recursion.(it)
-					}
-				}
-			}
-		};*/
 
 		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
 			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
