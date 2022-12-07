@@ -166,7 +166,6 @@ MidiConnection {
 			ctrl: "ctrl",
 			learn: "L"
 		)));
-		"widget.wmc.midiConnections: %".format(widget.wmc.midiConnections).postcs;
 		this.initControllers(wmc);
 	}
 
