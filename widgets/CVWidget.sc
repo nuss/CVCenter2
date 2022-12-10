@@ -6,13 +6,14 @@ CVWidget {
 
 	// widget models and controllers
 	// defined individually in subclasses
-	var <wmc;
+	var <name, <wmc;
 	var syncKeysEvent;
 
 	// custom actions
 	// to be evaluated on cv.value_ or cv.input_
 	var <env; // variables to be used inside actions
 	var <widgetActions/*, <userActions*/;
+	var <oscConnections, <midiConnections;
 
 	*initClass {
 		var scPrefs = false;
@@ -88,6 +89,12 @@ CVWidget {
 	// Initializing models and controllers
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
+
+	remove {
+		this.midiConnections.do(_.remove);
+		this.oscConnections.do(_.remove);
+		all.removeAt(name);
+	}
 
 	// private
 	prAddSyncKey { |key, proto|

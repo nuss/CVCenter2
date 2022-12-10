@@ -1,11 +1,9 @@
 CVWidgetKnob : CVWidget {
-	var <name, <cv;
+	var <cv;
 	// ... see if I can move them to CVWidget
 	// var <wmc; //widget models and controllers
 	var <>numOscConnections = 0, <>numMidiConnections = 0;
 	var oscConnectionsDialog, midiConnectionsDialog;
-
-	var <oscConnections, <midiConnections;
 
 	*new { |name, cv, setup, action|
 		^super.new.init(name, cv, setup, action);
@@ -447,15 +445,15 @@ CVWidgetKnob : CVWidget {
 	}
 
 	removeMidiConnection { |connection|
-		if (connection.class == Symbol) {
-			connection = midiConnections.detect { |c| c.name == connection }
-		};
-		if (connection.isInteger) {
-			connection = midiConnections[connection]
-		};
-		// FIXME: should call connection.remove instead?
-		connection.midiDisconnect;
-		midiConnections.remove(connection);
+		if (midiConnections.size > 1) {
+			if (connection.class == Symbol) {
+				connection = midiConnections.detect { |c| c.name == connection }
+			};
+			if (connection.isInteger) {
+				connection = midiConnections[connection]
+			};
+			connection.remove;
+		}
 	}
 
 	// init controllers (private)

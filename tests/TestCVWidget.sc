@@ -5,9 +5,9 @@ TestCVWidget : UnitTest {
 		widget = CVWidgetKnob(\test);
 	}
 
-	// tearDown {
-	// 	widget.remove;
-	// }
+	tearDown {
+		widget.remove;
+	}
 
 	test_globalSetup {
 		var setup = CVWidget.globalSetup;
@@ -48,6 +48,10 @@ TestCVWidgetKnob : UnitTest {
 
 	setUp {
 		widget = CVWidgetKnob(\test);
+	}
+
+	tearDown {
+		widget.remove;
 	}
 
 	test_new {
@@ -181,10 +185,6 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.wmc.midiConnections.model[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
 		widget.midiConnect(0, num: 1);
 		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
-	}
-
-	test_removeMidiConnection {
-
 	}
 
 	test_setOscCalibration {}
