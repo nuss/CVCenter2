@@ -172,10 +172,14 @@ TestCVWidgetKnob : UnitTest {
 		numConnections = widget.midiConnections.size;
 		widget.midiConnect(0, num: 1);
 		this.assert(numConnections == widget.midiConnections.size, "The number of widget.midiConnections should not have been increased after connecting the widget using the default midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
-		widget.midiConnect(num: 1);
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[0].value should equal (num: 1)");
+		widget.midiConnect(num: 2);
 		this.assert(widget.midiConnections.size == (numConnections + 1) , "The number of widget.midiConnections should not have been increased by 1 after connecting the widget without specifying a midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[1].midiConnection.model.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnections.model[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[1].value should equal (num: 2)");
+		// midi learn
+		widget.midiConnect;
+		MIDIIn.doControlAction(12345, 0, 5, 127);
+		this.assertEquals(widget.wmc.midiConnections.model[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.model[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
 	}
 
 	test_midiDisconnect {

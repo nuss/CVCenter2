@@ -1,7 +1,6 @@
 OscConnection {
 	classvar cAnons = 0;
 	var <widget, <>name;
-	// var <mc; // models and controllers
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -13,10 +12,10 @@ OscConnection {
 	}
 
 	init {
-		this.name ?? {
+		if (this.name.isNil) {
 			widget.numOscConnections = widget.numOscConnections + 1;
 			this.name_("OSC Connection %".format(widget.numOscConnections).asSymbol);
-		};
+		} { this.name_(this.name.asSymbol) };
 		// add to the widget's oscConnection and automatically update GUI
 		widget.oscConnections.add(this).changed(\value);
 		this.initModels(widget.wmc);
@@ -114,9 +113,12 @@ OscConnection {
 
 MidiConnection {
 	classvar cAnons = 0;
+	classvar <allMidiFuncs;
 	var <widget, <>name;
-	// var <mc; // models and controllers
-	var midiFunc;
+
+	*initClass {
+		allMidiFuncs = ();
+	}
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -128,11 +130,15 @@ MidiConnection {
 	}
 
 	init {
-		this.name ?? {
+		if (this.name.isNil) {
 			widget.numMidiConnections = widget.numMidiConnections + 1;
 			this.name_("MIDI Connection %".format(widget.numMidiConnections).asSymbol);
-		};
+		} { this.name_(this.name.asSymbol) };
 		widget.midiConnections.add(this).changed(\value);
+		allMidiFuncs[widget] ?? {
+			allMidiFuncs.put(widget, List[])
+		};
+		allMidiFuncs[widget].add(nil);
 		this.initModels(widget.wmc);
 	}
 
@@ -191,6 +197,7 @@ MidiConnection {
 	prInitMidiConnection { |mc, cv|
 		var ccAction, makeCCconnection;
 		var slotChanger;
+
 		mc.midiConnections.controller ?? {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
@@ -203,47 +210,51 @@ MidiConnection {
 				ccAction = { |val, num, chan, src|
 					// if we only data structure to hold connections is the model
 					// we must infer the connections parameters here
-					if (mc.midiConnections.model[index].value.isEmpty) {
+					if (mc.midiConnections.model[index].notNil and: {
+						mc.midiConnections.model[index].value.isEmpty
+					}) {
 						mc.midiConnections.model[index].value_((num: num, chan: chan, src: src))
 					};
-					this.getMidiMode.switch(
-						//  0-127
-						0, {
-							if ((this.getSoftWithin <= 0).or(
-								val/127 < (cv.input + (this.getSoftWithin/2)) and: {
-									val/127 > (cv.input - (this.getSoftWithin/2))
-							})) {
-								cv.input_(val/127);
+					widget.midiConnections.indexOf(this) !? {
+						this.getMidiMode.switch(
+							//  0-127
+							0, {
+								if ((this.getSoftWithin <= 0).or(
+									val/127 < (cv.input + (this.getSoftWithin/2)) and: {
+										val/127 > (cv.input - (this.getSoftWithin/2))
+								})) {
+									cv.input_(val/127);
+									// [val, cv.input, cv.value].postln;
+								};
+							},
+							// +/-
+							1, {
+								cv.input_(cv.input + (val-this.getMidiMean/127*this.getMidiResolution));
 								// [val, cv.input, cv.value].postln;
-							};
-						},
-						// +/-
-						1, {
-							cv.input_(cv.input + (val-this.getMidiMean/127*this.getMidiResolution));
-							// [val, cv.input, cv.value].postln;
-						}
-					)
+							}
+						)
+					}
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
-					// no need to create a new MIDIFunc any time midiDisconnect is called
-					// midiFunc remains anyway - re-use instead of overwriting and potentially
-					// creating a pile of orphaned MIDIFuncs (memory leak)
-					if (midiFunc.isNil or: { midiFunc.func.isNil }) {
-						midiFunc = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
-					} {
-						midiFunc.add(ccAction);
-					}
+					if (allMidiFuncs[widget][index].isNil or: {
+						allMidiFuncs[widget][index].func.isNil
+					}) {
+						allMidiFuncs[widget][index] = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
+					};
+					allMidiFuncs[widget][index];
 				};
 
 				if (slotChanger.isEmpty) {
-					"MIDIFunc should learn".inform;
+					"allMidiFuncs[widget][%] should learn".format(index).inform;
 					makeCCconnection.().learn;
 				} {
-					"MIDIFunc was set to src: %, channel: %, number: %".format(slotChanger.src, slotChanger.chan, slotChanger.num).inform;
+					"allMidiFuncs[widget][%] was set to src: %, channel: %, number: %".format(
+						index, slotChanger.src, slotChanger.chan, slotChanger.num
+					).inform;
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
 				};
 			} {
-				midiFunc.clear;
+				allMidiFuncs[widget][index].clear;
 			};
 		})
 	}
@@ -369,7 +380,7 @@ MidiConnection {
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
-				this.midiFunc.permanent_(this.widget.class.removeResponders)
+				allMidiFuncs[widget][index].permanent_(this.widget.class.removeResponders)
 			}
 		})
 	}
@@ -385,10 +396,15 @@ MidiConnection {
 
 	}
 
+	// FIXME: something funky going on under the hood
+	// remove will not only remove this midiConnection but
+	// but also the deactivate the MidiConnection at the
+	// highest index in widget.midiConnections - why???
 	remove {
 		var index = widget.midiConnections.indexOf(this);
 		this.midiDisconnect;
-		midiFunc.free;
+		allMidiFuncs[widget][index].free;
+		allMidiFuncs[widget].removeAt(index);
 		widget.wmc.midiConnections.model.removeAt(index);
 		widget.midiConnections.remove(this).changed(\value);
 	}
