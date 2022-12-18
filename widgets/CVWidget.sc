@@ -13,7 +13,7 @@ CVWidget {
 	// to be evaluated on cv.value_ or cv.input_
 	var <env; // variables to be used inside actions
 	var <widgetActions/*, <userActions*/;
-	var <oscConnections, <midiConnections;
+	var <oscConnectors, <midiConnectors;
 
 	*initClass {
 		var scPrefs = false;
@@ -61,8 +61,8 @@ CVWidget {
 	activateAction { this.subclassResponsibility(thisMethod) }
 	updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
-	addMidiConnection { this.subclassResponsibility(thisMethod) }
-	removeMidiConnection { this.subclassResponsibility(thisMethod) }
+	addMidiConnector { this.subclassResponsibility(thisMethod) }
+	removeMidiConnector { this.subclassResponsibility(thisMethod) }
 	setMidiMode { this.subclassResponsibility(thisMethod) }
 	getMidiMode { this.subclassResponsibility(thisMethod) }
 	setMidiMean { this.subclassResponsibility(thisMethod) }
@@ -76,8 +76,8 @@ CVWidget {
 	midiConnect { this.subclassResponsibility(thisMethod) }
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 	// OSC
-	addOscConnection { this.subclassResponsibility(thisMethod) }
-	removeOscConnection { this.subclassResponsibility(thisMethod) }
+	addOscConnector { this.subclassResponsibility(thisMethod) }
+	removeOscConnector { this.subclassResponsibility(thisMethod) }
 	setOscCalibration { this.subclassResponsibility(thisMethod) }
 	getOscCalibration { this.subclassResponsibility(thisMethod) }
 	setOscMapping { this.subclassResponsibility(thisMethod) }
@@ -91,8 +91,8 @@ CVWidget {
 	initControllers { this.subclassResponsibility(thisMethod) }
 
 	remove {
-		this.midiConnections.do(_.remove);
-		this.oscConnections.do(_.remove);
+		this.midiConnectors.do(_.remove);
+		this.oscConnectors.do(_.remove);
 		all.removeAt(name);
 	}
 

@@ -1,4 +1,4 @@
-OscConnectionsEditorView : CompositeView {
+OscConnectorsEditorView : CompositeView {
 	var <widget, <mc, <parent;
 	// GUI elements
 	var connectionSelect, addButton, removeButton;
@@ -10,7 +10,7 @@ OscConnectionsEditorView : CompositeView {
 	var specConstraintsStaticText, inOutMappingSelect, connectionButton;
 	// var more, more...
 
-	// FIXME: an OscConnection is a single connection
+	// FIXME: an OscConnector is a single connection
 	// yet, a selection of connections can only belong
 	// to the widget
 	// -> must be considered when adding the model to the widget's
@@ -24,14 +24,14 @@ OscConnectionsEditorView : CompositeView {
 		if (parentView.isNil) {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
 		} { parent = parentView };
-		// Just create a new OscConnection if none exists
+		// Just create a new OscConnector if none exists
 		// it will automatically be added to the widget's list
-		// of OscConnections within OscConnection:-init - should
+		// of OscConnectors within OscConnector:-init - should
 		// also update the connectionSelect's items
-		if (widget.oscConnections.isEmpty) {
-			OscConnection(widget)
+		if (widget.oscConnectors.isEmpty) {
+			OscConnector(widget)
 		};
-		mc = widget.oscConnections;
+		mc = widget.oscConnectors;
 		parent.layout_(
 			VLayout(
 				HLayout(
@@ -75,7 +75,7 @@ OscConnectionsEditorView : CompositeView {
 	}
 }
 
-MidiConnectionsEditorView : CompositeView {
+MidiConnectorsEditorView : CompositeView {
 	var <widget;
 	// GUI elements
 	var connectionSelect;

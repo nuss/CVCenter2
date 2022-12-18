@@ -61,11 +61,11 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
-		this.assertEquals(widget.wmc.keys, Set[\oscConnections, \cvSpec, \actions, \midiOptions, \oscDisplay, \oscInputRange, \midiDisplay, \oscCalibration, \midiConnections], "A CVWidgetKnob's wmc variable (an Event) should by default hold the following keys: \\oscConnections, \\cvSpec, \\actions, \\midiOptions, \\oscDisplay, \\oscInputRange, \\midiDisplay, \\oscCalibration, \\midiConnections");
-		this.assertEquals(widget.oscConnections.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnections'");
-		this.assertEquals(widget.oscConnections[0].name, 'OSC Connection 1', "The default OscConnection should be named 'OSC Connection 1'");
-		this.assertEquals(widget.midiConnections.size, 1, "A new CVWidgetKnob should hold one MidiConnection in 'midiConnections");
-		this.assertEquals(widget.midiConnections[0].name, 'MIDI Connection 1', "The default MidiConnection should be named 'Midi Connection 1'")
+		this.assertEquals(widget.wmc.keys, Set[\oscConnectors, \cvSpec, \actions, \midiOptions, \oscDisplay, \oscInputRange, \midiDisplay, \oscCalibration, \midiConnectors], "A CVWidgetKnob's wmc variable (an Event) should by default hold the following keys: \\oscConnectors, \\cvSpec, \\actions, \\midiOptions, \\oscDisplay, \\oscInputRange, \\midiDisplay, \\oscCalibration, \\midiConnectors");
+		this.assertEquals(widget.oscConnectors.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
+		this.assertEquals(widget.oscConnectors[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
+		this.assertEquals(widget.midiConnectors.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
+		this.assertEquals(widget.midiConnectors[0].name, 'MIDI Connection 1', "The default MidiConnector should be named 'Midi Connection 1'")
 	}
 
 	test_setSpec {
@@ -81,114 +81,114 @@ TestCVWidgetKnob : UnitTest {
 		this.assert(widget.getSpec === widget.cv.spec, "The widget's CV's' spec and the return value of widget.getSpec should be identical");
 	}
 
-	test_add_removeMidiConnection {
-		this.assertEquals(widget.midiConnections.size, 1, "widget.midiConnections should by default contain one midiConnection after widget instantiation");
-		connection1 = widget.addMidiConnection;
-		this.assertEquals(widget.midiConnections.size, 2, "widget.midiConnections should contain two midiConnections after calling widget.addMidiConnection");
-		this.assertEquals(connection1.name, 'MIDI Connection 2', "The anonymously added MidiConnection should have been named 'MIDI Connection 2'");
-		connection2 = widget.addMidiConnection(\test);
-		this.assertEquals(widget.midiConnections.size, 3, "widget.midiConnections should contain three midiConnections after calling widget.addMidiConnection");
-		this.assertEquals(connection2.name, \test, "The added MidiConnection should have been named 'test'");
-		widget.removeMidiConnection(connection1);
-		this.assertEquals(widget.midiConnections.size, 2, "widget.midiConnections should contain two midiConnections after removing connection1");
-		this.assertEquals(widget.midiConnections.collect(_.name), ['MIDI Connection 1', \test], "widget.midiConnections should contain two midiConnections, named 'MIDI Connection 1' and 'test'");
-		widget.removeMidiConnection(\test);
-		this.assertEquals(widget.midiConnections.size, 1, "widget.midiConnections should contain one MidiConnection");
+	test_add_removeMidiConnector {
+		this.assertEquals(widget.midiConnectors.size, 1, "widget.midiConnectors should by default contain one midiConnection after widget instantiation");
+		connection1 = widget.addMidiConnector;
+		this.assertEquals(widget.midiConnectors.size, 2, "widget.midiConnectors should contain two midiConnectors after calling widget.addMidiConnector");
+		this.assertEquals(connection1.name, 'MIDI Connection 2', "The anonymously added MidiConnector should have been named 'MIDI Connection 2'");
+		connection2 = widget.addMidiConnector(\test);
+		this.assertEquals(widget.midiConnectors.size, 3, "widget.midiConnectors should contain three midiConnectors after calling widget.addMidiConnector");
+		this.assertEquals(connection2.name, \test, "The added MidiConnector should have been named 'test'");
+		widget.removeMidiConnector(connection1);
+		this.assertEquals(widget.midiConnectors.size, 2, "widget.midiConnectors should contain two midiConnectors after removing connection1");
+		this.assertEquals(widget.midiConnectors.collect(_.name), ['MIDI Connection 1', \test], "widget.midiConnectors should contain two midiConnectors, named 'MIDI Connection 1' and 'test'");
+		widget.removeMidiConnector(\test);
+		this.assertEquals(widget.midiConnectors.size, 1, "widget.midiConnectors should contain one MidiConnector");
 	}
 
 	test_set_getMidiMode {
-		connection1 = widget.addMidiConnection;
-		connection2 = widget.addMidiConnection;
-		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnections should be set to midiMode 0 by default");
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnectors should be set to midiMode 0 by default");
 		widget.setMidiMode(1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnections should have been set to midiMode 1");
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnectors should have been set to midiMode 1");
 		widget.setMidiMode(0, connection1);
-		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnections midiMode should equal [1, 0, 1]");
+		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnectors midiMode should equal [1, 0, 1]");
 		widget.setMidiMode(0, 'MIDI Connection 1');
-		this.assertEquals(widget.getMidiMode, [0, 0, 1], "widget.midiConnections midiMode should equal [0, 0, 1]");
+		this.assertEquals(widget.getMidiMode, [0, 0, 1], "widget.midiConnectors midiMode should equal [0, 0, 1]");
 		widget.setMidiMode(1, 1);
-		this.assertEquals(widget.getMidiMode, [0, 1, 1], "widget.midiConnections midiMode should equal [0, 1, 1]")
+		this.assertEquals(widget.getMidiMode, [0, 1, 1], "widget.midiConnectors midiMode should equal [0, 1, 1]")
 	}
 
 	test_set_getMidiMean {
-		connection1 = widget.addMidiConnection;
-		connection2 = widget.addMidiConnection;
-		this.assertEquals(widget.getMidiMean, [64, 64, 64], "All widget.midiConnections should be set to midiMean 64 by default");
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiMean, [64, 64, 64], "All widget.midiConnectors should be set to midiMean 64 by default");
 		widget.setMidiMean(0);
-		this.assertEquals(widget.getMidiMean, [0, 0, 0], "All widget.midiConnections should have been set to midiMean 0");
+		this.assertEquals(widget.getMidiMean, [0, 0, 0], "All widget.midiConnectors should have been set to midiMean 0");
 		widget.setMidiMean(64, connection1);
-		this.assertEquals(widget.getMidiMean, [0, 64, 0], "widget.midiConnections midiMean should equal [64, 0, 0]");
+		this.assertEquals(widget.getMidiMean, [0, 64, 0], "widget.midiConnectors midiMean should equal [64, 0, 0]");
 		widget.setMidiMean(64, 'MIDI Connection 1');
-		this.assertEquals(widget.getMidiMean, [64, 64, 0], "widget.midiConnections midiMean should equal [64, 64, 0]");
+		this.assertEquals(widget.getMidiMean, [64, 64, 0], "widget.midiConnectors midiMean should equal [64, 64, 0]");
 		widget.setMidiMean(64, 2);
-		this.assertEquals(widget.getMidiMean, [64, 64, 64], "widget.midiConnections midiMean should equal [64, 64, 64]");
+		this.assertEquals(widget.getMidiMean, [64, 64, 64], "widget.midiConnectors midiMean should equal [64, 64, 64]");
 	}
 
 	test_set_getSoftWithin {
-		connection1 = widget.addMidiConnection;
-		connection2 = widget.addMidiConnection;
-		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.1], "All widget.midiConnections should be set to softWithin 0.1 by default");
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.1], "All widget.midiConnectors should be set to softWithin 0.1 by default");
 		widget.setSoftWithin(0.5);
-		this.assertEquals(widget.getSoftWithin, [0.5, 0.5, 0.5], "All widget.midiConnections should have been set to softWithin 0.5");
+		this.assertEquals(widget.getSoftWithin, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to softWithin 0.5");
 		widget.setSoftWithin(0.1, connection1);
-		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnections softWithin should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnectors softWithin should equal [0.5, 0.1, 0.5]");
 		widget.setSoftWithin(0.1, 'MIDI Connection 1');
-		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.5], "widget.midiConnections softWithin should equal [0.1, 0.1, 0.5]");
+		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.5], "widget.midiConnectors softWithin should equal [0.1, 0.1, 0.5]");
 		widget.setSoftWithin(0.5, 0);
-		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnections softWithin should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnectors softWithin should equal [0.5, 0.1, 0.5]");
 	}
 
 	test_set_getCtrlButtonBank {
-		connection1 = widget.addMidiConnection;
-		connection2 = widget.addMidiConnection;
-		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, nil], "All widget.midiConnections should be set to ctrlButtonBank nil by default");
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, nil], "All widget.midiConnectors should be set to ctrlButtonBank nil by default");
 		widget.setCtrlButtonBank(16);
-		this.assertEquals(widget.getCtrlButtonBank, [16, 16, 16], "All widget.midiConnections should have been set to ctrlButtonBank 16");
+		this.assertEquals(widget.getCtrlButtonBank, [16, 16, 16], "All widget.midiConnectors should have been set to ctrlButtonBank 16");
 		widget.setCtrlButtonBank(nil, connection1);
-		this.assertEquals(widget.getCtrlButtonBank, [16, nil, 16], "widget.midiConnections ctrlButtonBank should equal [16, nil, 16]");
+		this.assertEquals(widget.getCtrlButtonBank, [16, nil, 16], "widget.midiConnectors ctrlButtonBank should equal [16, nil, 16]");
 		widget.setCtrlButtonBank(nil, 'MIDI Connection 1');
-		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, 16], "widget.midiConnections ctrlButtonBank should equal [nil, nil, 16]");
+		this.assertEquals(widget.getCtrlButtonBank, [nil, nil, 16], "widget.midiConnectors ctrlButtonBank should equal [nil, nil, 16]");
 		widget.setCtrlButtonBank(16, 1);
-		this.assertEquals(widget.getCtrlButtonBank, [nil, 16, 16], "widget.midiConnections ctrlButtonBank should equal [nil, 16, 16]");
+		this.assertEquals(widget.getCtrlButtonBank, [nil, 16, 16], "widget.midiConnectors ctrlButtonBank should equal [nil, 16, 16]");
 	}
 
 	test_set_getMidiResolution {
-		connection1 = widget.addMidiConnection;
-		connection2 = widget.addMidiConnection;
-		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnections should be set to midiResolution 1 by default");
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnectors should be set to midiResolution 1 by default");
 		widget.setMidiResolution(0.5);
-		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnections should have been set to midiResolution 0.5");
+		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to midiResolution 0.5");
 		widget.setMidiResolution(1, connection1);
-		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnections midiResolution should equal [0.5, 1, 0.5]");
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnectors midiResolution should equal [0.5, 1, 0.5]");
 		widget.setMidiResolution(1, 'MIDI Connection 1');
-		this.assertEquals(widget.getMidiResolution, [1, 1, 0.5], "widget.midiConnections midiResolution should equal [1, 1, 0.5]");
+		this.assertEquals(widget.getMidiResolution, [1, 1, 0.5], "widget.midiConnectors midiResolution should equal [1, 1, 0.5]");
 		widget.setMidiResolution(1, 2);
-		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "widget.midiConnections midiResolution should equal [1, 1, 1]");
+		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "widget.midiConnectors midiResolution should equal [1, 1, 1]");
 	}
 
 	test_midiConnect {
 		var numConnections;
 		MIDIIn.connectAll;
-		numConnections = widget.midiConnections.size;
+		numConnections = widget.midiConnectors.size;
 		widget.midiConnect(0, num: 1);
-		this.assert(numConnections == widget.midiConnections.size, "The number of widget.midiConnections should not have been increased after connecting the widget using the default midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[0].value should equal (num: 1)");
+		this.assert(numConnections == widget.midiConnectors.size, "The number of widget.midiConnectors should not have been increased after connecting the widget using the default midiConnection");
+		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[0].value should equal (num: 1)");
 		widget.midiConnect(num: 2);
-		this.assert(widget.midiConnections.size == (numConnections + 1) , "The number of widget.midiConnections should not have been increased by 1 after connecting the widget without specifying a midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.model[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[1].value should equal (num: 2)");
+		this.assert(widget.midiConnectors.size == (numConnections + 1) , "The number of widget.midiConnectors should not have been increased by 1 after connecting the widget without specifying a midiConnection");
+		this.assertEquals(widget.wmc.midiConnectors.model[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[1].value should equal (num: 2)");
 		// midi learn
 		widget.midiConnect;
 		MIDIIn.doControlAction(12345, 0, 5, 127);
-		this.assertEquals(widget.wmc.midiConnections.model[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.model[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
+		this.assertEquals(widget.wmc.midiConnectors.model[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.model[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
 	}
 
 	test_midiDisconnect {
 		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 		widget.midiDisconnect(0);
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
+		this.assertEquals(widget.wmc.midiConnectors.model[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
 		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 	}
 
 	test_setOscCalibration {}
