@@ -94,7 +94,14 @@ MidiConnectorsEditorView : CompositeView {
 		};
 		mc = widget.midiConnectors;
 		parent.layout_(
+			HLayout(
+				StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
+				MidiModeSelect(parent)
+			),
+			HLayout(
+				StaticText(parent).string_("MIDI mean (in/decremental mode only): ")
 
+			)
 		)
 	}
 }

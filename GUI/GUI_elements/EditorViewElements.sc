@@ -1,32 +1,36 @@
 MidiLearnButton : SCViewHolder {
 	classvar all;
-	var widget, mc;
+	var widget, mc, index;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect|
-		^super.new.init(parent, widget, rect);
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
 	}
 
-	init { |parentView, wdgt, rect|
+	init { |parentView, wdgt, id, rect|
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
 
 		// this.view = parentView;
 		widget = wdgt;
-		mc = widget.wmc.midi;
+		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(20, 20) };
 		this.view = Button(parentView, rect).states_([
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
-		]);
+		]).value_(this.view.states.detectIndex { |s, i|
+			s[0][i] == mc.model[index].value.learn
+		});
 		"mc: %".format(mc).postln;
 	}
 
-	set { |connection|
-		mc[connection].value.learn.switch(
+	set { |id|
+		index = id;
+		mc.model[index].value.learn.switch(
 			"X", {
 				this.view.value_(1)
 			},
@@ -39,81 +43,125 @@ MidiLearnButton : SCViewHolder {
 
 MidiSrcField : SCViewHolder {
 	classvar all;
-	var widget, mc;
+	var widget, mc, index;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect|
-		^super.new.init(parent, widget, rect);
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
 	}
 
-	init { |parentView, wdgt, rect|
+	init { |parentView, wdgt, id, rect|
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
 
 		widget = wdgt;
-		mc = widget.wmc.midi;
+		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(120, 20) };
-		this.view = TextField(parentView, rect).string_("source").canFocus_(false);
+		this.view = PopUpMenu(parentView, rect).items_(["source"]).canFocus_(false).item_(
+			this.view.items.detectIndex(_ == mc.model[index].value.src)
+		);
+		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
+
 	}
 
-	set { |connection|
-		this.view.string_(mc[connection].value.src);
+	set { |id|
+		index = id;
+		this.view.item_(this.view.items.detectIndex(_ == mc.model[index].value.src));
 	}
 }
 
 MidiChanField : SCViewHolder {
 	classvar all;
-	var widget, mc;
+	var widget, mc, index;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect|
-		^super.new.init(parent, widget, rect);
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
 	}
 
-	init { |parentView, wdgt, rect|
+	init { |parentView, wdgt, id, rect|
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
 
 		widget = wdgt;
-		mc = widget.wmc.midi;
+		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(120, 20) };
-		this.view = TextField(parentView, rect).string_("chan").canFocus_(false);
+		this.view = TextField(parentView, rect).string_(
+			mc.model[index].value.chan
+		).canFocus_(false);
 	}
 
-	set { |connection|
-		this.view.string_(mc[connection].value.chan);
+	set { |id|
+		index = id;
+		this.view.string_(mc.model[index].value.chan);
 	}
 }
 
 MidiCtrlField : SCViewHolder {
 	classvar all;
-	var widget, mc;
+	var widget, mc, index;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect|
-		^super.new.init(parent, widget, rect);
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
 	}
 
-	init { |parentView, wdgt, rect|
+	init { |parentView, wdgt, id, rect|
 		all[wdgt] ?? { all[wdgt] = List[] };
 		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
 
 		widget = wdgt;
-		mc = widget.wmc.midi;
+		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(120, 20) };
-		this.view = TextField(parentView, rect).string_("ctrl").canFocus_(false);
+		this.view = TextField(parentView, rect).string_(
+			mc.model[index].value.ctrl
+		).canFocus_(false);
 	}
 
-	set { |connection|
-		this.view.string_(mc[connection].value.ctrl);
+	set { |id|
+		index = id;
+		this.view.string_(mc.model[index].value.ctrl);
+	}
+}
+
+MidiModeSelect : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		widget = wdgt;
+		mc = widget.wmc.midiOptions;
+		rect ?? { rect = Point(120, 20) };
+		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"])
+		.value_(mc.model[index].value.midiMode).canFocus_(false);
+	}
+
+	set { |id|
+		index = id;
+		this.view.value_(mc.model[index].value.midiMode)
 	}
 }
