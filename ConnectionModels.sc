@@ -34,11 +34,11 @@ OscConnector {
 		};
 		wmc.oscInputRange.model.add(Ref([0.0001, 0.0001]));
 
-		wmc.oscConnectors ?? { wmc.oscConnectors = () };
-		wmc.oscConnectors.model ?? {
-			wmc.oscConnectors.model = List[];
+		wmc.oscConnections ?? { wmc.oscConnections = () };
+		wmc.oscConnections.model ?? {
+			wmc.oscConnections.model = List[];
 		};
-		wmc.oscConnectors.model.add(Ref(false));
+		wmc.oscConnections.model.add(Ref(false));
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
 		wmc.oscDisplay.model ?? {
@@ -86,10 +86,10 @@ OscConnector {
 	}
 
 	prInitOscConnection { |mc, cv|
-		mc.oscConnectors.controller ?? {
-			mc.oscConnectors.controller = SimpleController(mc.oscConnectors.model)
+		mc.oscConnections.controller ?? {
+			mc.oscConnections.controller = SimpleController(mc.oscConnections.model)
 		};
-		mc.oscConnectors.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscConnections.controller.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
@@ -155,11 +155,11 @@ MidiConnector {
 			softWithin: CVWidget.softWithin
 		)));
 
-		wmc.midiConnectors ?? { wmc.midiConnectors = () };
-		wmc.midiConnectors.model ?? {
-			wmc.midiConnectors.model = List[];
+		wmc.midiConnections ?? { wmc.midiConnections = () };
+		wmc.midiConnections.model ?? {
+			wmc.midiConnections.model = List[];
 		};
-		wmc.midiConnectors.model.add(Ref(nil));
+		wmc.midiConnections.model.add(Ref(nil));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.model ?? {
@@ -198,10 +198,10 @@ MidiConnector {
 		var ccAction, makeCCconnection;
 		var slotChanger;
 
-		mc.midiConnectors.controller ?? {
-			mc.midiConnectors.controller = SimpleController(mc.midiConnectors.model);
+		mc.midiConnections.controller ?? {
+			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
-		mc.midiConnectors.controller.put(\default, { |changer, what ... moreArgs|
+		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
 			var index = moreArgs[0];
 
 			if (changer[index].value.class == Event) {
@@ -210,10 +210,10 @@ MidiConnector {
 				ccAction = { |val, num, chan, src|
 					// if we only data structure to hold connections is the model
 					// we must infer the connections parameters here
-					if (mc.midiConnectors.model[index].notNil and: {
-						mc.midiConnectors.model[index].value.isEmpty
+					if (mc.midiConnections.model[index].notNil and: {
+						mc.midiConnections.model[index].value.isEmpty
 					}) {
-						mc.midiConnectors.model[index].value_((num: num, chan: chan, src: src))
+						mc.midiConnections.model[index].value_((num: num, chan: chan, src: src))
 					};
 					widget.midiConnectors.indexOf(this) !? {
 						this.getMidiMode.switch(
@@ -373,10 +373,10 @@ MidiConnector {
 	midiConnect { |src, chan, num|
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		mc.midiConnectors.model[index].value_(
+		mc.midiConnections.model[index].value_(
 			(src: src, chan: chan, num: num)
 		);
-		mc.midiConnectors.model.changedKeys(widget.syncKeys, index);
+		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -388,24 +388,28 @@ MidiConnector {
 	midiDisconnect {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		mc.midiConnectors.model[index].value_(nil);
-		mc.midiConnectors.model.changedKeys(widget.syncKeys, index);
+		mc.midiConnections.model[index].value_(nil);
+		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 	}
 
 	gui { |parent, bounds|
 
 	}
 
-	// FIXME: something funky going on under the hood
-	// remove will not only remove this midiConnection but
-	// but also the deactivate the MidiConnector at the
-	// highest index in widget.midiConnectors - why???
 	remove {
 		var index = widget.midiConnectors.indexOf(this);
 		this.midiDisconnect;
 		allMidiFuncs[widget][index].free;
 		allMidiFuncs[widget].removeAt(index);
-		widget.wmc.midiConnectors.model.removeAt(index);
+		widget.wmc.midiConnections.model.removeAt(index);
 		widget.midiConnectors.remove(this).changed(\value);
+	}
+
+	storeOn { |stream|
+		stream << this.class.name << "(" <<* [widget, this.name] << ")"
+	}
+
+	printOn { |stream|
+		this.storeOn(stream)
 	}
 }

@@ -76,7 +76,7 @@ OscConnectorsEditorView : CompositeView {
 }
 
 MidiConnectorsEditorView : CompositeView {
-	var <widget;
+	var <widget, <mc, <parent;
 	// GUI elements
 	var connectionSelect;
 
@@ -84,5 +84,17 @@ MidiConnectorsEditorView : CompositeView {
 		^super.newCopyArgs(widget).init(parent.asView, bounds.asRect);
 	}
 
-	init {}
+	init { |wdgt, parentView|
+		widget = wdgt;
+		if (parentView.isNil) {
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 300))
+		} { parent = parentView };
+		if (widget.midiConnectors.isEmpty) {
+			MidiConnector(widget)
+		};
+		mc = widget.midiConnectors;
+		parent.layout_(
+
+		)
+	}
 }

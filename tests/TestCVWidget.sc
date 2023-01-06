@@ -61,7 +61,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
-		this.assertEquals(widget.wmc.keys, Set[\oscConnectors, \cvSpec, \actions, \midiOptions, \oscDisplay, \oscInputRange, \midiDisplay, \oscCalibration, \midiConnectors], "A CVWidgetKnob's wmc variable (an Event) should by default hold the following keys: \\oscConnectors, \\cvSpec, \\actions, \\midiOptions, \\oscDisplay, \\oscInputRange, \\midiDisplay, \\oscCalibration, \\midiConnectors");
+		this.assertEquals(widget.wmc.keys, Set[\oscConnections, \cvSpec, \actions, \midiOptions, \oscDisplay, \oscInputRange, \midiDisplay, \oscCalibration, \midiConnections], "A CVWidgetKnob's wmc variable (an Event) should by default hold the following keys: \\oscConnectors, \\cvSpec, \\actions, \\midiOptions, \\oscDisplay, \\oscInputRange, \\midiDisplay, \\oscCalibration, \\midiConnectors");
 		this.assertEquals(widget.oscConnectors.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.oscConnectors[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
 		this.assertEquals(widget.midiConnectors.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
@@ -172,23 +172,23 @@ TestCVWidgetKnob : UnitTest {
 		numConnections = widget.midiConnectors.size;
 		widget.midiConnect(0, num: 1);
 		this.assert(numConnections == widget.midiConnectors.size, "The number of widget.midiConnectors should not have been increased after connecting the widget using the default midiConnection");
-		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[0].value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[0].value should equal (num: 1)");
 		widget.midiConnect(num: 2);
 		this.assert(widget.midiConnectors.size == (numConnections + 1) , "The number of widget.midiConnectors should not have been increased by 1 after connecting the widget without specifying a midiConnection");
-		this.assertEquals(widget.wmc.midiConnectors.model[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[1].value should equal (num: 2)");
+		this.assertEquals(widget.wmc.midiConnections.model[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.model[1].value should equal (num: 2)");
 		// midi learn
 		widget.midiConnect;
 		MIDIIn.doControlAction(12345, 0, 5, 127);
-		this.assertEquals(widget.wmc.midiConnectors.model[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.model[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
+		this.assertEquals(widget.wmc.midiConnections.model[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.model[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
 	}
 
 	test_midiDisconnect {
 		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 		widget.midiDisconnect(0);
-		this.assertEquals(widget.wmc.midiConnectors.model[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.model.value should equal nil");
 		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnectors.model[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.model.value should equal (num: 1)");
 	}
 
 	test_setOscCalibration {}

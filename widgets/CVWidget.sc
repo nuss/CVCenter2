@@ -86,15 +86,11 @@ CVWidget {
 	getOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
+	remove { this.subclassResponsibility(thisMethod) }
 	// Initializing models and controllers
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
 
-	remove {
-		this.midiConnectors.do(_.remove);
-		this.oscConnectors.do(_.remove);
-		all.removeAt(name);
-	}
 
 	// private
 	prAddSyncKey { |key, proto|

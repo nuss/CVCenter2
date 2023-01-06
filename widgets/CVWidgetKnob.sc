@@ -456,6 +456,16 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
+	remove {
+		this.midiConnectors.do(_.remove);
+		this.oscConnectors.do(_.remove);
+		// SimpleControllers should be removed explicitely
+		this.widgetActions.do { |asoc|
+			asoc.key.remove;
+		};
+		all.removeAt(name);
+	}
+
 	// init controllers (private)
 	prInitSpecControl { |wmc, cv|
 		wmc.cvSpec.controller ?? {
