@@ -165,3 +165,119 @@ MidiModeSelect : SCViewHolder {
 		this.view.value_(mc.model[index].value.midiMode)
 	}
 }
+
+MidiMeanNumberBox : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		widget = wdgt;
+		mc = widget.wmc.midiOptions;
+		rect ?? { rect = Point(120, 20) };
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiMean).canFocus_(false);
+	}
+
+	set { |id|
+		index = id;
+		this.view.value_(mc.model[index].value.midiMean)
+	}
+}
+
+SoftWithinNumberBox : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		widget = wdgt;
+		mc = widget.wmc.midiOptions;
+		rect ?? { rect = Point(120, 20) };
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.softWithin).canFocus_(false);
+	}
+
+	set { |id|
+		index = id;
+		this.view.value_(mc.model[index].value.softWithin)
+	}
+}
+
+MidiResolutionNumberBox : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		widget = wdgt;
+		mc = widget.wmc.midiOptions;
+		rect ?? { rect = Point(120, 20) };
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiResolution).canFocus_(false);
+	}
+
+	set { |id|
+		index = id;
+		this.view.value_(mc.model[index].value.midiResolution)
+	}
+}
+
+SlidersPerBankNumberBox : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		widget = wdgt;
+		mc = widget.wmc.midiOptions;
+		rect ?? { rect = Point(120, 20) };
+		this.view = TextField(parentView, rect).string_(mc.model[index].value.ctrlButtonBank).canFocus_(false);
+	}
+
+	set { |id|
+		index = id;
+		this.view.string_(mc.model[index].value.ctrlButtonBank)
+	}
+}

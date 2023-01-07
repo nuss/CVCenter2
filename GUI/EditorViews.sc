@@ -80,8 +80,8 @@ MidiConnectorsEditorView : CompositeView {
 	// GUI elements
 	var connectionSelect;
 
-	*new { |widget, parent, bounds|
-		^super.newCopyArgs(widget).init(parent.asView, bounds.asRect);
+	*new { |widget, parent|
+		^super.new.init(widget, parent.asView);
 	}
 
 	init { |wdgt, parentView|
@@ -94,14 +94,32 @@ MidiConnectorsEditorView : CompositeView {
 		};
 		mc = widget.midiConnectors;
 		parent.layout_(
-			HLayout(
-				StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
-				MidiModeSelect(parent)
-			),
-			HLayout(
-				StaticText(parent).string_("MIDI mean (in/decremental mode only): ")
-
+			VLayout(
+				HLayout(
+					StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
+					MidiModeSelect(parent, widget)
+				),
+				HLayout(
+					StaticText(parent).string_("MIDI mean (in/decremental mode only): "),
+					MidiMeanNumberBox(parent, widget)
+				),
+				HLayout(
+					StaticText(parent).string_("min. snap distance for slider (0-127 only): "),
+					SoftWithinNumberBox(parent, widget)
+				),
+				HLayout(
+					StaticText(parent).string_("MIDI resolution (+/- only): "),
+					MidiResolutionNumberBox(parent, widget)
+				),
+				HLayout(
+					StaticText(parent).string_("Number of sliders per bank: "),
+					SlidersPerBankNumberBox(parent, widget)
+				)
 			)
 		)
+	}
+
+	front {
+		parent.front;
 	}
 }
