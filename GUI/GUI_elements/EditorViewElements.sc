@@ -51,7 +51,7 @@ MidiLearnButton : SCViewHolder {
 		]).value_(this.view.states.detectIndex { |s, i|
 			s[0][i] == mc.model[index].value.learn
 		});
-		"mc: %".format(mc).postln;
+		this.prAddController;
 	}
 
 	set { |id|
@@ -65,7 +65,26 @@ MidiLearnButton : SCViewHolder {
 			}
 		)
 	}
-}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiLearnButton);
+			widget.prRemoveSyncKey(\midiLearnButton, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiLearnButton, true);
+			mc.controller.put(\midiLearnButton, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.learn)
+				}
+			});
+		}
+	}}
 
 MidiSrcField : SCViewHolder {
 	classvar all;
@@ -91,12 +110,32 @@ MidiSrcField : SCViewHolder {
 			this.view.items.detectIndex(_ == mc.model[index].value.src)
 		);
 		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
-
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.item_(this.view.items.detectIndex(_ == mc.model[index].value.src));
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiSrcField);
+			widget.prRemoveSyncKey(\midiSrcField, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiSrcField, true);
+			mc.controller.put(\midiSrcField, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.src)
+				}
+			});
+		}
 	}
 }
 
@@ -123,11 +162,32 @@ MidiChanField : SCViewHolder {
 		this.view = TextField(parentView, rect).string_(
 			mc.model[index].value.chan
 		).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.string_(mc.model[index].value.chan);
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiChanField);
+			widget.prRemoveSyncKey(\midiChanField, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiChanField, true);
+			mc.controller.put(\midiChanField, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.string_(changer[index].value.chan)
+				}
+			});
+		}
 	}
 }
 
@@ -154,11 +214,32 @@ MidiCtrlField : SCViewHolder {
 		this.view = TextField(parentView, rect).string_(
 			mc.model[index].value.ctrl
 		).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.string_(mc.model[index].value.ctrl);
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiCtrlField);
+			widget.prRemoveSyncKey(\midiCtrlField, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiCtrlField, true);
+			mc.controller.put(\midiCtrlField, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.string_(changer[index].value.ctrl)
+				}
+			});
+		}
 	}
 }
 
@@ -184,11 +265,32 @@ MidiModeSelect : SCViewHolder {
 		rect ?? { rect = Point(120, 20) };
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"])
 		.value_(mc.model[index].value.midiMode).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.value_(mc.model[index].value.midiMode)
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiModeSelect);
+			widget.prRemoveSyncKey(\midiModeSelect, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiModeSelect, true);
+			mc.controller.put(\midiModeSelect, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.midiMode)
+				}
+			});
+		}
 	}
 }
 
@@ -213,11 +315,32 @@ MidiMeanNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiMean).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.value_(mc.model[index].value.midiMean)
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiMeanNumberBox);
+			widget.prRemoveSyncKey(\midiMeanNumberBox, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiMeanNumberBox, true);
+			mc.controller.put(\midiMeanNumberBox, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.midiMean)
+				}
+			});
+		}
 	}
 }
 
@@ -242,11 +365,32 @@ SoftWithinNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.softWithin).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.value_(mc.model[index].value.softWithin)
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\softWithinNumberBox);
+			widget.prRemoveSyncKey(\softWithinNumberBox, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\softWithinNumberBox, true);
+			mc.controller.put(\softWithinNumberBox, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.softWithin)
+				}
+			});
+		}
 	}
 }
 
@@ -271,11 +415,32 @@ MidiResolutionNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiResolution).canFocus_(false);
+		this.prAddController;
 	}
 
 	set { |id|
 		index = id;
 		this.view.value_(mc.model[index].value.midiResolution)
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\midiResolutionNumberBox);
+			widget.prRemoveSyncKey(\midiResolutionNumberBox, true);
+		}
+	}
+
+	prAddController {
+		mc.controller !? {
+			widget.prAddSyncKey(\midiResolutionNumberBox, true);
+			mc.controller.put(\midiResolutionNumberBox, { |changer, what ... moreArgs|
+				if (moreArgs[0] == index) {
+					this.view.value_(changer[index].value.midiResolution)
+				}
+			});
+		}
 	}
 }
 
@@ -300,7 +465,7 @@ SlidersPerBankNumberTF : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = TextField(parentView, rect).string_(mc.model[index].value.ctrlButtonBank).canFocus_(false);
-		this.prAddControllers;
+		this.prAddController;
 	}
 
 	set { |id|
@@ -317,15 +482,14 @@ SlidersPerBankNumberTF : SCViewHolder {
 		}
 	}
 
-	// FIXME
-	prAddControllers {
+	prAddController {
 		mc.controller !? {
 			widget.prAddSyncKey(\slidersPerBankNumberBox, true);
 			mc.controller.put(\slidersPerBankNumberBox, { |changer, what ... moreArgs|
-				"midiOptions controller at \\slidersPerBankNumberBox: %".format([c, w, m]).postln;
-
+				if (moreArgs[0] == index) {
+					this.view.string_(changer[index].value.ctrlButtonBank)
+				}
 			});
-			mc.controller.postActions;
 		}
 	}
 }
