@@ -1,3 +1,29 @@
+ConnectionSelect : SCViewHolder {
+	classvar all;
+	var widget, mc, index;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, index, rect|
+		^super.new.init(parent, widget, index, rect);
+	}
+
+	init { |parentView, wdgt, id, rect|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+
+		// this.view = parentView;
+		widget = wdgt;
+		mc = widget.wmc.midiDisplay;
+		rect ?? { rect = Point(100, 20) };
+		this.view = PopUpMenu(parentView)
+		.items_(["Select connection..."])
+	}
+}
+
 MidiLearnButton : SCViewHolder {
 	classvar all;
 	var widget, mc, index;
@@ -253,7 +279,7 @@ MidiResolutionNumberBox : SCViewHolder {
 	}
 }
 
-SlidersPerBankNumberBox : SCViewHolder {
+SlidersPerBankNumberTF : SCViewHolder {
 	classvar all;
 	var widget, mc, index;
 
@@ -274,10 +300,32 @@ SlidersPerBankNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = TextField(parentView, rect).string_(mc.model[index].value.ctrlButtonBank).canFocus_(false);
+		this.prAddControllers;
 	}
 
 	set { |id|
 		index = id;
 		this.view.string_(mc.model[index].value.ctrlButtonBank)
+	}
+
+	close {
+		this.viewDidClose;
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(\slidersPerBankNumberBox);
+			widget.prRemoveSyncKey(\slidersPerBankNumberBox, true);
+		}
+	}
+
+	// FIXME
+	prAddControllers {
+		mc.controller !? {
+			widget.prAddSyncKey(\slidersPerBankNumberBox, true);
+			mc.controller.put(\slidersPerBankNumberBox, { |changer, what ... moreArgs|
+				"midiOptions controller at \\slidersPerBankNumberBox: %".format([c, w, m]).postln;
+
+			});
+			mc.controller.postActions;
+		}
 	}
 }

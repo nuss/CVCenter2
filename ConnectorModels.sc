@@ -150,7 +150,7 @@ MidiConnector {
 		wmc.midiOptions.model.add(Ref((
 			midiMode: CVWidget.midiMode,
 			midiMean: CVWidget.midiMean,
-			ctrlButtonBank: CVWidget.ctrlButtonBank,
+			ctrlButtonBank: CVWidget.ctrlButtonBank ? \nil,
 			midiResolution: CVWidget.midiResolution,
 			softWithin: CVWidget.softWithin
 		)));
@@ -190,7 +190,7 @@ MidiConnector {
 			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
 		};
 		mc.midiOptions.controller.put(\default, { |changer, what ... moreArgs|
-			// ...
+			// yaddayadda
 		})
 	}
 
@@ -282,7 +282,8 @@ MidiConnector {
 			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
 			softWithin: mc.midiOptions.model[index].value.softWithin
-		)).changedKeys(widget.syncKeys, index);
+		));
+		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
 	getMidiMode {
@@ -302,7 +303,8 @@ MidiConnector {
 			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
 			softWithin: mc.midiOptions.model[index].value.softWithin
-		)).changedKeys(widget.syncKeys, index);
+		));
+		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
 	getMidiMean {
@@ -322,7 +324,8 @@ MidiConnector {
 			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
 			softWithin: threshold
-		)).changedKeys(widget.syncKeys, index);
+		));
+		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
 	getSoftWithin {
@@ -344,7 +347,8 @@ MidiConnector {
 			ctrlButtonBank: numSliders,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
 			softWithin: mc.midiOptions.model[index].value.softWithin
-		)).changedKeys(widget.syncKeys, index);
+		));
+		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
 	getCtrlButtonBank {
@@ -362,7 +366,8 @@ MidiConnector {
 			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
 			midiResolution: resolution,
 			softWithin: mc.midiOptions.model[index].value.softWithin
-		)).changedKeys(widget.syncKeys, index);
+		));
+		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
 	getMidiResolution {

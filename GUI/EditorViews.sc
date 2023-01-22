@@ -79,6 +79,8 @@ MidiConnectorsEditorView : CompositeView {
 	var <widget, <mc, <parent;
 	// GUI elements
 	var connectionSelect;
+	var midiModeSelect, midiMeanBox, softWithinBox, midiResolutionBox, slidersPerBankTF;
+
 
 	*new { |widget, parent|
 		^super.new.init(widget, parent.asView);
@@ -96,24 +98,27 @@ MidiConnectorsEditorView : CompositeView {
 		parent.layout_(
 			VLayout(
 				HLayout(
+					connectionSelect = ConnectionSelect(parent, widget).items_(["Select connection..."])
+				),
+				HLayout(
 					StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
-					MidiModeSelect(parent, widget)
+					midiModeSelect = MidiModeSelect(parent, widget)
 				),
 				HLayout(
 					StaticText(parent).string_("MIDI mean (in/decremental mode only): "),
-					MidiMeanNumberBox(parent, widget)
+					midiMeanBox = MidiMeanNumberBox(parent, widget)
 				),
 				HLayout(
 					StaticText(parent).string_("min. snap distance for slider (0-127 only): "),
-					SoftWithinNumberBox(parent, widget)
+					softWithinBox = SoftWithinNumberBox(parent, widget)
 				),
 				HLayout(
 					StaticText(parent).string_("MIDI resolution (+/- only): "),
-					MidiResolutionNumberBox(parent, widget)
+					midiResolutionBox = MidiResolutionNumberBox(parent, widget)
 				),
 				HLayout(
 					StaticText(parent).string_("Number of sliders per bank: "),
-					SlidersPerBankNumberBox(parent, widget)
+					slidersPerBankTF = SlidersPerBankNumberTF(parent, widget)
 				)
 			)
 		)
@@ -122,4 +127,6 @@ MidiConnectorsEditorView : CompositeView {
 	front {
 		parent.front;
 	}
+
+
 }

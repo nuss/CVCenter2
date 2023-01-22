@@ -1,0 +1,5 @@
++ SimpleController {
+	postActions {
+		"actions: %".format(actions).postln;
+	}
+}
