@@ -3,7 +3,7 @@ CVWidgetKnob : CVWidget {
 	// ... see if I can move them to CVWidget
 	// var <wmc; //widget models and controllers
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
-	var oscConnectorsDialog, midiConnectorsDialog;
+	var <oscConnectorDialogs, <midiConnectorDialogs;
 
 	*new { |name, cv, setup, action|
 		^super.new.init(name, cv, setup, action);
@@ -24,15 +24,21 @@ CVWidgetKnob : CVWidget {
 
 		all[name] ?? { all.put(name, this) };
 		#oscConnectors, midiConnectors = List[]!2;
+		#oscConnectorDialogs, midiConnectorDialogs = List[]!2;
+
 		oscConnectors.addDependant({
 			// if dropdown menu is present automatically add/remove item to/from items
-			if (oscConnectorsDialog.notNil and:{ oscConnectorsDialog.isClosed.not }) {
-				oscConnectorsDialog.conSelect.items_(oscConnectors.collect(_.name));
-			};
+			oscConnectorDialogs.do { |dialog|
+				if (dialog.notNil and:{ dialog.isClosed.not }) {
+					dialog.connectionSelect.items_(oscConnectors.collect(_.name));
+				}
+			}
 		});
 		midiConnectors.addDependant({
-			if (midiConnectorsDialog.notNil and:{ midiConnectorsDialog.isClosed.not }) {
-				midiConnectorsDialog.conSelect.items_(midiConnectors.collect(_.name));
+			midiConnectorDialogs.do { |dialog|
+				if (dialog.notNil and:{ dialog.isClosed.not }) {
+					dialog.connectionSelect.items_(midiConnectors.collect(_.name));
+				}
 			}
 		});
 
@@ -225,6 +231,20 @@ CVWidgetKnob : CVWidget {
 		)).changedKeys(this.syncKeys);
 
 		// TODO: Take care of editor views
+	}
+
+	makeMidiConnector { |parent|
+		var dialog = MidiConnectorsEditorView(this, parent).front;
+		midiConnectorDialogs.add(dialog);
+		midiConnectors.changed(\value);
+		^dialog;
+	}
+
+	makeOscConnector { |parent|
+		var dialog = OscConnectorsEditorView(this, parent).front;
+		oscConnectorDialogs.add(dialog);
+		oscConnectors.changed(\value)
+		^dialog;
 	}
 
 	// MIDI

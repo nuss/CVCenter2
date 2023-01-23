@@ -80,7 +80,9 @@ MidiLearnButton : SCViewHolder {
 			widget.prAddSyncKey(\midiLearnButton, true);
 			mc.controller.put(\midiLearnButton, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.learn)
+					all[widget].do { |view|
+						view.value_(changer[index].value.learn)
+					}
 				}
 			});
 		}
@@ -132,9 +134,11 @@ MidiSrcField : SCViewHolder {
 			widget.prAddSyncKey(\midiSrcField, true);
 			mc.controller.put(\midiSrcField, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.src)
+					all[widget].do { |view|
+						view.value_(changer[index].value.src)
+					}
 				}
-			});
+			})
 		}
 	}
 }
@@ -184,9 +188,11 @@ MidiChanField : SCViewHolder {
 			widget.prAddSyncKey(\midiChanField, true);
 			mc.controller.put(\midiChanField, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.string_(changer[index].value.chan)
+					all[widget].do { |view|
+						view.string_(changer[index].value.chan)
+					}
 				}
-			});
+			})
 		}
 	}
 }
@@ -236,9 +242,11 @@ MidiCtrlField : SCViewHolder {
 			widget.prAddSyncKey(\midiCtrlField, true);
 			mc.controller.put(\midiCtrlField, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.string_(changer[index].value.ctrl)
+					all[widget].do { |view|
+						view.string_(changer[index].value.ctrl)
+					}
 				}
-			});
+			})
 		}
 	}
 }
@@ -287,16 +295,18 @@ MidiModeSelect : SCViewHolder {
 			widget.prAddSyncKey(\midiModeSelect, true);
 			mc.controller.put(\midiModeSelect, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.midiMode)
+					all[widget].do { |view|
+						view.value_(changer[index].value.midiMode)
+					}
 				}
-			});
+			})
 		}
 	}
 }
 
 MidiMeanNumberBox : SCViewHolder {
 	classvar all;
-	var widget, mc, index;
+	var widget, mc, <index;
 
 	*initClass {
 		all = ();
@@ -337,9 +347,11 @@ MidiMeanNumberBox : SCViewHolder {
 			widget.prAddSyncKey(\midiMeanNumberBox, true);
 			mc.controller.put(\midiMeanNumberBox, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.midiMean)
+					all[widget].do { |view|
+						view.value_(changer[index].value.midiMean)
+					}
 				}
-			});
+			})
 		}
 	}
 }
@@ -387,15 +399,17 @@ SoftWithinNumberBox : SCViewHolder {
 			widget.prAddSyncKey(\softWithinNumberBox, true);
 			mc.controller.put(\softWithinNumberBox, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.softWithin)
+					all[widget].do { |view|
+						view.value_(changer[index].value.softWithin)
+					}
 				}
-			});
+			})
 		}
 	}
 }
 
 MidiResolutionNumberBox : SCViewHolder {
-	classvar all;
+	classvar <all;
 	var widget, mc, index;
 
 	*initClass {
@@ -437,9 +451,11 @@ MidiResolutionNumberBox : SCViewHolder {
 			widget.prAddSyncKey(\midiResolutionNumberBox, true);
 			mc.controller.put(\midiResolutionNumberBox, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.value_(changer[index].value.midiResolution)
+					all[widget].do { |view|
+						view.value_(changer[index].value.midiResolution)
+					}
 				}
-			});
+			})
 		}
 	}
 }
@@ -487,9 +503,11 @@ SlidersPerBankNumberTF : SCViewHolder {
 			widget.prAddSyncKey(\slidersPerBankNumberBox, true);
 			mc.controller.put(\slidersPerBankNumberBox, { |changer, what ... moreArgs|
 				if (moreArgs[0] == index) {
-					this.view.string_(changer[index].value.ctrlButtonBank)
+					all[widget].do { |view|
+						view.string_(changer[index].value.ctrlButtonBank)
+					}
 				}
-			});
+			})
 		}
 	}
 }

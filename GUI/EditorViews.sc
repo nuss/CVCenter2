@@ -1,5 +1,5 @@
 OscConnectorsEditorView : CompositeView {
-	var <widget, <mc, <parent;
+	var <widget, <mc, <parent, <cIndex;
 	// GUI elements
 	var connectionSelect, addButton, removeButton;
 	var ipSelect, restrictToPortCheckBox;
@@ -70,15 +70,34 @@ OscConnectorsEditorView : CompositeView {
 		);
 	}
 
+	set { |connection|
+		if (connection.class == Symbol) {
+			connection = widget.oscConnectors.detect { |c| c.name == connection }
+		};
+		if (connection.isInteger) {
+			connection = widget.oscConnectors[connection]
+		};
+		cIndex = widget.oscConnectors.indexOf(connection);
+		[
+			connectionSelect, addButton, removeButton,
+			ipSelect, restrictToPortCheckBox, deviceSelect,
+			oscCmdSelect, newDeviceBut, oscCmdTextField,
+			oscCmdSlotNumBox, inputConstraintsLoNumBox,
+			inputConstraintsHiNumBox, zeroCrossCorrectStaticText,
+			calibrationButton, resetButton, specConstraintsStaticText,
+			inOutMappingSelect, connectionButton
+		].do(_.set(cIndex));
+	}
+
 	front {
 		parent.front;
 	}
 }
 
 MidiConnectorsEditorView : CompositeView {
-	var <widget, <mc, <parent;
+	var <widget, <mc, <parent, <cIndex;
 	// GUI elements
-	var connectionSelect;
+	var <connectionSelect;
 	var midiModeSelect, midiMeanBox, softWithinBox, midiResolutionBox, slidersPerBankTF;
 
 
@@ -98,7 +117,11 @@ MidiConnectorsEditorView : CompositeView {
 		parent.layout_(
 			VLayout(
 				HLayout(
-					connectionSelect = ConnectionSelect(parent, widget).items_(["Select connection..."])
+					connectionSelect = ConnectionSelect(parent, widget)
+					.items_(["Select connection..."])
+					.action_({ |cs|
+
+					})
 				),
 				HLayout(
 					StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
@@ -122,6 +145,17 @@ MidiConnectorsEditorView : CompositeView {
 				)
 			)
 		)
+	}
+
+	set { |connection|
+		if (connection.class == Symbol) {
+			connection = widget.midiConnectors.detect { |c| c.name == connection }
+		};
+		if (connection.isInteger) {
+			connection = widget.midiConnectors[connection]
+		};
+		cIndex = widget.midiConnectors.indexOf(connection);
+		[midiModeSelect, midiMeanBox, softWithinBox, midiResolutionBox, slidersPerBankTF].do(_.set(cIndex));
 	}
 
 	front {
