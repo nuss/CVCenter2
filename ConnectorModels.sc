@@ -135,6 +135,7 @@ MidiConnector {
 			this.name_("MIDI Connection %".format(widget.numMidiConnectors).asSymbol);
 		} { this.name_(this.name.asSymbol) };
 		widget.midiConnectors.add(this).changed(\value);
+
 		allMidiFuncs[widget] ?? {
 			allMidiFuncs.put(widget, List[])
 		};
@@ -144,13 +145,16 @@ MidiConnector {
 
 	initModels { |wmc|
 		wmc.midiOptions ?? { wmc.midiOptions = () };
+		/*wmc.midiOptions.addDependant({
+
+		});*/
 		wmc.midiOptions.model ?? {
 			wmc.midiOptions.model = List[];
 		};
 		wmc.midiOptions.model.add(Ref((
 			midiMode: CVWidget.midiMode,
 			midiMean: CVWidget.midiMean,
-			ctrlButtonBank: CVWidget.ctrlButtonBank ? \nil,
+			ctrlButtonBank: CVWidget.ctrlButtonBank,
 			midiResolution: CVWidget.midiResolution,
 			softWithin: CVWidget.softWithin
 		)));
@@ -266,6 +270,10 @@ MidiConnector {
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			// ...
 		})
+	}
+
+	size {
+		^widget.midiConnectors.size;
 	}
 
 	setMidiMode { |mode|
@@ -395,10 +403,6 @@ MidiConnector {
 		var index = widget.midiConnectors.indexOf(this);
 		mc.midiConnections.model[index].value_(nil);
 		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
-	}
-
-	gui { |parent, bounds|
-
 	}
 
 	remove {

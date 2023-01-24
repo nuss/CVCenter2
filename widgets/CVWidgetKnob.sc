@@ -1,7 +1,6 @@
 CVWidgetKnob : CVWidget {
 	var <cv;
-	// ... see if I can move them to CVWidget
-	// var <wmc; //widget models and controllers
+	// only needed for naming a connector
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
 	var <oscConnectorDialogs, <midiConnectorDialogs;
 

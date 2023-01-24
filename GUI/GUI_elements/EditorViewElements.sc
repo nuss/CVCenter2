@@ -108,7 +108,7 @@ MidiSrcField : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(120, 20) };
-		this.view = PopUpMenu(parentView, rect).items_(["source"]).canFocus_(false).item_(
+		this.view = PopUpMenu(parentView, rect).items_(["source"]).item_(
 			this.view.items.detectIndex(_ == mc.model[index].value.src)
 		);
 		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
@@ -165,7 +165,7 @@ MidiChanField : SCViewHolder {
 		rect ?? { rect = Point(120, 20) };
 		this.view = TextField(parentView, rect).string_(
 			mc.model[index].value.chan
-		).canFocus_(false);
+		);
 		this.prAddController;
 	}
 
@@ -219,7 +219,7 @@ MidiCtrlField : SCViewHolder {
 		rect ?? { rect = Point(120, 20) };
 		this.view = TextField(parentView, rect).string_(
 			mc.model[index].value.ctrl
-		).canFocus_(false);
+		);
 		this.prAddController;
 	}
 
@@ -272,7 +272,7 @@ MidiModeSelect : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"])
-		.value_(mc.model[index].value.midiMode).canFocus_(false);
+		.value_(mc.model[index].value.midiMode);
 		this.prAddController;
 	}
 
@@ -324,7 +324,7 @@ MidiMeanNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
-		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiMean).canFocus_(false);
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiMean);
 		this.prAddController;
 	}
 
@@ -376,7 +376,7 @@ SoftWithinNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
-		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.softWithin).canFocus_(false);
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.softWithin);
 		this.prAddController;
 	}
 
@@ -428,7 +428,7 @@ MidiResolutionNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
-		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiResolution).canFocus_(false);
+		this.view = NumberBox(parentView, rect).value_(mc.model[index].value.midiResolution);
 		this.prAddController;
 	}
 
@@ -480,7 +480,7 @@ SlidersPerBankNumberTF : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		rect ?? { rect = Point(120, 20) };
-		this.view = TextField(parentView, rect).string_(mc.model[index].value.ctrlButtonBank).canFocus_(false);
+		this.view = TextField(parentView, rect).string_(mc.model[index].value.ctrlButtonBank);
 		this.prAddController;
 	}
 
