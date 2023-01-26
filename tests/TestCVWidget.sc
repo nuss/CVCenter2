@@ -54,7 +54,7 @@ TestCVWidgetKnob : UnitTest {
 		widget.remove;
 	}
 
-/*	test_new {
+	test_new {
 		var oscConnection, midiConnection;
 		this.assertEquals(widget.class, CVWidgetKnob, "A new CVWidgetKnob should identify itself as a CVWidgetKnob");
 		this.assertEquals(widget.cv.class, CV, "A new CVWidgetKnob for which no CV has been specified should automatically have been created with a new CV");
@@ -136,7 +136,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getSoftWithin, [0.1, 0.1, 0.5], "widget.midiConnectors softWithin should equal [0.1, 0.1, 0.5]");
 		widget.setSoftWithin(0.5, 0);
 		this.assertEquals(widget.getSoftWithin, [0.5, 0.1, 0.5], "widget.midiConnectors softWithin should equal [0.5, 0.1, 0.5]");
-	}*/
+	}
 
 	test_set_getCtrlButtonBank {
 		connection1 = widget.addMidiConnector;
@@ -152,7 +152,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getCtrlButtonBank, [nil, 16, 16], "widget.midiConnectors ctrlButtonBank should equal [nil, 16, 16]");
 	}
 
-	/*test_set_getMidiResolution {
+	test_set_getMidiResolution {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
 		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnectors should be set to midiResolution 1 by default");
@@ -168,7 +168,7 @@ TestCVWidgetKnob : UnitTest {
 
 	test_midiConnect {
 		var numConnections;
-		MIDIIn.connectAll;
+		// MIDIIn.connectAll;
 		numConnections = widget.midiConnectors.size;
 		widget.midiConnect(0, num: 1);
 		this.assert(numConnections == widget.midiConnectors.size, "The number of widget.midiConnectors should not have been increased after connecting the widget using the default midiConnection");
@@ -257,5 +257,5 @@ TestCVWidgetKnob : UnitTest {
 		widget.updateAction(\active, "{ |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
-	}*/
+	}
 }

@@ -113,7 +113,7 @@ OscConnector {
 
 MidiConnector {
 	classvar cAnons = 0;
-	classvar <allMidiFuncs;
+	classvar allMidiFuncs;
 	var <widget, <>name;
 
 	*initClass {
@@ -212,6 +212,8 @@ MidiConnector {
 				slotChanger = changer[index].value;
 				// connect
 				ccAction = { |val, num, chan, src|
+					// FIXME: Is it really necessary to have 2 models, 'midiConnections' and 'midiDisplay'?
+
 					// if we only data structure to hold connections is the model
 					// we must infer the connections parameters here
 					if (mc.midiConnections.model[index].notNil and: {
@@ -245,6 +247,13 @@ MidiConnector {
 					}) {
 						allMidiFuncs[widget][index] = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
 					};
+					mc.midiDisplay.model[index].value_((
+						learn: "X",
+						src: mc.midiConnections.model[index].value.src ? "source",
+						chan: mc.midiConnections.model[index].value.chan ? "chan",
+						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
+					));
+					mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
 					allMidiFuncs[widget][index];
 				};
 
