@@ -88,7 +88,7 @@ MidiLearnButton : SCViewHolder {
 		}
 	}}
 
-MidiSrcField : SCViewHolder {
+MidiSrcSelect : SCViewHolder {
 	classvar all;
 	var widget, mc, index;
 

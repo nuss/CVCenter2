@@ -194,7 +194,7 @@ MidiConnector {
 			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
 		};
 		mc.midiOptions.controller.put(\default, { |changer, what ... moreArgs|
-			// yaddayadda
+			var index = widget.midiConnectors.indexOf(this);
 		})
 	}
 
@@ -206,7 +206,7 @@ MidiConnector {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
-			var index = moreArgs[0];
+			var index = widget.midiConnectors.indexOf(this);
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -253,7 +253,8 @@ MidiConnector {
 						chan: mc.midiConnections.model[index].value.chan ? "chan",
 						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
 					));
-					mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
+					// "connect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
+					mc.midiDisplay.model.changedKeys(widget.syncKeys);
 					allMidiFuncs[widget][index];
 				};
 
@@ -267,6 +268,9 @@ MidiConnector {
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
 				};
 			} {
+				// "disconnect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
+				mc.midiDisplay.model[index].value_((learn: "L", src: "source", chan: "chan", ctrl: "ctrl"));
+				mc.midiDisplay.model.changedKeys(widget.syncKeys);
 				allMidiFuncs[widget][index].clear;
 			};
 		})
@@ -277,12 +281,10 @@ MidiConnector {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
+			var index = widget.midiConnectors.indexOf(this);
+			// "midiDisplay.controller - changer.value: %".format(changer.value).postln;
 			// ...
 		})
-	}
-
-	size {
-		^widget.midiConnectors.size;
 	}
 
 	setMidiMode { |mode|
@@ -398,7 +400,7 @@ MidiConnector {
 		mc.midiConnections.model[index].value_(
 			(src: src, chan: chan, num: num)
 		);
-		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
+		mc.midiConnections.model.changedKeys(widget.syncKeys);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -410,8 +412,10 @@ MidiConnector {
 	midiDisconnect {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
+		// "before: %".format(mc.midiConnections.model[index]).postln;
 		mc.midiConnections.model[index].value_(nil);
-		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
+		// "after: %".format(mc.midiConnections.model[index]).postln;
+		mc.midiConnections.model.changedKeys(widget.syncKeys);
 	}
 
 	remove {

@@ -37,12 +37,16 @@ TestMidiConnector : UnitTest {
 		this.assertEquals(vals, [true, true, true], "The values of all midiDisplay models declared within the MidiConnectors should default to an Event (src: \"source\", chan: \"chan\", ctrl: \"ctrl\", learn: \"L\")");
 	}
 
-	test_midiConnect {
+	test_midiConnect_disconnect {
 		var connector1 = widget.midiConnectors[0], connector2;
 		// MIDIIn.connectAll;
 		connector1.midiConnect(num: 2, chan: 0, src: 12345);
 		this.assertEquals(widget.wmc.midiConnections.model[0].value, (num: 2, chan: 0, src: 12345), "After connecting a widget's default MidiConnector instance to control nr. 2, channel 0 and source ID 12345 widget.wmc.midiConnections.model[0].value should return an Event (num: 2, chan: 0, src: 12345)");
 		this.assertEquals(widget.wmc.midiDisplay.model[0].value, (learn: "X", src: 12345, chan: 0, ctrl: 2 ), "After connecting a widget's default MidiConnector instance to control nr. 2, channel 0 and source ID 12345 widget.wmc.midiDisplay.model[0].value should return an Event (learn: \"X\", src: 12345, chan: 0, num: 2 )");
+		connector1.midiDisconnect;
+		this.assertEquals(widget.wmc.midiConnections.model[0].value, nil, "After disconnecting a widget's default MidiConnector instance widget.wmc.midiConnections.model[0].value should hold nil");
+		this.assertEquals(widget.wmc.midiDisplay.model[0].value, (ctrl: "ctrl", chan: "chan", src: "source", learn: "L"), "After disconnecting a widget's default MidiConnector instance widget.wmc.midiDisplay.model[0].value should hold nil");
+
 	}
 }
 
