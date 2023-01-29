@@ -12,8 +12,8 @@ OscConnector {
 	}
 
 	init {
+		widget.numOscConnectors = widget.numOscConnectors + 1;
 		if (this.name.isNil) {
-			widget.numOscConnectors = widget.numOscConnectors + 1;
 			this.name_("OSC Connection %".format(widget.numOscConnectors).asSymbol);
 		} { this.name_(this.name.asSymbol) };
 		// add to the widget's oscConnection and automatically update GUI
@@ -130,8 +130,8 @@ MidiConnector {
 	}
 
 	init {
+		widget.numMidiConnectors = widget.numMidiConnectors + 1;
 		if (this.name.isNil) {
-			widget.numMidiConnectors = widget.numMidiConnectors + 1;
 			this.name_("MIDI Connection %".format(widget.numMidiConnectors).asSymbol);
 		} { this.name_(this.name.asSymbol) };
 		widget.midiConnectors.add(this).changed(\value);
@@ -282,7 +282,7 @@ MidiConnector {
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			var index = widget.midiConnectors.indexOf(this);
-			// "midiDisplay.controller - changer.value: %".format(changer.value).postln;
+			"midiDisplay.controller - changer.value: %".format(changer.value).postln;
 			// ...
 		})
 	}

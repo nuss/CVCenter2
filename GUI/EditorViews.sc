@@ -137,8 +137,9 @@ MidiConnectorsEditorView : CompositeView {
 		if (widget.midiConnectors.isEmpty) {
 			MidiConnector(widget)
 		};
-		mc = widget.wmc.midiDisplay;
-		this.initControllers(mc);
+
+		mc = widget.wmc;
+
 		parent.layout_(
 			VLayout(
 				HLayout(
@@ -178,7 +179,9 @@ MidiConnectorsEditorView : CompositeView {
 					midiNumTF = MidiCtrlField(parent, widget, index)
 				)
 			)
-		)
+		);
+
+		this.initControllers(mc);
 	}
 
 	initControllers { |mc, cv|

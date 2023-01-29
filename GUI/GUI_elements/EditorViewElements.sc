@@ -20,7 +20,7 @@ ConnectionSelect : SCViewHolder {
 		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(100, 20) };
 		this.view = PopUpMenu(parentView)
-		.items_(["Select connection..."])
+		.items_(["Select connection..."] ++ widget.midiConnectors)
 	}
 }
 
@@ -37,19 +37,19 @@ MidiLearnButton : SCViewHolder {
 	}
 
 	init { |parentView, wdgt, id, rect|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-		if (id.isNil) {	index = 0 } { index = id };
-
-		// this.view = parentView;
 		widget = wdgt;
+		all[widget] ?? { all.put(widget, List[]) };
+		all[widget].add(this);
+		if (id.isNil) {	index = 0 } { index = id };
+		// this.view = parentView;
 		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(20, 20) };
 		this.view = Button(parentView, rect).states_([
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
-		]).value_(this.view.states.detectIndex { |s, i|
-			s[0][i] == mc.model[index].value.learn
+		]);
+		this.view.value_(this.view.states.detectIndex { |s, i|
+			s[0] == mc.model[index].value.learn
 		});
 		this.prAddController;
 	}
@@ -84,7 +84,7 @@ MidiLearnButton : SCViewHolder {
 						view.value_(changer[index].value.learn)
 					}
 				}
-			});
+			})
 		}
 	}}
 
@@ -108,7 +108,8 @@ MidiSrcSelect : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		rect ?? { rect = Point(120, 20) };
-		this.view = PopUpMenu(parentView, rect).items_(["source"]).item_(
+		this.view = PopUpMenu(parentView, rect).items_(["source"]);
+		this.view.item_(
 			this.view.items.detectIndex(_ == mc.model[index].value.src)
 		);
 		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
