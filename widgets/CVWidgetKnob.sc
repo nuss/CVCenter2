@@ -232,14 +232,14 @@ CVWidgetKnob : CVWidget {
 		// TODO: Take care of editor views
 	}
 
-	makeMidiConnector { |parent|
+	midiDialog { |parent|
 		var dialog = MidiConnectorsEditorView(this, parent).front;
 		midiConnectorDialogs.add(dialog);
 		midiConnectors.changed(\value);
 		^dialog;
 	}
 
-	makeOscConnector { |parent|
+	oscDialog { |parent|
 		var dialog = OscConnectorsEditorView(this, parent).front;
 		oscConnectorDialogs.add(dialog);
 		oscConnectors.changed(\value)
