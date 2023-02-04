@@ -1,5 +1,5 @@
 ConnectionSelect : SCViewHolder {
-	classvar all;
+	classvar <all;
 	var widget, mc;
 
 	*initClass {
@@ -16,7 +16,6 @@ ConnectionSelect : SCViewHolder {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		rect ?? { rect = Point(100, 20) };
 		this.view = PopUpMenu(parentView)
 		.items_(["Select connection..."] ++ widget.midiConnectors)
 	}
@@ -27,7 +26,7 @@ ConnectionSelect : SCViewHolder {
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
 MidiLearnButton : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -49,7 +48,18 @@ MidiLearnButton : SCViewHolder {
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
 		]);
+		this.view.onClose_({ this.close });
 		this.set(index);
+		this.view.action_({ |bt|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				learn: bt.states[bt.value][0],
+				src: mc.model[i].value.src,
+				chan: mc.model[i].value.chan,
+				ctrl: mc.model[i].value.ctrl
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -85,21 +95,18 @@ MidiLearnButton : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var pos, conID = widget.midiConnectors.indexOf(connector);
-				[moreArgs, conID].postln;
-				if (moreArgs[0] == conID) {
-					all[widget].do { |but|
-						pos = but.view.states.detectIndex { |a, i|
-							a[0] == changer[conID].value.learn
-						};
-						this.view.value_(pos);
-					}
+				all[widget].do { |but|
+					pos = but.view.states.detectIndex { |a, i|
+						a[0] == changer[conID].value.learn
+					};
+					this.view.value_(pos);
 				}
 			})
 		}
 	}}
 
 MidiSrcSelect : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -119,6 +126,16 @@ MidiSrcSelect : SCViewHolder {
 		mc = widget.wmc.midiDisplay;
 		this.view = PopUpMenu(parentView, rect).items_(["source..."]);
 		this.set(index);
+		this.view.action_({ |sel|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				learn: mc.model[i].value.learn,
+				src: sel.items[sel.value-1].asString,
+				chan: mc.model[i].value.chan,
+				ctrl: mc.model[i].value.ctrl
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
 		this.prAddController;
 	}
@@ -128,7 +145,7 @@ MidiSrcSelect : SCViewHolder {
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(
 			this.view.items.detectIndex { |it, i| it == mc.model[connectorID].value.src }
-		);
+		)
 	}
 
 	close {
@@ -147,10 +164,8 @@ MidiSrcSelect : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |sel|
-						sel.view.value_(changer[conID].value.src)
-					}
+				all[widget].do { |sel|
+					sel.view.value_(changer[conID].value.src)
 				}
 			})
 		}
@@ -158,7 +173,7 @@ MidiSrcSelect : SCViewHolder {
 }
 
 MidiChanField : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -178,6 +193,16 @@ MidiChanField : SCViewHolder {
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
 		this.set(index);
+		this.view.action_({ |tf|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				learn: mc.model[i].value.learn,
+				src: mc.model[i].value.src,
+				chan: tf.string,
+				ctrl: mc.model[i].value.ctrl
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -203,10 +228,8 @@ MidiChanField : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |tf|
-						tf.view.string_(changer[conID].value.chan)
-					}
+				all[widget].do { |tf|
+					tf.view.string_(changer[conID].value.chan)
 				}
 			})
 		}
@@ -214,7 +237,7 @@ MidiChanField : SCViewHolder {
 }
 
 MidiCtrlField : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -234,6 +257,16 @@ MidiCtrlField : SCViewHolder {
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
 		this.set(index);
+		this.view.action_({ |tf|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				learn: mc.model[i].value.learn,
+				src: mc.model[i].value.src,
+				chan: mc.model[i].value.chan,
+				ctrl: tf.string
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -259,10 +292,8 @@ MidiCtrlField : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |tf|
-						tf.view.string_(changer[conID].value.ctrl)
-					}
+				all[widget].do { |tf|
+					tf.view.string_(changer[conID].value.ctrl)
 				}
 			})
 		}
@@ -270,7 +301,7 @@ MidiCtrlField : SCViewHolder {
 }
 
 MidiModeSelect : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -290,6 +321,17 @@ MidiModeSelect : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"]);
 		this.set(index);
+		this.view.action_({ |sel|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[index].value_((
+				midiMode: sel.value,
+				midiMean: mc.model[i].value.midiMean,
+				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiResolution: mc.model[i].value.midiResolution,
+				softWithin: mc.model[i].value.softWithin
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -315,10 +357,8 @@ MidiModeSelect : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |sel|
-						sel.view.value_(changer[conID].value.midiMode)
-					}
+				all[widget].do { |sel|
+					sel.view.value_(changer[conID].value.midiMode)
 				}
 			})
 		}
@@ -326,7 +366,7 @@ MidiModeSelect : SCViewHolder {
 }
 
 MidiMeanNumberBox : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -346,6 +386,17 @@ MidiMeanNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
 		this.set(index);
+		this.view.action_({ |nb|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				midiMode: mc.model[i].value.midiMode,
+				midiMean: nb.value,
+				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiResolution: mc.model[i].value.midiResolution,
+				softWithin: mc.model[i].value.softWithin
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -370,11 +421,9 @@ MidiMeanNumberBox : SCViewHolder {
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-			var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |nb|
-						nb.view.value_(changer[conID].value.midiMean)
-					}
+				var conID = widget.midiConnectors.indexOf(connector);
+				all[widget].do { |nb|
+					nb.view.value_(changer[conID].value.midiMean)
 				}
 			})
 		}
@@ -382,7 +431,7 @@ MidiMeanNumberBox : SCViewHolder {
 }
 
 SoftWithinNumberBox : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -402,6 +451,17 @@ SoftWithinNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
 		this.set(index);
+		this.view.action_({ |nb|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[index].value_((
+				midiMode: mc.model[i].value.midiMode,
+				midiMean: mc.model[i].value.midiMean,
+				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiResolution: mc.model[i].value.midiResolution,
+				softWithin: nb.value
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -427,10 +487,8 @@ SoftWithinNumberBox : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnections.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |nb|
-						nb.view.value_(changer[conID].value.softWithin)
-					}
+				all[widget].do { |nb|
+					nb.view.value_(changer[conID].value.softWithin)
 				}
 			})
 		}
@@ -438,9 +496,9 @@ SoftWithinNumberBox : SCViewHolder {
 }
 
 MidiResolutionNumberBox : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
-	var connector;
+	var connector, syncKey;
 
 	*initClass {
 		all = ();
@@ -458,6 +516,17 @@ MidiResolutionNumberBox : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
 		this.set(index);
+		this.view.action_({ |nb|
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				midiMode: mc.model[i].value.midiMode,
+				midiMean: mc.model[i].value.midiMean,
+				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiResolution: nb.value,
+				softWithin: mc.model[i].value.softWithin
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -483,10 +552,8 @@ MidiResolutionNumberBox : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |nb|
-						nb.view.value_(changer[conID].value.midiResolution)
-					}
+				all[widget].do { |nb|
+					nb.view.value_(changer[conID].value.midiResolution)
 				}
 			})
 		}
@@ -494,7 +561,7 @@ MidiResolutionNumberBox : SCViewHolder {
 }
 
 SlidersPerBankNumberTF : SCViewHolder {
-	classvar all, c = 0;
+	classvar <all, c = 0;
 	var widget, mc;
 	var connector, syncKey;
 
@@ -514,6 +581,18 @@ SlidersPerBankNumberTF : SCViewHolder {
 		mc = widget.wmc.midiOptions;
 		this.view = TextField(parentView, rect);
 		this.set(index);
+		this.view.action_({ |tf|
+			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
+			var i = widget.midiConnectors.indexOf(connector);
+			mc.model[i].value_((
+				midiMode: mc.model[i].value.midiMode,
+				midiMean: mc.model[i].value.midiMean,
+				ctrlButtonBank: ctrlb,
+				midiResolution: mc.model[i].value.midiResolution,
+				softWithin: mc.model[i].value.softWithin
+			));
+			mc.model.value.changedKeys(widget.syncKeys);
+		});
 		this.prAddController;
 	}
 
@@ -539,10 +618,8 @@ SlidersPerBankNumberTF : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				if (moreArgs[0] == conID) {
-					all[widget].do { |tf|
-						tf.view.string_(changer[conID].value.ctrlButtonBank)
-					}
+				all[widget].do { |tf|
+					tf.view.string_(changer[conID].value.ctrlButtonBank)
 				}
 			})
 		}
