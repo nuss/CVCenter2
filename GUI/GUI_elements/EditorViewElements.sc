@@ -80,12 +80,11 @@ MidiLearnButton : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -149,12 +148,11 @@ MidiSrcSelect : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -213,12 +211,11 @@ MidiChanField : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -277,12 +274,11 @@ MidiCtrlField : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -342,12 +338,11 @@ MidiModeSelect : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -407,12 +402,11 @@ MidiMeanNumberBox : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -472,12 +466,11 @@ SoftWithinNumberBox : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -537,12 +530,11 @@ MidiResolutionNumberBox : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {
@@ -603,12 +595,11 @@ SlidersPerBankNumberTF : SCViewHolder {
 	}
 
 	close {
+		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 
 	prAddController {

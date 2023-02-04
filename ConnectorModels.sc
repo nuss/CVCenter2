@@ -194,7 +194,7 @@ MidiConnector {
 			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
 		};
 		mc.midiOptions.controller.put(\default, { |changer, what ... moreArgs|
-			var index = moreArgs[0];
+			var index = widget.midiConnectors.indexOf(this);
 		})
 	}
 
@@ -206,7 +206,7 @@ MidiConnector {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
-			var index = moreArgs[0];
+			var index = widget.midiConnectors.indexOf(this);
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -281,7 +281,7 @@ MidiConnector {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
-			var index = moreArgs[0];
+			var index = widget.midiConnectors.indexOf(this);
 			"midiDisplay.controller - changer.value: %".format(changer.value).postln;
 			// ...
 		})
@@ -421,6 +421,7 @@ MidiConnector {
 	remove {
 		var index = widget.midiConnectors.indexOf(this);
 		this.midiDisconnect;
+		// "index after disconnect: %".format(index).postln;
 		allMidiFuncs[widget][index].free;
 		allMidiFuncs[widget].removeAt(index);
 		widget.wmc.midiConnections.model.removeAt(index);
