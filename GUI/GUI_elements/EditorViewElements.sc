@@ -49,7 +49,7 @@ MidiLearnButton : SCViewHolder {
 			["X", Color.white, Color.red]
 		]);
 		this.view.onClose_({ this.close });
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |bt|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -66,7 +66,7 @@ MidiLearnButton : SCViewHolder {
 	// the connector's ID will be dynamic and change
 	// any time a connector with a smaller ID in the widget's
 	// midiConnectors list gets deleted!!!
-	set { |connectorID|
+	index_ { |connectorID|
 		// we need the connector, not its current ID in widget.midiConnectors
 		connector = widget.midiConnectors[connectorID];
 		mc.model[connectorID].value.learn.switch(
@@ -124,7 +124,7 @@ MidiSrcSelect : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = PopUpMenu(parentView, rect).items_(["source..."]);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -140,7 +140,7 @@ MidiSrcSelect : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(
 			this.view.items.detectIndex { |it, i| it == mc.model[connectorID].value.src }
@@ -190,7 +190,7 @@ MidiChanField : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -205,7 +205,7 @@ MidiChanField : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.string_(mc.model[connectorID].value.chan);
 	}
@@ -253,7 +253,7 @@ MidiCtrlField : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -268,7 +268,7 @@ MidiCtrlField : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.string_(mc.model[connectorID].value.ctrl);
 	}
@@ -316,7 +316,7 @@ MidiModeSelect : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"]);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[index].value_((
@@ -331,8 +331,8 @@ MidiModeSelect : SCViewHolder {
 		this.prAddController;
 	}
 
-	// set the view to the specified connector's model value
-	set { |connectorID|
+	// index_ the view to the specified connector's model value
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(mc.model[connectorID].value.midiMode)
 	}
@@ -380,7 +380,7 @@ MidiMeanNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -396,7 +396,7 @@ MidiMeanNumberBox : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(mc.model[connectorID].value.midiMean);
 	}
@@ -444,7 +444,7 @@ SoftWithinNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[index].value_((
@@ -460,7 +460,7 @@ SoftWithinNumberBox : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(mc.model[connectorID].value.softWithin)
 	}
@@ -508,7 +508,7 @@ MidiResolutionNumberBox : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
@@ -524,7 +524,7 @@ MidiResolutionNumberBox : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.value_(mc.model[connectorID].value.midiResolution)
 	}
@@ -572,7 +572,7 @@ SlidersPerBankNumberTF : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = TextField(parentView, rect);
-		this.set(index);
+		this.index_(index);
 		this.view.action_({ |tf|
 			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
 			var i = widget.midiConnectors.indexOf(connector);
@@ -589,7 +589,7 @@ SlidersPerBankNumberTF : SCViewHolder {
 	}
 
 	// set the view to the specified connector's model value
-	set { |connectorID|
+	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		this.view.string_(mc.model[connectorID].value.ctrlButtonBank)
 	}
