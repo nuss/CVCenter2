@@ -206,21 +206,18 @@ MidiConnector {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
-			var index = widget.midiConnectors.indexOf(this);
+			// var index = widget.midiConnectors.indexOf(this);
+			var index = moreArgs[0];
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
 				// connect
 				ccAction = { |val, num, chan, src|
-					// FIXME: Is it really necessary to have 2 models, 'midiConnections' and 'midiDisplay'?
-
-					// if we only data structure to hold connections is the model
+					// only data structure to hold connections is the model
 					// we must infer the connections parameters here
-					if (mc.midiConnections.model[index].notNil and: {
-						mc.midiConnections.model[index].value.isEmpty
-					}) {
-						mc.midiConnections.model[index].value_((num: num, chan: chan, src: src))
-					};
+					// if (mc.midiConnections.model[index].value.notNil) {
+					mc.midiConnections.model[index].value_((num: num, chan: chan, src: src));
+					// };
 					widget.midiConnectors.indexOf(this) !? {
 						this.getMidiMode.switch(
 							//  0-127
@@ -253,7 +250,8 @@ MidiConnector {
 						chan: mc.midiConnections.model[index].value.chan ? "chan",
 						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
 					));
-					// "connect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
+					// "mc.midiDisplay.model[index].value.learn: %\nmc.midiDisplay.model[index].value.src: %\nmc.midiDisplay.model[index].value.chan: %\nmc.midiDisplay.model[index].value.ctrl: %".format(mc.midiDisplay.model[index].value.learn, mc.midiDisplay.model[index].value.src, mc.midiDisplay.model[index].value.chan, mc.midiDisplay.model[index].value.ctrl).postln;
+					// "index: %\nmc.midiDisplay.model after update in makeCConnection: %".format(index, mc.midiDisplay.model).postln;
 					mc.midiDisplay.model.changedKeys(widget.syncKeys);
 					allMidiFuncs[widget][index];
 				};
@@ -397,10 +395,11 @@ MidiConnector {
 	midiConnect { |src, chan, num|
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
+
 		mc.midiConnections.model[index].value_(
 			(src: src, chan: chan, num: num)
 		);
-		mc.midiConnections.model.changedKeys(widget.syncKeys);
+		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -415,7 +414,7 @@ MidiConnector {
 		// "before: %".format(mc.midiConnections.model[index]).postln;
 		mc.midiConnections.model[index].value_(nil);
 		// "after: %".format(mc.midiConnections.model[index]).postln;
-		mc.midiConnections.model.changedKeys(widget.syncKeys);
+		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 	}
 
 	remove {
@@ -424,7 +423,10 @@ MidiConnector {
 		// "index after disconnect: %".format(index).postln;
 		allMidiFuncs[widget][index].free;
 		allMidiFuncs[widget].removeAt(index);
-		widget.wmc.midiConnections.model.removeAt(index);
+		[
+			widget.wmc.midiConnections.model,
+			widget.wmc.midiDisplay.model
+		].do(_.removeAt(index));
 		widget.midiConnectors.remove(this).changed(\value);
 	}
 

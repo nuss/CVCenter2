@@ -68,6 +68,14 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.midiConnectors[0].name, 'MIDI Connection 1', "The default MidiConnector should be named 'Midi Connection 1'")
 	}
 
+	test_add_remove_MidiConnector {
+		var connector = widget.addMidiConnector(\midiConnector2);
+		this.assertEquals(widget.midiConnectors.collect(_.name), ['MIDI Connection 1', 'midiConnector2'], "After adding a MididConnector widget.midiConnectors should hold 2 MidiConnectors named 'MIDI Connection 1' and 'midiConnector2'");
+		widget.removeMidiConnector(0);
+		this.assertEquals(widget.midiConnectors.size, 1, "After removing the MidiConnector at index 0 widget.midiConnectors should hold one MidiConnector");
+		this.assertEquals(widget.midiConnectors[0].name, \midiConnector2, "The remaining MidiConnector stored in widget.midiConnectors after calling widget.removeMidiConnector(0) should be named 'midiConnector2'");
+	}
+
 	test_setSpec {
 		var testSpec = ControlSpec(1.0, 25.0, \exp, 0.0, 12);
 		widget.setSpec(testSpec);
