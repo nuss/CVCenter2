@@ -280,7 +280,7 @@ MidiConnector {
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			var index = widget.midiConnectors.indexOf(this);
-			"midiDisplay.controller - changer.value: %".format(changer.value).postln;
+			// "midiDisplay.controller - changer.value: %".format(changer.value).postln;
 			// ...
 		})
 	}
@@ -427,7 +427,8 @@ MidiConnector {
 			widget.wmc.midiConnections.model,
 			widget.wmc.midiDisplay.model
 		].do(_.removeAt(index));
-		widget.midiConnectors.remove(this).changed(\value);
+		widget.midiConnectors.remove(this);
+		widget.midiConnectors.changed(\value);
 	}
 
 	storeOn { |stream|

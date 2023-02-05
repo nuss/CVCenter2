@@ -106,7 +106,7 @@ MidiConnectorsEditorView : CompositeView {
 		allEditorViews = ();
 	}
 
-	*new { |widget, connector, parent|
+	*new { |widget, connector=0, parent|
 		^super.new.init(widget, connector, parent.asView);
 	}
 
@@ -120,8 +120,7 @@ MidiConnectorsEditorView : CompositeView {
 		{ connector.class == MidiConnector } {
 			widget.midiConnectors.indexOf(connector)
 		}
-		{ connector.isInteger } { connector }
-		{ 0 };
+		{ connector };
 
 		widget = wdgt;
 
@@ -143,8 +142,7 @@ MidiConnectorsEditorView : CompositeView {
 		parent.layout_(
 			VLayout(
 				HLayout(
-					connectionSelect = ConnectionSelect(parent, widget)
-					.items_(["Select connection..."])
+					connectionSelect = MidiConnectorSelect(parent, widget)
 					.action_({ |cs|
 						this.set(cs.value - 1)
 					})

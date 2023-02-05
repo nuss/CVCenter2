@@ -2,7 +2,6 @@ CVWidgetKnob : CVWidget {
 	var <cv;
 	// only needed for naming a connector
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
-	var <oscConnectorDialogs, <midiConnectorDialogs;
 
 	*new { |name, cv, setup, action|
 		^super.new.init(name, cv, setup, action);
@@ -23,21 +22,16 @@ CVWidgetKnob : CVWidget {
 
 		all[name] ?? { all.put(name, this) };
 		#oscConnectors, midiConnectors = List[]!2;
-		#oscConnectorDialogs, midiConnectorDialogs = List[]!2;
 
 		oscConnectors.addDependant({
 			// if dropdown menu is present automatically add/remove item to/from items
-			oscConnectorDialogs.do { |dialog|
-				if (dialog.notNil and:{ dialog.isClosed.not }) {
-					dialog.connectionSelect.items_(oscConnectors.collect(_.name));
-				}
+			OscConnectorSelect.all[this].do { |select|
+				select.view.items_(["Select connector..."] ++ oscConnectors.collect(_.name))
 			}
 		});
 		midiConnectors.addDependant({
-			midiConnectorDialogs.do { |dialog|
-				if (dialog.notNil and:{ dialog.isClosed.not }) {
-					dialog.connectionSelect.items_(midiConnectors.collect(_.name));
-				}
+			MidiConnectorSelect.all[this].do { |select|
+				select.view.items_(["Select connector..."] ++ midiConnectors.collect(_.name));
 			}
 		});
 
@@ -232,18 +226,12 @@ CVWidgetKnob : CVWidget {
 		// TODO: Take care of editor views
 	}
 
-	midiDialog { |parent|
-		var dialog = MidiConnectorsEditorView(this, parent).front;
-		midiConnectorDialogs.add(dialog);
-		midiConnectors.changed(\value);
-		^dialog;
+	midiDialog { |connector, parent|
+		^MidiConnectorsEditorView(this, connector, parent).front;
 	}
 
-	oscDialog { |parent|
-		var dialog = OscConnectorsEditorView(this, parent).front;
-		oscConnectorDialogs.add(dialog);
-		oscConnectors.changed(\value)
-		^dialog;
+	oscDialog { |connector, parent|
+		^OscConnectorsEditorView(this, connector, parent).front;
 	}
 
 	// MIDI
