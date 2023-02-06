@@ -119,6 +119,8 @@ MidiLearnButton : SCViewHolder {
 
 MidiSrcSelect : SCViewHolder {
 	classvar <all, c = 0;
+	// preliminary
+	classvar <>midiSources;
 	var widget, mc;
 	var <connector, syncKey;
 
@@ -136,7 +138,7 @@ MidiSrcSelect : SCViewHolder {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		this.view = PopUpMenu(parentView, rect).items_(["source..."]);
+		this.view = PopUpMenu(parentView, rect).items_(["source..."] ++ MidiSrcSelect.midiSources);
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
