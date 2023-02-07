@@ -144,7 +144,7 @@ MidiSrcSelect : SCViewHolder {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				learn: mc.model[i].value.learn,
-				src: sel.items[sel.value-1].asString,
+				src: sel.items[sel.value],
 				chan: mc.model[i].value.chan,
 				ctrl: mc.model[i].value.ctrl
 			));
@@ -156,9 +156,15 @@ MidiSrcSelect : SCViewHolder {
 
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
+		var val;
+
 		connector = widget.midiConnectors[connectorID];
+		// FIXME
 		this.view.value_(
-			this.view.items.detectIndex { |it, i| it == mc.model[connectorID].value.src }
+			"this.view.items: %, classes: %".format(this.view.items, this.view.items.collect(_.class)).postln;
+			"mc.model[%].value.src: %".format(connectorID, mc.model[connectorID].value.src).postln;
+			this.view.items.indexOfEqual(mc.model[connectorID].value.src).postln;
+			// if (sel)
 		)
 	}
 

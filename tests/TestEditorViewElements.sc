@@ -50,7 +50,7 @@ TestMidiLearnButton : UnitTest {
 		syncKeyMatches = widget.syncKeys.select { |key| "^midiLearnButton_[0-9]+$".matchRegexp(key.asString) };
 		this.assertEquals(syncKeyMatches.size, 1, "widget.syncKeys should return one key that matches the pattern \"^midiLearnButton_[0-9]+$\"");
 		aConnector = widget.addMidiConnector;
-		mc.model[widget.midiConnectors.indexOf(aConnector)].value_((learn: "X", src: "source", chan: "chan", ctrl: "ctrl"));
+		mc.model[widget.midiConnectors.indexOf(aConnector)].value_((learn: "X", src: "source...", chan: "chan", ctrl: "ctrl"));
 		learnButton2 = MidiLearnButton(widget: widget, connectorID: 1);
 		this.assertEquals(learnButton2.view.value, widget.midiConnectors.indexOf(aConnector), "Setting a connector's midiDisplay model should have been picked up by a new MidiLearnButton.");
 		learnButton3 = MidiLearnButton(widget: widget);
@@ -69,7 +69,7 @@ TestMidiLearnButton : UnitTest {
 		learnButton.index_(1);
 		this.assertEquals(widget.midiConnectors.indexOf(learnButton.connector), 1, "After adding another MidiConnector to the widget and calling learnButton.index_(1) its connector should now be the one at position 1 in widget.midiConnectors.");
 		learnButton.view.valueAction_(1);
-		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source", chan: "chan", ctrl: "ctrl"), (learn: "X", src: "source", chan: "chan", ctrl: "ctrl")], "After calling valueAction on learnButton.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"X\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\")] ");
+		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"), (learn: "X", src: "source...", chan: "chan", ctrl: "ctrl")], "After calling valueAction on learnButton.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"X\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\")] ");
 		widget.removeMidiConnector(0);
 		this.assertEquals(widget.midiConnectors.indexOf(learnButton.connector), 0, "After removing the connector at position 0 in widget.midiConnectors the remaining MidiConnector should be accessible at position 0 in widget.midiConnectors");
 		this.assertEquals(mc.model.size, 1, "After removing the MidiConnector at position 0 in widget.midiConnectors the widget's midiDisplay.model should hold a single value");
@@ -133,7 +133,7 @@ TestMidiSrcSelect : UnitTest {
 		this.debug("midiSrcSelect.view.items: %".format(midiSrcSelect.view.items));
 		// NOTE: might change...
 		midiSrcSelect.view.valueAction_(1);
-		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source", chan: "chan", ctrl: "ctrl"), (learn: "L", src: 12345, chan: "chan", ctrl: "ctrl")], "After calling valueAction on midiSrcSelect.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"L\", src: 12345, chan: \"chan\", ctrl: \"ctrl\")] ");
+		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"), (learn: "L", src: 12345, chan: "chan", ctrl: "ctrl")], "After calling valueAction on midiSrcSelect.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source...\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"L\", src: 12345, chan: \"chan\", ctrl: \"ctrl\")] ");
 		widget.removeMidiConnector(0);
 		this.assertEquals(widget.midiConnectors.indexOf(midiSrcSelect.connector), 0, "After removing the connector at position 0 in widget.midiConnectors the remaining MidiConnector should be accessible at position 0 in widget.midiConnectors");
 		this.assertEquals(mc.model.size, 1, "After removing the MidiConnector at position 0 in widget.midiConnectors the widget's midiDisplay.model should hold a single value");

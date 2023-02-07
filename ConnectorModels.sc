@@ -170,7 +170,7 @@ MidiConnector {
 			wmc.midiDisplay.model = List[];
 		};
 		wmc.midiDisplay.model.add(Ref((
-			src: "source",
+			src: "source...",
 			chan: "chan",
 			ctrl: "ctrl",
 			learn: "L"
@@ -246,7 +246,7 @@ MidiConnector {
 					};
 					mc.midiDisplay.model[index].value_((
 						learn: "X",
-						src: mc.midiConnections.model[index].value.src ? "source",
+						src: mc.midiConnections.model[index].value.src ? "source...",
 						chan: mc.midiConnections.model[index].value.chan ? "chan",
 						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
 					));
@@ -267,7 +267,7 @@ MidiConnector {
 				};
 			} {
 				// "disconnect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
-				mc.midiDisplay.model[index].value_((learn: "L", src: "source", chan: "chan", ctrl: "ctrl"));
+				mc.midiDisplay.model[index].value_((learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"));
 				mc.midiDisplay.model.changedKeys(widget.syncKeys);
 				allMidiFuncs[widget][index].clear;
 			};
