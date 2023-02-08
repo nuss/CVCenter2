@@ -20,10 +20,12 @@ MidiConnectorSelect : SCViewHolder {
 		mc = widget.wmc.midiDisplay;
 		this.view = PopUpMenu(parentView)
 		.items_(["Select connector..."] ++ widget.midiConnectors.collect(_.name));
+		this.view.value_(index + 1);
 		this.view.onClose_({ this.close });
-		this.view.action_({ |sel|
-			// set index in elements to sel.value-1
-		})
+	}
+
+	index_ { |connectorID|
+		this.view.value_(connectorID + 1);
 	}
 
 	close {
@@ -500,7 +502,7 @@ SoftWithinNumberBox : SCViewHolder {
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				var conID = widget.midiConnections.indexOf(connector);
+				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |nb|
 					nb.view.value_(changer[conID].value.softWithin)
 				}
