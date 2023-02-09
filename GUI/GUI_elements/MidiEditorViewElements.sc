@@ -1,5 +1,9 @@
 // MIDI editors
 
+MidiConnectorNameField : SCViewHolder {
+
+}
+
 MidiConnectorSelect : SCViewHolder {
 	classvar <all;
 	var widget, mc;
@@ -19,13 +23,13 @@ MidiConnectorSelect : SCViewHolder {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = PopUpMenu(parentView)
-		.items_(["Select connector..."] ++ widget.midiConnectors.collect(_.name));
-		this.view.value_(index + 1);
+		.items_(widget.midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
+		this.view.value_(index);
 		this.view.onClose_({ this.close });
 	}
 
 	index_ { |connectorID|
-		this.view.value_(connectorID + 1);
+		this.view.value_(connectorID);
 	}
 
 	close {
@@ -163,10 +167,9 @@ MidiSrcSelect : SCViewHolder {
 		connector = widget.midiConnectors[connectorID];
 		// FIXME
 		this.view.value_(
-			"this.view.items: %, classes: %".format(this.view.items, this.view.items.collect(_.class)).postln;
-			"mc.model[%].value.src: %".format(connectorID, mc.model[connectorID].value.src).postln;
-			this.view.items.indexOfEqual(mc.model[connectorID].value.src).postln;
-			// if (sel)
+			// "this.view.items: %, classes: %".format(this.view.items, this.view.items.collect(_.class)).postln;
+			// "mc.model[%].value.src: %".format(connectorID, mc.model[connectorID].value.src).postln;
+			this.view.items.indexOfEqual(mc.model[connectorID].value.src);
 		)
 	}
 
@@ -333,10 +336,10 @@ MidiModeSelect : SCViewHolder {
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[wdgt] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiOptions;
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"]);
 		this.index_(index);
@@ -375,6 +378,7 @@ MidiModeSelect : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
+				"changer[%].value.midiMode: %".format(conID, changer[conID].value.midiMode).postln;
 				all[widget].do { |sel|
 					sel.view.value_(changer[conID].value.midiMode)
 				}
@@ -466,7 +470,7 @@ SoftWithinNumberBox : SCViewHolder {
 
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
-		this.view = NumberBox(parentView, rect);
+		this.view = NumberBox(parentView, rect).step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);

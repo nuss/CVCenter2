@@ -179,8 +179,8 @@ MidiConnectorsEditorView : CompositeView {
 
 		e.connectionSelect.view.action_({ |sel|
 			e.do { |el|
-				if (sel.value.asBoolean) {
-					el.index_(sel.value - 1)
+				if (sel.value != sel.items.last) {
+					el.index_(sel.value);
 				}
 			}
 		});

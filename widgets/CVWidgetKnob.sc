@@ -31,7 +31,7 @@ CVWidgetKnob : CVWidget {
 		});
 		midiConnectors.addDependant({
 			MidiConnectorSelect.all[this].do { |select|
-				select.view.items_(["Select connector..."] ++ midiConnectors.collect(_.name));
+				select.view.items_(midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
 			}
 		});
 
