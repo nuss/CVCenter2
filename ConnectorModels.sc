@@ -114,7 +114,7 @@ OscConnector {
 MidiConnector {
 	classvar cAnons = 0;
 	classvar allMidiFuncs;
-	var <widget, <>name;
+	var <widget;
 
 	*initClass {
 		allMidiFuncs = ();
@@ -126,24 +126,24 @@ MidiConnector {
 		}) {
 			Error("A MidiConnector can only be created for an existing CVWidget").throw;
 		};
-		^super.newCopyArgs(widget, name).init;
+		^super.newCopyArgs(widget).init(name);
 	}
 
-	init {
+	init { |name|
 		widget.numMidiConnectors = widget.numMidiConnectors + 1;
-		if (this.name.isNil) {
-			this.name_("MIDI Connection %".format(widget.numMidiConnectors).asSymbol);
-		} { this.name_(this.name.asSymbol) };
+		name ?? {
+			name = "MIDI Connection %".format(widget.numMidiConnectors).asSymbol;
+		};
 		widget.midiConnectors.add(this).changed(\value);
 
 		allMidiFuncs[widget] ?? {
 			allMidiFuncs.put(widget, List[])
 		};
 		allMidiFuncs[widget].add(nil);
-		this.initModels(widget.wmc);
+		this.initModels(widget.wmc, name);
 	}
 
-	initModels { |wmc|
+	initModels { |wmc, name|
 		wmc.midiOptions ?? { wmc.midiOptions = () };
 		/*wmc.midiOptions.addDependant({
 
@@ -175,6 +175,13 @@ MidiConnector {
 			ctrl: "ctrl",
 			learn: "L"
 		)));
+		wmc.midiConnectorNames ?? { wmc.midiConnectorNames = () };
+		wmc.midiConnectorNames.model ?? {
+			wmc.midiConnectorNames.model = Ref(List[]);
+		};
+		wmc.midiConnectorNames.model.value_(
+			wmc.midiConnectorNames.model.value.add(name);
+		);
 		this.initControllers(wmc);
 	}
 
@@ -182,7 +189,8 @@ MidiConnector {
 		#[
 			prInitMidiOptions,
 			prInitMidiConnection,
-			prInitMidiDisplay
+			prInitMidiDisplay,
+			prInitMidiConnectorNames
 		].do { |method|
 			this.perform(method, wmc, widget.cv)
 		}
@@ -283,6 +291,29 @@ MidiConnector {
 			// "midiDisplay.controller - changer.value: %".format(changer.value).postln;
 			// ...
 		})
+	}
+
+	prInitMidiConnectorNames { |mc, cv|
+		mc.midiConnectorNames.controller ?? {
+			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
+		};
+		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
+			var conID = moreArgs[0];
+			"connector ID: %".format(conID).postln;
+			widget.midiConnectors[conID].name_(changer.value[conID]);
+		})
+	}
+
+	name {
+		var conID = widget.midiConnectors.indexOf(this);
+		^widget.wmc.midiConnectorNames.model.value[conID];
+	}
+
+	name_ { |name|
+		var conID = widget.midiConnectors.indexOf(this);
+		var names = widget.wmc.midiConnectorNames.model.value;
+		names[conID] = name;
+		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
 	}
 
 	setMidiMode { |mode|
