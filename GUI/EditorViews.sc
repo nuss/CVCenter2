@@ -131,6 +131,11 @@ MidiConnectorsEditorView : CompositeView {
 			MidiConnector(widget)
 		};
 
+		// fallback if index out of bounds
+		if (index >= widget.midiConnectors.size) {
+			index = widget.midiConnectors.size - 1;
+		};
+
 		e.connectionSelect = MidiConnectorSelect(parent, widget, connectorID: index);
 		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
 		e.midiMeanBox = MidiMeanNumberBox(parent, widget, connectorID: index);
@@ -138,9 +143,9 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
 		e.slidersPerBankTF = SlidersPerBankNumberTF(parent, widget, connectorID: index);
 		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
-		e.midiSrcSelect = MidiSrcSelect(parent, widget, index);
-		e.midiChanTF = MidiChanField(parent, widget, index);
-		e.midiNumTF = MidiCtrlField(parent, widget, index);
+		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID:index);
+		e.midiChanTF = MidiChanField(parent, widget, connectorID:index);
+		e.midiNumTF = MidiCtrlField(parent, widget, connectorID:index);
 
 		parent.layout_(
 			VLayout(
@@ -154,7 +159,7 @@ MidiConnectorsEditorView : CompositeView {
 					e.midiMeanBox
 				),
 				HLayout(
-					StaticText(parent).string_("min. snap distance for slider (0-127 only): "),
+					StaticText(parent).string_("snap distance for slider (0-127 only): "),
 					e.softWithinBox
 				),
 				HLayout(
@@ -170,9 +175,9 @@ MidiConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					e.midiLearnButton,
-					e.midiSrcSelect,
-					e.midiChanTF,
-					e.midiNumTF
+					[e.midiSrcSelect, stretch: 100],
+					[e.midiChanTF, stretch: 100],
+					[e.midiNumTF, stretch: 100]
 				)
 			)
 		);

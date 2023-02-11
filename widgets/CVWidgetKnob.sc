@@ -226,11 +226,11 @@ CVWidgetKnob : CVWidget {
 		// TODO: Take care of editor views
 	}
 
-	midiDialog { |connector, parent|
+	midiDialog { |connector=0, parent|
 		^MidiConnectorsEditorView(this, connector, parent).front;
 	}
 
-	oscDialog { |connector, parent|
+	oscDialog { |connector=0, parent|
 		^OscConnectorsEditorView(this, connector, parent).front;
 	}
 
