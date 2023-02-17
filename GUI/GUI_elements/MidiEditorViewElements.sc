@@ -22,10 +22,7 @@ MidiConnectorNameField : SCViewHolder {
 		this.view = TextField(parentView, rect);
 		this.index_(index);
 		this.view.action_({ |tf|
-			var i = widget.midiConnectors.indexOf(connector);
-			var names = mc.model.value;
-			names[i] = tf.string;
-			mc.model.value_(names).changedKeys(widget.syncKeys);
+			connector.name_(tf.string.asSymbol)
 		});
 		this.view.onClose_({ this.close });
 		this.prAddController;
@@ -46,7 +43,7 @@ MidiConnectorNameField : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiConnectorName_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiConnectorName_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -55,15 +52,16 @@ MidiConnectorNameField : SCViewHolder {
 					if (tf.connector === connector) {
 						this.view.string_(changer.value[conID]);
 					}
-				}
+				};
 			})
 		}
 	}
 }
 
 MidiConnectorSelect : SCViewHolder {
-	classvar <all;
+	classvar <all, c = 0;
 	var widget, mc;
+	var <connector, syncKey;
 
 	*initClass {
 		all = ();
@@ -78,21 +76,44 @@ MidiConnectorSelect : SCViewHolder {
 		all[wdgt].add(this);
 
 		widget = wdgt;
-		mc = widget.wmc.midiDisplay;
+		mc = widget.wmc.midiConnectorNames;
 		this.view = PopUpMenu(parentView)
 		.items_(widget.midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
-		this.view.value_(index);
 		this.view.onClose_({ this.close });
+		this.index_(index);
+		this.prAddController;
 	}
 
 	index_ { |connectorID|
+		connector = widget.midiConnectors[connectorID];
 		this.view.value_(connectorID);
+	}
+
+	prAddController {
+		mc.controller !? {
+			syncKey = (widget.name ++ \_ ++ \midiConnectorSelect_ ++ c).asSymbol;
+			c = c + 1;
+			widget.prAddSyncKey(syncKey, true);
+			mc.controller.put(syncKey, { |changer, what ... moreArgs|
+				var items, conID = widget.midiConnectors.indexOf(connector);
+				all[widget].do { |sel|
+					items = sel.view.items;
+					items[conID] = connector.name;
+					sel.view.items_(items);
+					if (sel.connector === connector) {
+						sel.view.value_(conID)
+					}
+				}
+			})
+		}
 	}
 
 	close {
 		this.remove;
 		this.viewDidClose;
 		all[widget].remove(this);
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
 	}
 }
 
@@ -164,12 +185,11 @@ MidiLearnButton : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiLearnButton_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiLearnButton_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var pos, conID = widget.midiConnectors.indexOf(connector);
-				"changer[%].value.learn: %".format(conID, changer[conID].value.learn).postln;
 				all[widget].do { |but|
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
@@ -225,10 +245,7 @@ MidiSrcSelect : SCViewHolder {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		// FIXME
 		this.view.value_(
-			// "this.view.items: %, classes: %".format(this.view.items, this.view.items.collect(_.class)).postln;
-			// "mc.model[%].value.src: %".format(connectorID, mc.model[connectorID].value.src).postln;
 			this.view.items.indexOfEqual(mc.model[connectorID].value.src);
 		)
 	}
@@ -243,15 +260,14 @@ MidiSrcSelect : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiSrcSelect_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiSrcSelect_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				"changer[%].value.src: %".format(conID, changer[conID].value.src).postln;
 				all[widget].do { |sel|
 					if (sel.connector === connector) {
-						sel.view.value_(sel.items.indexOf(changer[conID].value.src))
+						sel.view.value_(sel.items.indexOfEqual(changer[conID].value.src))
 					}
 				}
 			})
@@ -309,7 +325,7 @@ MidiChanField : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiChanField_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiChanField_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -374,7 +390,7 @@ MidiCtrlField : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiCtrlField_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiCtrlField_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -440,13 +456,12 @@ MidiModeSelect : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiModeSelect_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiModeSelect_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
-				"changer[%].value.midiMode: %".format(conID, changer[conID].value.midiMode).postln;
-				all[widget].postln.do { |sel|
+				all[widget].do { |sel|
 					if (sel.connector === connector) {
 						sel.view.value_(changer[conID].value.midiMode)
 					}
@@ -507,7 +522,7 @@ MidiMeanNumberBox : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiMeanNumberBox_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiMeanNumberBox_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -573,7 +588,7 @@ SoftWithinNumberBox : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\softWithinNumberBox_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \softWithinNumberBox_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -639,7 +654,7 @@ MidiResolutionNumberBox : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\midiResolutionNumberBox_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \midiResolutionNumberBox_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -706,7 +721,7 @@ SlidersPerBankNumberTF : SCViewHolder {
 
 	prAddController {
 		mc.controller !? {
-			syncKey = (\slidersPerBankNumberBox_ ++ c).asSymbol;
+			syncKey = (widget.name ++ \_ ++ \slidersPerBankNumberBox_ ++ c).asSymbol;
 			c = c + 1;
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -718,15 +733,5 @@ SlidersPerBankNumberTF : SCViewHolder {
 				}
 			})
 		}
-	}
-}
-
-// OSC Editors
-
-OscConnectorSelect : SCViewHolder {
-	classvar <all;
-
-	*initClass {
-		all = ();
 	}
 }
