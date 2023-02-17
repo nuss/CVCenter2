@@ -134,20 +134,17 @@ MidiConnector {
 		name ?? {
 			name = "MIDI Connection %".format(widget.numMidiConnectors).asSymbol;
 		};
+		this.initModels(widget.wmc, name);
 		widget.midiConnectors.add(this).changed(\value);
 
 		allMidiFuncs[widget] ?? {
 			allMidiFuncs.put(widget, List[])
 		};
 		allMidiFuncs[widget].add(nil);
-		this.initModels(widget.wmc, name);
 	}
 
 	initModels { |wmc, name|
 		wmc.midiOptions ?? { wmc.midiOptions = () };
-		/*wmc.midiOptions.addDependant({
-
-		});*/
 		wmc.midiOptions.model ?? {
 			wmc.midiOptions.model = List[];
 		};
@@ -258,8 +255,6 @@ MidiConnector {
 						chan: mc.midiConnections.model[index].value.chan ? "chan",
 						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
 					));
-					// "mc.midiDisplay.model[index].value.learn: %\nmc.midiDisplay.model[index].value.src: %\nmc.midiDisplay.model[index].value.chan: %\nmc.midiDisplay.model[index].value.ctrl: %".format(mc.midiDisplay.model[index].value.learn, mc.midiDisplay.model[index].value.src, mc.midiDisplay.model[index].value.chan, mc.midiDisplay.model[index].value.ctrl).postln;
-					// "index: %\nmc.midiDisplay.model after update in makeCConnection: %".format(index, mc.midiDisplay.model).postln;
 					mc.midiDisplay.model.changedKeys(widget.syncKeys);
 					allMidiFuncs[widget][index];
 				};
@@ -297,11 +292,6 @@ MidiConnector {
 		mc.midiConnectorNames.controller ?? {
 			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
 		};
-		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
-			var conID = moreArgs[0];
-			"connector ID: %".format(conID).postln;
-			widget.midiConnectors[conID].name_(changer.value[conID]);
-		})
 	}
 
 	name {
@@ -313,7 +303,7 @@ MidiConnector {
 		var conID = widget.midiConnectors.indexOf(this);
 		var names = widget.wmc.midiConnectorNames.model.value;
 		names[conID] = name;
-		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
+		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys);
 	}
 
 	setMidiMode { |mode|
@@ -450,6 +440,7 @@ MidiConnector {
 
 	remove {
 		var index = widget.midiConnectors.indexOf(this);
+		var names;
 		this.midiDisconnect;
 		// "index after disconnect: %".format(index).postln;
 		allMidiFuncs[widget][index].free;
@@ -458,8 +449,11 @@ MidiConnector {
 			widget.wmc.midiConnections.model,
 			widget.wmc.midiDisplay.model
 		].do(_.removeAt(index));
+		names = widget.wmc.midiConnectorNames.model.value;
+		names.removeAt(index);
 		widget.midiConnectors.remove(this);
 		widget.midiConnectors.changed(\value);
+		"index: %".format(index).postln;
 	}
 
 	storeOn { |stream|
