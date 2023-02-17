@@ -32,7 +32,7 @@ CVWidget {
 
 		this.shortcuts = IdentityDictionary.new;
 
-		if(scPrefs.not, {
+		if (scPrefs.not, {
 			this.shortcuts = CVWidgetShortcuts.shortcuts;
 		}, {
 			this.shortcuts = prefs[\shortcuts][\cvwidget];
@@ -62,6 +62,7 @@ CVWidget {
 	updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
 	addMidiConnector { this.subclassResponsibility(thisMethod) }
+	midiDialog { this.subclassResponsibility(thisMethod) }
 	removeMidiConnector { this.subclassResponsibility(thisMethod) }
 	setMidiMode { this.subclassResponsibility(thisMethod) }
 	getMidiMode { this.subclassResponsibility(thisMethod) }
@@ -77,6 +78,7 @@ CVWidget {
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 	// OSC
 	addOscConnector { this.subclassResponsibility(thisMethod) }
+	oscDialog { this.subclassResponsibility(thisMethod) }
 	removeOscConnector { this.subclassResponsibility(thisMethod) }
 	setOscCalibration { this.subclassResponsibility(thisMethod) }
 	getOscCalibration { this.subclassResponsibility(thisMethod) }
