@@ -37,7 +37,7 @@ OscConnectorsEditorView : CompositeView {
 		parent.layout_(
 			VLayout(
 				HLayout(
-					e.connectionSelect = PopUpMenu(parent),
+					e.connectorSelect = PopUpMenu(parent),
 					e.addButton = Button(parent).states_([["+"]]),
 					e.removeButton = Button(parent).states_([["-"]])
 				),
@@ -67,19 +67,19 @@ OscConnectorsEditorView : CompositeView {
 				e.specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0"),
 				StaticText(parent).string_("input to output mapping"),
 				e.inOutMappingSelect = PopUpMenu(parent),
-				e.connectionButton = Button(parent)
+				e.connectorButton = Button(parent)
 			)
 		);
 	}
 
-	set { |connection|
-		if (connection.class == Symbol) {
-			connection = widget.oscConnectors.detect { |c| c.name == connection }
+	set { |connector|
+		if (connector.class == Symbol) {
+			connector = widget.oscConnectors.detect { |c| c.name == connector }
 		};
-		if (connection.isInteger) {
-			connection = widget.oscConnectors[connection]
+		if (connector.isInteger) {
+			connector = widget.oscConnectors[connector]
 		};
-		cIndex = widget.oscConnectors.indexOf(connection);
+		cIndex = widget.oscConnectors.indexOf(connector);
 		e.do(_.index_(cIndex));
 	}
 
@@ -120,7 +120,7 @@ MidiConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 300))
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 350))
 		} { parent = parentView };
 
 		parent.onClose_({
@@ -136,7 +136,8 @@ MidiConnectorsEditorView : CompositeView {
 			index = widget.midiConnectors.size - 1;
 		};
 
-		e.connectionSelect = MidiConnectorSelect(parent, widget, connectorID: index);
+		e.connectorNameField = MidiConnectorNameField(parent, widget, connectorID: index);
+		e.connectorSelect = MidiConnectorSelect(parent, widget, connectorID: index);
 		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
 		e.midiMeanBox = MidiMeanNumberBox(parent, widget, connectorID: index);
 		e.softWithinBox = SoftWithinNumberBox(parent, widget, connectorID: index);
@@ -149,40 +150,43 @@ MidiConnectorsEditorView : CompositeView {
 
 		parent.layout_(
 			VLayout(
-				HLayout(e.connectionSelect),
 				HLayout(
-					StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "),
-					e.midiModeSelect
+					[e.connectorNameField, stretch: 9],
+					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					StaticText(parent).string_("MIDI mean (in/decremental mode only): "),
-					e.midiMeanBox
+					[StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "), stretch: 7],
+					[e.midiModeSelect, stretch: 3]
 				),
 				HLayout(
-					StaticText(parent).string_("snap distance for slider (0-127 only): "),
-					e.softWithinBox
+					[StaticText(parent).string_("MIDI mean (in/decremental mode only): "), stretch: 7],
+					[e.midiMeanBox, stretch: 3]
 				),
 				HLayout(
-					StaticText(parent).string_("MIDI resolution (+/- only): "),
-					e.midiResolutionBox
+					[StaticText(parent).string_("snap distance for slider (0-127 only): "), stretch: 7],
+					[e.softWithinBox, stretch: 3]
 				),
 				HLayout(
-					StaticText(parent).string_("Number of sliders per bank: "),
-					e.slidersPerBankTF
+					[StaticText(parent).string_("MIDI resolution (+/- only): "), stretch: 7],
+					[e.midiResolutionBox, stretch: 3]
 				),
 				HLayout(
-					StaticText(parent).string_("Yaddayadda")
+					[StaticText(parent).string_("Number of sliders per bank: "), stretch: 7],
+					[e.slidersPerBankTF, stretch: 3]
 				),
 				HLayout(
-					e.midiLearnButton,
-					[e.midiSrcSelect, stretch: 100],
-					[e.midiChanTF, stretch: 100],
-					[e.midiNumTF, stretch: 100]
+					StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (the 'L' should become 'C' like 'connect')")
+				),
+				HLayout(
+					[e.midiLearnButton, stretch: 1],
+					[e.midiSrcSelect, stretch: 4],
+					[e.midiChanTF, stretch: 4],
+					[e.midiNumTF, stretch: 4]
 				)
 			)
 		);
 
-		e.connectionSelect.view.action_({ |sel|
+		e.connectorSelect.view.action_({ |sel|
 			e.do { |el|
 				if (sel.value != sel.items.last) {
 					el.index_(sel.value);
@@ -210,5 +214,9 @@ MidiConnectorsEditorView : CompositeView {
 	close {
 		all[widget].remove(this);
 		e.do(_.close);
+	}
+
+	*closeAll {
+		all.do(_.close);
 	}
 }
