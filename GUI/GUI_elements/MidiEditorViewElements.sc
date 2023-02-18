@@ -1,6 +1,10 @@
 // MIDI editors
 
-MidiConnectorNameField : SCViewHolder {
+MidiConnectorElementView : SCViewHolder {
+	// do nothing, just be superclass
+}
+
+MidiConnectorNameField : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -50,7 +54,7 @@ MidiConnectorNameField : SCViewHolder {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
-						this.view.string_(changer.value[conID]);
+						tf.view.string_(changer.value[conID]);
 					}
 				};
 			})
@@ -58,7 +62,7 @@ MidiConnectorNameField : SCViewHolder {
 	}
 }
 
-MidiConnectorSelect : SCViewHolder {
+MidiConnectorSelect : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -121,7 +125,7 @@ MidiConnectorSelect : SCViewHolder {
 // the widget's o0scConnectors / midiConnectors lists. Hence, rather determine
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
-MidiLearnButton : SCViewHolder {
+MidiLearnButton : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -190,6 +194,7 @@ MidiLearnButton : SCViewHolder {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var pos, conID = widget.midiConnectors.indexOf(connector);
+				"changer[conID].value.learn: %".format(changer[conID].value.learn).postln;
 				all[widget].do { |but|
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
@@ -203,7 +208,7 @@ MidiLearnButton : SCViewHolder {
 	}
 }
 
-MidiSrcSelect : SCViewHolder {
+MidiSrcSelect : MidiConnectorElementView {
 	classvar <all, c = 0;
 	// preliminary
 	classvar <>midiSources;
@@ -275,7 +280,7 @@ MidiSrcSelect : SCViewHolder {
 	}
 }
 
-MidiChanField : SCViewHolder {
+MidiChanField : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -340,7 +345,7 @@ MidiChanField : SCViewHolder {
 	}
 }
 
-MidiCtrlField : SCViewHolder {
+MidiCtrlField : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -405,7 +410,7 @@ MidiCtrlField : SCViewHolder {
 	}
 }
 
-MidiModeSelect : SCViewHolder {
+MidiModeSelect : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -471,7 +476,7 @@ MidiModeSelect : SCViewHolder {
 	}
 }
 
-MidiMeanNumberBox : SCViewHolder {
+MidiMeanNumberBox : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -537,7 +542,7 @@ MidiMeanNumberBox : SCViewHolder {
 	}
 }
 
-SoftWithinNumberBox : SCViewHolder {
+SoftWithinNumberBox : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -603,7 +608,7 @@ SoftWithinNumberBox : SCViewHolder {
 	}
 }
 
-MidiResolutionNumberBox : SCViewHolder {
+MidiResolutionNumberBox : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
@@ -669,7 +674,7 @@ MidiResolutionNumberBox : SCViewHolder {
 	}
 }
 
-SlidersPerBankNumberTF : SCViewHolder {
+SlidersPerBankNumberTF : MidiConnectorElementView {
 	classvar <all, c = 0;
 	var widget, mc;
 	var <connector, syncKey;
