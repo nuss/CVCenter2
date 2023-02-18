@@ -236,10 +236,6 @@ CVWidgetKnob : CVWidget {
 
 	// MIDI
 	setMidiMode { |mode, connector|
-		// connector can be a Symbol or a MidiConnector instance
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -252,9 +248,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiMode { |connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -267,10 +260,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiMean { |meanval, connector|
-		// connector can be a Symbol or a MidiConnector instance
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -283,9 +272,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiMean { |connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -298,9 +284,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setSoftWithin { |threshold, connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -313,9 +296,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getSoftWithin { |connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -328,9 +308,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setCtrlButtonBank { |numSliders, connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -343,9 +320,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getCtrlButtonBank {	|connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -358,9 +332,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiResolution { |resolution, connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -373,9 +344,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiResolution { |connector|
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -392,9 +360,6 @@ CVWidgetKnob : CVWidget {
 		connector ?? {
 			connector = MidiConnector(this);
 		};
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -406,9 +371,6 @@ CVWidgetKnob : CVWidget {
 	midiDisconnect { |connector|
 		connector ?? {
 			Error("No connector given. Don't know which connector to disconnect!").throw;
-		};
-		if (connector.class == Symbol) {
-			connector = midiConnectors.detect { |c| c.name == connector }
 		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
@@ -435,9 +397,6 @@ CVWidgetKnob : CVWidget {
 	}
 
 	removeOscConnector { |connector|
-		if (connector.class == Symbol) {
-			connector = oscConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
@@ -453,9 +412,6 @@ CVWidgetKnob : CVWidget {
 
 	removeMidiConnector { |connector|
 		if (midiConnectors.size > 1) {
-			if (connector.class == Symbol) {
-				connector = midiConnectors.detect { |c| c.name == connector }
-			};
 			if (connector.isInteger) {
 				connector = midiConnectors[connector]
 			};

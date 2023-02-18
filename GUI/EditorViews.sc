@@ -73,9 +73,6 @@ OscConnectorsEditorView : CompositeView {
 	}
 
 	set { |connector|
-		if (connector.class == Symbol) {
-			connector = widget.oscConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			connector = widget.oscConnectors[connector]
 		};
@@ -196,9 +193,6 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	set { |connector|
-		if (connector.class == Symbol) {
-			connector = widget.midiConnectors.detect { |c| c.name == connector }
-		};
 		if (connector.isInteger) {
 			index = connector
 		} {
