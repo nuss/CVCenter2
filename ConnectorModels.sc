@@ -449,10 +449,20 @@ MidiConnector {
 			widget.wmc.midiConnections.model,
 			widget.wmc.midiDisplay.model
 		].do(_.removeAt(index));
+		// remove name first, otherwise name(s) in select will be incorrect
 		names = widget.wmc.midiConnectorNames.model.value;
 		names.removeAt(index);
 		widget.midiConnectors.remove(this);
 		widget.midiConnectors.changed(\value);
+		// make sure display in all MIDI editors get set to valid entries
+		// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
+		\MidiConnectorsEditorView.asClass !? {
+			\MidiConnectorsEditorView.asClass.all[widget].do { |v|
+				// if (v.widget === widget) {
+					v.set(0)
+			// }
+			}
+		};
 		"index: %".format(index).postln;
 	}
 
