@@ -454,13 +454,15 @@ MidiConnector {
 		names.removeAt(index);
 		widget.midiConnectors.remove(this);
 		widget.midiConnectors.changed(\value);
+		// order matters - next block must be executed
+		// after midiConnectors have been changed
 		// make sure display in all MIDI editors get set to valid entries
 		// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
-		\MidiConnectorsEditorView.asClass !? {
-			\MidiConnectorsEditorView.asClass.all[widget].do { |v|
-				// if (v.widget === widget) {
-					v.set(0)
-			// }
+		\MidiConnectorElementView.asClass !? {
+			\MidiConnectorElementView.asClass.subclasses.do { |class|
+				class.all[widget] !? {
+					class.all[widget].do(_.index_(index))
+				}
 			}
 		};
 		"index: %".format(index).postln;
