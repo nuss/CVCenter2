@@ -111,9 +111,7 @@ MidiConnectorsEditorView : CompositeView {
 
 		e ?? { e = () };
 		widget = wdgt;
-		if (all[widget].isNil) {
-			all[widget] = List[]
-		};
+		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
 		if (parentView.isNil) {

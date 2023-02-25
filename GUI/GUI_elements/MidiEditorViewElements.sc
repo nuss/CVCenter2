@@ -1,13 +1,22 @@
 // MIDI editors
 
 MidiConnectorElementView : SCViewHolder {
-	// do nothing, just be superclass
+	var widget, mc, syncKey;
+
+	close {
+		this.remove;
+		this.viewDidClose;
+		this.class.all[widget].remove(this);
+		mc.controller.removeAt(syncKey);
+		widget.prRemoveSyncKey(syncKey, true);
+	}
+
 }
 
 MidiConnectorNameField : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -37,14 +46,6 @@ MidiConnectorNameField : MidiConnectorElementView {
 		this.view.string_(mc.model.value[connectorID]);
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiConnectorName_ ++ c).asSymbol;
@@ -63,9 +64,9 @@ MidiConnectorNameField : MidiConnectorElementView {
 }
 
 MidiConnectorSelect : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -112,13 +113,6 @@ MidiConnectorSelect : MidiConnectorElementView {
 		}
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
 }
 
 // Elements must not hold a fixed ID as connectors can get deleted from
@@ -126,9 +120,9 @@ MidiConnectorSelect : MidiConnectorElementView {
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
 MidiLearnButton : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -179,14 +173,6 @@ MidiLearnButton : MidiConnectorElementView {
 		)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiLearnButton_ ++ c).asSymbol;
@@ -196,6 +182,7 @@ MidiLearnButton : MidiConnectorElementView {
 				var pos, conID = widget.midiConnectors.indexOf(connector);
 				"changer[conID].value.learn: %".format(changer[conID].value.learn).postln;
 				all[widget].do { |but|
+					"but.view: %".format(but.view).postln;
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
 							a[0] == changer[conID].value.learn
@@ -209,11 +196,11 @@ MidiLearnButton : MidiConnectorElementView {
 }
 
 MidiSrcSelect : MidiConnectorElementView {
-	classvar <all, c = 0;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 	// preliminary
 	classvar <>midiSources;
-	var widget, mc;
-	var <connector, syncKey;
 
 	*initClass {
 		all = ();
@@ -255,14 +242,6 @@ MidiSrcSelect : MidiConnectorElementView {
 		)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiSrcSelect_ ++ c).asSymbol;
@@ -281,9 +260,9 @@ MidiSrcSelect : MidiConnectorElementView {
 }
 
 MidiChanField : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -320,14 +299,6 @@ MidiChanField : MidiConnectorElementView {
 		this.view.string_(mc.model[connectorID].value.chan);
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiChanField_ ++ c).asSymbol;
@@ -346,9 +317,9 @@ MidiChanField : MidiConnectorElementView {
 }
 
 MidiCtrlField : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -385,14 +356,6 @@ MidiCtrlField : MidiConnectorElementView {
 		this.view.string_(mc.model[connectorID].value.ctrl);
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiCtrlField_ ++ c).asSymbol;
@@ -411,9 +374,9 @@ MidiCtrlField : MidiConnectorElementView {
 }
 
 MidiModeSelect : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -451,14 +414,6 @@ MidiModeSelect : MidiConnectorElementView {
 		this.view.value_(mc.model[connectorID].value.midiMode)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiModeSelect_ ++ c).asSymbol;
@@ -477,9 +432,9 @@ MidiModeSelect : MidiConnectorElementView {
 }
 
 MidiMeanNumberBox : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -517,14 +472,6 @@ MidiMeanNumberBox : MidiConnectorElementView {
 		this.view.value_(mc.model[connectorID].value.midiMean);
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiMeanNumberBox_ ++ c).asSymbol;
@@ -543,9 +490,9 @@ MidiMeanNumberBox : MidiConnectorElementView {
 }
 
 SoftWithinNumberBox : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -583,14 +530,6 @@ SoftWithinNumberBox : MidiConnectorElementView {
 		this.view.value_(mc.model[connectorID].value.softWithin)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \softWithinNumberBox_ ++ c).asSymbol;
@@ -609,9 +548,9 @@ SoftWithinNumberBox : MidiConnectorElementView {
 }
 
 MidiResolutionNumberBox : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -649,14 +588,6 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 		this.view.value_(mc.model[connectorID].value.midiResolution)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \midiResolutionNumberBox_ ++ c).asSymbol;
@@ -675,9 +606,9 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 }
 
 SlidersPerBankNumberTF : MidiConnectorElementView {
-	classvar <all, c = 0;
-	var widget, mc;
-	var <connector, syncKey;
+	classvar <all;
+	classvar c = 0;
+	var <connector;
 
 	*initClass {
 		all = ();
@@ -716,14 +647,6 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 		this.view.string_(mc.model[connectorID].value.ctrlButtonBank)
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
-	}
-
 	prAddController {
 		mc.controller !? {
 			syncKey = (widget.name ++ \_ ++ \slidersPerBankNumberBox_ ++ c).asSymbol;
@@ -739,4 +662,5 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 			})
 		}
 	}
+
 }
