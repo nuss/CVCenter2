@@ -7,15 +7,16 @@ MidiConnectorElementView : SCViewHolder {
 		this.remove;
 		this.viewDidClose;
 		this.class.all[widget].remove(this);
-		mc.controller.removeAt(syncKey);
-		widget.prRemoveSyncKey(syncKey, true);
+		this.class.all.detect(_.notEmpty) ?? {
+			mc.controller.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
 	}
 
 }
 
 MidiConnectorNameField : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -47,9 +48,11 @@ MidiConnectorNameField : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiConnectorName_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiConnectorName;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -65,7 +68,6 @@ MidiConnectorNameField : MidiConnectorElementView {
 
 MidiConnectorSelect : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -95,9 +97,11 @@ MidiConnectorSelect : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiConnectorSelect_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiConnectorSelect;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var items, conID = widget.midiConnectors.indexOf(connector);
@@ -121,7 +125,6 @@ MidiConnectorSelect : MidiConnectorElementView {
 
 MidiLearnButton : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -174,20 +177,22 @@ MidiLearnButton : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiLearnButton_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiLearnButton;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
+			// the following is global for all MidiLearnButtons
+			// there must be no notion of 'this'
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var pos, conID = widget.midiConnectors.indexOf(connector);
-				"changer[conID].value.learn: %".format(changer[conID].value.learn).postln;
 				all[widget].do { |but|
-					"but.view: %".format(but.view).postln;
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
 							a[0] == changer[conID].value.learn
 						};
-						this.view.value_(pos);
+						but.view.value_(pos);
 					}
 				}
 			})
@@ -197,7 +202,6 @@ MidiLearnButton : MidiConnectorElementView {
 
 MidiSrcSelect : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 	// preliminary
 	classvar <>midiSources;
@@ -243,9 +247,11 @@ MidiSrcSelect : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiSrcSelect_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiSrcSelect;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -261,7 +267,6 @@ MidiSrcSelect : MidiConnectorElementView {
 
 MidiChanField : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -300,9 +305,11 @@ MidiChanField : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiChanField_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiChanField;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -318,7 +325,6 @@ MidiChanField : MidiConnectorElementView {
 
 MidiCtrlField : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -357,9 +363,11 @@ MidiCtrlField : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiCtrlField_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiCtrlField;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -375,7 +383,6 @@ MidiCtrlField : MidiConnectorElementView {
 
 MidiModeSelect : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -415,9 +422,11 @@ MidiModeSelect : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiModeSelect_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiModeSelect;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -433,7 +442,6 @@ MidiModeSelect : MidiConnectorElementView {
 
 MidiMeanNumberBox : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -473,9 +481,11 @@ MidiMeanNumberBox : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiMeanNumberBox_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiMeanNumberBox;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -491,7 +501,6 @@ MidiMeanNumberBox : MidiConnectorElementView {
 
 SoftWithinNumberBox : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -531,9 +540,11 @@ SoftWithinNumberBox : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \softWithinNumberBox_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \softWithinNumberBox;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -549,7 +560,6 @@ SoftWithinNumberBox : MidiConnectorElementView {
 
 MidiResolutionNumberBox : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -589,9 +599,11 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \midiResolutionNumberBox_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \midiResolutionNumberBox;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
@@ -607,7 +619,6 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 
 SlidersPerBankNumberTF : MidiConnectorElementView {
 	classvar <all;
-	classvar c = 0;
 	var <connector;
 
 	*initClass {
@@ -648,9 +659,11 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 	}
 
 	prAddController {
-		mc.controller !? {
-			syncKey = (widget.name ++ \_ ++ \slidersPerBankNumberBox_ ++ c).asSymbol;
-			c = c + 1;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \slidersPerBankNumberBox;
+		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
