@@ -448,4 +448,12 @@ CVWidgetKnob : CVWidget {
 		})
 	}
 
+	storeOn { |stream|
+
+	}
+
+	printOn { |stream|
+
+	}
+
 }

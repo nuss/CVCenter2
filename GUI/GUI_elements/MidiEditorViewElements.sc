@@ -1,15 +1,15 @@
 // MIDI editors
 
 MidiConnectorElementView : SCViewHolder {
-	var widget, mc, syncKey;
+	var mc, syncKey;
 
 	close {
 		this.remove;
 		this.viewDidClose;
-		this.class.all[widget].remove(this);
-		this.class.all.detect(_.notEmpty) ?? {
+		this.class.all[this.widget].remove(this);
+		if (this.class.all[this.widget].isEmpty) {
 			mc.controller.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
+			this.widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
 
@@ -17,7 +17,7 @@ MidiConnectorElementView : SCViewHolder {
 
 MidiConnectorNameField : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -68,7 +68,7 @@ MidiConnectorNameField : MidiConnectorElementView {
 
 MidiConnectorSelect : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -125,7 +125,7 @@ MidiConnectorSelect : MidiConnectorElementView {
 
 MidiLearnButton : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -188,6 +188,7 @@ MidiLearnButton : MidiConnectorElementView {
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var pos, conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |but|
+					// "widget: %".format(widget.name).postln;
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
 							a[0] == changer[conID].value.learn
@@ -202,7 +203,7 @@ MidiLearnButton : MidiConnectorElementView {
 
 MidiSrcSelect : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 	// preliminary
 	classvar <>midiSources;
 
@@ -267,7 +268,7 @@ MidiSrcSelect : MidiConnectorElementView {
 
 MidiChanField : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -325,7 +326,7 @@ MidiChanField : MidiConnectorElementView {
 
 MidiCtrlField : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -383,7 +384,7 @@ MidiCtrlField : MidiConnectorElementView {
 
 MidiModeSelect : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -442,7 +443,7 @@ MidiModeSelect : MidiConnectorElementView {
 
 MidiMeanNumberBox : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -501,7 +502,7 @@ MidiMeanNumberBox : MidiConnectorElementView {
 
 SoftWithinNumberBox : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -560,7 +561,7 @@ SoftWithinNumberBox : MidiConnectorElementView {
 
 MidiResolutionNumberBox : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -619,7 +620,7 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 
 SlidersPerBankNumberTF : MidiConnectorElementView {
 	classvar <all;
-	var <connector;
+	var <connector, <widget;
 
 	*initClass {
 		all = ();
