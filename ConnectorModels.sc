@@ -446,6 +446,7 @@ MidiConnector {
 		allMidiFuncs[widget][index].free;
 		allMidiFuncs[widget].removeAt(index);
 		[
+			widget.wmc.midiOptions.model,
 			widget.wmc.midiConnections.model,
 			widget.wmc.midiDisplay.model
 		].do(_.removeAt(index));

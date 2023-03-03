@@ -97,12 +97,13 @@ TestCVWidgetKnob : UnitTest {
 			widget.getSnapDistance.size,
 			widget.getCtrlButtonGroup.size,
 			widget.getMidiResolution.size
-		], "The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		], "(1) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.midiConnectors.size], Set[
+			widget.wmc.midiDisplay.model.size,
 			widget.wmc.midiOptions.model.size,
 			widget.wmc.midiConnections.model.size,
 			widget.wmc.midiConnectorNames.model.value.size
-		], "The number of midiConnectors should equal the size of the widget's midiOptions model array");
+		], "(1) The number of midiConnectors should equal the size of the widget's midiOptions model array");
 		this.assertEquals(widget.midiConnectors.size, widget.wmc.midiConnections.model.size, "The number of midiConnectors should equal the size of the widget's midiConnections model array: 1");
 		connection1 = widget.addMidiConnector;
 		this.assertEquals(widget.midiConnectors.size, 2, "widget.midiConnectors should contain two midiConnectors after calling widget.addMidiConnector");
@@ -113,12 +114,13 @@ TestCVWidgetKnob : UnitTest {
 			widget.getSnapDistance.size,
 			widget.getCtrlButtonGroup.size,
 			widget.getMidiResolution.size
-		], "The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		], "(2) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.midiConnectors.size], Set[
+			widget.wmc.midiDisplay.model.size,
 			widget.wmc.midiOptions.model.size,
 			widget.wmc.midiConnections.model.size,
 			widget.wmc.midiConnectorNames.model.value.size
-		], "The number of midiConnectors should equal the size of the widget's midiOptions model array");
+		], "(2) The number of midiConnectors should equal the size of the widget's midiOptions model array");
 		connection2 = widget.addMidiConnector(\test);
 		this.assertEquals(widget.midiConnectors.size, 3, "widget.midiConnectors should contain three midiConnectors after calling widget.addMidiConnector");
 		this.assertEquals(connection2.name, \test, "The added MidiConnector should have been named 'test'");
@@ -129,12 +131,13 @@ TestCVWidgetKnob : UnitTest {
 			widget.getSnapDistance.size,
 			widget.getCtrlButtonGroup.size,
 			widget.getMidiResolution.size
-		], "The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		], "(3) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.midiConnectors.size], Set[
+			widget.wmc.midiDisplay.model.size,
 			widget.wmc.midiOptions.model.size,
 			widget.wmc.midiConnections.model.size,
 			widget.wmc.midiConnectorNames.model.value.size
-		], "The number of midiConnectors should equal the size of the widget's midiOptions model array");
+		], "(3) The number of midiConnectors should equal the size of the widget's midiOptions model array");
 		widget.removeMidiConnector(connection1);
 		this.assertEquals(widget.midiConnectors.size, 2, "widget.midiConnectors should contain two midiConnectors after removing connection1");
 		this.assertEquals(widget.midiConnectors.collect(_.name), ['MIDI Connection 1', \test], "widget.midiConnectors should contain two midiConnectors, named 'MIDI Connection 1' and 'test'");
@@ -144,12 +147,13 @@ TestCVWidgetKnob : UnitTest {
 			widget.getSnapDistance.size,
 			widget.getCtrlButtonGroup.size,
 			widget.getMidiResolution.size
-		], "The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		], "(4) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.midiConnectors.size], Set[
+			widget.wmc.midiDisplay.model.size,
 			widget.wmc.midiOptions.model.size,
 			widget.wmc.midiConnections.model.size,
 			widget.wmc.midiConnectorNames.model.value.size
-		], "The number of midiConnectors should equal the size of the widget's midiOptions model array");
+		], "(4) The number of midiConnectors should equal the size of the widget's midiOptions model array");
 	}
 
 	test_set_getMidiMode {
