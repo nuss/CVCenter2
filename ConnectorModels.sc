@@ -150,10 +150,10 @@ MidiConnector {
 		};
 		wmc.midiOptions.model.add(Ref((
 			midiMode: CVWidget.midiMode,
-			midiMean: CVWidget.midiMean,
-			ctrlButtonBank: CVWidget.ctrlButtonBank,
+			midiZero: CVWidget.midiZero,
+			ctrlButtonGroup: CVWidget.ctrlButtonGroup,
 			midiResolution: CVWidget.midiResolution,
-			softWithin: CVWidget.softWithin
+			snapDistance: CVWidget.snapDistance
 		)));
 
 		wmc.midiConnections ?? { wmc.midiConnections = () };
@@ -227,9 +227,9 @@ MidiConnector {
 						this.getMidiMode.switch(
 							//  0-127
 							0, {
-								if ((this.getSoftWithin <= 0).or(
-									val/127 < (cv.input + (this.getSoftWithin/2)) and: {
-										val/127 > (cv.input - (this.getSoftWithin/2))
+								if ((this.getSnapDistance <= 0).or(
+									val/127 < (cv.input + (this.getSnapDistance/2)) and: {
+										val/127 > (cv.input - (this.getSnapDistance/2))
 								})) {
 									cv.input_(val/127);
 									// [val, cv.input, cv.value].postln;
@@ -316,10 +316,10 @@ MidiConnector {
 
 		mc.midiOptions.model[index].value_((
 			midiMode: mode,
-			midiMean: mc.midiOptions.model[index].value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiZero: mc.midiOptions.model[index].value.midiZero,
+			ctrlButtonGroup: mc.midiOptions.model[index].value.ctrlButtonGroup,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
-			softWithin: mc.midiOptions.model[index].value.softWithin
+			snapDistance: mc.midiOptions.model[index].value.snapDistance
 		));
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
@@ -330,69 +330,69 @@ MidiConnector {
 		^mc.midiOptions.model[index].value.midiMode;
 	}
 
-	setMidiMean { |meanval|
+	setMidiZero { |zeroval|
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		meanval = meanval.asInteger;
+		zeroval = zeroval.asInteger;
 
 		mc.midiOptions.model[index].value_((
 			midiMode: mc.midiOptions.model[index].value.midiMode,
-			midiMean: meanval,
-			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiZero: zeroval,
+			ctrlButtonGroup: mc.midiOptions.model[index].value.ctrlButtonGroup,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
-			softWithin: mc.midiOptions.model[index].value.softWithin
+			snapDistance: mc.midiOptions.model[index].value.snapDistance
 		));
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
-	getMidiMean {
+	getMidiZero {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		^mc.midiOptions.model[index].value.midiMean;
+		^mc.midiOptions.model[index].value.midiZero;
 	}
 
-	setSoftWithin { |threshold|
+	setSnapDistance { |snapDistance|
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		threshold = threshold.asFloat;
+		snapDistance = snapDistance.asFloat;
 
 		mc.midiOptions.model[index].value_((
 			midiMode: mc.midiOptions.model[index].value.midiMode,
-			midiMean: mc.midiOptions.model[index].value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiZero: mc.midiOptions.model[index].value.midiZero,
+			ctrlButtonGroup: mc.midiOptions.model[index].value.ctrlButtonGroup,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
-			softWithin: threshold
+			snapDistance: snapDistance
 		));
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
-	getSoftWithin {
+	getSnapDistance {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		^mc.midiOptions.model[index].value.softWithin;
+		^mc.midiOptions.model[index].value.snapDistance;
 	}
 
-	setCtrlButtonBank { |numSliders|
+	setCtrlButtonGroup { |numButtons|
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		if (numSliders.notNil and:{ numSliders.isInteger.not }) {
-			Error("setCtrlButtonBank: 'numSliders' must either be an Integer or nil!").throw;
+		if (numButtons.notNil and:{ numButtons.isInteger.not }) {
+			Error("setCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
 
 		mc.midiOptions.model[index].value_((
 			midiMode: mc.midiOptions.model[index].value.midiMode,
-			midiMean: mc.midiOptions.model[index].value.midiMean,
-			ctrlButtonBank: numSliders,
+			midiZero: mc.midiOptions.model[index].value.midiZero,
+			ctrlButtonGroup: numButtons,
 			midiResolution: mc.midiOptions.model[index].value.midiResolution,
-			softWithin: mc.midiOptions.model[index].value.softWithin
+			snapDistance: mc.midiOptions.model[index].value.snapDistance
 		));
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
 
-	getCtrlButtonBank {
+	getCtrlButtonGroup {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
-		^mc.midiOptions.model[index].value.ctrlButtonBank;
+		^mc.midiOptions.model[index].value.ctrlButtonGroup;
 	}
 
 	setMidiResolution { |resolution|
@@ -400,10 +400,10 @@ MidiConnector {
 		var index = widget.midiConnectors.indexOf(this);
 		mc.midiOptions.model[index].value_((
 			midiMode: mc.midiOptions.model[index].value.midiMode,
-			midiMean: mc.midiOptions.model[index].value.midiMean,
-			ctrlButtonBank: mc.midiOptions.model[index].value.ctrlButtonBank,
+			midiZero: mc.midiOptions.model[index].value.midiZero,
+			ctrlButtonGroup: mc.midiOptions.model[index].value.ctrlButtonGroup,
 			midiResolution: resolution,
-			softWithin: mc.midiOptions.model[index].value.softWithin
+			snapDistance: mc.midiOptions.model[index].value.snapDistance
 		));
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
@@ -464,8 +464,7 @@ MidiConnector {
 					class.all[widget].do(_.index_(index))
 				}
 			}
-		};
-		"index: %".format(index).postln;
+		}
 	}
 
 	storeOn { |stream|

@@ -125,6 +125,8 @@ MidiConnectorSelect : MidiConnectorElementView {
 
 MidiLearnButton : MidiConnectorElementView {
 	classvar <all;
+	// widget must be a getter as it's called
+	// in close(), defined in MidiConnectorElementView
 	var <connector, <widget;
 
 	*initClass {
@@ -406,10 +408,10 @@ MidiModeSelect : MidiConnectorElementView {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				midiMode: sel.value,
-				midiMean: mc.model[i].value.midiMean,
-				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiZero: mc.model[i].value.midiZero,
+				ctrlButtonGroup: mc.model[i].value.ctrlButtonGroup,
 				midiResolution: mc.model[i].value.midiResolution,
-				softWithin: mc.model[i].value.softWithin
+				snapDistance: mc.model[i].value.snapDistance
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
@@ -441,7 +443,7 @@ MidiModeSelect : MidiConnectorElementView {
 	}
 }
 
-MidiMeanNumberBox : MidiConnectorElementView {
+MidiZeroNumberBox : MidiConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -465,10 +467,10 @@ MidiMeanNumberBox : MidiConnectorElementView {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
-				midiMean: nb.value,
-				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiZero: nb.value,
+				ctrlButtonGroup: mc.model[i].value.ctrlButtonGroup,
 				midiResolution: mc.model[i].value.midiResolution,
-				softWithin: mc.model[i].value.softWithin
+				snapDistance: mc.model[i].value.snapDistance
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
@@ -478,21 +480,21 @@ MidiMeanNumberBox : MidiConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.midiMean);
+		this.view.value_(mc.model[connectorID].value.midiZero);
 	}
 
 	prAddController {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiMeanNumberBox;
+		syncKey = \midiZeroNumberBox;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |nb|
 					if (nb.connector === connector) {
-						nb.view.value_(changer[conID].value.midiMean)
+						nb.view.value_(changer[conID].value.midiZero)
 					}
 				}
 			})
@@ -500,7 +502,7 @@ MidiMeanNumberBox : MidiConnectorElementView {
 	}
 }
 
-SoftWithinNumberBox : MidiConnectorElementView {
+SnapDistanceNumberBox : MidiConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -524,10 +526,10 @@ SoftWithinNumberBox : MidiConnectorElementView {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
-				midiMean: mc.model[i].value.midiMean,
-				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiZero: mc.model[i].value.midiZero,
+				ctrlButtonGroup: mc.model[i].value.ctrlButtonGroup,
 				midiResolution: mc.model[i].value.midiResolution,
-				softWithin: nb.value
+				snapDistance: nb.value
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
@@ -537,21 +539,21 @@ SoftWithinNumberBox : MidiConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.softWithin)
+		this.view.value_(mc.model[connectorID].value.snapDistance)
 	}
 
 	prAddController {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \softWithinNumberBox;
+		syncKey = \snapDistanceNumberBox;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |nb|
 					if (nb.connector === connector) {
-						nb.view.value_(changer[conID].value.softWithin)
+						nb.view.value_(changer[conID].value.snapDistance)
 					}
 				}
 			})
@@ -583,10 +585,10 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
-				midiMean: mc.model[i].value.midiMean,
-				ctrlButtonBank: mc.model[i].value.ctrlButtonBank,
+				midiZero: mc.model[i].value.midiZero,
+				ctrlButtonGroup: mc.model[i].value.ctrlButtonGroup,
 				midiResolution: nb.value,
-				softWithin: mc.model[i].value.softWithin
+				snapDistance: mc.model[i].value.snapDistance
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
@@ -643,10 +645,10 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
-				midiMean: mc.model[i].value.midiMean,
-				ctrlButtonBank: ctrlb,
+				midiZero: mc.model[i].value.midiZero,
+				ctrlButtonGroup: ctrlb,
 				midiResolution: mc.model[i].value.midiResolution,
-				softWithin: mc.model[i].value.softWithin
+				snapDistance: mc.model[i].value.snapDistance
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
@@ -656,7 +658,7 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.string_(mc.model[connectorID].value.ctrlButtonBank)
+		this.view.string_(mc.model[connectorID].value.ctrlButtonGroup)
 	}
 
 	prAddController {
@@ -670,7 +672,7 @@ SlidersPerBankNumberTF : MidiConnectorElementView {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
-						tf.view.string_(changer[conID].value.ctrlButtonBank)
+						tf.view.string_(changer[conID].value.ctrlButtonGroup)
 					}
 				}
 			})

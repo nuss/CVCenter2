@@ -134,10 +134,10 @@ MidiConnectorsEditorView : CompositeView {
 		e.connectorNameField = MidiConnectorNameField(parent, widget, connectorID: index);
 		e.connectorSelect = MidiConnectorSelect(parent, widget, connectorID: index);
 		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
-		e.midiMeanBox = MidiMeanNumberBox(parent, widget, connectorID: index);
-		e.softWithinBox = SoftWithinNumberBox(parent, widget, connectorID: index);
+		e.midiZeroBox = MidiZeroNumberBox(parent, widget, connectorID: index);
+		e.snapDistanceBox = SnapDistanceNumberBox(parent, widget, connectorID: index);
 		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
-		e.slidersPerBankTF = SlidersPerBankNumberTF(parent, widget, connectorID: index);
+		e.slidersPerGroupTF = SlidersPerGroupNumberTF(parent, widget, connectorID: index);
 		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
 		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID:index);
 		e.midiChanTF = MidiChanField(parent, widget, connectorID:index);
@@ -155,11 +155,11 @@ MidiConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[StaticText(parent).string_("MIDI mean (in/decremental mode only): "), stretch: 7],
-					[e.midiMeanBox, stretch: 3]
+					[e.midiZeroBox, stretch: 3]
 				),
 				HLayout(
 					[StaticText(parent).string_("snap distance for slider (0-127 only): "), stretch: 7],
-					[e.softWithinBox, stretch: 3]
+					[e.snapDistanceBox, stretch: 3]
 				),
 				HLayout(
 					[StaticText(parent).string_("MIDI resolution (+/- only): "), stretch: 7],
@@ -167,7 +167,7 @@ MidiConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[StaticText(parent).string_("Number of sliders per bank: "), stretch: 7],
-					[e.slidersPerBankTF, stretch: 3]
+					[e.slidersPerGroupTF, stretch: 3]
 				),
 				HLayout(
 					StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (the 'L' should become 'C' like 'connect')")

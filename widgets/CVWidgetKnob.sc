@@ -3,7 +3,7 @@ CVWidgetKnob : CVWidget {
 	// only needed for naming a connector
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
 
-	*new { |name, cv, setup, action|
+	*new { |name, cv, setup, action, modelsAndControllers|
 		^super.new.init(name, cv, setup, action);
 	}
 
@@ -41,9 +41,9 @@ CVWidgetKnob : CVWidget {
 			};
 			this.setMidiMode(setupArgs[\midiMode] ? this.class.midiMode);
 			this.setMidiResolution(setupArgs[\midiResolution] ? this.class.midiResolution);
-			this.setMidiMean(setupArgs[\midiMean] ? this.class.midiMean);
-			this.setCtrlButtonBank(setupArgs[\ctrlButtonBank]);
-			this.setSoftWithin(setupArgs[\softWithin] ? this.class.softWithin);
+			this.setMidiZero(setupArgs[\midiMean] ? this.class.midiMean);
+			this.setCtrlButtonGroup(setupArgs[\ctrlButtonBank]);
+			this.setSnapDistance(setupArgs[\softWithin] ? this.class.softWithin);
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
 		};
 
@@ -259,75 +259,75 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
-	setMidiMean { |meanval, connector|
+	setMidiZero { |zeroval, connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			midiConnectors.do(_.setMidiMean(meanval))
+			midiConnectors.do(_.setMidiZero(zeroval))
 		} {
-			connector.setMidiMean(meanval)
+			connector.setMidiZero(zeroval)
 		}
 	}
 
-	getMidiMean { |connector|
+	getMidiZero { |connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			^midiConnectors.collect(_.getMidiMean)
+			^midiConnectors.collect(_.getMidiZero)
 		} {
-			^connector.getMidiMean;
+			^connector.getMidiZero;
 		}
 	}
 
-	setSoftWithin { |threshold, connector|
+	setSnapDistance { |snapDistance, connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			midiConnectors.do(_.setSoftWithin(threshold));
+			midiConnectors.do(_.setSnapDistance(snapDistance));
 		} {
-			connector.setSoftWithin(threshold);
+			connector.setSnapDistance(snapDistance);
 		}
 	}
 
-	getSoftWithin { |connector|
+	getSnapDistance { |connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			^midiConnectors.collect(_.getSoftWithin);
+			^midiConnectors.collect(_.getSnapDistance);
 		} {
-			^connector.getSoftWithin;
+			^connector.getSnapDistance;
 		}
 	}
 
-	setCtrlButtonBank { |numSliders, connector|
+	setCtrlButtonGroup { |numButtons, connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			midiConnectors.do(_.setCtrlButtonBank(numSliders));
+			midiConnectors.do(_.setCtrlButtonGroup(numButtons));
 		} {
-			connector.setCtrlButtonBank(numSliders);
+			connector.setCtrlButtonGroup(numButtons);
 		}
 	}
 
-	getCtrlButtonBank {	|connector|
+	getCtrlButtonGroup { |connector|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
 
 		if (connector.isNil) {
-			^midiConnectors.collect(_.getCtrlButtonBank);
+			^midiConnectors.collect(_.getCtrlButtonGroup);
 		} {
-			^connector.getCtrlButtonBank;
+			^connector.getCtrlButtonGroup;
 		}
 	}
 
@@ -449,11 +449,24 @@ CVWidgetKnob : CVWidget {
 	}
 
 	storeOn { |stream|
-
+		stream << this.class.name << "(" <<< [
+			this.name,
+			this.cv,
+			(
+				midiMode: this.getMidiMode,
+				midiResolution: this.getMidiResolution,
+				midiZero: this.getMidiZero,
+				ctrlButtonGroup: this.getCtrlButtonGroup,
+				snapDistance: this.getSnapDistance,
+				oscCalibration: this.getOscCalibration
+			),
+			{},
+			this.wmc
+		] << ")"
 	}
 
 	printOn { |stream|
-
+		this.storeOn(stream)
 	}
 
 }

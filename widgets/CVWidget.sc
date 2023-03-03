@@ -1,7 +1,7 @@
 CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>midiSources, <>shortcuts, prefs;
-	classvar <>midiMode = 0, <>midiResolution = 1, <>midiMean = 64, <>ctrlButtonBank, <>softWithin = 0.1;
+	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
 
 	// widget models and controllers
@@ -66,12 +66,12 @@ CVWidget {
 	removeMidiConnector { this.subclassResponsibility(thisMethod) }
 	setMidiMode { this.subclassResponsibility(thisMethod) }
 	getMidiMode { this.subclassResponsibility(thisMethod) }
-	setMidiMean { this.subclassResponsibility(thisMethod) }
-	getMidiMean { this.subclassResponsibility(thisMethod) }
-	setSoftWithin { this.subclassResponsibility(thisMethod) }
-	getSoftWithin { this.subclassResponsibility(thisMethod) }
-	setCtrlButtonBank { this.subclassResponsibility(thisMethod) }
-	getCtrlButtonBank { this.subclassResponsibility(thisMethod) }
+	setMidiZero { this.subclassResponsibility(thisMethod) }
+	getMidiZero { this.subclassResponsibility(thisMethod) }
+	setSnapDistance { this.subclassResponsibility(thisMethod) }
+	getSnapDistance { this.subclassResponsibility(thisMethod) }
+	setCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
+	getCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
 	setMidiResolution { this.subclassResponsibility(thisMethod) }
 	getMidiResolution { this.subclassResponsibility(thisMethod) }
 	midiConnect { this.subclassResponsibility(thisMethod) }
