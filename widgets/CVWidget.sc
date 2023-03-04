@@ -43,9 +43,9 @@ CVWidget {
 		^(
 			midiMode: this.midiMode,
 			midiResolution: this.midiResolution,
-			midiMean: this.midiMean,
-			ctrlButtonBank: this.ctrlButtonBank,
-			softWithin: this.softWithin,
+			midiZero: this.midiZero,
+			ctrlButtonGroup: this.ctrlButtonGroup,
+			snapDistance: this.snapDistance,
 			oscCalibration: this.oscCalibration
 		);
 	}
