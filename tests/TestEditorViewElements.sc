@@ -1,313 +1,65 @@
-TestMidiConnectorSelect : UnitTest {
-	var widget;
+TestMidiConnectorElementView : UnitTest {
+	var widget, element1, element2;
 
 	setUp {
 		widget = CVWidgetKnob(\test);
+		element1 = MidiConnectorNameField(widget: widget);
 	}
 
 	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_close {
+		element2 = MidiConnectorNameField(widget: widget);
+		element1.close;
+		this.assertEquals(MidiConnectorNameField.all[widget], List[element2], "After closing element1 the class' 'all' variable should hold a List with one element which is element2 under a key which is the widget itself.");
+		this.assertEquals(widget.syncKeys, [\default, \midiConnectorName], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after calling 'close'");
+		element2.close;
+		this.assertEquals(MidiConnectorNameField.all[widget], List[], "After closing element2 the class' 'all' variable should hold an empty List under a key which is the widget itself.");
+		this.assertEquals(widget.syncKeys, [\default], "The widget's 'syncKeys' should contain a single Symbol, 'default' after calling 'close'");
+	}
+}
+
+TestMidiConnectorNameField : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiConnectorNameField(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
 		widget.remove;
 	}
 
 	test_new {
-		var select = MidiConnectorSelect(widget: widget);
+		this.assert(MidiConnectorNameField.all[widget][0] === element1, "MidiConnectorNameField's all variable at the key which is the widget itself should hold a List with one value: the element itself.");
+		this.assert(element1.connector === widget.midiConnectors[0], "The elements connector should be identical with the connector at the widget's midiConnectors List");
+		this.assertEquals(widget.wmc.midiConnectorNames.model.value, List['MIDI Connection 1'], "The widget's midiConnectorNames model should hold a List with one value 'MIDI Connection 1'");
+		element1.view.valueAction_('new name');
+		this.assertEquals(widget.wmc.midiConnectorNames.model.value, List['new name'], "After calling 'valueAction' on the element's view the widget's midiConnectorNames model should hold a List with one value 'new name'");
+		this.assertEquals(widget.midiConnectors[0].name, 'new name', "widget.midiConnectors[0].name should return 'new name' after  calling element1.view.valueAction_('new name')");
+		element2 = MidiConnectorNameField(widget: widget);
+		this.assertEquals(MidiConnectorNameField.all[widget].size, 2, "MidiConnectorNameField.all[widget] should hold a List with 2 elements after creating another MidiConnectorNameField instance.");
+		this.assertEquals(element2.view.string, "new name", "element2's textfield should hold a string 'new name'");
+		element2.view.valueAction_('changed name');
+		this.assertEquals(element1.view.string, "changed name", "After calling valueAction on element2's view with a value 'changed name' element1's view should have been updated accordingly");
+	}
 
-		this.assertEquals(MidiConnectorSelect.all[widget], List[select], "After creation of a new MidiConnectorSelect MidiConnectorSelect.all[widget] should hold a List with a single item which is the just created MidiConnectorSelect");
-		this.assertEquals(select.view.items, ["Select connector...", 'MIDI Connection 1'], "After calling MidiConnectorSelect(widget: widget) the select's items should equal to [\"Select connector...\", 'MIDI Connection 1']");
+	test_index_ {
+		element2 = MidiConnectorNameField(widget: widget);
 		widget.addMidiConnector;
-		this.assertEquals(select.view.items.size, 3, "After adding another MidiConnector the number of select items should have increased to 3.");
-		widget.removeMidiConnector(0);
-		this.assertEquals(select.view.items, ["Select connector...", 'MIDI Connection 2'], "After calling widget.removeMidiConnector(0) the select items should hold two items: [\"Select connector...\", 'MIDI Connection 2'].");
-	}
-
-	test_close {
-		var select = MidiConnectorSelect(widget: widget);
-
-		select.close;
-		this.assertEquals(MidiConnectorSelect.all[widget], List[], "After calling select.close MidiConnectorSelect.all[widget] should contain an empty List");
-	}
-}
-
-TestMidiLearnButton : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-		var learnButton1 = MidiLearnButton(widget: widget), learnButton2, learnButton3;
-		var mc = widget.wmc.midiDisplay;
-		var aConnector, syncKeyMatches;
-
-		this.assertEquals(MidiLearnButton.all[widget], List[learnButton1], "After the creation of a new MidiLearnbutton MidiLearnButton.all[widget] should hold a List with a single item which is the just created MidiLearnButton.");
-		this.assertEquals(widget.midiConnectors.indexOf(learnButton1.connector), 0, "After creation of the new MidiLearnButton its connector should be the one at index 0 in widget.midiConnectors.");
-		this.assertEquals(widget.syncKeys.size, 2, "After creation of the new MidiLearnButton widget.syncKeys should return a list of two syncKeys.");
-		syncKeyMatches = widget.syncKeys.select { |key| "^midiLearnButton_[0-9]+$".matchRegexp(key.asString) };
-		this.assertEquals(syncKeyMatches.size, 1, "widget.syncKeys should return one key that matches the pattern \"^midiLearnButton_[0-9]+$\"");
-		aConnector = widget.addMidiConnector;
-		mc.model[widget.midiConnectors.indexOf(aConnector)].value_((learn: "X", src: "source...", chan: "chan", ctrl: "ctrl"));
-		learnButton2 = MidiLearnButton(widget: widget, connectorID: 1);
-		this.assertEquals(learnButton2.view.value, widget.midiConnectors.indexOf(aConnector), "Setting a connector's midiDisplay model should have been picked up by a new MidiLearnButton.");
-		learnButton3 = MidiLearnButton(widget: widget);
-		this.assertEquals(MidiLearnButton.all[widget], List[learnButton1, learnButton2, learnButton3], "After creating another MidiLearnButton MidiLearnButton.all[widget] should hold a list of two MidiLearnButtons.");
-		this.assertEquals(widget.midiConnectors.indexOf(learnButton3.connector), 0, "After creation of another MidiLearnButton its connector should be the one at index 0 in widget.midiConnectors.");
-		syncKeyMatches = widget.syncKeys.select { |key| "^midiLearnButton_[0-9]+$".matchRegexp(key.asString) };
-		this.assertEquals(widget.syncKeys.size, 4, "After adding another MidiLearnButton widget.syncKeys should hold 3 keys.");
-		this.assertEquals(syncKeyMatches.size, 3, "widget.syncKeys should hold two keys that match the pattern \"^midiLearnButton_[0-9]+$\"");
-	}
-
-	test_index_ {
-		var learnButton = MidiLearnButton(widget: widget);
-		var mc = widget.wmc.midiDisplay;
-
-		widget.addMidiConnector;
-		learnButton.index_(1);
-		this.assertEquals(widget.midiConnectors.indexOf(learnButton.connector), 1, "After adding another MidiConnector to the widget and calling learnButton.index_(1) its connector should now be the one at position 1 in widget.midiConnectors.");
-		learnButton.view.valueAction_(1);
-		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"), (learn: "X", src: "source...", chan: "chan", ctrl: "ctrl")], "After calling valueAction on learnButton.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"X\", src: \"source\", chan: \"chan\", ctrl: \"ctrl\")] ");
-		widget.removeMidiConnector(0);
-		this.assertEquals(widget.midiConnectors.indexOf(learnButton.connector), 0, "After removing the connector at position 0 in widget.midiConnectors the remaining MidiConnector should be accessible at position 0 in widget.midiConnectors");
-		this.assertEquals(mc.model.size, 1, "After removing the MidiConnector at position 0 in widget.midiConnectors the widget's midiDisplay.model should hold a single value");
-	}
-
-	test_close {
-		var learnButton = MidiLearnButton(widget: widget);
-		var syncKeyMatches;
-		var mc = widget.wmc.midiDisplay;
-
-		learnButton.close;
-		this.assertEquals(MidiLearnButton.all[widget], List[], "After calling 'close' on a MidiLearnButton the instance should have been removed from the List at MidiLearnButton.all[widget].");
-		syncKeyMatches = widget.syncKeys.select { |key| "^midiLearnButton_[0-9]+$".matchRegexp(key.asString) };
-		this.assertEquals(syncKeyMatches.size, 0, "After closing the MidiLearnButton its syncKey should have been removed from widget.syncKeys.");
-	}
-}
-
-TestMidiSrcSelect : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-		MidiSrcSelect.midiSources_([12345, 15243]);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-		var midiSrcSel1 = MidiSrcSelect(widget: widget), midiSrcSel2, midiSrcSel3;
-		var mc = widget.wmc.midiDisplay;
-		var aConnector, syncKeyMatches;
-
-
-		this.assertEquals(MidiSrcSelect.all[widget], List[midiSrcSel1], "After the creation of a new MidiSrcSelect MidiSrcSelect.all[widget] should hold a List with a single item which is the just created MidiSrcSelect.");
-		this.assertEquals(widget.midiConnectors.indexOf(midiSrcSel1.connector), 0, "After creation of the new MidiSrcSelect its connector should be the one at index 0 in widget.midiConnectors.");
-		this.assertEquals(widget.syncKeys.size, 2, "After creation of the new MidiSrcSelect widget.syncKeys should return a list of two syncKeys.");
-		syncKeyMatches = widget.syncKeys.select { |key| "^midiSrcSelect_[0-9]+$".matchRegexp(key.asString) };
-		this.assertEquals(syncKeyMatches.size, 1, "widget.syncKeys should return one key that matches the pattern \"^midiSrcSelect_[0-9]+$\"");
-		aConnector = widget.addMidiConnector;
-		mc.model[widget.midiConnectors.indexOf(aConnector)].value_((learn: "L", src: 12345, chan: "chan", ctrl: "ctrl"));
-		midiSrcSel2 = MidiSrcSelect(widget: widget, connectorID: 1);
-		this.debug("midiSrcSel2.view.item.class: %".format(midiSrcSel2.view.item.class));
-		this.assertEquals(midiSrcSel2.view.item, 12345, "Setting a connector's midiDisplay model should have been picked up by a new MidiSrcSelect.");
-		midiSrcSel3 = MidiSrcSelect(widget: widget);
-		this.assertEquals(MidiSrcSelect.all[widget], List[midiSrcSel1, midiSrcSel2, midiSrcSel3], "After creating another MidiSrcSelect MidiSrcSelect.all[widget] should hold a list of two MidiSrcSelects.");
-		this.assertEquals(widget.midiConnectors.indexOf(midiSrcSel3.connector), 0, "After creation of another MidiSrcSelect its connector should be the one at index 0 in widget.midiConnectors.");
-		syncKeyMatches = widget.syncKeys.select { |key| "^midiSrcSelect_[0-9]+$".matchRegexp(key.asString) };
-		this.assertEquals(widget.syncKeys.size, 4, "After adding another MidiSrcSelect widget.syncKeys should hold 3 keys.");
-		this.assertEquals(syncKeyMatches.size, 3, "widget.syncKeys should hold two keys that match the pattern \"^midiSrcSelect_[0-9]+$\"");
-	}
-
-	test_index_ {
-		var midiSrcSelect = MidiSrcSelect(widget: widget);
-		var mc = widget.wmc.midiDisplay;
-
-		widget.addMidiConnector;
-		midiSrcSelect.index_(1);
-		this.assertEquals(widget.midiConnectors.indexOf(midiSrcSelect.connector), 1, "After adding another MidiConnector to the widget and calling midiSrcSelect.index_(1) its connector should now be the one at position 1 in widget.midiConnectors.");
-		this.debug("midiSrcSelect.view.items: %".format(midiSrcSelect.view.items));
-		// NOTE: might change...
-		midiSrcSelect.view.valueAction_(1);
-		this.assertEquals(mc.model.collect(_.value), [(learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"), (learn: "L", src: 12345, chan: "chan", ctrl: "ctrl")], "After calling valueAction on midiSrcSelect.view the widget's midiDisplay.model should hold Refs to two Events: [(learn: \"L\", src: \"source...\", chan: \"chan\", ctrl: \"ctrl\"), (learn: \"L\", src: 12345, chan: \"chan\", ctrl: \"ctrl\")] ");
-		widget.removeMidiConnector(0);
-		this.assertEquals(widget.midiConnectors.indexOf(midiSrcSelect.connector), 0, "After removing the connector at position 0 in widget.midiConnectors the remaining MidiConnector should be accessible at position 0 in widget.midiConnectors");
-		this.assertEquals(mc.model.size, 1, "After removing the MidiConnector at position 0 in widget.midiConnectors the widget's midiDisplay.model should hold a single value");
-	}
-
-	test_close {
-
-	}
-}
-
-TestMidiChanField : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestMidiCtrlField : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestMidiModeSelect : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestMidiMeanNumberBox : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestSoftWithinNumberBox : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestMidiResolutionNumberBox : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
-	}
-}
-
-TestSlidersPerBankNumberTF : UnitTest {
-	var widget;
-
-	setUp {
-		widget = CVWidgetKnob(\test);
-	}
-
-	tearDown {
-		widget.remove;
-	}
-
-	test_new {
-
-	}
-
-	test_index_ {
-
-	}
-
-	test_close {
-
+		this.assertEquals(element2.connector, widget.midiConnectors[0], "On instantiation a new MidiConnectorNameField's connector should be widget.midiConnectors[0].");
+		element2.index_(1);
+		this.assertEquals(element2.connector, widget.midiConnectors[1], "After executing element2.index_(1) element2's connector should be MidiConnector widget.midiConnectors[1]");
+		this.assertEquals(element2.view.string, "MIDI Connection 2", "After executing element2.index_(1) element2's view should hold a string 'MIDI Connection 2'");
+		element1.index_(1);
+		element2.valueAction_("another name");
+		this.assertEquals(element1.view.string, "another name", "After calling element2.view.valueAction_(\"another name\") element1's view string should have been set to \"another name\"");
 	}
 }
