@@ -209,6 +209,6 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	*closeAll {
-		all.do(_.close);
+		all.do { |eds| eds.do(_.close) }
 	}
 }

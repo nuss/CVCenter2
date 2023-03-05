@@ -50,17 +50,49 @@ TestMidiConnectorNameField : UnitTest {
 		this.assertEquals(element2.view.string, "new name", "element2's textfield should hold a string 'new name'");
 		element2.view.valueAction_('changed name');
 		this.assertEquals(element1.view.string, "changed name", "After calling valueAction on element2's view with a value 'changed name' element1's view should have been updated accordingly");
+		element2.connector.name_("ggggggg");
+		this.assert(element1.string == "ggggggg" and:{ element2.string == "ggggggg" }, "After calling element2.connector.name_(\"ggggggg\") both, element1's and element2's string should have been set to \"ggggggg\".");
 	}
 
 	test_index_ {
-		element2 = MidiConnectorNameField(widget: widget);
 		widget.addMidiConnector;
-		this.assertEquals(element2.connector, widget.midiConnectors[0], "On instantiation a new MidiConnectorNameField's connector should be widget.midiConnectors[0].");
-		element2.index_(1);
-		this.assertEquals(element2.connector, widget.midiConnectors[1], "After executing element2.index_(1) element2's connector should be MidiConnector widget.midiConnectors[1]");
+		element2 = MidiConnectorNameField(widget: widget, connectorID: 1);
+		this.assertEquals(element2.connector, widget.midiConnectors[1], "On instantiation the new MidiConnectorNameField's connector should be widget.midiConnectors[1].");
 		this.assertEquals(element2.view.string, "MIDI Connection 2", "After executing element2.index_(1) element2's view should hold a string 'MIDI Connection 2'");
 		element1.index_(1);
 		element2.view.valueAction_("another name");
 		this.assertEquals(element1.view.string, "another name", "After calling element2.view.valueAction_(\"another name\") element1's view string should have been set to \"another name\"");
+	}
+}
+
+TestMidiConnectorSelect : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiConnectorSelect(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiConnectorSelect.all[widget][0] === element1, "MidiConnectorSelect's all variable at the key which is the widget itself should hold a List with one value: the element itself.");
+		this.assertEquals(widget.syncKeys, [\default, \midiConnectorSelect], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after creating a new MidiConnectorNameField");
+		this.assert(element1.connector === widget.midiConnectors[0], "The elements connector should be identical with the connector at the widget's midiConnectors List");
+		this.assertEquals(widget.wmc.midiConnectorNames.model.value, List['MIDI Connection 1'], "The widget's midiConnectorNames model should hold a List with one value 'MIDI Connection 1'");
+		this.assertEquals(element1.view.items, ['MIDI Connection 1', "add MidiConnector..."], "The MidiConnectorSelect's items should hold two items: ['MIDI Connection 1', \"add MidiConnector...\"]");
+		element2 = MidiConnectorSelect(widget: widget);
+		this.assertEquals(MidiConnectorSelect.all[widget].size, 2, "MidiConnectorSelect.all[widget] should hold a List with 2 elements after creating another MidiConnectorSelect instance.");
+		element1.connector.name_("xyz");
+		this.assertEquals(element1.item, "xyz", "After calling element1.connector.name_(\"xyz\") element1.item should return \"xyz\"");
+		this.assertEquals(element2.item, "xyz", "After calling element1.connector.name_(\"xyz\") element2.item should return \"xyz\"");
+	}
+
+	test_index_ {
+
 	}
 }
