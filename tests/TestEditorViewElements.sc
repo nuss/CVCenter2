@@ -93,6 +93,13 @@ TestMidiConnectorSelect : UnitTest {
 	}
 
 	test_index_ {
-
+		widget.addMidiConnector;
+		element2 = MidiConnectorSelect(widget: widget, connectorID: 1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After creating a new MidiConnectorSelect with connectorID set to 1 the MidiConnectorSelect's connector should be identical with widget.midiConnectors[1]");
+		this.assertEquals(element2.view.value, 1, "element2.value should return 1.");
+		element2.connector.name_("aaaaaa");
+		this.wait({ element1.items[1] == "aaaaaa" }, "element1.items were not updated within 0.1 seconds", 0.1);
+		// FIXME: manual GUI test works, unit test not. why?
+		this.assertEquals(element1.items[1], "aaaaaa", "After calling element2.connector.name_(\"aaaaaa\") element1.items[1] should return \"aaaaaa\".");
 	}
 }

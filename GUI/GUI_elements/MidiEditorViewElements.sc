@@ -105,7 +105,7 @@ MidiConnectorSelect : MidiConnectorElementView {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				var items, conID = widget.midiConnectors.indexOf(connector);
-				all[widget].do { |sel|
+				all[widget].do { |sel, i|
 					items = sel.view.items;
 					items[conID] = connector.name;
 					sel.view.items_(items);
