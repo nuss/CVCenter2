@@ -39,6 +39,7 @@ TestMidiConnectorNameField : UnitTest {
 
 	test_new {
 		this.assert(MidiConnectorNameField.all[widget][0] === element1, "MidiConnectorNameField's all variable at the key which is the widget itself should hold a List with one value: the element itself.");
+		this.assertEquals(widget.syncKeys, [\default, \midiConnectorName], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after creating a new MidiConnectorNameField");
 		this.assert(element1.connector === widget.midiConnectors[0], "The elements connector should be identical with the connector at the widget's midiConnectors List");
 		this.assertEquals(widget.wmc.midiConnectorNames.model.value, List['MIDI Connection 1'], "The widget's midiConnectorNames model should hold a List with one value 'MIDI Connection 1'");
 		element1.view.valueAction_('new name');
@@ -59,7 +60,7 @@ TestMidiConnectorNameField : UnitTest {
 		this.assertEquals(element2.connector, widget.midiConnectors[1], "After executing element2.index_(1) element2's connector should be MidiConnector widget.midiConnectors[1]");
 		this.assertEquals(element2.view.string, "MIDI Connection 2", "After executing element2.index_(1) element2's view should hold a string 'MIDI Connection 2'");
 		element1.index_(1);
-		element2.valueAction_("another name");
+		element2.view.valueAction_("another name");
 		this.assertEquals(element1.view.string, "another name", "After calling element2.view.valueAction_(\"another name\") element1's view string should have been set to \"another name\"");
 	}
 }

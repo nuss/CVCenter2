@@ -620,7 +620,7 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 	}
 }
 
-SlidersPerBankNumberTF : MidiConnectorElementView {
+SlidersPerGroupNumberTF : MidiConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
