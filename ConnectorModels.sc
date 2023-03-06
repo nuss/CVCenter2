@@ -303,6 +303,8 @@ MidiConnector {
 		var conID = widget.midiConnectors.indexOf(this);
 		var names = widget.wmc.midiConnectorNames.model.value;
 		names[conID] = name;
+		// for some reason we need to pass the connector ID explicitely here
+		// it doesn't seem to be necessary in other cases
 		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
 	}
 

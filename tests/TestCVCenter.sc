@@ -7,7 +7,7 @@ TestCVCenter {
 			TestOscConnector,
 			TestMidiConnectorElementView,
 			TestMidiConnectorNameField,
-			// TestMidiConnectorSelect,
+			TestMidiConnectorSelect,
 			// TestMidiLearnButton,
 			// TestMidiSrcSelect,
 			// TestMidiChanField,

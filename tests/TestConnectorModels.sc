@@ -16,7 +16,7 @@ TestMidiConnector : UnitTest {
 		this.assertEquals(widget.midiConnectors.size, 2, "After creating another MidiConnector the widget hold three MidiConnectors midiConnectors");
 		connector3 = MidiConnector(widget, "c2");
 		this.assertEquals(widget.midiConnectors.size, 3, "After creating another MidiConnector the widget hold three MidiConnectors midiConnectors");
-		this.assertEquals(connector3.name, 'c2', "The third midiConnector should have been named 'c2'");
+		this.assertEquals(connector3.name, "c2", "The third midiConnector should have been named 'c2'");
 		vals = widget.wmc.midiOptions.model.collect { |m|
 			m.value == (
 				midiMode: 0,
