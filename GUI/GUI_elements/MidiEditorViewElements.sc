@@ -55,7 +55,7 @@ MidiConnectorNameField : MidiConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				var conID = widget.midiConnectors.indexOf(connector);
+				var conID = moreArgs[0];
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						tf.view.string_(changer.value[conID]);
@@ -104,10 +104,10 @@ MidiConnectorSelect : MidiConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				var items, conID = widget.midiConnectors.indexOf(connector);
+				var items, conID = moreArgs[0];
 				all[widget].do { |sel, i|
 					items = sel.view.items;
-					items[conID] = connector.name;
+					items[conID] = changer.value[conID];
 					sel.view.items_(items);
 					if (sel.connector === connector) {
 						sel.view.value_(conID)

@@ -303,7 +303,7 @@ MidiConnector {
 		var conID = widget.midiConnectors.indexOf(this);
 		var names = widget.wmc.midiConnectorNames.model.value;
 		names[conID] = name;
-		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys);
+		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
 	}
 
 	setMidiMode { |mode|
