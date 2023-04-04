@@ -101,6 +101,7 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	init { |wdgt, index, parentView|
+		var m;
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
 			index = widget.midiConnectors.detect { |c| c.name == index }
@@ -182,12 +183,15 @@ MidiConnectorsEditorView : CompositeView {
 		);
 
 		e.connectorSelect.view.action_({ |sel|
-			e.do { |el|
-				if (sel.value != sel.items.last) {
-					el.index_(sel.value);
-				}
+			if (sel.value == (sel.items.size - 1)) {
+				m = widget.addMidiConnector;
+				e.connectorSelect.view.value_(widget.midiConnectors.indexOf(m));
+			};
+
+			if (sel.value < (sel.items.size - 1)) {
+				e.do(_.index_(sel.value))
 			}
-		});
+		})
 	}
 
 	set { |connector|
