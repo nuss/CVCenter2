@@ -4,6 +4,7 @@ TestMidiConnectorElementView : UnitTest {
 	setUp {
 		widget = CVWidgetKnob(\test);
 		element1 = MidiConnectorNameField(widget: widget);
+		element2 = MidiConnectorNameField(widget: widget);
 	}
 
 	tearDown {
@@ -13,7 +14,6 @@ TestMidiConnectorElementView : UnitTest {
 	}
 
 	test_close {
-		element2 = MidiConnectorNameField(widget: widget);
 		element1.close;
 		this.assertEquals(MidiConnectorNameField.all[widget], List[element2], "After closing element1 the class' 'all' variable should hold a List with one element which is element2 under a key which is the widget itself.");
 		this.assertEquals(widget.syncKeys, [\default, \midiConnectorName], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after calling 'close'");
@@ -90,6 +90,8 @@ TestMidiConnectorSelect : UnitTest {
 		element1.connector.name_("xyz");
 		this.assertEquals(element1.item, "xyz", "After calling element1.connector.name_(\"xyz\") element1.item should return \"xyz\"");
 		this.assertEquals(element2.item, "xyz", "After calling element1.connector.name_(\"xyz\") element2.item should return \"xyz\"");
+		// can't test menu entries here as synchronisation of elements after changing select is
+		// handled in MidiConnectorsEditorView:-init
 	}
 
 	test_index_ {
@@ -99,5 +101,338 @@ TestMidiConnectorSelect : UnitTest {
 		this.assertEquals(element2.view.value, 1, "element2.value should return 1.");
 		element2.connector.name_("aaaaaa");
 		this.assertEquals(element1.items[1], "aaaaaa", "After calling element2.connector.name_(\"aaaaaa\") element1.items[1] should return \"aaaaaa\".");
+	}
+}
+
+TestMidiLearnButton : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiLearnButton(widget: widget);
+		element2 = MidiLearnButton(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiLearnButton.all[widget].size == 2 and: {
+			MidiLearnButton.all[widget][0] === element1
+		}, "MidiLearnButton's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiLearnButton], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiLearnButton', after creating a new MidiLearnButton");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.view.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.value should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiLearnButton's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1");
+	}
+}
+
+TestMidiSrcSelect : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiSrcSelect(widget: widget);
+		element2 = MidiSrcSelect(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiSrcSelect.all[widget].size == 2 and: {
+			MidiSrcSelect.all[widget][0] === element1
+		}, "MidiSrcSelect's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiSrcSelect], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiSrcSelect', after creating a new MidiSrcSelect");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.value should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiSrcSelect's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1");
+	}
+}
+
+TestMidiChanField : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiChanField(widget: widget);
+		element2 = MidiChanField(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiChanField.all[widget].size == 2 and: {
+			MidiChanField.all[widget][0] === element1
+		}, "MidiChanField's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiChanField], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiChanField', after creating a new MidiChanField");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.string, "1", "After calling element1.valueAction_(1) element2.string should return \"1\"");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiSrcSelect's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.string, "1", "After calling element2.valueAction_(1) and setting element1.index_(1) element1.string should return \"1\"");
+	}
+}
+
+TestMidiCtrlField : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiCtrlField(widget: widget);
+		element2 = MidiCtrlField(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiCtrlField.all[widget].size == 2 and: {
+			MidiCtrlField.all[widget][0] === element1
+		}, "MidiCtrlField's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiCtrlField], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiCtrlField', after creating a new MidiCtrlField");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.string, "1", "After calling element1.valueAction_(1) element2.string should return \"1\"");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiCtrlField's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.string, "1", "After calling element2.valueAction_(1) and setting element1.index_(1) element1.string should return \"1\"");
+	}
+}
+
+TestMidiModeSelect : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiModeSelect(widget: widget);
+		element2 = MidiModeSelect(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiModeSelect.all[widget].size == 2 and: {
+			MidiModeSelect.all[widget][0] === element1
+		}, "MidiModeSelect's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiModeSelect], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiModeSelect', after creating a new MidiModeSelect");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.value should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiSrcSelect's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1");
+	}
+}
+
+TestMidiZeroNumberBox : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiZeroNumberBox(widget: widget);
+		element2 = MidiZeroNumberBox(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiZeroNumberBox.all[widget].size == 2 and: {
+			MidiZeroNumberBox.all[widget][0] === element1
+		}, "MidiZeroNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiZeroNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiZeroNumberBox', after creating a new MidiZeroNumberBox");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.string should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiZeroNumberBox's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1.");
+	}
+}
+
+TestSnapDistanceNumberBox : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = SnapDistanceNumberBox(widget: widget);
+		element2 = SnapDistanceNumberBox(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(SnapDistanceNumberBox.all[widget].size == 2 and: {
+			SnapDistanceNumberBox.all[widget][0] === element1
+		}, "SnapDistanceNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \snapDistanceNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'snapDistanceNumberBox', after creating a new SnapDistanceNumberBox");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.string should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the SnapDistanceNumberBox's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1.");
+	}
+}
+
+TestMidiResolutionNumberBox : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = MidiResolutionNumberBox(widget: widget);
+		element2 = MidiResolutionNumberBox(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(MidiResolutionNumberBox.all[widget].size == 2 and: {
+			MidiResolutionNumberBox.all[widget][0] === element1
+		}, "MidiResolutionNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \midiResolutionNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiResolutionNumberBox', after creating a new MidiResolutionNumberBox");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.string should return 1");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the MidiResolutionNumberBox's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.view.value, 1, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.view.value should return 1.");
+	}
+}
+
+TestSlidersPerGroupNumberTF : UnitTest {
+	var widget, element1, element2;
+
+	setUp {
+		widget = CVWidgetKnob(\test);
+		element1 = SlidersPerGroupNumberTF(widget: widget);
+		element2 = SlidersPerGroupNumberTF(widget: widget);
+	}
+
+	tearDown {
+		element1.close;
+		element2.close;
+		widget.remove;
+	}
+
+	test_new {
+		this.assert(SlidersPerGroupNumberTF.all[widget].size == 2 and: {
+			SlidersPerGroupNumberTF.all[widget][0] === element1
+		}, "SlidersPerGroupNumberTF's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \slidersPerGroupNumberTF], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'slidersPerGroupNumberTF', after creating a new SlidersPerGroupNumberTF");
+		this.assert(element1.connector === widget.midiConnectors[0] and: {
+			element2.connector === widget.midiConnectors[0]
+		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		element1.valueAction_(1);
+		this.assertEquals(element2.view.string, "1", "After calling element1.valueAction_(1) element2.string should return \"1\"");
+	}
+
+	test_index_ {
+		widget.addMidiConnector;
+		element2.index_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the SlidersPerGroupNumberTF's connector should be identical with widget.midiConnectors[1]");
+		element2.valueAction_(1);
+		element1.index_(1);
+		this.assertEquals(element1.string, "1", "After calling element2.valueAction_(1) and setting element1.index_(1) element1.string should return \"1\"");
 	}
 }

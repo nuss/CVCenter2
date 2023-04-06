@@ -8,15 +8,15 @@ TestCVCenter {
 			TestMidiConnectorElementView,
 			TestMidiConnectorNameField,
 			TestMidiConnectorSelect,
-			// TestMidiLearnButton,
-			// TestMidiSrcSelect,
-			// TestMidiChanField,
-			// TestMidiCtrlField,
-			// TestMidiModeSelect,
-			// TestMidiMeanNumberBox,
-			// TestSoftWithinNumberBox,
-			// TestMidiResolutionNumberBox,
-			// TestSlidersPerBankNumberTF
+			TestMidiLearnButton,
+			TestMidiSrcSelect,
+			TestMidiChanField,
+			TestMidiCtrlField,
+			TestMidiModeSelect,
+			TestMidiZeroNumberBox,
+			TestSnapDistanceNumberBox,
+			TestMidiResolutionNumberBox,
+			TestSlidersPerGroupNumberTF
 		].do(_.run)
 	}
 }
