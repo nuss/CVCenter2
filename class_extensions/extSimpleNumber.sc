@@ -12,3 +12,11 @@
 	}
 
 }
+
++SequenceableCollection {
+
+	bilincurve { |...args|
+		^this.multiChannelPerform(\bilincurve, *args)
+	}
+
+}
