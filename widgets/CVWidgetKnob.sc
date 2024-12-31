@@ -158,7 +158,10 @@ CVWidgetKnob : CVWidget {
 	}
 
 	removeAction { |name|
-		name ?? { "Please provide the action's name!".error };
+		name ?? {
+			"Please provide a name of an existing action!".error;
+			^nil
+		};
 		name = name.asSymbol;
 		widgetActions[name] !? {
 			if (widgetActions[name].key.class == SimpleController) {
@@ -176,7 +179,10 @@ CVWidgetKnob : CVWidget {
 
 	activateAction { |name, activate=true|
 		var action, containerFunc, controller;
-		name ?? { Error("Please provide the action's name!").throw };
+		name ?? {
+			"Please provide the action's name!".error;
+			^nil
+		};
 		name = name.asSymbol;
 		widgetActions[name] !? {
 			action = widgetActions[name].value[0];
@@ -205,7 +211,9 @@ CVWidgetKnob : CVWidget {
 
 	updateAction { |name, action|
 		var testAction;
-		name ?? { Error("Please provide the action's name!").throw };
+		if (name.isNil or: { widgetActions[name].isNil }) ?? {
+			Error("Please provide a name of an already existing action!").throw
+		};
 		name = name.asSymbol;
 		if (action.class == String) { testAction = action.interpret } { testAction = action };
 		if (testAction.isClosed.not) {
