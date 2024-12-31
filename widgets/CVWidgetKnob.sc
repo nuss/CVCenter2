@@ -158,7 +158,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	removeAction { |name|
-		name ?? { Error("Please provide the action's name!").throw };
+		name ?? { "Please provide the action's name!".error };
 		name = name.asSymbol;
 		widgetActions[name] !? {
 			if (widgetActions[name].key.class == SimpleController) {
