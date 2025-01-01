@@ -120,7 +120,7 @@ MidiConnectorSelect : MidiConnectorElementView {
 }
 
 // Elements must not hold a fixed ID as connectors can get deleted from
-// the widget's o0scConnectors / midiConnectors lists. Hence, rather determine
+// the widget's oscConnectors / midiConnectors lists. Hence, rather determine
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
 MidiLearnButton : MidiConnectorElementView {
