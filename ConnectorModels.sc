@@ -179,6 +179,12 @@ MidiConnector {
 		wmc.midiConnectorNames.model.value_(
 			wmc.midiConnectorNames.model.value.add(name);
 		);
+		// WIP
+		wmc.midiInputRange ?? { wmc.midiInputRange = () };
+		wmc.midiMappingConstrainters ?? { wmc.midiMappingConstrainters = () };
+		wmc.midiMappingConstrainters.name ?? {
+			wmc.midiMappingConstrainters.put(name, (lo: CV([-inf, inf].asSpec), hi: CV([-inf, inf].asSpec)))
+		};
 		this.initControllers(wmc);
 	}
 
@@ -461,8 +467,8 @@ MidiConnector {
 		// after midiConnectors have been changed
 		// make sure display in all MIDI editors get set to valid entries
 		// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
-		\MidiConnectorElementView.asClass !? {
-			\MidiConnectorElementView.asClass.subclasses.do { |class|
+		\ConnectorElementView.asClass !? {
+			\ConnectorElementView.asClass.subclasses.do { |class|
 				class.all[widget] !? {
 					class.all[widget].do(_.index_(index))
 				}

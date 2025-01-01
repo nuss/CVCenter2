@@ -5,7 +5,7 @@ TestCVCenter {
 			TestCVWidgetKnob,
 			TestMidiConnector,
 			TestOscConnector,
-			TestMidiConnectorElementView,
+			TestConnectorElementView,
 			TestMidiConnectorNameField,
 			TestMidiConnectorSelect,
 			TestMidiLearnButton,

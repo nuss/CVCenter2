@@ -1,21 +1,6 @@
 // MIDI editors
 
-MidiConnectorElementView : SCViewHolder {
-	var mc, syncKey;
-
-	close {
-		this.remove;
-		this.viewDidClose;
-		this.class.all[this.widget].remove(this);
-		if (this.class.all[this.widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
-			this.widget.prRemoveSyncKey(syncKey, true);
-		}
-	}
-
-}
-
-MidiConnectorNameField : MidiConnectorElementView {
+MidiConnectorNameField : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -66,7 +51,7 @@ MidiConnectorNameField : MidiConnectorElementView {
 	}
 }
 
-MidiConnectorSelect : MidiConnectorElementView {
+MidiConnectorSelect : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -123,10 +108,10 @@ MidiConnectorSelect : MidiConnectorElementView {
 // the widget's oscConnectors / midiConnectors lists. Hence, rather determine
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
-MidiLearnButton : MidiConnectorElementView {
+MidiLearnButton : ConnectorElementView {
 	classvar <all;
 	// widget must be a getter as it's called
-	// in close(), defined in MidiConnectorElementView
+	// in close(), defined in ConnectorElementView
 	var <connector, <widget;
 
 	*initClass {
@@ -203,7 +188,7 @@ MidiLearnButton : MidiConnectorElementView {
 	}
 }
 
-MidiSrcSelect : MidiConnectorElementView {
+MidiSrcSelect : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 	// preliminary
@@ -268,7 +253,7 @@ MidiSrcSelect : MidiConnectorElementView {
 	}
 }
 
-MidiChanField : MidiConnectorElementView {
+MidiChanField : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -326,7 +311,7 @@ MidiChanField : MidiConnectorElementView {
 	}
 }
 
-MidiCtrlField : MidiConnectorElementView {
+MidiCtrlField : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -384,7 +369,7 @@ MidiCtrlField : MidiConnectorElementView {
 	}
 }
 
-MidiModeSelect : MidiConnectorElementView {
+MidiModeSelect : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -443,7 +428,7 @@ MidiModeSelect : MidiConnectorElementView {
 	}
 }
 
-MidiZeroNumberBox : MidiConnectorElementView {
+MidiZeroNumberBox : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -502,7 +487,7 @@ MidiZeroNumberBox : MidiConnectorElementView {
 	}
 }
 
-SnapDistanceNumberBox : MidiConnectorElementView {
+SnapDistanceNumberBox : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -561,7 +546,7 @@ SnapDistanceNumberBox : MidiConnectorElementView {
 	}
 }
 
-MidiResolutionNumberBox : MidiConnectorElementView {
+MidiResolutionNumberBox : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -620,7 +605,7 @@ MidiResolutionNumberBox : MidiConnectorElementView {
 	}
 }
 
-SlidersPerGroupNumberTF : MidiConnectorElementView {
+SlidersPerGroupNumberTF : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -678,5 +663,5 @@ SlidersPerGroupNumberTF : MidiConnectorElementView {
 			})
 		}
 	}
-
 }
+

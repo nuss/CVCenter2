@@ -1,4 +1,4 @@
-TestMidiConnectorElementView : UnitTest {
+TestConnectorElementView : UnitTest {
 	var widget, element1, element2;
 
 	setUp {
