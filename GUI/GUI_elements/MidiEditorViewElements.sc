@@ -143,6 +143,7 @@ MidiLearnButton : ConnectorElementView {
 				ctrl: mc.model[i].value.ctrl
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
+			widget.midiConnect(connector)
 		});
 		this.prAddController;
 	}
@@ -191,13 +192,9 @@ MidiLearnButton : ConnectorElementView {
 MidiSrcSelect : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
-	// preliminary
-	classvar <>midiSources;
 
 	*initClass {
 		all = ();
-		// for testing - remove
-		MidiSrcSelect.midiSources_([12345, 15243]);
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
@@ -210,7 +207,7 @@ MidiSrcSelect : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		this.view = PopUpMenu(parentView, rect).items_(["source..."] ++ MidiSrcSelect.midiSources);
+		this.view = PopUpMenu(parentView, rect).items_(["source..."] ++ CVWidget.midiSources.keys.asArray.sort);
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);

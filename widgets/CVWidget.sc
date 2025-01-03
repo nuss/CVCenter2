@@ -1,6 +1,6 @@
 CVWidget {
 	classvar <all;
-	classvar <>removeResponders = true, <>midiSources, <>shortcuts, prefs;
+	classvar <>removeResponders = true, <>initMidiOnStartUp = true, <>midiSources, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
 
@@ -26,6 +26,23 @@ CVWidget {
 		all = ();
 
 		this.midiSources = ();
+		if (this.initMidiOnStartUp) {
+			MIDIClient.init;
+			try { MIDIIn.connectAll } { |error|
+				error.postln;
+				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
+			};
+			MIDIClient.externalSources.do { |source|
+				if (this.midiSources.values.includes(source.uid.asInteger).not, {
+					// OSX/Linux specific tweek
+					if(source.name == source.device) {
+						this.midiSources.put(source.name.asSymbol, source.uid.asInteger)
+					} {
+						this.midiSources.put(source.name.asSymbol, source.uid.asInteger)
+					}
+				})
+			}
+		};
 
 		prefs = CVCenterPreferences.readPreferences;
 		prefs !? { prefs[\shortcuts] !? { prefs[\shortcuts][\cvwidget] !? { scPrefs = true }}};

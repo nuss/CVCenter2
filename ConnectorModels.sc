@@ -238,13 +238,13 @@ MidiConnector {
 										val/127 > (cv.input - (this.getSnapDistance/2))
 								})) {
 									cv.input_(val/127);
-									// [val, cv.input, cv.value].postln;
+									[val, cv.input, cv.value].postln;
 								};
 							},
 							// +/-
 							1, {
-								cv.input_(cv.input + (val-this.getMidiMean/127*this.getMidiResolution));
-								// [val, cv.input, cv.value].postln;
+								cv.input_(cv.input + (val-this.getMidiZero/127*this.getMidiResolution));
+								[val, cv.input, cv.value].postln;
 							}
 						)
 					}
@@ -289,7 +289,7 @@ MidiConnector {
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			var index = widget.midiConnectors.indexOf(this);
-			// "midiDisplay.controller - changer.value: %".format(changer.value).postln;
+			"midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, moreArgs).postln;
 			// ...
 		})
 	}
