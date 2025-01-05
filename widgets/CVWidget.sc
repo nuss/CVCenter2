@@ -26,21 +26,23 @@ CVWidget {
 		all = ();
 
 		this.midiSources = ();
-		if (this.initMidiOnStartUp) {
-			MIDIClient.init;
-			try { MIDIIn.connectAll } { |error|
-				error.postln;
-				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
-			};
-			MIDIClient.externalSources.do { |source|
-				if (this.midiSources.values.includes(source.uid.asInteger).not, {
-					// OSX/Linux specific tweek
-					if(source.name == source.device) {
-						this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-					} {
-						this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-					}
-				})
+		StartUp.add {
+			if (this.initMidiOnStartUp) {
+				MIDIClient.init;
+				try { MIDIIn.connectAll } { |error|
+					error.postln;
+					"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
+				};
+				MIDIClient.externalSources.do { |source|
+					if (this.midiSources.values.includes(source.uid.asInteger).not, {
+						// OSX/Linux specific tweek
+						if(source.name == source.device) {
+							this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+						} {
+							this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+						}
+					})
+				}
 			}
 		};
 
