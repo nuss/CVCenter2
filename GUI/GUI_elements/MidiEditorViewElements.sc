@@ -131,7 +131,7 @@ MidiLearnButton : ConnectorElementView {
 		this.view = Button(parentView, rect).states_([
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
-		]);
+		]).maxWidth_(25);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
@@ -181,7 +181,7 @@ MidiLearnButton : ConnectorElementView {
 						pos = but.view.states.detectIndex { |a, i|
 							a[0] == changer[conID].value.learn
 						};
-						but.view.value_(pos);
+						defer { but.view.value_(pos) }
 					}
 				}
 			})
@@ -197,7 +197,7 @@ MidiSrcSelect : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, connectorID = 0|
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
@@ -207,28 +207,33 @@ MidiSrcSelect : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		this.view = PopUpMenu(parentView, rect).items_(["source..."] ++ CVWidget.midiSources.keys.asArray.sort);
+
+		this.view = PopUpMenu(
+			parentView, rect).items_(["source..."] ++ CVWidget.midiSources.values.sort
+		).maxWidth_(100);
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
 				learn: mc.model[i].value.learn,
-				src: sel.item,
+				src: CVWidget.midiSources.findKeyForValue(sel.item),
 				chan: mc.model[i].value.chan,
 				ctrl: mc.model[i].value.ctrl
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
 		});
-		// TODO: add dependency to MIDI inititialisation -> fill items with list of sources
 		this.prAddController;
 	}
 
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
+		var display;
+
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(
-			this.view.items.indexOfEqual(mc.model[connectorID].value.src);
-		)
+		display = if (mc.model[connectorID].value.src == "source...") { 0 } {
+			this.view.items.indexOfEqual(CVWidget.midiSources[mc.model[connectorID].value.src.asSymbol]);
+		};
+		this.view.value_(display)
 	}
 
 	prAddController {
@@ -242,7 +247,13 @@ MidiSrcSelect : ConnectorElementView {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |sel|
 					if (sel.connector === connector) {
-						sel.view.value_(sel.items.indexOfEqual(changer[conID].value.src))
+						if (changer[conID].value.src.isNil) {
+							defer { sel.view.value_(0) }
+						} {
+							defer {
+								sel.view.value_(sel.items.indexOfEqual(CVWidget.midiSources[changer[conID].value.src.asSymbol]));
+							}
+						}
 					}
 				}
 			})
@@ -300,7 +311,7 @@ MidiChanField : ConnectorElementView {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
-						tf.view.string_(changer[conID].value.chan)
+						defer { tf.view.string_(changer[conID].value.chan) }
 					}
 				}
 			})
@@ -358,7 +369,7 @@ MidiCtrlField : ConnectorElementView {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
-						tf.view.string_(changer[conID].value.ctrl)
+						defer { tf.view.string_(changer[conID].value.ctrl) }
 					}
 				}
 			})

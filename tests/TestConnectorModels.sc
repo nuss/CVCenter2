@@ -2,7 +2,9 @@ TestMidiConnector : UnitTest {
 	var widget;
 
 	setUp {
+		CVWidget.initMidiOnStartUp = false;
 		widget = CVWidgetKnob(\test);
+		CVWidget.midiSources = ('12345': "source 1", '54321': "source 2");
 	}
 
 	tearDown {

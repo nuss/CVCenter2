@@ -211,7 +211,7 @@ CVWidgetKnob : CVWidget {
 
 	updateAction { |name, action|
 		var testAction;
-		if (name.isNil or: { widgetActions[name].isNil }) ?? {
+		if (name.isNil or: { widgetActions[name].isNil }) {
 			Error("Please provide a name of an already existing action!").throw
 		};
 		name = name.asSymbol;

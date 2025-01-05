@@ -36,9 +36,9 @@ CVWidget {
 				if (this.midiSources.values.includes(source.uid.asInteger).not, {
 					// OSX/Linux specific tweek
 					if(source.name == source.device) {
-						this.midiSources.put(source.name.asSymbol, source.uid.asInteger)
+						this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
 					} {
-						this.midiSources.put(source.name.asSymbol, source.uid.asInteger)
+						this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
 					}
 				})
 			}
@@ -173,7 +173,7 @@ CVWidget {
 	}
 
 	// remove controllers that have been added through CVWidget:-extend
-	reduce { |key, proto=false|
+	reduce { |key, proto = false|
 		var thisKey = key.asSymbol;
 
 		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
@@ -183,7 +183,7 @@ CVWidget {
 					if (k != \mapConstrainterHi and: {
 						k != \mapConstrainterLo
 					}) {
-						v.controller.removeAt(thisKey)
+						v.controller !? { v.controller.removeAt(thisKey) }
 					}
 				}
 			};

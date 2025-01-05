@@ -212,6 +212,11 @@ MidiConnector {
 	prInitMidiConnection { |mc, cv|
 		var ccAction, makeCCconnection;
 		var slotChanger;
+		var updateModelsFunc = { |num, chan, src, index|
+			mc.midiConnections.model[index].value_((num: num, chan: chan, src: src));
+			mc.midiDisplay.model[index].value_((learn: "X", src: src ? "source...", chan: chan ? "chan", ctrl: num ? "ctrl"));
+			mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
+		};
 
 		mc.midiConnections.controller ?? {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
@@ -222,13 +227,12 @@ MidiConnector {
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
-				// connect
+				// midiConnect
+				updateModelsFunc.(slotChanger.num, slotChanger.chan, slotChanger.src, index);
 				ccAction = { |val, num, chan, src|
-					// only data structure to hold connections is the model
+					// MIDI learn
 					// we must infer the connections parameters here
-					// if (mc.midiConnections.model[index].value.notNil) {
-					mc.midiConnections.model[index].value_((num: num, chan: chan, src: src));
-					// };
+					if (mc.midiConnections.model[index].value.isEmpty) { updateModelsFunc.(num, chan, src, index) };
 					widget.midiConnectors.indexOf(this) !? {
 						this.getMidiMode.switch(
 							//  0-127
@@ -255,24 +259,24 @@ MidiConnector {
 					}) {
 						allMidiFuncs[widget][index] = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
 					};
-					mc.midiDisplay.model[index].value_((
-						learn: "X",
-						src: mc.midiConnections.model[index].value.src ? "source...",
-						chan: mc.midiConnections.model[index].value.chan ? "chan",
-						ctrl: mc.midiConnections.model[index].value.num ? "ctrl"
-					));
-					mc.midiDisplay.model.changedKeys(widget.syncKeys);
+					// "argSrc, argChan, argNum: %".format([argSrc, argChan, argNum]).postln;
+					// "mc.midiConnections.model[%]: %".format(index, mc.midiConnections.model[index].value).postln;
+
+					// mc.midiDisplay.model.changedKeys(widget.syncKeys);
 					allMidiFuncs[widget][index];
 				};
 
 				if (slotChanger.isEmpty) {
 					"allMidiFuncs[widget][%] should learn".format(index).inform;
 					makeCCconnection.().learn;
+					// "mc.midiConnections.model[%]: %".format(index, mc.midiConnections.model[index]).postln
+					// mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 				} {
 					"allMidiFuncs[widget][%] was set to src: %, channel: %, number: %".format(
 						index, slotChanger.src, slotChanger.chan, slotChanger.num
 					).inform;
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
+					// mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 				};
 			} {
 				// "disconnect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
@@ -289,7 +293,7 @@ MidiConnector {
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			var index = widget.midiConnectors.indexOf(this);
-			"midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, moreArgs).postln;
+			// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
 			// ...
 		})
 	}
