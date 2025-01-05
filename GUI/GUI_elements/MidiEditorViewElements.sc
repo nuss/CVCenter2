@@ -247,7 +247,7 @@ MidiSrcSelect : ConnectorElementView {
 				var conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |sel|
 					if (sel.connector === connector) {
-						if (changer[conID].value.src.isNil) {
+						if (changer[conID].value.src.isNil or: { changer[conID].value.src == "source..." }) {
 							defer { sel.view.value_(0) }
 						} {
 							defer {

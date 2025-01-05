@@ -222,7 +222,6 @@ MidiConnector {
 			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
-			// var index = widget.midiConnectors.indexOf(this);
 			var index = moreArgs[0];
 
 			if (changer[index].value.class == Event) {
