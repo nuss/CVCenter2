@@ -223,7 +223,6 @@ MidiConnector {
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
 			var index = moreArgs[0];
-
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
 				// midiConnect
@@ -256,29 +255,26 @@ MidiConnector {
 					if (allMidiFuncs[widget][index].isNil or: {
 						allMidiFuncs[widget][index].func.isNil
 					}) {
-						allMidiFuncs[widget][index] = MIDIFunc.cc(ccAction, argNum, argChan, argSrc);
+						allMidiFuncs[widget][index] = MIDIFunc.cc(
+							ccAction,
+							ccNum: argNum !? { argNum.asInteger },
+							chan: argChan !? { argChan.asInteger },
+							srcID: argSrc !? { argSrc.asInteger }
+						);
 					};
-					// "argSrc, argChan, argNum: %".format([argSrc, argChan, argNum]).postln;
-					// "mc.midiConnections.model[%]: %".format(index, mc.midiConnections.model[index].value).postln;
-
-					// mc.midiDisplay.model.changedKeys(widget.syncKeys);
 					allMidiFuncs[widget][index];
 				};
 
 				if (slotChanger.isEmpty) {
 					"allMidiFuncs[widget][%] should learn".format(index).inform;
 					makeCCconnection.().learn;
-					// "mc.midiConnections.model[%]: %".format(index, mc.midiConnections.model[index]).postln
-					// mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 				} {
 					"allMidiFuncs[widget][%] was set to src: %, channel: %, number: %".format(
 						index, slotChanger.src, slotChanger.chan, slotChanger.num
 					).inform;
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
-					// mc.midiConnections.model.changedKeys(widget.syncKeys, index);
 				};
 			} {
-				// "disconnect - mc.midiDisplay.controller: %".format(mc.midiDisplay.controller).postln;
 				mc.midiDisplay.model[index].value_((learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"));
 				mc.midiDisplay.model.changedKeys(widget.syncKeys);
 				allMidiFuncs[widget][index].clear;

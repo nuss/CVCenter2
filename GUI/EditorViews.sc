@@ -171,7 +171,7 @@ MidiConnectorsEditorView : CompositeView {
 					[e.slidersPerGroupTF, stretch: 3]
 				),
 				HLayout(
-					StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (the 'L' should become 'C' like 'connect')")
+					StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (hit 'enter' for each entered value - the 'L' should become 'C' like 'connect')")
 				),
 				HLayout(
 					[e.midiLearnButton, stretch: 1],

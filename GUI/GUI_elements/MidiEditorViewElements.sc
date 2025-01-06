@@ -82,6 +82,7 @@ MidiConnectorSelect : ConnectorElementView {
 	}
 
 	prAddController {
+		var items, conID;
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
@@ -89,7 +90,7 @@ MidiConnectorSelect : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				var items, conID = moreArgs[0];
+				conID = moreArgs[0];
 				all[widget].do { |sel, i|
 					items = sel.view.items;
 					items[conID] = changer.value[conID];
@@ -136,6 +137,7 @@ MidiLearnButton : ConnectorElementView {
 		this.index_(index);
 		this.view.action_({ |bt|
 			var i = widget.midiConnectors.indexOf(connector);
+			var src, chan, ctrl;
 			mc.model[i].value_((
 				learn: bt.states[bt.value][0],
 				src: mc.model[i].value.src,
@@ -143,7 +145,23 @@ MidiLearnButton : ConnectorElementView {
 				ctrl: mc.model[i].value.ctrl
 			));
 			mc.model.value.changedKeys(widget.syncKeys);
-			widget.midiConnect(connector)
+			if (mc.model[i].value.learn == "X") {
+				if (mc.model[i].value.src != "source...") { src = mc.model[i].value.src };
+				if (mc.model[i].value.chan != "chan") { chan = mc.model[i].value.chan };
+				if (mc.model[i].value.ctrl != "ctrl") { ctrl = mc.model[i].value.ctrl };
+				widget.midiConnect(connector, src, chan, ctrl);
+				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
+					all[widget].do { |b|
+						b.states_([
+							["L", Color.white, Color.blue],
+							["X", Color.white, Color.red]
+						]).value_(1)
+					}
+				}
+			}
+			{
+				widget.midiDisconnect(connector)
+			}
 		});
 		this.prAddController;
 	}
@@ -173,11 +191,16 @@ MidiLearnButton : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			// the following is global for all MidiLearnButtons
-			// there must be no notion of 'this'
+			// there must be no notion of 'this' as all MdiLearnButton instances are affected
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = widget.midiConnectors.indexOf(connector);
 				all[widget].do { |but|
-					// "widget: %".format(widget.name).postln;
+					if (changer[conID].value.learn == "C") {
+						but.states_([
+							["C", Color.black, Color.green],
+							["X", Color.white, Color.red]
+						])
+					};
 					if (but.connector === connector) {
 						pos = but.view.states.detectIndex { |a, i|
 							a[0] == changer[conID].value.learn
@@ -216,7 +239,7 @@ MidiSrcSelect : ConnectorElementView {
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
-				learn: mc.model[i].value.learn,
+				learn: "C",
 				src: CVWidget.midiSources.findKeyForValue(sel.item),
 				chan: mc.model[i].value.chan,
 				ctrl: mc.model[i].value.ctrl
@@ -256,7 +279,8 @@ MidiSrcSelect : ConnectorElementView {
 								sel.view.value_(sel.items.indexOfEqual(CVWidget.midiSources[changer[conID].value.src.asSymbol]));
 							}
 						}
-					}
+					};
+					defer { sel.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
 				}
 			})
 		}
@@ -286,7 +310,7 @@ MidiChanField : ConnectorElementView {
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
-				learn: mc.model[i].value.learn,
+				learn: "C",
 				src: mc.model[i].value.src,
 				chan: tf.string,
 				ctrl: mc.model[i].value.ctrl
@@ -315,7 +339,8 @@ MidiChanField : ConnectorElementView {
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						defer { tf.view.string_(changer[conID].value.chan) }
-					}
+					};
+					defer { tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
 				}
 			})
 		}
@@ -345,7 +370,7 @@ MidiCtrlField : ConnectorElementView {
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
 			mc.model[i].value_((
-				learn: mc.model[i].value.learn,
+				learn: "C",
 				src: mc.model[i].value.src,
 				chan: mc.model[i].value.chan,
 				ctrl: tf.string
@@ -374,7 +399,8 @@ MidiCtrlField : ConnectorElementView {
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						defer { tf.view.string_(changer[conID].value.ctrl) }
-					}
+					};
+					defer { tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
 				}
 			})
 		}
