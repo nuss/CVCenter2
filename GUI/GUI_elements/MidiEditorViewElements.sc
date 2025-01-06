@@ -708,3 +708,53 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 	}
 }
 
+MidiInitButton : ConnectorElementView {
+	classvar <all;
+
+	*initClass {
+		all = List[];
+	}
+
+	*new { |parent, rect|
+		^super.new.init(parent, rect)
+	}
+
+	init { |parentView, rect|
+		var midiConnectAll = {
+			try { MIDIIn.connectAll } { |error|
+				error.postln;
+				"MIDIIn.connectAll failed. Please establish the necessary connections manually".warn;
+			}
+		};
+
+		all.add(this);
+
+		this.view = Button(parentView, rect)
+		.action_({ |bt|
+			if (MIDIClient.initialized) {
+				MIDIClient.restart;
+				midiConnectAll.();
+			} {
+				MIDIClient.init;
+				midiConnectAll.();
+			};
+
+			// CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedKeys(CVWidget.syncKeys)
+		});
+
+		if (MIDIClient.initialized) {
+			this.view.states_([["restart MIDI", Color.black, Color.green]]);
+		} {
+			this.view.states_([["init MIDI", Color.white, Color.red]]);
+		};
+	}
+
+	prAddController {
+		CVWidget.midiInitialized.controller ?? {
+			CVWidget.midiInitialized.controller = SimpleController(CVWidget.midiInitialized.model)
+		};
+		syncKey = \midiInitialized;
+		// there should possibly exist a CVWidget.syncKeysEvent that works independenty from a widget's syncKeysEvent
+		// probably needs to implement its own 'close' method
+	}
+}

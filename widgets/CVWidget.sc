@@ -3,6 +3,7 @@ CVWidget {
 	classvar <>removeResponders = true, <>initMidiOnStartUp = true, <>midiSources, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
+	classvar <midiInitialized;
 
 	// widget models and controllers
 	// defined individually in subclasses
@@ -25,8 +26,13 @@ CVWidget {
 		// all CVWidgets
 		all = ();
 
+
 		this.midiSources = ();
 		StartUp.add {
+			midiInitialized ?? { midiInitialized = () };
+			midiInitialized.model ?? {
+				midiInitialized.model = Ref(false);
+			};
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
 				try { MIDIIn.connectAll } { |error|
@@ -42,7 +48,8 @@ CVWidget {
 							this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
 						}
 					})
-				}
+				};
+				midiInitialized.model.value_(MIDIClient.initialized);
 			}
 		};
 
