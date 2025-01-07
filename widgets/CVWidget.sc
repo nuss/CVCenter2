@@ -3,6 +3,7 @@ CVWidget {
 	classvar <>removeResponders = true, <>initMidiOnStartUp = true, <>midiSources, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
+	classvar syncKeysEvent;
 	classvar <midiInitialized;
 
 	// widget models and controllers
@@ -25,7 +26,9 @@ CVWidget {
 
 		// all CVWidgets
 		all = ();
-
+		syncKeysEvent ?? {
+			syncKeysEvent = (proto: List[\default], user: List[])
+		};
 
 		this.midiSources = ();
 		StartUp.add {
@@ -119,7 +122,36 @@ CVWidget {
 	initModels { this.subclassResponsibility(thisMethod) }
 	initControllers { this.subclassResponsibility(thisMethod) }
 
+	// global models and controllers
+	// private
+	*prAddSyncKey { |key, proto|
+		var thisKey = key.asSymbol;
 
+		if (proto) {
+			syncKeysEvent.proto.add(thisKey)
+		} { syncKeysEvent.user.add(thisKey) }
+	}
+
+	// private
+	*prRemoveSyncKey { |key, proto|
+		var thisKey = key.asSymbol;
+
+		if (proto) {
+			if (syncKeysEvent.proto.includes(thisKey)) {
+				syncKeysEvent.proto.remove(thisKey)
+			}
+		} {
+			if (syncKeysEvent.user.includes(thisKey)) {
+				syncKeysEvent.user.remove(thisKey)
+			}
+		}
+	}
+
+	*syncKeys {
+		^syncKeysEvent.proto ++ syncKeysEvent.user;
+	}
+
+	// instance models and controllers
 	// private
 	prAddSyncKey { |key, proto|
 		var thisKey = key.asSymbol;

@@ -468,8 +468,13 @@ MidiConnector {
 		// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
 		\ConnectorElementView.asClass !? {
 			\ConnectorElementView.asClass.subclasses.do { |class|
-				class.all[widget] !? {
-					class.all[widget].do(_.index_(index))
+				// elements that have a meaning in the context of a connector
+				// hold an Event in their 'all'' classvar
+				// 'global' elements like MidiInitButton hold a List in 'all'
+				// following block only needs to run vor elements that keep a reference
+				// to an index of one or more connectors
+				if (class.all.class == Event) {
+					class.all[widget] !? { class.all[widget].do(_.index_(index)) }
 				}
 			}
 		}

@@ -436,3 +436,39 @@ TestSlidersPerGroupNumberTF : UnitTest {
 		this.assertEquals(element1.string, "1", "After calling element2.valueAction_(1) and setting element1.index_(1) element1.string should return \"1\"");
 	}
 }
+
+TestMidiInitButton : UnitTest {
+	var button1, button2;
+
+	setup {
+		button1 = MidiInitButton.new;
+		button2 = MidiInitButton.new;
+	}
+
+	tearDown {
+		button1.remove;
+		button2.remove;
+	}
+
+	test_new {
+		// this.tearDown;
+		this.assertEquals(CVWidget.syncKeys, [\default], "CVWidget.syncKeys should hold a single value 'default' before creating a MidiInitButton instance.");
+		button1 = MidiInitButton.new;
+		this.assertEquals(MidiInitButton.all.size, 1, "After creating a MidiInitButton instance MidiInitButton.all should have a size of 1");
+		this.assertEquals(CVWidget.syncKeys, [\default, \midiInitButton], "CVWidget.syncKeys should hold two values after creating a MidiInitButton instance: 'default'  and 'midiInitButton'");
+		button2 = MidiInitButton.new;
+		this.assertEquals(MidiInitButton.all.size, 2, "After creating a second MidiInitButton instance MidiInitButton.all should have grown to a size of 2");
+		this.ifAsserts(MIDIClient.initialized.not, "MIDIClient not initialized", {
+			this.assert(button1.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]] && button2.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]], "MIDIClient not initialized")
+		});
+		button1.doAction;
+		this.ifAsserts(MIDIClient.initialized, "MIDIClient initialized", {
+			this.assert(button1.view.states == [["restart MIDI", Color(1.0, 1.0, 1.0), Color(1.0)]] && button2.view.states == [["restart MIDI", Color(1.0, 1.0, 1.0), Color(1.0)]], "MIDIClient initialized")
+		})
+	}
+
+	test_click {
+
+	}
+
+}

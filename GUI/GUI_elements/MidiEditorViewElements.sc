@@ -235,6 +235,7 @@ MidiSrcSelect : ConnectorElementView {
 		this.view = PopUpMenu(
 			parentView, rect).items_(["source..."] ++ CVWidget.midiSources.values.sort
 		).maxWidth_(100);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -306,6 +307,7 @@ MidiChanField : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -366,6 +368,7 @@ MidiCtrlField : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -426,6 +429,7 @@ MidiModeSelect : ConnectorElementView {
 
 		mc = widget.wmc.midiOptions;
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"]);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -486,6 +490,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -546,6 +551,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect).step_(0.1).clipLo_(0.0).clipHi_(1.0);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -606,6 +612,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
 			var i = widget.midiConnectors.indexOf(connector);
@@ -666,6 +673,7 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
 		this.view = TextField(parentView, rect);
+		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
@@ -710,6 +718,8 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 
 MidiInitButton : ConnectorElementView {
 	classvar <all;
+	var syncKey;
+
 
 	*initClass {
 		all = List[];
@@ -733,28 +743,70 @@ MidiInitButton : ConnectorElementView {
 		.action_({ |bt|
 			if (MIDIClient.initialized) {
 				MIDIClient.restart;
-				midiConnectAll.();
 			} {
 				MIDIClient.init;
-				midiConnectAll.();
 			};
-
-			// CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedKeys(CVWidget.syncKeys)
+			try { MIDIIn.connectAll } { |error|
+				error.postln;
+				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
+			};
+			MIDIClient.externalSources.do { |source|
+				if (CVWidget.midiSources.values.includes(source.uid.asInteger).not, {
+					// OSX/Linux specific tweek
+					if(source.name == source.device) {
+						CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+					} {
+						CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+					}
+				})
+			};
+			CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedKeys(CVWidget.syncKeys);
 		});
+		this.view.onClose_({ this.close });
+
 
 		if (MIDIClient.initialized) {
-			this.view.states_([["restart MIDI", Color.black, Color.green]]);
+			this.view.states_([["restart MIDI", Color.white, Color.red]]);
 		} {
-			this.view.states_([["init MIDI", Color.white, Color.red]]);
+			this.view.states_([["init MIDI", Color.black, Color.green]]);
 		};
+		this.prAddController;
 	}
+
+	index_ {}
 
 	prAddController {
 		CVWidget.midiInitialized.controller ?? {
 			CVWidget.midiInitialized.controller = SimpleController(CVWidget.midiInitialized.model)
 		};
-		syncKey = \midiInitialized;
-		// there should possibly exist a CVWidget.syncKeysEvent that works independenty from a widget's syncKeysEvent
-		// probably needs to implement its own 'close' method
+		syncKey = \midiInitButton;
+		CVWidget.syncKeys.indexOf(syncKey) ?? {
+			CVWidget.prAddSyncKey(syncKey, true);
+			CVWidget.midiInitialized.controller.put(syncKey, { |changer, what|
+				all.do { |bt|
+					if (changer.value) {
+						bt.view.states_([["restart MIDI", Color.white, Color.red]]);
+					} {
+						bt.view.states_([["init MIDI", Color.black, Color.green]]);
+					};
+				};
+				// in case MIDI hasn't been initialized on startup
+				MidiSrcSelect.all.do { |list|
+					list.do { |sel|
+						sel.view.items_(["source..."] ++ CVWidget.midiSources.values.sort);
+					}
+				}
+			})
+		}
+	}
+
+	close {
+		this.remove;
+		this.viewDidClose;
+		all.remove(this);
+		if (all.isEmpty) {
+			CVWidget.midiInitialized.controller.removeAt(syncKey);
+			CVWidget.prRemoveSyncKey(syncKey, true);
+		}
 	}
 }

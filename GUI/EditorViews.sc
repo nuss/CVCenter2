@@ -143,6 +143,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID:index);
 		e.midiChanTF = MidiChanField(parent, widget, connectorID:index);
 		e.midiNumTF = MidiCtrlField(parent, widget, connectorID:index);
+		e.midiInit = MidiInitButton(parent);
 
 		parent.layout_(
 			VLayout(
@@ -178,6 +179,9 @@ MidiConnectorsEditorView : CompositeView {
 					[e.midiSrcSelect, stretch: 4],
 					[e.midiChanTF, stretch: 4],
 					[e.midiNumTF, stretch: 4]
+				),
+				HLayout(
+					[e.midiInit]
 				)
 			)
 		);
