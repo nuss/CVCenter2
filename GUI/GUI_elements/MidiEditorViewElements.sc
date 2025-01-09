@@ -29,7 +29,9 @@ MidiConnectorNameField : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.string_(mc.model.value[connectorID]);
+		mc.model.value !? {
+			this.view.string_(mc.model.value[connectorID])
+		}
 	}
 
 	prAddController {
@@ -172,14 +174,16 @@ MidiLearnButton : ConnectorElementView {
 	index_ { |connectorID|
 		// we need the connector, not its current ID in widget.midiConnectors
 		connector = widget.midiConnectors[connectorID];
-		mc.model[connectorID].value.learn.switch(
-			"X", {
-				this.view.value_(1)
-			},
-			"L", {
-				this.view.value_(0)
-			}
-		)
+		mc.model[connectorID].value !? {
+			mc.model[connectorID].value.learn.switch(
+				"X", {
+					this.view.value_(1)
+				},
+				"L", {
+					this.view.value_(0)
+				}
+			)
+		}
 	}
 
 	prAddController {
@@ -255,10 +259,12 @@ MidiSrcSelect : ConnectorElementView {
 		var display;
 
 		connector = widget.midiConnectors[connectorID];
-		display = if (mc.model[connectorID].value.src == "source...") { 0 } {
-			this.view.items.indexOfEqual(CVWidget.midiSources[mc.model[connectorID].value.src.asSymbol]);
-		};
-		this.view.value_(display)
+		mc.model[connectorID].value !? {
+			display = if (mc.model[connectorID].value.src == "source...") { 0 } {
+				this.view.items.indexOfEqual(CVWidget.midiSources[mc.model[connectorID].value.src.asSymbol]);
+			};
+			this.view.value_(display)
+		}
 	}
 
 	prAddController {
@@ -325,7 +331,9 @@ MidiChanField : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.string_(mc.model[connectorID].value.chan);
+		mc.model[connectorID].value !? {
+			this.view.string_(mc.model[connectorID].value.chan);
+		}
 	}
 
 	prAddController {
@@ -386,7 +394,9 @@ MidiCtrlField : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.string_(mc.model[connectorID].value.ctrl);
+		mc.model[connectorID].value !? {
+			this.view.string_(mc.model[connectorID].value.ctrl);
+		}
 	}
 
 	prAddController {
@@ -448,7 +458,9 @@ MidiModeSelect : ConnectorElementView {
 	// index_ the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.midiMode)
+		mc.model[connectorID].value !? {
+			this.view.value_(mc.model[connectorID].value.midiMode)
+		}
 	}
 
 	prAddController {
@@ -509,7 +521,9 @@ MidiZeroNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.midiZero);
+		mc.model[connectorID].value !? {
+			this.view.value_(mc.model[connectorID].value.midiZero)
+		}
 	}
 
 	prAddController {
@@ -570,7 +584,9 @@ SnapDistanceNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.snapDistance)
+		mc.model[connectorID].value !? {
+			this.view.value_(mc.model[connectorID].value.snapDistance)
+		}
 	}
 
 	prAddController {
@@ -631,7 +647,9 @@ MidiResolutionNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.value_(mc.model[connectorID].value.midiResolution)
+		mc.model[connectorID].value !? {
+			this.view.value_(mc.model[connectorID].value.midiResolution)
+		}
 	}
 
 	prAddController {
@@ -693,7 +711,9 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
-		this.view.string_(mc.model[connectorID].value.ctrlButtonGroup)
+		mc.model[connectorID].value !? {
+			this.view.string_(mc.model[connectorID].value.ctrlButtonGroup)
+		}
 	}
 
 	prAddController {
