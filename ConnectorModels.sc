@@ -276,7 +276,7 @@ MidiConnector {
 				};
 			} {
 				mc.midiDisplay.model[index].value_((learn: "L", src: "source...", chan: "chan", ctrl: "ctrl"));
-				mc.midiDisplay.model.changedKeys(widget.syncKeys);
+				mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
 				allMidiFuncs[widget][index].clear;
 			};
 		})
@@ -481,7 +481,7 @@ MidiConnector {
 	}
 
 	storeOn { |stream|
-		stream << this.class.name << "(" <<* [widget, this.name] << ")"
+		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
 	}
 
 	printOn { |stream|
