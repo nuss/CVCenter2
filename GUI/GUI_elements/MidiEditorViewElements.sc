@@ -35,6 +35,7 @@ MidiConnectorNameField : ConnectorElementView {
 	}
 
 	prAddController {
+		var conID;
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
@@ -42,7 +43,8 @@ MidiConnectorNameField : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				var conID = moreArgs[0];
+				conID = moreArgs[0];
+				"MidiConnectorNameField[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						tf.view.string_(changer.value[conID]);
@@ -93,6 +95,7 @@ MidiConnectorSelect : ConnectorElementView {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
+				"MidiConnectorSelect[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |sel, i|
 					items = sel.view.items;
 					items[conID] = changer.value[conID];
@@ -146,7 +149,7 @@ MidiLearnButton : ConnectorElementView {
 				chan: mc.model[i].value.chan,
 				ctrl: mc.model[i].value.ctrl
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 			if (mc.model[i].value.learn == "X") {
 				if (mc.model[i].value.src != "source...") { src = mc.model[i].value.src };
 				if (mc.model[i].value.chan != "chan") { chan = mc.model[i].value.chan };
@@ -197,8 +200,8 @@ MidiLearnButton : ConnectorElementView {
 			// the following is global for all MidiLearnButtons
 			// there must be no notion of 'this' as all MdiLearnButton instances are affected
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
-				all[widget].do { |but|
+				conID = moreArgs[0];
+				all[widget].do { |but, i|
 					if (changer[conID].value.learn == "C") {
 						but.states_([
 							["C", Color.black, Color.green],
@@ -249,7 +252,7 @@ MidiSrcSelect : ConnectorElementView {
 				chan: mc.model[i].value.chan,
 				ctrl: mc.model[i].value.ctrl
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -276,7 +279,9 @@ MidiSrcSelect : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiSrcSelect[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |sel|
 					if (sel.connector === connector) {
 						if (changer[conID].value.src.isNil or: { changer[conID].value.src == "source..." }) {
@@ -323,7 +328,7 @@ MidiChanField : ConnectorElementView {
 				chan: tf.string,
 				ctrl: mc.model[i].value.ctrl
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -345,7 +350,9 @@ MidiChanField : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiChanField[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						defer { tf.view.string_(changer[conID].value.chan) }
@@ -386,7 +393,7 @@ MidiCtrlField : ConnectorElementView {
 				chan: mc.model[i].value.chan,
 				ctrl: tf.string
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -408,7 +415,9 @@ MidiCtrlField : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiCtrlField[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						defer { tf.view.string_(changer[conID].value.ctrl) }
@@ -450,7 +459,7 @@ MidiModeSelect : ConnectorElementView {
 				midiResolution: mc.model[i].value.midiResolution,
 				snapDistance: mc.model[i].value.snapDistance
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -472,7 +481,9 @@ MidiModeSelect : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiModeSelect[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |sel|
 					if (sel.connector === connector) {
 						sel.view.value_(changer[conID].value.midiMode)
@@ -513,7 +524,7 @@ MidiZeroNumberBox : ConnectorElementView {
 				midiResolution: mc.model[i].value.midiResolution,
 				snapDistance: mc.model[i].value.snapDistance
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -535,7 +546,9 @@ MidiZeroNumberBox : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiZeroNumberBox[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |nb|
 					if (nb.connector === connector) {
 						nb.view.value_(changer[conID].value.midiZero)
@@ -576,7 +589,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 				midiResolution: mc.model[i].value.midiResolution,
 				snapDistance: nb.value
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -598,7 +611,9 @@ SnapDistanceNumberBox : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"SnapDistanceNumberBox[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |nb|
 					if (nb.connector === connector) {
 						nb.view.value_(changer[conID].value.snapDistance)
@@ -639,7 +654,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 				midiResolution: nb.value,
 				snapDistance: mc.model[i].value.snapDistance
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -661,7 +676,9 @@ MidiResolutionNumberBox : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				// conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				"MidiResolutionNumberBox[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |nb|
 					if (nb.connector === connector) {
 						nb.view.value_(changer[conID].value.midiResolution)
@@ -703,7 +720,7 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 				midiResolution: mc.model[i].value.midiResolution,
 				snapDistance: mc.model[i].value.snapDistance
 			));
-			mc.model.value.changedKeys(widget.syncKeys);
+			mc.model.value.changedKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -725,7 +742,9 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = widget.midiConnectors.indexOf(connector);
+				conID = moreArgs[0];
+				// conID = widget.midiConnectors.indexOf(connector);
+				"SlidersPerGroupNumberTF[%] conID: %".format(all[widget].indexOf(this), conID).postln;
 				all[widget].do { |tf|
 					if (tf.connector === connector) {
 						tf.view.string_(changer[conID].value.ctrlButtonGroup)
