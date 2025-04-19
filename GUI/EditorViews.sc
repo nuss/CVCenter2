@@ -193,7 +193,10 @@ MidiConnectorsEditorView : CompositeView {
 			};
 
 			if (sel.value < (sel.items.size - 1)) {
-				e.do(_.index_(sel.value))
+				e.do(_.index_(sel.value));
+				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
+					elem.view.enabled_(widget.wmc.midiConnections.model[sel.value].value.isNil)
+				}
 			}
 		})
 	}
