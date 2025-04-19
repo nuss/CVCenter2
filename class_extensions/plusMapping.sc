@@ -13,8 +13,8 @@
 
 	linenv { |inMin = 0, inMax = 1, outMin = 0, outMax = 1, env, clip = \minmax, resolution = 400|
 		var envVals;
-		env ?? {
-			Error("No envelope given for linenv!").throw;
+		if (env.isNil or: { env.respondsTo(\asMultichannelSignal).not }) {
+			Error("No valid envelope given for linenv: %".format(env)).throw;
 		};
 		envVals = env.asMultichannelSignal(resolution, Array).unbubble;
 		switch(clip,
