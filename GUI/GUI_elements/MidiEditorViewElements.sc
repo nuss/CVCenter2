@@ -287,10 +287,10 @@ MidiSrcSelect : ConnectorElementView {
 						} {
 							defer {
 								sel.view.value_(sel.items.indexOfEqual(CVWidget.midiSources[changer[conID].value.src.asSymbol]));
+								sel.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil);
 							}
 						}
-					};
-					defer { sel.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
+					}
 				}
 			})
 		}
@@ -351,9 +351,11 @@ MidiChanField : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |tf|
 					if (tf.connector === widget.midiConnectors[conID]) {
-						defer { tf.view.string_(changer[conID].value.chan) }
-					};
-					defer { tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
+						defer {
+							tf.view.string_(changer[conID].value.chan);
+							tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil);
+						}
+					}
 				}
 			})
 		}
@@ -414,9 +416,11 @@ MidiCtrlField : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |tf|
 					if (tf.connector === widget.midiConnectors[conID]) {
-						defer { tf.view.string_(changer[conID].value.ctrl) }
-					};
-					defer { tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil) }
+						defer {
+							tf.view.string_(changer[conID].value.ctrl);
+							tf.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil);
+						}
+					}
 				}
 			})
 		}
