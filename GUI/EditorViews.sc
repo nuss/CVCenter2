@@ -194,6 +194,7 @@ MidiConnectorsEditorView : CompositeView {
 
 			if (sel.value < (sel.items.size - 1)) {
 				e.do(_.index_(sel.value));
+				// enable or disable selects for MIDI source, channel and ctrl number based on connection status
 				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
 					elem.view.enabled_(widget.wmc.midiConnections.model[sel.value].value.isNil)
 				}

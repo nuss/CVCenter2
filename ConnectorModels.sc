@@ -266,10 +266,10 @@ MidiConnector {
 				};
 
 				if (slotChanger.isEmpty) {
-					"allMidiFuncs[widget][%] should learn".format(index).inform;
+					"allMidiFuncs[widget], connector %, should learn".format(index).inform;
 					makeCCconnection.().learn;
 				} {
-					"allMidiFuncs[widget][%] was set to src: %, channel: %, number: %".format(
+					"allMidiFuncs[widget], connector %, was set to src: %, channel: %, number: %".format(
 						index, slotChanger.src, slotChanger.chan, slotChanger.num
 					).inform;
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
