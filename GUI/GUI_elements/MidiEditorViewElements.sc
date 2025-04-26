@@ -245,7 +245,7 @@ MidiSrcSelect : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				learn: "C",
 				src: CVWidget.midiSources.findKeyForValue(sel.item),
@@ -283,7 +283,10 @@ MidiSrcSelect : ConnectorElementView {
 				all[widget].do { |sel|
 					if (sel.connector === widget.midiConnectors[conID]) {
 						if (changer[conID].value.src.isNil or: { changer[conID].value.src == "source..." }) {
-							defer { sel.view.value_(0) }
+							defer {
+								sel.view.value_(0);
+								sel.view.enabled_(widget.wmc.midiConnections.model[conID].value.isNil);
+							}
 						} {
 							defer {
 								sel.view.value_(sel.items.indexOfEqual(CVWidget.midiSources[changer[conID].value.src.asSymbol]));
@@ -319,7 +322,7 @@ MidiChanField : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				learn: "C",
 				src: mc.model[i].value.src,
@@ -384,7 +387,7 @@ MidiCtrlField : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				learn: "C",
 				src: mc.model[i].value.src,
@@ -449,15 +452,9 @@ MidiModeSelect : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
-			var i = widget.midiConnectors.indexOf(connector);
-			mc.model[i].value_((
-				midiMode: sel.value,
-				midiZero: mc.model[i].value.midiZero,
-				ctrlButtonGroup: mc.model[i].value.ctrlButtonGroup,
-				midiResolution: mc.model[i].value.midiResolution,
-				snapDistance: mc.model[i].value.snapDistance
-			));
-			mc.model.value.changedKeys(widget.syncKeys, i);
+			var i = widget.midiConnectors.indexOf(this.connector);
+			"My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
+			this.connector.setMidiMode(sel.value);
 		});
 		this.prAddController;
 	}
@@ -481,6 +478,7 @@ MidiModeSelect : ConnectorElementView {
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
 				all[widget].do { |sel|
+					// [sel.connector, widget.midiConnectors[conID], this.connector].postln;
 					if (sel.connector === widget.midiConnectors[conID]) {
 						sel.view.value_(changer[conID].value.midiMode)
 					}
@@ -512,7 +510,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
 				midiZero: nb.value,
@@ -575,7 +573,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
 				midiZero: mc.model[i].value.midiZero,
@@ -638,7 +636,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
 				midiZero: mc.model[i].value.midiZero,
@@ -702,7 +700,7 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 		this.index_(index);
 		this.view.action_({ |tf|
 			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
-			var i = widget.midiConnectors.indexOf(connector);
+			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model[i].value_((
 				midiMode: mc.model[i].value.midiMode,
 				midiZero: mc.model[i].value.midiZero,

@@ -232,9 +232,11 @@ MidiConnector {
 					// we must infer the connections parameters here
 					if (mc.midiConnections.model[index].value.isEmpty) { updateModelsFunc.(num, chan, src, index) };
 					widget.midiConnectors.indexOf(this) !? {
+						"my midiConnector's index: %".format(widget.midiConnectors.indexOf(this)).postln;
 						this.getMidiMode.switch(
 							//  0-127
 							0, {
+								"midiMode is 0-127".postln;
 								if ((this.getSnapDistance <= 0).or(
 									val/127 < (cv.input + (this.getSnapDistance/2)) and: {
 										val/127 > (cv.input - (this.getSnapDistance/2))
@@ -245,6 +247,7 @@ MidiConnector {
 							},
 							// +/-
 							1, {
+								"midiMode is +/-".postln;
 								cv.input_(cv.input + (val-this.getMidiZero/127*this.getMidiResolution));
 								[val, cv.input, cv.value].postln;
 							}
