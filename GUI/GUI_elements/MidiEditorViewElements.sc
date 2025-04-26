@@ -21,7 +21,8 @@ MidiConnectorNameField : ConnectorElementView {
 		this.view = TextField(parentView, rect);
 		this.index_(index);
 		this.view.action_({ |tf|
-			connector.name_(tf.string.asSymbol)
+			// widget.midiConnectors[index].name_(tf.string.asSymbol)
+			this.connector.name_(tf.string.asSymbol)
 		});
 		this.view.onClose_({ this.close });
 		this.prAddController;
@@ -98,7 +99,9 @@ MidiConnectorSelect : ConnectorElementView {
 					items = sel.view.items;
 					items[conID] = changer.value[conID];
 					sel.view.items_(items);
+					// "selection connector: %, connector ID: %, select: %".format(sel.connector, conID, this.class.all[widget].indexOf(sel)).postln;
 					if (sel.connector === widget.midiConnectors[conID]) {
+						// "match! selection connector: %, connector ID: %, select: %".format(sel.connector, conID, this.class.all[widget].indexOf(sel)).postln;
 						sel.view.value_(conID)
 					}
 				}

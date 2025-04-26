@@ -188,10 +188,10 @@ MidiConnector {
 
 	initControllers { |wmc|
 		#[
+			prInitMidiConnectorNames,
 			prInitMidiOptions,
 			prInitMidiConnection,
-			prInitMidiDisplay,
-			prInitMidiConnectorNames
+			prInitMidiDisplay
 		].do { |method|
 			this.perform(method, wmc, widget.cv)
 		}
@@ -221,6 +221,9 @@ MidiConnector {
 		};
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
 			var index = moreArgs[0];
+			// brute force fix - why is 'this' not considered correctly?
+			var self = widget.midiConnectors[index];
+
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
 				// midiConnect
@@ -229,15 +232,15 @@ MidiConnector {
 					// MIDI learn
 					// we must infer the connections parameters here
 					if (mc.midiConnections.model.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
-					widget.midiConnectors.indexOf(this) !? {
-						"my midiConnector's index: %".format(widget.midiConnectors.indexOf(this)).postln;
-						this.getMidiMode.switch(
+					// widget.midiConnectors.indexOf(this) !? {
+					// "my midiConnector's index: %, this: %, index: %".format(widget.midiConnectors.indexOf(this), this, index).postln;
+						self.getMidiMode.switch(
 							//  0-127
 							0, {
 								"midiMode is 0-127".postln;
-								if ((this.getSnapDistance <= 0).or(
-									val/127 < (cv.input + (this.getSnapDistance/2)) and: {
-										val/127 > (cv.input - (this.getSnapDistance/2))
+								if ((self.getSnapDistance <= 0).or(
+									val/127 < (cv.input + (self.getSnapDistance/2)) and: {
+										val/127 > (cv.input - (self.getSnapDistance/2))
 								})) {
 									cv.input_(val/127);
 									[val, cv.input, cv.value].postln;
@@ -246,11 +249,11 @@ MidiConnector {
 							// +/-
 							1, {
 								"midiMode is +/-".postln;
-								cv.input_(cv.input + (val-this.getMidiZero/127*this.getMidiResolution));
+								cv.input_(cv.input + (val-self.getMidiZero/127*self.getMidiResolution));
 								[val, cv.input, cv.value].postln;
 							}
 						)
-					}
+					// }
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
 					if (allMidiFuncs[widget][index].isNil or: {
@@ -309,8 +312,6 @@ MidiConnector {
 		var conID = widget.midiConnectors.indexOf(this);
 		var names = widget.wmc.midiConnectorNames.model.value;
 		names[conID] = name;
-		// for some reason we need to pass the connector ID explicitely here
-		// it doesn't seem to be necessary in other cases
 		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
 	}
 
@@ -335,7 +336,6 @@ MidiConnector {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
 		zeroval = zeroval.asInteger;
-
 		mc.midiOptions.model.value[index].midiZero = zeroval;
 		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
 	}
@@ -432,7 +432,7 @@ MidiConnector {
 				// elements that have a meaning in the context of a connector
 				// hold an Event in their 'all'' classvar
 				// 'global' elements like MidiInitButton hold a List in 'all'
-				// following block only needs to run vor elements that keep a reference
+				// following block only needs to run for elements that keep a reference
 				// to an index of one or more connectors
 				if (class.all.class == Event) {
 					class.all[widget] !? { class.all[widget].do(_.index_(index)) }
