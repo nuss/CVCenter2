@@ -110,13 +110,13 @@ MidiConnectorsEditorView : CompositeView {
 			index = widget.midiConnectors.indexOf(index)
 		};
 
-		e ?? { e = () };
+		e = ();
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 350))
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 280))
 		} { parent = parentView };
 
 		parent.onClose_({
@@ -171,9 +171,9 @@ MidiConnectorsEditorView : CompositeView {
 					[StaticText(parent).string_("Number of sliders per bank: "), stretch: 7],
 					[e.slidersPerGroupTF, stretch: 3]
 				),
-				HLayout(
-					StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (hit 'enter' for each entered value - the 'L' should become 'C' like 'connect')")
-				),
+				// HLayout(
+				// 	StaticText(parent).string_("Click the 'L' button and move some slider or knob on your MIDI device. Otherwise enter connection paramters manually (hit 'enter' for each entered value - the 'L' should become 'C' like 'connect')")
+				// ),
 				HLayout(
 					[e.midiLearnButton, stretch: 1],
 					[e.midiSrcSelect, stretch: 4],

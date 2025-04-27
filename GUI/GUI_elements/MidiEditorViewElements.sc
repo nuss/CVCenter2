@@ -99,11 +99,13 @@ MidiConnectorSelect : ConnectorElementView {
 					items = sel.view.items;
 					items[conID] = changer.value[conID];
 					sel.view.items_(items);
-					// "selection connector: %, connector ID: %, select: %".format(sel.connector, conID, this.class.all[widget].indexOf(sel)).postln;
+					// "selection connector: %, sel.view.value: %".format(sel.connector, sel.view.value).postln;
 					if (sel.connector === widget.midiConnectors[conID]) {
 						// "match! selection connector: %, connector ID: %, select: %".format(sel.connector, conID, this.class.all[widget].indexOf(sel)).postln;
 						sel.view.value_(conID)
-					}
+					} /*{
+						"no match! selection value: %".format(sel.view.value).postln;
+					}*/
 				}
 			})
 		}
@@ -138,7 +140,7 @@ MidiLearnButton : ConnectorElementView {
 		this.view = Button(parentView, rect).states_([
 			["L", Color.white, Color.blue],
 			["X", Color.white, Color.red]
-		]).maxWidth_(25);
+		]).maxWidth_(25).toolTip_("Click and move hardware slider/knob to auto-connect");
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
@@ -156,7 +158,7 @@ MidiLearnButton : ConnectorElementView {
 						b.states_([
 							["L", Color.white, Color.blue],
 							["X", Color.white, Color.red]
-						]).value_(1)
+						]).value_(1).toolTip_("Click to disconnect")
 					}
 				}
 			}
@@ -204,7 +206,7 @@ MidiLearnButton : ConnectorElementView {
 						but.states_([
 							["C", Color.black, Color.green],
 							["X", Color.white, Color.red]
-						])
+						]).toolTip_("Click to connect using given parameters")
 					};
 					if (but.connector === widget.midiConnectors[conID]) {
 						pos = but.view.states.detectIndex { |a, i|

@@ -290,17 +290,20 @@ MidiConnector {
 		mc.midiDisplay.controller ?? {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
-		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
-			var index = widget.midiConnectors.indexOf(this);
-			// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
-			// ...
-		})
+		// mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
+		// 	var index = widget.midiConnectors.indexOf(this);
+		// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
+		// 	// ...
+		// })
 	}
 
 	prInitMidiConnectorNames { |mc, cv|
 		mc.midiConnectorNames.controller ?? {
 			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
 		};
+		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
+			"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
+		})
 	}
 
 	name {
