@@ -170,7 +170,8 @@ MidiConnector {
 			src: "source...",
 			chan: "chan",
 			ctrl: "ctrl",
-			learn: "L"
+			learn: "L",
+			toolTip: "Click and move hardware slider/knob to connect to"
 		));
 		wmc.midiConnectorNames ?? { wmc.midiConnectorNames = () };
 		wmc.midiConnectorNames.model ?? {
@@ -212,7 +213,13 @@ MidiConnector {
 		var slotChanger;
 		var updateModelsFunc = { |num, chan, src, index|
 			mc.midiConnections.model.value[index] = (num: num, chan: chan, src: src);
-			mc.midiDisplay.model.value[index] = (learn: "X", src: src ? "source...", chan: chan ? "chan", ctrl: num ? "ctrl");
+			mc.midiDisplay.model.value[index] = (
+				learn: "X",
+				src: src ? "source...",
+				chan: chan ? "chan",
+				ctrl: num ? "ctrl",
+				toolTip: "Click to disconnect"
+			);
 			mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
 		};
 
@@ -279,7 +286,13 @@ MidiConnector {
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
 				};
 			} {
-				mc.midiDisplay.model.value[index] = (learn: "L", src: "source...", chan: "chan", ctrl: "ctrl");
+				mc.midiDisplay.model.value[index] = (
+					learn: "L",
+					src: "source...",
+					chan: "chan",
+					ctrl: "ctrl",
+					toolTip: "Click and move hardware slider/knob to connect to"
+				);
 				mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
 				allMidiFuncs[widget][index].clear;
 			};

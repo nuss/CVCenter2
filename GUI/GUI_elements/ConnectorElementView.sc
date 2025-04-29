@@ -1,5 +1,6 @@
 ConnectorElementView : SCViewHolder {
 	var mc, syncKey;
+	var toolTip;
 
 	close {
 		this.remove;

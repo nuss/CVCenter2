@@ -139,14 +139,15 @@ MidiLearnButton : ConnectorElementView {
 
 		mc = widget.wmc.midiDisplay;
 		if (mc.model.value[index].learn == "C") {
-			defaultState = [mc.model.value[index].learn, Color.black, Color.green]
+			defaultState = [mc.model.value[index].learn, Color.black, Color.green];
+			mc.model.value[index].toolTip = "Connect using selected parameters";
 		} {
-			defaultState = [mc.model.value[index].learn, Color.white, Color.blue]
+			defaultState = [mc.model.value[index].learn, Color.white, Color.blue];
 		};
 		this.view = Button(parentView, rect).states_([
 			defaultState,
 			["X", Color.white, Color.red]
-		]).maxWidth_(25).toolTip_("Click and move hardware slider/knob to auto-connect");
+		]).maxWidth_(25).toolTip_(mc.model.value[index].toolTip);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
@@ -162,23 +163,21 @@ MidiLearnButton : ConnectorElementView {
 				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
 					all[widget].do { |b|
 						if (widget.midiConnectors.indexOf(b.connector.postln) == i) {
-							b.states_([
+							b.view.states_([
 								["L", Color.white, Color.blue],
 								["X", Color.white, Color.red]
-							]).value_(1).toolTip_("Click to disconnect")
-						}
-						// TODO: display correct states when editor has been oppened *after* mode has been changed from 'learn' to 'connect' (green label 'C')
-					}
-				} {
-					all[widget].do { |b|
-						if (widget.midiConnectors.indexOf(b.connector.postln) == i) {
-							[b, b.states].postln;
+							]).value_(1).toolTip_(mc.model.value[i].toolTip)
 						}
 					}
 				}
 			}
 			{
-				widget.midiDisconnect(connector)
+				widget.midiDisconnect(connector);
+				all[widget].do { |b|
+					if (widget.midiConnectors.indexOf(b.connector.postln) == i) {
+						b.view.toolTip_(mc.model.value[i].toolTip);
+					}
+				}
 			}
 		});
 		this.prAddController;
@@ -217,21 +216,18 @@ MidiLearnButton : ConnectorElementView {
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
 				all[widget].do { |but, i|
-					if (changer.value[conID].learn == "C" and: {
-						but.connector === widget.midiConnectors[conID]
-					}) {
-						but.states_([
-							["C", Color.black, Color.green],
-							["X", Color.white, Color.red]
-						]).toolTip_("Click to connect using given parameters")
-					} {
-						but.states.postln;
-					};
 					if (but.connector === widget.midiConnectors[conID]) {
+						if (changer.value[conID].learn == "C") {
+							// mc.model.value[i].toolTip = "Connect using selected parameters";
+							but.view.states_([
+								["C", Color.black, Color.green],
+								["X", Color.white, Color.red]
+							])
+						};
 						pos = but.view.states.detectIndex { |a, j|
 							a[0] == changer.value[conID].learn
 						};
-						defer { but.view.value_(pos) }
+						defer { but.view.value_(pos).toolTip_(mc.model.value[conID].toolTip) }
 					}
 				}
 			})
@@ -266,6 +262,7 @@ MidiSrcSelect : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].src = CVWidget.midiSources.findKeyForValue(sel.item);
 			mc.model.value[i].learn = "C";
+			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
@@ -339,6 +336,7 @@ MidiChanField : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].chan = tf.string;
 			mc.model.value[i].learn = "C";
+			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
@@ -400,6 +398,7 @@ MidiCtrlField : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].ctrl = tf.string;
 			mc.model.value[i].learn = "C";
+			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
