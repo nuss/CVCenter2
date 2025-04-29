@@ -213,7 +213,7 @@ MidiConnector {
 		var updateModelsFunc = { |num, chan, src, index|
 			mc.midiConnections.model.value[index] = (num: num, chan: chan, src: src);
 			mc.midiDisplay.model.value[index] = (learn: "X", src: src ? "source...", chan: chan ? "chan", ctrl: num ? "ctrl");
-			mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
+			mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
 		};
 
 		mc.midiConnections.controller ?? {
@@ -280,7 +280,7 @@ MidiConnector {
 				};
 			} {
 				mc.midiDisplay.model.value[index] = (learn: "L", src: "source...", chan: "chan", ctrl: "ctrl");
-				mc.midiDisplay.model.changedKeys(widget.syncKeys, index);
+				mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
 				allMidiFuncs[widget][index].clear;
 			};
 		})
@@ -316,7 +316,7 @@ MidiConnector {
 		var conID = widget.midiConnectors.indexOf(this);
 		var names = widget.wmc.midiConnectorNames.model.value;
 		names[conID] = name;
-		widget.wmc.midiConnectorNames.model.value_(names).changedKeys(widget.syncKeys, conID);
+		widget.wmc.midiConnectorNames.model.value_(names).changedPerformKeys(widget.syncKeys, conID);
 	}
 
 	setMidiMode { |mode|
@@ -327,7 +327,7 @@ MidiConnector {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
 		};
 		mc.midiOptions.model.value[index].midiMode = mode;
-		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
+		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiMode {
@@ -341,7 +341,7 @@ MidiConnector {
 		var index = widget.midiConnectors.indexOf(this);
 		zeroval = zeroval.asInteger;
 		mc.midiOptions.model.value[index].midiZero = zeroval;
-		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
+		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiZero {
@@ -355,7 +355,7 @@ MidiConnector {
 		var index = widget.midiConnectors.indexOf(this);
 		snapDistance = snapDistance.asFloat;
 		mc.midiOptions.model.value[index].snapDistance = snapDistance;
-		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
+		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getSnapDistance {
@@ -371,7 +371,7 @@ MidiConnector {
 			Error("setCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
 		mc.midiOptions.model.value[index].ctrlButtonGroup = numButtons;
-		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
+		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getCtrlButtonGroup {
@@ -384,7 +384,7 @@ MidiConnector {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
 		mc.midiOptions.model.value[index].midiResolution = resolution;
-		mc.midiOptions.model.changedKeys(widget.syncKeys, index);
+		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiResolution {
@@ -396,7 +396,7 @@ MidiConnector {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
 		mc.midiConnections.model.value[index] = (src: src, chan: chan, num: num);
-		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
+		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -409,7 +409,7 @@ MidiConnector {
 		var mc = widget.wmc;
 		var index = widget.midiConnectors.indexOf(this);
 		mc.midiConnections.model.value[index] = nil;
-		mc.midiConnections.model.changedKeys(widget.syncKeys, index);
+		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	remove {

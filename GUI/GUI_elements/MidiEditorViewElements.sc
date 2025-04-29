@@ -132,13 +132,19 @@ MidiLearnButton : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
+		var defaultState;
 		widget = wdgt;
 		all[widget] ?? { all.put(widget, List[]) };
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
+		if (mc.model.value[index].learn == "C") {
+			defaultState = [mc.model.value[index].learn, Color.black, Color.green]
+		} {
+			defaultState = [mc.model.value[index].learn, Color.white, Color.blue]
+		};
 		this.view = Button(parentView, rect).states_([
-			["L", Color.white, Color.blue],
+			defaultState,
 			["X", Color.white, Color.red]
 		]).maxWidth_(25).toolTip_("Click and move hardware slider/knob to auto-connect");
 		this.view.onClose_({ this.close });
@@ -147,7 +153,7 @@ MidiLearnButton : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			var src, chan, ctrl;
 			mc.model.value[i].learn = bt.states[bt.value][0];
-			mc.model.changedKeys(widget.syncKeys, i);
+			mc.model.changedPerformKeys(widget.syncKeys, i);
 			if (mc.model.value[i].learn == "X") {
 				if (mc.model.value[i].src != "source...") { src = mc.model.value[i].src };
 				if (mc.model.value[i].chan != "chan") { chan = mc.model.value[i].chan };
@@ -260,7 +266,7 @@ MidiSrcSelect : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].src = CVWidget.midiSources.findKeyForValue(sel.item);
 			mc.model.value[i].learn = "C";
-			mc.model.changedKeys(widget.syncKeys, i);
+			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -333,7 +339,7 @@ MidiChanField : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].chan = tf.string;
 			mc.model.value[i].learn = "C";
-			mc.model.changedKeys(widget.syncKeys, i);
+			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -394,7 +400,7 @@ MidiCtrlField : ConnectorElementView {
 			var i = widget.midiConnectors.indexOf(this.connector);
 			mc.model.value[i].ctrl = tf.string;
 			mc.model.value[i].learn = "C";
-			mc.model.changedKeys(widget.syncKeys, i);
+			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		this.prAddController;
 	}
@@ -757,7 +763,7 @@ MidiInitButton : ConnectorElementView {
 					}
 				})
 			};
-			CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedKeys(CVWidget.syncKeys);
+			CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
 		});
 		this.view.onClose_({ this.close });
 

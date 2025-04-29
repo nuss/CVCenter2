@@ -1,64 +1,73 @@
 +CVWidgetKnob {
 	setMidiMean { |zeroval, connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\setMidiZero));
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiZero));
 		^this.setMidiZero(zeroval, connector);
 	}
 
 	getMidiMean { |connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\getMidiZero));
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiZero));
 		^this.getMidiZero(connector);
 	}
 
 	setSoftWithin { |snapDistance, connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\setSnapDistance));
+		this.deprecated(thisMethod, this.class.findMethod(\setSnapDistance));
 		^this.setSnapDistance(snapDistance, connector);
 	}
 
 	getSoftWithin { |connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\getSnapDistance));
+		this.deprecated(thisMethod, this.class.findMethod(\getSnapDistance));
 		^this.getSnapDistance(connector);
 	}
 
 	setCtrlButtonBank { |numButtons, connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\setCtrlButtonGroup));
+		this.deprecated(thisMethod, this.class.findMethod(\setCtrlButtonGroup));
 		^this.setCtrlButtonGroup(numButtons, connector);
 	}
 
 	getCtrlButtonBank { |connector|
-		this.deprecated(thisMethod, CVWidgetKnob.findMethod(\getCtrlButtonGroup));
+		this.deprecated(thisMethod, this.class.findMethod(\getCtrlButtonGroup));
 		^this.getCtrlButtonGroup(connector);
 	}
 }
 
 +MidiConnector {
 	setMidiMean { |zeroval|
-		this.deprecated(thisMethod, MidiConnector.findMethod(\setMidiZero));
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiZero));
 		^this.setMidiZero(zeroval);
 	}
 
 	getMidiMean {
-		this.deprecated(thisMethod, MidiConnector.findMethod(\getMidiZero));
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiZero));
 		^this.getMidiZero;
 	}
 
 	setSoftWithin { |snapDistance|
-		this.deprecated(thisMethod, MidiConnector.findMethod(\setSnapDistance));
+		this.deprecated(thisMethod, this.class.findMethod(\setSnapDistance));
 		^this.setSnapDistance(snapDistance);
 	}
 
 	getSoftWithin {
-		this.deprecated(thisMethod, MidiConnector.findMethod(\getSnapDistance));
+		this.deprecated(thisMethod, this.class.findMethod(\getSnapDistance));
 		^this.getSnapDistance;
 	}
 
 	setCtrlButtonBank { |numButtons|
-		this.deprecated(thisMethod, MidiConnector.findMethod(\setCtrlButtonGroup));
+		this.deprecated(thisMethod, this.class.findMethod(\setCtrlButtonGroup));
 		^this.setCtrlButtonGroup(numButtons);
 	}
 
 	getCtrlButtonBank {
-		this.deprecated(thisMethod, MidiConnector.findMethod(\getCtrlButtonGroup));
+		this.deprecated(thisMethod, this.class.findMethod(\getCtrlButtonGroup));
 		^this.getCtrlButtonGroup;
+	}
+
+}
+
++Object {
+
+	changedKeys { |keys ... moreArgs|
+		this.deprecated(thisMethod, this.class.findMethod(\changedPerformKeys));
+		^this.changedPerformKeys(keys, *moreArgs);
 	}
 
 }

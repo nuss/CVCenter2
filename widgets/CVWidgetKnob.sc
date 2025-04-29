@@ -108,7 +108,7 @@ CVWidgetKnob : CVWidget {
 		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
 			Error("No valid ControlSpec given for setSpec.").throw;
 		};
-		wmc.cvSpec.model.value_(spec).changedKeys(this.syncKeys);
+		wmc.cvSpec.model.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
 	getSpec {
@@ -152,7 +152,7 @@ CVWidgetKnob : CVWidget {
 		wmc.actions.model.value_((
 			numActions: widgetActions.size,
 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-		)).changedKeys(this.syncKeys);
+		)).changedPerformKeys(this.syncKeys);
 
 		// TODO: Take care of editor views
 	}
@@ -171,7 +171,7 @@ CVWidgetKnob : CVWidget {
 			wmc.actions.model.value_((
 				numActions: widgetActions.size,
 				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-			)).changedKeys(this.syncKeys);
+			)).changedPerformKeys(this.syncKeys);
 		};
 
 		// TODO: Take care of editor views
@@ -203,7 +203,7 @@ CVWidgetKnob : CVWidget {
 			wmc.actions.model.value_((
 				numActions: widgetActions.size,
 				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-			)).changedKeys(this.syncKeys);
+			)).changedPerformKeys(this.syncKeys);
 		};
 
 		// TODO: Take care of editor views
@@ -229,7 +229,7 @@ CVWidgetKnob : CVWidget {
 		wmc.actions.model.value_((
 			numActions: widgetActions.size,
 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-		)).changedKeys(this.syncKeys);
+		)).changedPerformKeys(this.syncKeys);
 
 		// TODO: Take care of editor views
 	}
