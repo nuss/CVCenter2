@@ -291,10 +291,11 @@ MidiConnector {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
 		// mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
+		// "midiDisplay.controller.triggered".postln;
 		// 	var index = widget.midiConnectors.indexOf(this);
 		// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
 		// 	// ...
-		// })
+// })
 	}
 
 	prInitMidiConnectorNames { |mc, cv|
