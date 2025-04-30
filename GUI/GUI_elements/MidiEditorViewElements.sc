@@ -142,7 +142,7 @@ MidiLearnButton : ConnectorElementView {
 			defaultState = [mc.model.value[index].learn, Color.black, Color.green];
 			mc.model.value[index].toolTip = "Connect using selected parameters";
 		} {
-			defaultState = [mc.model.value[index].learn, Color.white, Color.blue];
+			defaultState = ["L", Color.white, Color.blue];
 		};
 		this.view = Button(parentView, rect).states_([
 			defaultState,
@@ -212,7 +212,7 @@ MidiLearnButton : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			// the following is global for all MidiLearnButtons
-			// there must be no notion of 'this' as all MdiLearnButton instances are affected
+			// there must be no notion of 'this' as all MidiLearnButton instances are affected
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
 				all[widget].do { |but, i|
@@ -224,8 +224,8 @@ MidiLearnButton : ConnectorElementView {
 								["X", Color.white, Color.red]
 							])
 						};
-						pos = but.view.states.detectIndex { |a, j|
-							a[0] == changer.value[conID].learn
+						pos = but.view.states.detectIndex { |state, j|
+							state[0] == changer.value[conID].learn
 						};
 						defer { but.view.value_(pos).toolTip_(mc.model.value[conID].toolTip) }
 					}
@@ -255,6 +255,7 @@ MidiSrcSelect : ConnectorElementView {
 		mc = widget.wmc.midiDisplay;
 
 		this.view = PopUpMenu(parentView, rect)
+		.enabled_(mc.model.value[index].learn != "X")
 		.items_(["source..."] ++ CVWidget.midiSources.values.sort).maxWidth_(100);
 		this.view.onClose_({ this.close });
 		this.index_(index);
@@ -329,7 +330,8 @@ MidiChanField : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		this.view = TextField(parentView, rect);
+		this.view = TextField(parentView, rect)
+		.enabled_(mc.model.value[index].learn != "X");
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
@@ -391,7 +393,8 @@ MidiCtrlField : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiDisplay;
-		this.view = TextField(parentView, rect);
+		this.view = TextField(parentView, rect)
+		.enabled_(mc.model.value[index].learn != "X");
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|

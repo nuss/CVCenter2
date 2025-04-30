@@ -459,17 +459,7 @@ CVWidgetKnob : CVWidget {
 	storeOn { |stream|
 		stream << this.class.name << "(" <<< [
 			this.name,
-			this.cv,
-			(
-				midiMode: this.getMidiMode,
-				midiResolution: this.getMidiResolution,
-				midiZero: this.getMidiZero,
-				ctrlButtonGroup: this.getCtrlButtonGroup,
-				snapDistance: this.getSnapDistance,
-				oscCalibration: this.getOscCalibration
-			),
-			{},
-			this.wmc
+			this.cv
 		] << ")"
 	}
 
