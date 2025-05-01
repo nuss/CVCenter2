@@ -87,6 +87,7 @@ MidiConnectorSelect : ConnectorElementView {
 
 	prAddController {
 		var items, conID;
+		var curValue;
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
@@ -98,14 +99,11 @@ MidiConnectorSelect : ConnectorElementView {
 				all[widget].do { |sel, i|
 					items = sel.view.items;
 					items[conID] = changer.value[conID];
-					sel.view.items_(items);
-					// "selection connector: %, sel.view.value: %".format(sel.connector, sel.view.value).postln;
+					curValue = sel.view.value;
+					sel.view.items_(items).value_(curValue);
 					if (sel.connector === widget.midiConnectors[conID]) {
-						// "match! selection connector: %, connector ID: %, select: %".format(sel.connector, conID, this.class.all[widget].indexOf(sel)).postln;
 						sel.view.value_(conID)
-					} /*{
-						"no match! selection value: %".format(sel.view.value).postln;
-					}*/
+					}
 				}
 			})
 		}
@@ -790,7 +788,7 @@ MidiInitButton : ConnectorElementView {
 			CVWidget.midiInitialized.controller.put(syncKey, { |changer, what|
 				all.do { |bt|
 					if (changer.value) {
-						bt.view.states_([["restart MIDI", Color.white, Color.red]]);
+						bt.view.states_([["reinit MIDI", Color.white, Color.red]]);
 					} {
 						bt.view.states_([["init MIDI", Color.black, Color.green]]);
 					};

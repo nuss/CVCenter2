@@ -315,9 +315,9 @@ MidiConnector {
 		mc.midiConnectorNames.controller ?? {
 			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
 		};
-		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
-			"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
-		})
+		// mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
+		// 	"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
+		// })
 	}
 
 	name {
@@ -327,9 +327,8 @@ MidiConnector {
 
 	name_ { |name|
 		var conID = widget.midiConnectors.indexOf(this);
-		var names = widget.wmc.midiConnectorNames.model.value;
-		names[conID] = name;
-		widget.wmc.midiConnectorNames.model.value_(names).changedPerformKeys(widget.syncKeys, conID);
+		widget.wmc.midiConnectorNames.model.value[conID] = name.asSymbol;
+		widget.wmc.midiConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
 	}
 
 	setMidiMode { |mode|
