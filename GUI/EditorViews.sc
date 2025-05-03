@@ -140,10 +140,11 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
 		e.slidersPerGroupTF = SlidersPerGroupNumberTF(parent, widget, connectorID: index);
 		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
-		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID:index);
-		e.midiChanTF = MidiChanField(parent, widget, connectorID:index);
-		e.midiNumTF = MidiCtrlField(parent, widget, connectorID:index);
+		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID: index);
+		e.midiChanTF = MidiChanField(parent, widget, connectorID: index);
+		e.midiNumTF = MidiCtrlField(parent, widget, connectorID: index);
 		e.midiInit = MidiInitButton(parent);
+		e.midiConnectorRemove = MidiConnectorRemoveButton(parent, widget, connectorID: index);
 
 		parent.layout_(
 			VLayout(
@@ -181,7 +182,8 @@ MidiConnectorsEditorView : CompositeView {
 					[e.midiNumTF, stretch: 4]
 				),
 				HLayout(
-					[e.midiInit]
+					[e.midiInit],
+					[e.midiConnectorRemove]
 				)
 			)
 		);

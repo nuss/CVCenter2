@@ -812,4 +812,41 @@ MidiInitButton : ConnectorElementView {
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
+
 }
+
+MidiConnectorRemoveButton : ConnectorElementView {
+	classvar <all;
+	var <connector, <widget;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect, connectorID=0|
+		^super.new.init(parent, widget, rect, connectorID);
+	}
+
+	init { |parentView, wdgt, rect, index|
+		all[wdgt] ?? { all[wdgt] = List[] };
+		all[wdgt].add(this);
+
+		widget = wdgt;
+		this.index_(index);
+		this.view = Button(parentView, rect)
+		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
+		.action_({ this.connector.remove })
+	}
+
+	index_ { |connectorID|
+		connector = widget.midiConnectors[connectorID];
+	}
+
+	close {
+		this.remove;
+		this.viewDidClose;
+		all[widget].remove(this);
+	}
+
+}
+
