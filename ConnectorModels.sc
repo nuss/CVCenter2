@@ -424,34 +424,43 @@ MidiConnector {
 		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
-	remove {
+	remove { |forceAll = false|
 		var index = widget.midiConnectors.indexOf(this);
 		var names;
 		this.midiDisconnect;
-		// "index after disconnect: %".format(index).postln;
-		allMidiFuncs[widget][index].free;
-		allMidiFuncs[widget].removeAt(index);
-		[
-			widget.wmc.midiOptions.model.value,
-			widget.wmc.midiConnections.model.value,
-			widget.wmc.midiDisplay.model.value,
-			widget.wmc.midiConnectorNames.model.value
-		].do(_.removeAt(index));
-		widget.midiConnectors.remove(this);
-		widget.midiConnectors.changed(\value);
-		// order matters - next block must be executed
-		// after midiConnectors have been changed
-		// make sure display in all MIDI editors get set to valid entries
-		// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
-		\ConnectorElementView.asClass !? {
-			\ConnectorElementView.asClass.subclasses.do { |class|
-				// elements that have a meaning in the context of a connector
-				// hold an Event in their 'all'' classvar
-				// 'global' elements like MidiInitButton hold a List in 'all'
-				// following block only needs to run for elements that keep a reference
-				// to an index of one or more connectors
-				if (class.all.class == Event) {
-					class.all[widget] !? { class.all[widget].do(_.index_(index)) }
+
+		if (widget.midiConnectors.size > 1 or: { forceAll }) {
+			allMidiFuncs[widget][index].free;
+			allMidiFuncs[widget].removeAt(index);
+			[
+				widget.wmc.midiOptions.model.value,
+				widget.wmc.midiConnections.model.value,
+				widget.wmc.midiDisplay.model.value,
+				widget.wmc.midiConnectorNames.model.value
+			].do(_.removeAt(index));
+			widget.midiConnectors.remove(this);
+			widget.midiConnectors.changed(\value);
+			// order matters - next block must be executed
+			// after midiConnectors have been changed
+			// make sure display in all MIDI editors get set to valid entries
+			// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
+			\ConnectorElementView.asClass !? {
+				\ConnectorElementView.asClass.subclasses.do { |class|
+					// elements that have a meaning in the context of a connector
+					// hold an Event in their 'all'' classvar
+					// 'global' elements like MidiInitButton hold a List in 'all'
+					// following block only needs to run for elements that keep a reference
+					// to an index of one or more connectors
+					if (class.all.class == Event) {
+						class.all[widget] !? {
+							"index: %".format(index).postln;
+							if (widget.midiConnectors.size > 1 and: { index > 1 }) {
+								class.all[widget].do(_.index_(index - 1))
+							} {
+								class.all[widget].do(_.index_(index))
+							}
+						}
+					}
 				}
 			}
 		}

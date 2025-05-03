@@ -419,17 +419,15 @@ CVWidgetKnob : CVWidget {
 	}
 
 	removeMidiConnector { |connector|
-		if (midiConnectors.size > 1) {
-			if (connector.isInteger) {
-				connector = midiConnectors[connector]
-			};
-			connector.remove;
-		}
+		if (connector.isInteger) {
+			connector = midiConnectors[connector]
+		};
+		connector.remove;
 	}
 
 	remove {
-		this.midiConnectors.do(_.remove);
-		this.oscConnectors.do(_.remove);
+		this.midiConnectors.do(_.remove(true));
+		this.oscConnectors.do(_.remove(true));
 		// SimpleControllers should be removed explicitely
 		this.widgetActions.do { |asoc|
 			asoc.key.remove;
