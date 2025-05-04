@@ -88,8 +88,8 @@ TestMidiConnectorSelect : UnitTest {
 		element2 = MidiConnectorSelect(widget: widget);
 		this.assertEquals(MidiConnectorSelect.all[widget].size, 2, "MidiConnectorSelect.all[widget] should hold a List with 2 elements after creating another MidiConnectorSelect instance.");
 		element1.connector.name_("xyz");
-		this.assertEquals(element1.item, "xyz", "After calling element1.connector.name_(\"xyz\") element1.item should return \"xyz\"");
-		this.assertEquals(element2.item, "xyz", "After calling element1.connector.name_(\"xyz\") element2.item should return \"xyz\"");
+		this.assertEquals(element1.item, \xyz, "After calling element1.connector.name_(\"xyz\") element1.item should return 'xyz'");
+		this.assertEquals(element2.item, \xyz, "After calling element1.connector.name_(\"xyz\") element2.item should return 'xyz'");
 		// can't test menu entries here as synchronisation of elements after changing select is
 		// handled in MidiConnectorsEditorView:-init
 	}
@@ -100,7 +100,7 @@ TestMidiConnectorSelect : UnitTest {
 		this.assert(element2.connector === widget.midiConnectors[1], "After creating a new MidiConnectorSelect with connectorID set to 1 the MidiConnectorSelect's connector should be identical with widget.midiConnectors[1]");
 		this.assertEquals(element2.view.value, 1, "element2.value should return 1.");
 		element2.connector.name_("aaaaaa");
-		this.assertEquals(element1.items[1], "aaaaaa", "After calling element2.connector.name_(\"aaaaaa\") element1.items[1] should return \"aaaaaa\".");
+		this.assertEquals(element1.items[1], \aaaaaa, "After calling element2.connector.name_(\"aaaaaa\") element1.items[1] should return 'aaaaaa'.");
 	}
 }
 
@@ -458,6 +458,7 @@ TestMidiInitButton : UnitTest {
 		this.assertEquals(CVWidget.syncKeys, [\default, \midiInitButton], "CVWidget.syncKeys should hold two values after creating a MidiInitButton instance: 'default'  and 'midiInitButton'");
 		button2 = MidiInitButton.new;
 		this.assertEquals(MidiInitButton.all.size, 2, "After creating a second MidiInitButton instance MidiInitButton.all should have grown to a size of 2");
+		// FIXME: how can the test be omitted if MIDIClient has already been initialized?
 		this.ifAsserts(MIDIClient.initialized.not, "MIDIClient not initialized", {
 			this.assert(button1.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]] && button2.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]], "MIDIClient not initialized")
 		});
@@ -470,5 +471,31 @@ TestMidiInitButton : UnitTest {
 	test_click {
 
 	}
+
+}
+
+
+// TODO
+TestMidiConnectorRemoveButton : UnitTest {
+	var button1, button2;
+
+	setup {
+		button1 = MidiConnectorRemoveButton.new;
+		button2 = MidiConnectorRemoveButton.new;
+	}
+
+	tearDown {
+		button1.remove;
+		button2.remove;
+	}
+
+	test_new {
+
+	}
+
+	test_index_ {
+
+	}
+
 
 }
