@@ -680,13 +680,14 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
+		// TODO: make this a NumberBox starting at 0 (where 0 means nil)
 		this.view = TextField(parentView, rect);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
-			// var i = widget.midiConnectors.indexOf(this.connector);
-			this.connector.setCtrlButtonGroup(ctrlb)
+			// preliminary fix!!
+			this.connector.setCtrlButtonGroup(ctrlb.asInteger)
 		});
 		this.prAddController;
 	}
