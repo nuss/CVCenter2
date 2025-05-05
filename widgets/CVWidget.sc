@@ -1,6 +1,6 @@
 CVWidget {
 	classvar <all;
-	classvar <>removeResponders = true, <>initMidiOnStartUp = true, <>midiSources, <>shortcuts, prefs;
+	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>midiSources, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
 	classvar syncKeysEvent;

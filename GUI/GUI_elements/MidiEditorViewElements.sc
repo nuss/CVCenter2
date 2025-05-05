@@ -770,7 +770,7 @@ MidiInitButton : ConnectorElementView {
 
 
 		if (MIDIClient.initialized) {
-			this.view.states_([["restart MIDI", Color.white, Color.red]]);
+			this.view.states_([["reinit MIDI", Color.white, Color.red]]);
 		} {
 			this.view.states_([["init MIDI", Color.black, Color.green]]);
 		};

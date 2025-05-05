@@ -440,7 +440,7 @@ TestSlidersPerGroupNumberTF : UnitTest {
 TestMidiInitButton : UnitTest {
 	var button1, button2;
 
-	setup {
+	setUp {
 		button1 = MidiInitButton.new;
 		button2 = MidiInitButton.new;
 	}
@@ -451,25 +451,21 @@ TestMidiInitButton : UnitTest {
 	}
 
 	test_new {
-		// this.tearDown;
-		this.assertEquals(CVWidget.syncKeys, [\default], "CVWidget.syncKeys should hold a single value 'default' before creating a MidiInitButton instance.");
-		button1 = MidiInitButton.new;
-		this.assertEquals(MidiInitButton.all.size, 1, "After creating a MidiInitButton instance MidiInitButton.all should have a size of 1");
+		this.assertEquals(MidiInitButton.all.size, 2, "After creating 2 MidiInitButton instances MidiInitButton.all should have a size of 2");
 		this.assertEquals(CVWidget.syncKeys, [\default, \midiInitButton], "CVWidget.syncKeys should hold two values after creating a MidiInitButton instance: 'default'  and 'midiInitButton'");
-		button2 = MidiInitButton.new;
-		this.assertEquals(MidiInitButton.all.size, 2, "After creating a second MidiInitButton instance MidiInitButton.all should have grown to a size of 2");
-		// FIXME: how can the test be omitted if MIDIClient has already been initialized?
-		this.ifAsserts(MIDIClient.initialized.not, "MIDIClient not initialized", {
-			this.assert(button1.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]] && button2.view.states == [["init MIDI", Color(), Color(0.0, 1.0)]], "MIDIClient not initialized")
-		});
-		button1.doAction;
-		this.ifAsserts(MIDIClient.initialized, "MIDIClient initialized", {
-			this.assert(button1.view.states == [["restart MIDI", Color(1.0, 1.0, 1.0), Color(1.0)]] && button2.view.states == [["restart MIDI", Color(1.0, 1.0, 1.0), Color(1.0)]], "MIDIClient initialized")
-		})
 	}
 
 	test_click {
-
+		this.ifAsserts(MIDIClient.initialized.not, "MIDIClient not initialized, test before init", {
+			this.assertEquals(button1.view.states, [["init MIDI", Color(), Color.green]], "button1.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] if MIDIClient has not yet been initialized");
+			this.assertEquals(button2.view.states, [["init MIDI", Color(), Color.green]], "button2.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] if MIDIClient has not yet been initialized");
+		}, {
+			this.assertEquals(button1.view.states, [["reinit MIDI", Color.white, Color.red]], "button1.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] if MIDIClient has already been initialized");
+			this.assertEquals(button2.view.states, [["reinit MIDI", Color.white, Color.red]], "button2.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] if MIDIClient has already been initialized");
+		});
+		button1.doAction;
+		this.assertEquals(button1.view.states, [["reinit MIDI", Color.white, Color.red]], "after clicking button1 button1.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]]");
+		this.assertEquals(button2.view.states, [["reinit MIDI", Color.white, Color.red]], "after clicking button1 button2.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] as well");
 	}
 
 }
@@ -479,7 +475,7 @@ TestMidiInitButton : UnitTest {
 TestMidiConnectorRemoveButton : UnitTest {
 	var button1, button2;
 
-	setup {
+	setUp {
 		button1 = MidiConnectorRemoveButton.new;
 		button2 = MidiConnectorRemoveButton.new;
 	}
