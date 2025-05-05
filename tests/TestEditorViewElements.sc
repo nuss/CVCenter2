@@ -382,12 +382,12 @@ TestMidiResolutionNumberBox : UnitTest {
 		this.assert(MidiResolutionNumberBox.all[widget].size == 2 and: {
 			MidiResolutionNumberBox.all[widget][0] === element1
 		}, "MidiResolutionNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
-		this.assertEquals(widget.syncKeys, [\default, \midiResolutionNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiResolutionNumberBox', after creating a new MidiResolutionNumberBox");
+		this.assertEquals(widget.syncKeys, [\default, \midiResolutionNumberBox], "The widget's 'syncKeys' should contain two Symbols, 'default' and 'midiResolutionNumberBox', after creating a new MidiResolutionNumberBox");
 		this.assert(element1.connector === widget.midiConnectors[0] and: {
 			element2.connector === widget.midiConnectors[0]
-		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
+		}, "The element's connector should be identical with the first connector in the widget's midiConnectors List");
 		element1.valueAction_(1);
-		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.string should return 1");
+		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.value should return 1");
 	}
 
 	test_index_ {
