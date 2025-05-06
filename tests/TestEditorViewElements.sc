@@ -470,28 +470,39 @@ TestMidiInitButton : UnitTest {
 
 }
 
-
-// TODO
 TestMidiConnectorRemoveButton : UnitTest {
-	var button1, button2;
+	var widget, button1, button2;
 
 	setUp {
-		button1 = MidiConnectorRemoveButton.new;
-		button2 = MidiConnectorRemoveButton.new;
+		widget = CVWidgetKnob(\test);
+		button1 = MidiConnectorRemoveButton.new(widget: widget);
+		button2 = MidiConnectorRemoveButton.new(widget: widget);
 	}
 
 	tearDown {
 		button1.remove;
 		button2.remove;
+		widget.remove;
 	}
 
 	test_new {
-
+		this.assertEquals(MidiConnectorRemoveButton.all[widget].size, 2, "After creating 2 MidiConnectorRemoveButton instances MidiInitButton.all[widget] should have a size of 2");
 	}
 
 	test_index_ {
-
+		this.assertEquals(widget.midiConnectors[0].name, 'MIDI Connection 1', "After creating a CVWidgetKnob it should hold one MidiConnector named 'MIDI Connection 1'");
+		widget.addMidiConnector;
+		button1.index_(1);
+		this.assertEquals(button1.connector.name, 'MIDI Connection 2', "After adding another MidiConnector to the CVWidgetKnob instance stored in widget and setting calling index_ with a value 1 on button1 button1.connector.name should return 'MIDI Connection 2'");
+		this.assertEquals(button2.connector.name, 'MIDI Connection 1', "After adding another MidiConnector to the CVWidgetKnob instance stored in widget and setting calling index_ with a value 1 on button1 button2.connector.name should return 'MIDI Connection 1'");
 	}
 
+	test_click {
+		widget.addMidiConnector;
+		button1.index_(1);
+		button2.doAction;
+		this.assertEquals(widget.midiConnectors.size, 1, "After adding another MidiConnector to the CVWidgetKnob stored in widget and clicking button2 widget.midiConnectors.size should return 1");
+		this.assertEquals([button1.connector.name, button2.connector.name], ['MIDI Connection 2', 'MIDI Connection 2'], "After adding another MidiConnector to the CVWidgetKnob stored in widget and clicking button2 both, button1's and button2's connectors, should hold the MidiConnector named 'MIDI Connection 2' as connector though index_(1) has only been called on button1");
+	}
 
 }
