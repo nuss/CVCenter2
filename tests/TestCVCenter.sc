@@ -17,7 +17,8 @@ TestCVCenter {
 			TestSnapDistanceNumberBox,
 			TestMidiResolutionNumberBox,
 			TestSlidersPerGroupNumberTF,
-			TestMidiInitButton
+			TestMidiInitButton,
+			TestMidiConnectorRemoveButton
 		].do(_.run)
 	}
 }
