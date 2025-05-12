@@ -8,3 +8,11 @@
 	}
 
 }
+
++Env {
+
+	multiChannelExpands { |env|
+		var test = { |arr| arr.flat.size > arr.numChannels };
+	}
+
+}
