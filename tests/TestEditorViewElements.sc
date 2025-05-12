@@ -102,6 +102,7 @@ TestMidiConnectorSelect : UnitTest {
 		element2.connector.name_("aaaaaa");
 		this.assertEquals(element1.items[1], \aaaaaa, "After calling element2.connector.name_(\"aaaaaa\") element1.items[1] should return 'aaaaaa'.");
 	}
+
 }
 
 TestMidiLearnButton : UnitTest {
@@ -446,8 +447,8 @@ TestMidiInitButton : UnitTest {
 	}
 
 	tearDown {
-		button1.remove;
-		button2.remove;
+		button1.close;
+		button2.close;
 	}
 
 	test_new {
@@ -480,8 +481,8 @@ TestMidiConnectorRemoveButton : UnitTest {
 	}
 
 	tearDown {
-		button1.remove;
-		button2.remove;
+		button1.close;
+		button2.close;
 		widget.remove;
 	}
 
