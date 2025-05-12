@@ -162,6 +162,12 @@ MidiConnector {
 		};
 		wmc.midiConnections.model.value.add(nil);
 
+		wmc.midiMappings ?? { wmc.midiMappings = () };
+		wmc.midiMappings.model ?? {
+			wmc.midiMappings.model = Ref(List[]);
+		};
+		wmc.midiMappings.model.value.add((mapping: \linlin));
+
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.model ?? {
 			wmc.midiDisplay.model = Ref(List[]);
@@ -191,6 +197,7 @@ MidiConnector {
 		#[
 			prInitMidiConnectorNames,
 			prInitMidiOptions,
+			prInitMidiMappings,
 			prInitMidiConnection,
 			prInitMidiDisplay
 		].do { |method|
@@ -297,6 +304,15 @@ MidiConnector {
 				allMidiFuncs[widget][index].clear;
 			};
 		})
+	}
+
+	prInitMidiMappings { |mc, cv|
+		mc.midiMappings.controller ?? {
+			mc.midiMappings = SimpleController(mc.midiMappings.model);
+		};
+		// mc.midiMappings.controller.put(\default, { |changer, what ... moreArgs|
+		// "yadda yadda: %".format(changer.value, what, moreArgs).postln;
+		// })
 	}
 
 	prInitMidiDisplay { |mc, cv|

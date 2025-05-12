@@ -1,6 +1,6 @@
 +SimpleNumber {
 
-	bilincurve { |inMin = -1, inMax = 1, inCenter, outMin = -1, outMax = 1, outCenter, curve = -4, clip = \minmax|
+	linbicurve { |inMin = -1, inMax = 1, inCenter, outMin = -1, outMax = 1, outCenter, curve = -4, clip = \minmax|
 		inCenter = inCenter ?? { inMin + inMax / 2 };
 		outCenter = outCenter ?? { outMin + outMax / 2 };
 
@@ -37,8 +37,8 @@
 
 +SequenceableCollection {
 
-	bilincurve { |...args|
-		^this.multiChannelPerform(\bilincurve, *args)
+	linbicurve { |...args|
+		^this.multiChannelPerform(\linbicurve, *args)
 	}
 
 	linenv { |...args|
