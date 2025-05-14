@@ -16,7 +16,7 @@
 		if (env.isNil or: { env.respondsTo(\asMultichannelSignal).not }) {
 			Error("No valid envelope given for linenv: %".format(env)).throw;
 		};
-		envVals = env.asMultichannelSignal(resolution, Array).unbubble;
+		envVals = env.asMultichannelSignal(resolution, Array).unbubble.normalize(outMin, outMax);
 		switch(clip,
 			\minmax, {
 				if(this <= inMin) { ^envVals.first * (outMax - outMin) + outMin };
