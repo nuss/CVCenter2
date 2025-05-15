@@ -1,29 +1,31 @@
 RampPlot : SCViewHolder {
+	var <>background, <>foreground;
+	var rampVals;
 
-	*new { |parent, rect, ramp = \linlin, background(Color(0.0, 0.0, 0.1)), foreground(Color.cyan)|
-		^super.new.init(parent, rect, ramp, background, foreground)
+	*new { |parent, rect, ramp = \linlin, background(Color.blue(0.1)), foreground(Color.cyan)|
+		^super.newCopyArgs(nil, background, foreground).init(parent, rect, ramp)
 	}
 
-	init { |parentView, rect, ramp, bgcolor, fgcolor|
-		var rampVals = this.prCreateRampVals(ramp);
-
+	init { |parentView, rect, ramp|
 		this.view = UserView(parentView, rect)
-		.background_(bgcolor);
-
-		this.view.drawFunc_({ |v|
-			Pen.strokeColor_(fgcolor).moveTo(0@this.view.bounds.height);
-			(rampVals.size - 1).do { |i|
-				Pen.lineTo(Point(
-					rampVals.size/this.view.bounds.width*(i+1),
-					rampVals[i+1]*this.view.bounds.height
-				).postln)
-			};
-			Pen.stroke;
-		})
+		.background_(this.background);
+		this.draw(ramp);
 	}
 
 	draw { |ramp|
-
+		this.view.background_(this.background);
+		rampVals = this.prCreateRampVals(ramp);
+		this.view.drawFunc_({ |v|
+			Pen.strokeColor_(this.foreground).moveTo(0@this.view.bounds.height);
+			(rampVals.size - 1).do { |i|
+				Pen.lineTo(Point(
+					this.view.bounds.width/rampVals.size*(i+1),
+					this.view.bounds.height-(rampVals[i+1] * this.view.bounds.height)
+				))
+			};
+			Pen.stroke;
+		});
+		this.view.refresh
 	}
 
 	prCreateRampVals { |ramp|
@@ -56,9 +58,7 @@ RampPlot : SCViewHolder {
 				^rampArray.linenv(0, 1, 0, 1, ramp, \minmax, rampArray.size)
 			}
 		}
-		{
-			^rampArray.perform(ramp.asSymbol, 0, 1, 0, 1)
-		}
+		{ ^rampArray.perform(ramp.asSymbol, 0.02, 1, 0.02, 1) }
 	}
 
 }
