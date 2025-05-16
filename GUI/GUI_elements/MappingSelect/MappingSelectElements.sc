@@ -1,8 +1,7 @@
 RampPlot : SCViewHolder {
 	var <>background, <>foreground;
-	var rampVals;
 
-	*new { |parent, rect, ramp = \linlin, background(Color.blue(0.1)), foreground(Color.cyan)|
+	*new { |parent, rect, ramp = \linlin, background(Color.blue(0.3)), foreground(Color.cyan)|
 		^super.newCopyArgs(nil, background, foreground).init(parent, rect, ramp)
 	}
 
@@ -13,10 +12,11 @@ RampPlot : SCViewHolder {
 	}
 
 	draw { |ramp|
+		var rampVals = this.prCreateRampVals(ramp);
+
 		this.view.background_(this.background);
-		rampVals = this.prCreateRampVals(ramp);
 		this.view.drawFunc_({ |v|
-			Pen.strokeColor_(this.foreground).moveTo(0@this.view.bounds.height);
+			Pen.strokeColor_(this.foreground).width_(2).moveTo(0@this.view.bounds.height);
 			(rampVals.size - 1).do { |i|
 				Pen.lineTo(Point(
 					this.view.bounds.width/rampVals.size*(i+1),
