@@ -162,11 +162,11 @@ MidiConnector {
 		};
 		wmc.midiConnections.model.value.add(nil);
 
-		wmc.midiMappings ?? { wmc.midiMappings = () };
-		wmc.midiMappings.model ?? {
-			wmc.midiMappings.model = Ref(List[]);
+		wmc.inputMappings ?? { wmc.inputMappings = () };
+		wmc.inputMappings.model ?? {
+			wmc.inputMappings.model = Ref(List[]);
 		};
-		wmc.midiMappings.model.value.add((mapping: \linlin));
+		wmc.inputMappings.model.value.add((mapping: \linlin));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.model ?? {
@@ -197,7 +197,7 @@ MidiConnector {
 		#[
 			prInitMidiConnectorNames,
 			prInitMidiOptions,
-			prInitMidiMappings,
+			prInitInputMappings,
 			prInitMidiConnection,
 			prInitMidiDisplay
 		].do { |method|
@@ -306,11 +306,11 @@ MidiConnector {
 		})
 	}
 
-	prInitMidiMappings { |mc, cv|
-		mc.midiMappings.controller ?? {
-			mc.midiMappings = SimpleController(mc.midiMappings.model);
+	prInitInputMappings { |mc, cv|
+		mc.inputMappings.controller ?? {
+			mc.inputMappings = SimpleController(mc.inputMappings.model);
 		};
-		// mc.midiMappings.controller.put(\default, { |changer, what ... moreArgs|
+		// mc.inputMappings.controller.put(\default, { |changer, what ... moreArgs|
 		// "yadda yadda: %".format(changer.value, what, moreArgs).postln;
 		// })
 	}
