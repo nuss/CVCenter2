@@ -61,7 +61,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
-		this.assertEquals(widget.wmc.keys, Set[\oscConnections, \cvSpec, \actions, \midiOptions, \oscDisplay, \oscInputRange, \midiDisplay, \oscCalibration, \midiConnections, \midiConnectorNames, \midiMappingConstrainters, \midiInputRange], "A CVWidgetKnob's wmc variable (an Event) should by default hold the following keys: \\oscConnectors, \\cvSpec, \\actions, \\midiOptions, \\oscDisplay, \\oscInputRange, \\midiDisplay, \\oscCalibration, \\midiConnectors, \\midiConnectorNames, \\midiMappingConstrainters, \\midiInputRange");
+		this.assertEquals(widget.wmc.keys, Set[\midiInputMappings, \actions, \oscInputRange, \oscCalibration, \midiMappingConstrainters, \oscConnections, \midiDisplay, \midiConnectorNames, \midiConnections, \midiOptions, \oscDisplay, \cvSpec], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
 		this.assertEquals(widget.oscConnectors.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.oscConnectors[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
 		this.assertEquals(widget.midiConnectors.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
