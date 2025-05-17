@@ -144,6 +144,7 @@ MidiConnector {
 	}
 
 	initModels { |wmc, name|
+		"initModels called: %".format(name).postln;
 		wmc.midiOptions ?? { wmc.midiOptions = () };
 		wmc.midiOptions.model ?? {
 			wmc.midiOptions.model = Ref(List[]);
@@ -162,11 +163,13 @@ MidiConnector {
 		};
 		wmc.midiConnections.model.value.add(nil);
 
-		wmc.inputMappings ?? { wmc.inputMappings = () };
-		wmc.inputMappings.model ?? {
-			wmc.inputMappings.model = Ref(List[]);
+		wmc.midiInputMappings ?? { wmc.midiInputMappings = () };
+		wmc.midiInputMappings.postln.model ?? {
+			wmc.midiInputMappings.model = Ref(List[]);
 		};
-		wmc.inputMappings.model.value.add((mapping: \linlin));
+		// FIXME: WTF???
+		// wmc.midiInputMappings.model.postln;
+		wmc.midiInputMappings.model.value.add((mapping: \linlin));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.model ?? {
@@ -185,7 +188,7 @@ MidiConnector {
 		};
 		wmc.midiConnectorNames.model.value.add(name);
 		// WIP
-		wmc.midiInputRange ?? { wmc.midiInputRange = () };
+		// wmc.midiInputRange ?? { wmc.midiInputRange = () };
 		wmc.midiMappingConstrainters ?? { wmc.midiMappingConstrainters = () };
 		wmc.midiMappingConstrainters.name ?? {
 			wmc.midiMappingConstrainters.put(name, (lo: CV([-inf, inf].asSpec), hi: CV([-inf, inf].asSpec)))
@@ -197,7 +200,7 @@ MidiConnector {
 		#[
 			prInitMidiConnectorNames,
 			prInitMidiOptions,
-			prInitInputMappings,
+			prInitMidiInputMappings,
 			prInitMidiConnection,
 			prInitMidiDisplay
 		].do { |method|
@@ -306,11 +309,11 @@ MidiConnector {
 		})
 	}
 
-	prInitInputMappings { |mc, cv|
-		mc.inputMappings.controller ?? {
-			mc.inputMappings = SimpleController(mc.inputMappings.model);
+	prInitMidiInputMappings { |mc, cv|
+		mc.midiInputMappings.controller ?? {
+			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
 		};
-		// mc.inputMappings.controller.put(\default, { |changer, what ... moreArgs|
+		// mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
 		// "yadda yadda: %".format(changer.value, what, moreArgs).postln;
 		// })
 	}
