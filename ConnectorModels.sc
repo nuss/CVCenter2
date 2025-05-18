@@ -167,8 +167,6 @@ MidiConnector {
 		wmc.midiInputMappings.postln.model ?? {
 			wmc.midiInputMappings.model = Ref(List[]);
 		};
-		// FIXME: WTF???
-		// wmc.midiInputMappings.model.postln;
 		wmc.midiInputMappings.model.value.add((mapping: \linlin));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
