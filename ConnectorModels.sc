@@ -144,7 +144,6 @@ MidiConnector {
 	}
 
 	initModels { |wmc, name|
-		"initModels called: %".format(name).postln;
 		wmc.midiOptions ?? { wmc.midiOptions = () };
 		wmc.midiOptions.model ?? {
 			wmc.midiOptions.model = Ref(List[]);
@@ -164,7 +163,7 @@ MidiConnector {
 		wmc.midiConnections.model.value.add(nil);
 
 		wmc.midiInputMappings ?? { wmc.midiInputMappings = () };
-		wmc.midiInputMappings.postln.model ?? {
+		wmc.midiInputMappings.model ?? {
 			wmc.midiInputMappings.model = Ref(List[]);
 		};
 		wmc.midiInputMappings.model.value.add((mapping: \linlin));
@@ -311,9 +310,9 @@ MidiConnector {
 		mc.midiInputMappings.controller ?? {
 			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
 		};
-		// mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
-		// "yadda yadda: %".format(changer.value, what, moreArgs).postln;
-		// })
+		mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
+			"yadda yadda: %".format(changer.value, what, moreArgs).postln;
+		})
 	}
 
 	prInitMidiDisplay { |mc, cv|
@@ -470,7 +469,7 @@ MidiConnector {
 					// to an index of one or more connectors
 					if (class.all.class == Event) {
 						class.all[widget] !? {
-							"index: %".format(index).postln;
+							// "index: %".format(index).postln;
 							if (widget.midiConnectors.size > 1 and: { index > 1 }) {
 								class.all[widget].do(_.index_(index - 1))
 							} {
