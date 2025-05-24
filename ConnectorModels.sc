@@ -311,7 +311,7 @@ MidiConnector {
 			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
 		};
 		mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
-			"yadda yadda: %".format(changer.value, what, moreArgs).postln;
+			"yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
 		})
 	}
 

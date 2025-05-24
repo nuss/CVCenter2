@@ -1,8 +1,8 @@
 MappingSelect : CompositeView {
 	classvar all;
-	var mc, connectors;
+	var mc, connectors, syncKey;
 	var <connector, <widget;
-	var e;
+	var <e;
 
 	*initClass {
 		all = ();
@@ -24,9 +24,11 @@ MappingSelect : CompositeView {
 		widget = wdgt;
 
 		connectorKind ?? {
-			Error("arg connectorKind in MappingSelect.new must either be 'midi' or 'osc'!").throw
+			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
 		};
 		connectorKind = connectorKind.asSymbol;
+
+
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
@@ -95,62 +97,69 @@ MappingSelect : CompositeView {
 				mc.model.value[i].env = nil;
 				mc.model.value[i].curve = nil;
 			};
-			mc.model.value.changedPerformKeys(widget.syncKeys, i);
-			mc.model.value[i].postln;
+			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.mcurve.action_({ |nb|
 			var i = connectors.indexOf(this.connector);
 			if (e.mselect.value == 4 or: e.mselect.value == 5) {
-				mc.model.value[i].curve = e.mcurve.value;
+				mc.model.value[i].curve = nb.value;
 			};
-			mc.model.value.changedPerformKeys(widget.syncKeys)
+			mc.model.changedPerformKeys(widget.syncKeys, i)
 		});
 		e.menv.action_({ |tf|
 			var i = connectors.indexOf(this.connector);
 			if (e.mselect.value == 6) {
 				try {
-					mc.model.value[i].env = e.menv.string.interpret
+					mc.model.value[i].env = tf.string.interpret
 				}  { |err|
-					"The given string doesn't compile to a valid Env: % (%)".format(e.menv.string, err).error
+					"The given string doesn't compile to a valid Env: % (%)".format(tf.string, err).error
 				};
-				mc.model.value.changedPerformKeys(widget.syncKeys)
+				mc.model.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
+
+		this.prAddController;
 	}
 
 	index_ { |connectorID|
 		var modelVal;
-
 		connector = connectors[connectorID];
-		modelVal = mc.model.value[connectorID];
-		modelVal !? {
-			e.mselect.value_(connectorID);
-			case
-			{ modelVal.mapping === \lincurve or: { modelVal.mapping === \linbicurve }} {
-				e.mplot.draw([modelVal.mapping, modelVal.curve]);
-				e.mcurve.value_(modelVal.mapping[1]).enabled_(true);
-				e.menv.string_((modelVal.env ? Env([0, 1], [1])).asCompileString).enabled_(false);
-			}
-			{ modelVal.mapping === \linenv and: { modelVal.env.class === Env }} {
-				e.mplot.draw(modelVal.env);
-				e.mcurve.value_(0).enabled_(false);
-				e.menv.string_(modelVal[1].asCompileString).enabled_(true);
-			}
-			{
-				modelVal.mapping !== \linenv and: {
-					modelVal.mapping !== \lincurve and: {
-						modelVal.mapping !== \linbicurve
-					}
-				}
-			} {
-				e.mplot.draw(modelVal.mapping);
-				e.mcurve.postln.value_(0).enabled_(false);
-				e.menv.string_((modelVal.env ? Env([0, 1], [1])).asCompileString).enabled_(false);
-			}
-		}
 	}
 
-	prAddController {}
+	prAddController {
+		var conID;
+		mc.controller ?? {
+			mc.controller = SimpleController(mc.model)
+		};
+		syncKey = \mappingSelect;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true);
+			mc.controller.put(syncKey, { |changer, what ... moreArgs|
+				conID = moreArgs[0];
+				all[widget].do { |ms, i|
+					if (ms.connector === connectors[conID]) {
+						ms.e.mselect.value_(e.mselect.items.indexOfEqual(changer.value[conID].mapping.asString));
+						case
+						{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
+							ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
+							ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
+							ms.e.menv.enabled_(false);
+						}
+						{ changer.value[conID].mapping === \linenv } {
+							ms.e.mcurve.enabled_(false);
+							ms.e.mplot.draw(changer.value[conID].env);
+							ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
+						}
+						{
+							ms.e.mcurve.enabled_(false);
+							ms.e.mplot.draw(changer.value[conID].mapping);
+							ms.e.menv.enabled_(false);
+						}
+					}
+				}
+			})
+		}
+	}
 
 	close {}
 
@@ -173,6 +182,8 @@ RampPlot : SCViewHolder {
 
 	draw { |ramp|
 		var rampVals = this.prCreateRampVals(ramp);
+
+		"ramp: % (%)".format(ramp, ramp.asCompileString).postln;
 
 		this.view.background_(this.background);
 		this.view.drawFunc_({ |v|
