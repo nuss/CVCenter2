@@ -3,6 +3,7 @@ MappingSelect : CompositeView {
 	var mc, connectors, syncKey;
 	var <connector, <widget;
 	var <e;
+	var defaultEnv;
 
 	*initClass {
 		all = ();
@@ -13,8 +14,10 @@ MappingSelect : CompositeView {
 	}
 
 	init { |parentView, wdgt, rect, index, connectorKind, layout|
-		var parent, row;
-		var ramp;
+		var parent, row, i;
+		var ramp, env;
+
+		defaultEnv = Env([0, 1], [1]);
 
 		all[wdgt] ?? {
 			all.put(wdgt, List[])
@@ -43,7 +46,9 @@ MappingSelect : CompositeView {
 
 		if (parentView.isNil) {
 			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), Rect(0, 0, 300, 65)).front
-		} { parent = parentView };
+		} {
+			parent = parentView;
+		};
 
 		ramp = switch (mc.model.value[index].mapping)
 		{ \linenv } { mc.model.value[index].env }
@@ -52,13 +57,26 @@ MappingSelect : CompositeView {
 		{ mc.model.value[index].mapping };
 
 		e = ();
-		e.mplot = RampPlot(parent, ramp: ramp);
-		e.mselect = PopUpMenu(parent).items_([
+		e.mplot = RampPlot(this, ramp: ramp);
+		e.mselect = PopUpMenu(this).items_([
 			"linlin", "linexp", "explin", "expexp", "lincurve", "linbicurve", "linenv"
 		]);
-		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12);
-		e.menv = TextField(parent)
+		e.mcurve = NumberBox(this).clipHi_(12).clipLo_(-12);
+		e.menv = TextField(this)
 		.string_((mc.model.value[index].env ? Env([0, 1], [1])).asCompileString);
+
+		case
+		{ mc.model.value[index].mapping === \lincurve or: { mc.model.value[index].mapping === \linbicurve }} {
+			e.mcurve.enabled_(true)
+		}
+		{ mc.model.value[index].mapping === \linenv } {
+			e.menv.enabled_(true)
+		}
+		{
+			e.menv.enabled_(false);
+			e.mcurve.enabled_(false);
+		};
+
 
 		if (layout.size > 1) {
 			parent.layout_(VLayout());
@@ -74,9 +92,14 @@ MappingSelect : CompositeView {
 		};
 
 		this.index_(index);
+		this.onClose_({ this.close });
 
 		e.mselect.action_({ |sel|
-			var i = connectors.indexOf(this.connector);
+			i = connectors.indexOf(this.connector);
+			env = if (e.menv.string.interpret.class == Env) {
+				e.menv.string.interpret
+			} { defaultEnv };
+
 			case
 			{ sel.value == 4 or: { sel.value == 5 }} {
 				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
@@ -84,13 +107,9 @@ MappingSelect : CompositeView {
 				mc.model.value[i].env = nil;
 			}
 			{ sel.value == 6 } {
-				try {
-					mc.model.value[i].env = e.menv.string.interpret;
-					mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
-					mc.model.value[i].curve = nil;
-				} { |err|
-					"The given string doesn't compile to a valid Env: % (%)".format(e.menv.string, err).error
-				}
+				mc.model.value[i].env = env;
+				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
+				mc.model.value[i].curve = nil;
 			}
 			{
 				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
@@ -100,20 +119,20 @@ MappingSelect : CompositeView {
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.mcurve.action_({ |nb|
-			var i = connectors.indexOf(this.connector);
-			if (e.mselect.value == 4 or: e.mselect.value == 5) {
+			i = connectors.indexOf(this.connector);
+			if (e.mselect.value == 4 or: { e.mselect.value == 5 }) {
 				mc.model.value[i].curve = nb.value;
-			};
-			mc.model.changedPerformKeys(widget.syncKeys, i)
+				mc.model.changedPerformKeys(widget.syncKeys, i)
+			}
 		});
 		e.menv.action_({ |tf|
-			var i = connectors.indexOf(this.connector);
+			i = connectors.indexOf(this.connector);
+			env = if (tf.string.interpret.class == Env) {
+				tf.string.interpret
+			} { defaultEnv };
+
 			if (e.mselect.value == 6) {
-				try {
-					mc.model.value[i].env = tf.string.interpret
-				}  { |err|
-					"The given string doesn't compile to a valid Env: % (%)".format(tf.string, err).error
-				};
+				mc.model.value[i].env = env;
 				mc.model.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
@@ -147,7 +166,7 @@ MappingSelect : CompositeView {
 						}
 						{ changer.value[conID].mapping === \linenv } {
 							ms.e.mcurve.enabled_(false);
-							ms.e.mplot.draw(changer.value[conID].env);
+							ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
 							ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
 						}
 						{
@@ -161,7 +180,14 @@ MappingSelect : CompositeView {
 		}
 	}
 
-	close {}
+	close {
+		all[widget].remove(this);
+		e.do(_.close);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
+	}
 
 }
 
@@ -178,6 +204,7 @@ RampPlot : SCViewHolder {
 		.minWidth_(40)
 		.minHeight_(25);
 		this.draw(ramp);
+		this.onClose_({ this.close });
 	}
 
 	draw { |ramp|
