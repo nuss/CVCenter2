@@ -45,10 +45,12 @@ MappingSelect : CompositeView {
 		// the kind of connector must be known by now, so, index_ should already know
 
 		if (parentView.isNil) {
-			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), Rect(0, 0, 300, 65)).front
+			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), Rect(0, 0, 300, 65))
 		} {
 			parent = parentView;
 		};
+
+		this.background_(Color(0, 1.0, 1.0, 0.3)).minHeight_(80);
 
 		ramp = switch (mc.model.value[index].mapping)
 		{ \linenv } { mc.model.value[index].env }
@@ -57,12 +59,12 @@ MappingSelect : CompositeView {
 		{ mc.model.value[index].mapping };
 
 		e = ();
-		e.mplot = RampPlot(this, ramp: ramp);
-		e.mselect = PopUpMenu(this).items_([
+		e.mplot = RampPlot(parent, ramp: ramp);
+		e.mselect = PopUpMenu(parent).items_([
 			"linlin", "linexp", "explin", "expexp", "lincurve", "linbicurve", "linenv"
-		]);
-		e.mcurve = NumberBox(this).clipHi_(12).clipLo_(-12);
-		e.menv = TextField(this)
+		]).minHeight_(30);
+		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(30);
+		e.menv = TextField(parent).minHeight_(30)
 		.string_((mc.model.value[index].env ? Env([0, 1], [1])).asCompileString);
 
 		case
@@ -79,16 +81,16 @@ MappingSelect : CompositeView {
 
 
 		if (layout.size > 1) {
-			parent.layout_(VLayout());
+			this.layout_(VLayout());
 			layout.size.do { |i|
 				row = HLayout();
 				layout[i].do { |k| row.add(e[k]) };
-				parent.layout.add(row)
+				this.layout.add(row)
 			};
 		} {
 			row = HLayout();
 			layout[0].do { |k| row.add(e[k]) };
-			parent.layout.add(row)
+			this.layout.add(row)
 		};
 
 		this.index_(index);
