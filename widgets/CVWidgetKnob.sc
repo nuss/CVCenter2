@@ -357,16 +357,46 @@ CVWidgetKnob : CVWidget {
 		};
 
 		if (connector.isNil) {
-			^midiConnectors.collect(_.getMidiResolution);
+			^midiConnectors.collect(_.getMidiResolution)
 		} {
-			^connector.getMidiResolution;
+			^connector.getMidiResolution
+		}
+	}
+
+	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1])), connector|
+		if (connector.isInteger) {
+			connector = midiConnectors[connector]
+		};
+
+		if (connector.isNil) {
+			midiConnectors.do(_.setMidiInputMapping(mapping, curve, env))
+		} {
+			connector.setMidiInputMapping(mapping, curve, env)
+		}
+	}
+
+	getMidiInputMapping { |connector|
+		if (connector.isInteger) {
+			connector = midiConnectors[connector]
+		};
+
+		if (connector.isNil) {
+			^midiConnectors.collect(_.getMidiInputMapping)
+		} {
+			^connector.getMidiInputMapping
 		}
 	}
 
 	midiConnect { |connector, src, chan, num|
 		// create new annonymous connector if none is given
 		connector ?? {
-			connector = MidiConnector(this);
+			if (midiConnectors.size == 1 and: {
+				wmc.midiConnections.model.value[0].isNil
+			}) {
+				connector = midiConnectors[0]
+			} {
+				connector = MidiConnector(this)
+			}
 		};
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]

@@ -237,6 +237,7 @@ MidiConnector {
 			var index = moreArgs[0];
 			// brute force fix - why is 'this' not considered correctly?
 			var self = widget.midiConnectors[index];
+			var inputMapping;
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -248,25 +249,27 @@ MidiConnector {
 					if (mc.midiConnections.model.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
 					// widget.midiConnectors.indexOf(this) !? {
 					// "my midiConnector's index: %, this: %, index: %".format(widget.midiConnectors.indexOf(this), this, index).postln;
-						self.getMidiMode.switch(
-							//  0-127
-							0, {
-								"midiMode is 0-127".postln;
-								if ((self.getSnapDistance <= 0).or(
-									val/127 < (cv.input + (self.getSnapDistance/2)) and: {
-										val/127 > (cv.input - (self.getSnapDistance/2))
-								})) {
-									cv.input_(val/127);
-									[val, cv.input, cv.value].postln;
-								};
-							},
-							// +/-
-							1, {
-								"midiMode is +/-".postln;
-								cv.input_(cv.input + (val-self.getMidiZero/127*self.getMidiResolution));
+					inputMapping = self.getMidiInputMapping;
+					"input mapping: %".format(inputMapping).postln;
+					self.getMidiMode.switch(
+						//  0-127
+						0, {
+							"midiMode is 0-127".postln;
+							if ((self.getSnapDistance <= 0).or(
+								val/127 < (cv.input + (self.getSnapDistance/2)) and: {
+									val/127 > (cv.input - (self.getSnapDistance/2))
+							})) {
+								cv.input_(val/127);
 								[val, cv.input, cv.value].postln;
-							}
-						)
+							};
+						},
+						// +/-
+						1, {
+							"midiMode is +/-".postln;
+							cv.input_(cv.input + (val-self.getMidiZero/127*self.getMidiResolution));
+							[val, cv.input, cv.value].postln;
+						}
+					)
 					// }
 				};
 				makeCCconnection = { |argSrc, argChan, argNum|
@@ -418,6 +421,36 @@ MidiConnector {
 	getMidiResolution {
 		var index = widget.midiConnectors.indexOf(this);
 		^widget.wmc.midiOptions.model.value[index].midiResolution;
+	}
+
+	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
+		var mc = widget.wmc;
+		var index = widget.midiConnectors.indexOf(this);
+		mapping = mapping.asSymbol;
+		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
+			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
+			^nil
+		};
+		mc.midiInputMappings.model.value[index].mapping = mapping;
+		case
+		{ mapping === \lincurve or: { mapping === \linbicurve }} {
+			mc.midiInputMappings.model.value[index].curve = curve;
+			mc.midiInputMappings.model.value[index].env = nil;
+		}
+		{ mapping === \linexp } {
+			mc.midiInputMappings.model.value[index].curve = nil;
+			mc.midiInputMappings.model.value[index].env = env;
+		}
+		{
+			mc.midiInputMappings.model.value[index].curve = nil;
+			mc.midiInputMappings.model.value[index].env = nil;
+		};
+		mc.midiInputMappings.model.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getMidiInputMapping {
+		var index = widget.midiConnectors.indexOf(this);
+		^widget.wmc.midiInputMappings.model.value[index];
 	}
 
 	midiConnect { |src, chan, num|
