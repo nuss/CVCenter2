@@ -50,7 +50,7 @@ MappingSelect : CompositeView {
 			parent = parentView;
 		};
 
-		this.background_(Color(0, 1.0, 1.0, 0.3)).minHeight_(80);
+		this.background_(Color.green(alpha: 0.5)).minHeight_(80);
 
 		ramp = switch (mc.model.value[index].mapping)
 		{ \linenv } { mc.model.value[index].env }
@@ -59,12 +59,12 @@ MappingSelect : CompositeView {
 		{ mc.model.value[index].mapping };
 
 		e = ();
-		e.mplot = RampPlot(parent, ramp: ramp);
+		e.mplot = RampPlot(parent, ramp: ramp).maxHeight_(25);
 		e.mselect = PopUpMenu(parent).items_([
 			"linlin", "linexp", "explin", "expexp", "lincurve", "linbicurve", "linenv"
-		]).minHeight_(30);
-		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(30);
-		e.menv = TextField(parent).minHeight_(30)
+		]).minHeight_(25);
+		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(25);
+		e.menv = TextField(parent).minHeight_(25)
 		.string_((mc.model.value[index].env ? Env([0, 1], [1])).asCompileString);
 
 		case

@@ -116,7 +116,7 @@ MidiConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 280))
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 375))
 		} { parent = parentView };
 
 		parent.onClose_({
@@ -174,13 +174,13 @@ MidiConnectorsEditorView : CompositeView {
 					[e.slidersPerGroupTF, stretch: 3]
 				),
 				HLayout(
+					[e.mappingSelect]
+				),
+				HLayout(
 					[e.midiLearnButton, stretch: 1],
 					[e.midiSrcSelect, stretch: 4],
 					[e.midiChanTF, stretch: 4],
 					[e.midiNumTF, stretch: 4]
-				),
-				HLayout(
-					[e.mappingSelect]
 				),
 				HLayout(
 					[e.midiInit],
