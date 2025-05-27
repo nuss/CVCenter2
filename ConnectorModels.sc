@@ -475,7 +475,7 @@ MidiConnector {
 
 	remove { |forceAll = false|
 		var index = widget.midiConnectors.indexOf(this);
-		var names;
+		var names, allMS;
 		this.midiDisconnect;
 
 		if (widget.midiConnectors.size > 1 or: { forceAll }) {
@@ -485,7 +485,8 @@ MidiConnector {
 				widget.wmc.midiOptions.model.value,
 				widget.wmc.midiConnections.model.value,
 				widget.wmc.midiDisplay.model.value,
-				widget.wmc.midiConnectorNames.model.value
+				widget.wmc.midiConnectorNames.model.value,
+				widget.wmc.midiInputMappings.model.value
 			].do(_.removeAt(index));
 			widget.midiConnectors.remove(this);
 			widget.midiConnectors.changed(\value);
@@ -502,13 +503,22 @@ MidiConnector {
 					// to an index of one or more connectors
 					if (class.all.class == Event) {
 						class.all[widget] !? {
-							// "index: %".format(index).postln;
 							if (widget.midiConnectors.size > 1 and: { index > 1 }) {
 								class.all[widget].do(_.index_(index - 1))
 							} {
 								class.all[widget].do(_.index_(index))
 							}
 						}
+					}
+				}
+			};
+			\MappingSelect.asClass !? {
+				\MappingSelect.asClass.all[widget] !? {
+					allMS = \MappingSelect.asClass.all[widget];
+					if (widget.midiConnectors.size > 1 and: { index > 1 }) {
+						allMS.do(_.index_(index - 1))
+					} {
+						allMS.do(_.index_(index))
 					}
 				}
 			}

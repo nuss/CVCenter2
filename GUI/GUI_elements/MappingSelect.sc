@@ -145,6 +145,25 @@ MappingSelect : CompositeView {
 	index_ { |connectorID|
 		var modelVal;
 		connector = connectors[connectorID];
+		e.mselect.value_(e.mselect.items.indexOfEqual(mc.model.value[connectorID].mapping.asString));
+		e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
+		e.menv.string_((mc.model.value[connectorID].env ? defaultEnv).asCompileString);
+		case
+		{ mc.model.value[connectorID].mapping === \lincurve or: { mc.model.value[connectorID].mapping === \linbicurve }} {
+			e.mplot.draw([mc.model.value[connectorID].mapping, mc.model.value[connectorID].curve]);
+			e.menv.enabled_(false);
+			e.mcurve.enabled_(true);
+		}
+		{ mc.model.value[connectorID].mapping === \linenv } {
+			e.mplot.draw(mc.model.value[connectorID].env);
+			e.menv.enabled_(true);
+			e.mcurve.enabled_(false);
+		}
+		{
+			e.mplot.draw(mc.model.value[connectorID].mapping);
+			e.menv.enabled_(false);
+			e.mcurve.enabled_(false);
+		}
 	}
 
 	prAddController {
@@ -211,8 +230,6 @@ RampPlot : SCViewHolder {
 
 	draw { |ramp|
 		var rampVals = this.prCreateRampVals(ramp);
-
-		"ramp: % (%)".format(ramp, ramp.asCompileString).postln;
 
 		this.view.background_(this.background);
 		this.view.drawFunc_({ |v|
