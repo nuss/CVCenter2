@@ -1,5 +1,5 @@
 MappingSelect : CompositeView {
-	classvar all;
+	classvar <all;
 	var mc, connectors, syncKey;
 	var <connector, <widget;
 	var <e;
@@ -69,10 +69,12 @@ MappingSelect : CompositeView {
 
 		case
 		{ mc.model.value[index].mapping === \lincurve or: { mc.model.value[index].mapping === \linbicurve }} {
-			e.mcurve.enabled_(true)
+			e.mcurve.enabled_(true);
+			e.menv.enabled_(false);
 		}
 		{ mc.model.value[index].mapping === \linenv } {
-			e.menv.enabled_(true)
+			e.menv.enabled_(true);
+			e.mcurve.enabled_(false);
 		}
 		{
 			e.menv.enabled_(false);
@@ -143,7 +145,7 @@ MappingSelect : CompositeView {
 	}
 
 	index_ { |connectorID|
-		var modelVal;
+		"connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
 		e.mselect.value_(e.mselect.items.indexOfEqual(mc.model.value[connectorID].mapping.asString));
 		e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
