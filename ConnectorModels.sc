@@ -476,9 +476,9 @@ MidiConnector {
 	remove { |forceAll = false|
 		var index = widget.midiConnectors.indexOf(this);
 		var names, allMS;
-		this.midiDisconnect;
 
 		if (widget.midiConnectors.size > 1 or: { forceAll }) {
+			this.midiDisconnect;
 			allMidiFuncs[widget][index].free;
 			allMidiFuncs[widget].removeAt(index);
 			[
@@ -503,7 +503,7 @@ MidiConnector {
 					// to an index of one or more connectors
 					if (class.all.class == Event) {
 						class.all[widget] !? {
-							if (widget.midiConnectors.size > 1 and: { index > 1 }) {
+							if (index > 0) {
 								class.all[widget].do(_.index_(index - 1))
 							} {
 								class.all[widget].do(_.index_(index))
@@ -515,7 +515,7 @@ MidiConnector {
 			\MappingSelect.asClass !? {
 				\MappingSelect.asClass.all[widget] !? {
 					allMS = \MappingSelect.asClass.all[widget];
-					if (widget.midiConnectors.size > 1 and: { index > 1 }) {
+					if (index > 0) {
 						allMS.do(_.index_(index - 1))
 					} {
 						allMS.do(_.index_(index))
