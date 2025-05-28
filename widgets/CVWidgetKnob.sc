@@ -112,7 +112,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getSpec {
-		^cv.spec;
+		^wmc.cvSpec.model.value;
 	}
 
 	// CV actions

@@ -237,7 +237,7 @@ MidiConnector {
 			var index = moreArgs[0];
 			// brute force fix - why is 'this' not considered correctly?
 			var self = widget.midiConnectors[index];
-			var inputMapping;
+			var inputMapping, input;
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -250,28 +250,76 @@ MidiConnector {
 					// widget.midiConnectors.indexOf(this) !? {
 					// "my midiConnector's index: %, this: %, index: %".format(widget.midiConnectors.indexOf(this), this, index).postln;
 					inputMapping = self.getMidiInputMapping;
-					"input mapping: %".format(inputMapping).postln;
+					// "input mapping: %".format(inputMapping).postln;
 					self.getMidiMode.switch(
 						//  0-127
 						0, {
 							"midiMode is 0-127".postln;
+							input = val/127;
 							if ((self.getSnapDistance <= 0).or(
-								val/127 < (cv.input + (self.getSnapDistance/2)) and: {
-									val/127 > (cv.input - (self.getSnapDistance/2))
+								input < (cv.input + (self.getSnapDistance/2)) and: {
+									input > (cv.input - (self.getSnapDistance/2))
 							})) {
-								cv.input_(val/127);
-								[val, cv.input, cv.value].postln;
-							};
+								case
+								{ inputMapping.mapping === \lincurve } {
+									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								}
+								{ inputMapping.mapping === \linbicurve } {
+									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								}
+								{ inputMapping.mapping === \linenv } {
+									cv.input_(input.linenv(env: inputMapping.env))
+								}
+								{ inputMapping.mapping === \explin } {
+									cv.input_((input+1).explin(1, 2, 0, 1))
+								}
+								{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
+									if (widget.getSpec.postln.hasZeroCrossing) {
+										self.setMidiInputMapping(\linlin);
+										cv.input_(input.linlin(0, 1, 0, 1))
+									} {
+										cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+									}
+								}
+								{
+									// "cv.input before: %".format(cv.input).postln;
+									cv.input_(input);
+									// "cv.input after: %".format(cv.input).postln;
+								}
+							}
 						},
 						// +/-
 						1, {
 							"midiMode is +/-".postln;
-							cv.input_(cv.input + (val-self.getMidiZero/127*self.getMidiResolution));
-							[val, cv.input, cv.value].postln;
+							input = cv.input + (val-self.getMidiZero/127*self.getMidiResolution);
+							case
+							{ inputMapping.mapping === \lincurve } {
+								cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+							}
+							{ inputMapping.mapping === \linbicurve } {
+								cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+							}
+							{ inputMapping.mapping === \linenv } {
+								cv.input_(input.linenv(env: inputMapping.env))
+							}
+							{ inputMapping.mapping === \explin } {
+								cv.input_((input+1).explin(1, 2, 0, 1))
+							}
+							{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
+								if (widget.getSpec.hasZeroCrossing) {
+									self.setMidiInputMapping(\linlin);
+									cv.input_(input.linlin(0, 1, 0, 1))
+								} {
+									cv.value_((input+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+								}
+							}
+							{ cv.input_(input.linlin(0, 1, 0, 1)) };
 						}
-					)
+					);
+					[val/127, cv.input, cv.value].postln;
 					// }
 				};
+				// "widget: %, index: %".format(widget, index).postln;
 				makeCCconnection = { |argSrc, argChan, argNum|
 					if (allMidiFuncs[widget][index].isNil or: {
 						allMidiFuncs[widget][index].func.isNil
