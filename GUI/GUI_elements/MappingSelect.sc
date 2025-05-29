@@ -180,23 +180,25 @@ MappingSelect : CompositeView {
 				conID = moreArgs[0];
 				all[widget].do { |ms, i|
 					if (ms.connector === connectors[conID]) {
-						ms.e.mselect.value_(e.mselect.items.indexOfEqual(changer.value[conID].mapping.asString));
-						case
-						{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
-							ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
-							ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
-							ms.e.menv.enabled_(false);
-						}
-						{ changer.value[conID].mapping === \linenv } {
-							ms.e.mcurve.enabled_(false);
-							ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
-							ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
-						}
 						{
-							ms.e.mcurve.enabled_(false);
-							ms.e.mplot.draw(changer.value[conID].mapping);
-							ms.e.menv.enabled_(false);
-						}
+							ms.e.mselect.value_(e.mselect.items.indexOfEqual(changer.value[conID].mapping.asString));
+							case
+							{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
+								ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
+								ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
+								ms.e.menv.enabled_(false);
+							}
+							{ changer.value[conID].mapping === \linenv } {
+								ms.e.mcurve.enabled_(false);
+								ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
+								ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
+							}
+							{
+								ms.e.mcurve.enabled_(false);
+								ms.e.mplot.draw(changer.value[conID].mapping);
+								ms.e.menv.enabled_(false);
+							}
+						}.defer
 					}
 				}
 			})
