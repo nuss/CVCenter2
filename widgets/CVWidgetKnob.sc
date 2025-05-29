@@ -112,7 +112,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getSpec {
-		^wmc.cvSpec.model.value;
+		^this.cv.spec;
 	}
 
 	// CV actions
@@ -471,7 +471,7 @@ CVWidgetKnob : CVWidget {
 			wmc.cvSpec.controller = SimpleController(wmc.cvSpec.model);
 		};
 		wmc.cvSpec.controller.put(\default, { |changer, what, moreArgs|
-			cv.spec_(changer.value);
+			this.cv.spec_(changer.value);
 		})
 	}
 
