@@ -238,6 +238,9 @@ MidiConnector {
 			// brute force fix - why is 'this' not considered correctly?
 			var self = widget.midiConnectors[index];
 			var inputMapping, input;
+			// for endless mode we're going to perate on a linearly in-/decremented value,
+			// starting at the CV's current input (value normalized from 0 to 1)
+			var accu = cv.input;
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -247,10 +250,7 @@ MidiConnector {
 					// MIDI learn
 					// we must infer the connections parameters here
 					if (mc.midiConnections.model.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
-					// widget.midiConnectors.indexOf(this) !? {
-					// "my midiConnector's index: %, this: %, index: %".format(widget.midiConnectors.indexOf(this), this, index).postln;
 					inputMapping = self.getMidiInputMapping;
-					// "input mapping: %".format(inputMapping).postln;
 					self.getMidiMode.switch(
 						//  0-127
 						0, {
@@ -262,64 +262,83 @@ MidiConnector {
 							})) {
 								case
 								{ inputMapping.mapping === \lincurve } {
-									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+									if (inputMapping.curve != 0 and: { self.getSnapDistance > 0 }) {
+										self.setSnapDistance(0)
+									};
+									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linbicurve } {
-									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+									if (inputMapping.curve != 0 and: { self.getSnapDistance > 0 }) {
+										self.setSnapDistance(0)
+									};
+									cv.input_(input.postln.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linenv } {
+									if (self.getSnapDistance > 0) {
+										self.setSnapDistance(0)
+									};
 									cv.input_(input.linenv(env: inputMapping.env))
 								}
 								{ inputMapping.mapping === \explin } {
+									if (self.getSnapDistance > 0) {
+										self.setSnapDistance(0)
+									};
 									cv.input_((input+1).explin(1, 2, 0, 1))
 								}
 								{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
-									if (widget.getSpec.postln.hasZeroCrossing) {
+									if (widget.getSpec.hasZeroCrossing and: { self.getMidiInputMapping !== \linlin}) {
 										self.setMidiInputMapping(\linlin);
 										cv.input_(input.linlin(0, 1, 0, 1))
 									} {
+										if (self.getSnapDistance > 0) {
+											self.setSnapDistance(0)
+										};
 										cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
 									}
 								}
 								{
-									// "cv.input before: %".format(cv.input).postln;
 									cv.input_(input);
-									// "cv.input after: %".format(cv.input).postln;
 								}
 							}
 						},
-						// +/-
+						// endless mode
 						1, {
 							"midiMode is +/-".postln;
-							input = cv.input + (val-self.getMidiZero/127*self.getMidiResolution);
+							// we can't use cv.input (range: 0-1) in curved ramps or enveloped ramps
+							// accumulation must happen within a linear ramp
+							accu = accu + (val-self.getMidiZero/127*self.getMidiResolution);
+
+							// accumulation is by default not linmited like cv.input
+							case
+							{ accu < 0 } { accu = 0 }
+							{ accu > 1 } { accu = 1 };
+
 							case
 							{ inputMapping.mapping === \lincurve } {
-								cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								cv.input_(accu.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
 							}
 							{ inputMapping.mapping === \linbicurve } {
-								cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								cv.input_(accu.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
 							}
 							{ inputMapping.mapping === \linenv } {
-								cv.input_(input.linenv(env: inputMapping.env))
+								cv.input_(accu.linenv(env: inputMapping.env))
 							}
 							{ inputMapping.mapping === \explin } {
-								cv.input_((input+1).explin(1, 2, 0, 1))
+								cv.input_((accu+1).explin(1, 2, 0, 1))
 							}
 							{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
 								if (widget.getSpec.hasZeroCrossing) {
 									self.setMidiInputMapping(\linlin);
-									cv.input_(input.linlin(0, 1, 0, 1))
+									cv.input_(accu)
 								} {
-									cv.value_((input+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+									cv.value_((accu+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
 								}
 							}
-							{ cv.input_(input.linlin(0, 1, 0, 1)) };
+							{ cv.input_(accu) };
 						}
 					);
-					[val/127, cv.input, cv.value].postln;
-					// }
+					// [val/127, cv.input, cv.value].postln;
 				};
-				// "widget: %, index: %".format(widget, index).postln;
 				makeCCconnection = { |argSrc, argChan, argNum|
 					if (allMidiFuncs[widget][index].isNil or: {
 						allMidiFuncs[widget][index].func.isNil

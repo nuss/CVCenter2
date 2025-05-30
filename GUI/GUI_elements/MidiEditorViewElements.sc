@@ -21,7 +21,6 @@ MidiConnectorNameField : ConnectorElementView {
 		this.view = TextField(parentView, rect);
 		this.index_(index);
 		this.view.action_({ |tf|
-			// widget.midiConnectors[index].name_(tf.string.asSymbol)
 			this.connector.name_(tf.string.asSymbol)
 		});
 		this.view.onClose_({ this.close });
@@ -486,7 +485,7 @@ MidiModeSelect : ConnectorElementView {
 				all[widget].do { |sel|
 					// [sel.connector, widget.midiConnectors[conID], this.connector].postln;
 					if (sel.connector === widget.midiConnectors[conID]) {
-						sel.view.value_(changer[conID].value.midiMode)
+						defer { sel.view.value_(changer[conID].value.midiMode) }
 					}
 				}
 			})
@@ -542,7 +541,7 @@ MidiZeroNumberBox : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |nb|
 					if (nb.connector === widget.midiConnectors[conID]) {
-						nb.view.value_(changer[conID].value.midiZero)
+						defer { nb.view.value_(changer[conID].value.midiZero) }
 					}
 				}
 			})
@@ -598,7 +597,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |nb|
 					if (nb.connector === widget.midiConnectors[conID]) {
-						nb.view.value_(changer.value[conID].snapDistance)
+						defer { nb.view.value_(changer.value[conID].snapDistance) }
 					}
 				}
 			})
@@ -654,7 +653,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |nb|
 					if (nb.connector === widget.midiConnectors[conID]) {
-						nb.view.value_(changer.value[conID].midiResolution)
+						defer { nb.view.value_(changer.value[conID].midiResolution) }
 					}
 				}
 			})
@@ -712,7 +711,7 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 				conID = moreArgs[0];
 				all[widget].do { |tf|
 					if (tf.connector === widget.midiConnectors[conID]) {
-						tf.view.string_(changer.value[conID].ctrlButtonGroup)
+						defer { tf.view.string_(changer.value[conID].ctrlButtonGroup) }
 					}
 				}
 			})
