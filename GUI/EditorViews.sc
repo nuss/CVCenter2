@@ -154,11 +154,11 @@ MidiConnectorsEditorView : CompositeView {
 					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI mode: 0-127 or in/decremental "), stretch: 7],
+					[StaticText(parent).string_("MIDI mode: 0-127 or endless "), stretch: 7],
 					[e.midiModeSelect, stretch: 3]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI mean (in/decremental mode only): "), stretch: 7],
+					[StaticText(parent).string_("MIDI mean (endless mode only): "), stretch: 7],
 					[e.midiZeroBox, stretch: 3]
 				),
 				HLayout(
@@ -166,7 +166,7 @@ MidiConnectorsEditorView : CompositeView {
 					[e.snapDistanceBox, stretch: 3]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI resolution (+/- only): "), stretch: 7],
+					[StaticText(parent).string_("MIDI resolution (endless mode only): "), stretch: 7],
 					[e.midiResolutionBox, stretch: 3]
 				),
 				HLayout(

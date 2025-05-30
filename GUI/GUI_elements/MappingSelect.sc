@@ -61,7 +61,7 @@ MappingSelect : CompositeView {
 		e = ();
 		e.mplot = RampPlot(parent, ramp: ramp).maxHeight_(25);
 		e.mselect = PopUpMenu(parent).items_([
-			"linlin", "linexp", "explin", "expexp", "lincurve", "linbicurve", "linenv"
+			\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv
 		]).minHeight_(25);
 		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(25);
 		e.menv = TextField(parent).minHeight_(25)
@@ -106,17 +106,17 @@ MappingSelect : CompositeView {
 
 			case
 			{ sel.value == 4 or: { sel.value == 5 }} {
-				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
+				mc.model.value[i].mapping = sel.items[sel.value];
 				mc.model.value[i].curve = e.mcurve.value;
 				mc.model.value[i].env = nil;
 			}
 			{ sel.value == 6 } {
 				mc.model.value[i].env = env;
-				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
+				mc.model.value[i].mapping = sel.items[sel.value];
 				mc.model.value[i].curve = nil;
 			}
 			{
-				mc.model.value[i].mapping = sel.items[sel.value].asSymbol;
+				mc.model.value[i].mapping = sel.items[sel.value];
 				mc.model.value[i].env = nil;
 				mc.model.value[i].curve = nil;
 			};
@@ -145,9 +145,9 @@ MappingSelect : CompositeView {
 	}
 
 	index_ { |connectorID|
-		"connectorID: %".format(connectorID).postln;
+		// "connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
-		e.mselect.value_(e.mselect.items.indexOfEqual(mc.model.value[connectorID].mapping.asString));
+		e.mselect.value_(e.mselect.items.indexOf(mc.model.value[connectorID].mapping));
 		e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
 		e.menv.string_((mc.model.value[connectorID].env ? defaultEnv).asCompileString);
 		case
@@ -181,7 +181,7 @@ MappingSelect : CompositeView {
 				all[widget].do { |ms, i|
 					if (ms.connector === connectors[conID]) {
 						{
-							ms.e.mselect.value_(e.mselect.items.indexOfEqual(changer.value[conID].mapping.asString));
+							ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID].mapping));
 							case
 							{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
 								ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);

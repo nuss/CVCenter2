@@ -453,12 +453,12 @@ MidiModeSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		this.view = PopUpMenu(parentView, rect).items_(["0-127", "+/-"]);
+		this.view = PopUpMenu(parentView, rect).items_(["0-127", "endless"]);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(this.connector);
-			"My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
+			// "My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
 			this.connector.setMidiMode(sel.value);
 		});
 		this.prAddController;
