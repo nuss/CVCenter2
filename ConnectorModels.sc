@@ -254,7 +254,6 @@ MidiConnector {
 					self.getMidiMode.switch(
 						//  0-127
 						0, {
-							"midiMode is 0-127".postln;
 							input = val/127;
 							if ((self.getSnapDistance <= 0).or(
 								input < (cv.input + (self.getSnapDistance/2)) and: {
@@ -271,7 +270,7 @@ MidiConnector {
 									if (inputMapping.curve != 0 and: { self.getSnapDistance > 0 }) {
 										self.setSnapDistance(0)
 									};
-									cv.input_(input.postln.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linenv } {
 									if (self.getSnapDistance > 0) {
@@ -303,7 +302,7 @@ MidiConnector {
 						},
 						// endless mode
 						1, {
-							"midiMode is +/-".postln;
+							// "midiMode is endless".postln;
 							// we can't use cv.input (range: 0-1) in curved ramps or enveloped ramps
 							// accumulation must happen within a linear ramp
 							accu = accu + (val-self.getMidiZero/127*self.getMidiResolution);
@@ -315,10 +314,10 @@ MidiConnector {
 
 							case
 							{ inputMapping.mapping === \lincurve } {
-								cv.input_(accu.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								cv.input_(accu.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 							}
 							{ inputMapping.mapping === \linbicurve } {
-								cv.input_(accu.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve.postln).postln)
+								cv.input_(accu.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 							}
 							{ inputMapping.mapping === \linenv } {
 								cv.input_(accu.linenv(env: inputMapping.env))
@@ -380,9 +379,9 @@ MidiConnector {
 		mc.midiInputMappings.controller ?? {
 			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
 		};
-		mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
-			"yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
-		})
+		// mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
+		// 	"yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
+		// })
 	}
 
 	prInitMidiDisplay { |mc, cv|
