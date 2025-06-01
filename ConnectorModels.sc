@@ -114,14 +114,14 @@ OscConnector {
 MidiConnector {
 	classvar cAnons = 0;
 	classvar allMidiFuncs;
-	classvar accus;
+	classvar accum;
 	var <widget;
 
 	*initClass {
 		allMidiFuncs = ();
-		// input accumulation of input on a linear range in 'endless' mode
+		// input accumulation of input in a linear range in 'endless' mode
 		// see ccAction in prInitMidiConnection
-		accus = ();
+		accum = ();
 	}
 
 	*new { |widget, name|
@@ -245,7 +245,7 @@ MidiConnector {
 			// for endless mode we're going to perate on a linearly in-/decremented value,
 			// starting at the CV's current input (value normalized from 0 to 1)
 
-			accus[widget] ?? { accus[widget] = cv.input };
+			accum[widget] ?? { accum[widget] = cv.input };
 
 			if (changer[index].value.class == Event) {
 				slotChanger = changer[index].value;
@@ -305,42 +305,42 @@ MidiConnector {
 								}
 							};
 							// avoid jumps if another endless connection exists
-							accus[widget] = cv.input;
+							accum[widget] = cv.input;
 						},
 						// endless mode
 						1, {
 							// "midiMode is endless".postln;
 							// we can't use cv.input (range: 0-1) in curved ramps or enveloped ramps
 							// accumulation must happen within a linear ramp
-							accus[widget] = accus[widget] + (val-self.getMidiZero/127*self.getMidiResolution);
+							accum[widget] = accum[widget] + (val-self.getMidiZero/127*self.getMidiResolution);
 
-							// accumulation is by default not linmited like cv.input
+							// accumulation is by default not limited like cv.input
 							case
-							{ accus[widget] < 0 } { accus[widget] = 0 }
-							{ accus[widget] > 1 } { accus[widget] = 1 };
+							{ accum[widget] < 0 } { accum[widget] = 0 }
+							{ accum[widget] > 1 } { accum[widget] = 1 };
 
 							case
 							{ inputMapping.mapping === \lincurve } {
-								cv.input_(accus[widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+								cv.input_(accum[widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 							}
 							{ inputMapping.mapping === \linbicurve } {
-								cv.input_(accus[widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+								cv.input_(accum[widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 							}
 							{ inputMapping.mapping === \linenv } {
-								cv.input_(accus[widget].linenv(env: inputMapping.env))
+								cv.input_(accum[widget].linenv(env: inputMapping.env))
 							}
 							{ inputMapping.mapping === \explin } {
-								cv.input_((accus[widget]+1).explin(1, 2, 0, 1))
+								cv.input_((accum[widget]+1).explin(1, 2, 0, 1))
 							}
 							{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
 								if (widget.getSpec.hasZeroCrossing) {
 									self.setMidiInputMapping(\linlin);
-									cv.input_(accus[widget])
+									cv.input_(accum[widget])
 								} {
-									cv.value_((accus[widget]+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+									cv.value_((accum[widget]+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
 								}
 							}
-							{ cv.input_(accus[widget]) };
+							{ cv.input_(accum[widget]) };
 						}
 					);
 					// [val/127, cv.input, cv.value].postln;
@@ -378,9 +378,9 @@ MidiConnector {
 				);
 				mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
 				allMidiFuncs[widget][index].clear;
-				if (mc.midiConnections.model.value[index].select(_.notNil).isEmpty) {
-					// no conections for widget, uninitialize accus[widget]
-					accus[widget] = nil;
+				if (mc.midiConnections.model.value.select(_.notNil).isEmpty) {
+					// no conections for widget, uninitialize accum[widget]
+					accum[widget] = nil;
 				}
 			};
 		})
