@@ -138,7 +138,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiZeroBox = MidiZeroNumberBox(parent, widget, connectorID: index);
 		e.snapDistanceBox = SnapDistanceNumberBox(parent, widget, connectorID: index);
 		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
-		e.slidersPerGroupTF = SlidersPerGroupNumberTF(parent, widget, connectorID: index);
+		e.slidersPerGroupNB = SlidersPerGroupNumberBox(parent, widget, connectorID: index);
 		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
 		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID: index);
 		e.midiChanTF = MidiChanField(parent, widget, connectorID: index);
@@ -171,7 +171,7 @@ MidiConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[StaticText(parent).string_("Number of sliders per bank: "), stretch: 7],
-					[e.slidersPerGroupTF, stretch: 3]
+					[e.slidersPerGroupNB, stretch: 3]
 				),
 				HLayout(
 					[e.mappingSelect]

@@ -567,7 +567,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
-		this.view = NumberBox(parentView, rect).step_(0.1).clipLo_(0.0).clipHi_(1.0);
+		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
@@ -623,11 +623,10 @@ MidiResolutionNumberBox : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
-		this.view = NumberBox(parentView, rect);
+		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setMidiResolution(nb.value);
 		});
 		this.prAddController;
@@ -661,7 +660,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 	}
 }
 
-SlidersPerGroupNumberTF : ConnectorElementView {
+SlidersPerGroupNumberBox : ConnectorElementView {
 	classvar <all;
 	var <connector, <widget;
 
@@ -679,14 +678,11 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 
 		widget = wdgt;
 		mc = widget.wmc.midiOptions;
-		// TODO: make this a NumberBox starting at 0 (where 0 means nil)
-		this.view = TextField(parentView, rect);
+		this.view = NumberBox(parentView, rect).clipLo_(1).step_(1).scroll_step_(1);
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		this.view.action_({ |tf|
-			var ctrlb = if (tf.string.size.asBoolean) { tf.string };
-			// preliminary fix!!
-			this.connector.setCtrlButtonGroup(ctrlb.asInteger)
+		this.view.action_({ |nb|
+			this.connector.setCtrlButtonGroup(nb.value.asInteger)
 		});
 		this.prAddController;
 	}
@@ -695,7 +691,7 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
 		mc.model.value[connectorID] !? {
-			this.view.string_(mc.model.value[connectorID].ctrlButtonGroup)
+			this.view.value_(mc.model.value[connectorID].ctrlButtonGroup)
 		}
 	}
 
@@ -704,14 +700,14 @@ SlidersPerGroupNumberTF : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \slidersPerGroupNumberTF;
+		syncKey = \slidersPerGroupNumberBox;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
-				all[widget].do { |tf|
-					if (tf.connector === widget.midiConnectors[conID]) {
-						defer { tf.view.string_(changer.value[conID].ctrlButtonGroup) }
+				all[widget].do { |nb|
+					if (nb.connector === widget.midiConnectors[conID]) {
+						defer { nb.view.value_(changer.value[conID].ctrlButtonGroup) }
 					}
 				}
 			})
