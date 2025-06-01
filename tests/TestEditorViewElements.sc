@@ -1,15 +1,37 @@
 TestConnectorElementView : UnitTest {
 	var widget, element1, element2;
+	var elements;
 
 	setUp {
 		widget = CVWidgetKnob(\test);
-		element1 = MidiConnectorNameField(widget: widget);
-		element2 = MidiConnectorNameField(widget: widget);
+		elements = [
+			MidiConnectorNameField(widget: widget),
+			MidiConnectorNameField(widget: widget),
+			MidiConnectorSelect(widget: widget),
+			MidiConnectorSelect(widget: widget),
+			MidiLearnButton(widget: widget),
+			MidiLearnButton(widget: widget),
+			MidiSrcSelect(widget: widget),
+			MidiSrcSelect(widget: widget),
+			MidiChanField(widget:widget),
+			MidiChanField(widget:widget),
+			MidiCtrlField(widget: widget),
+			MidiCtrlField(widget: widget),
+			MidiModeSelect(widget: widget),
+			MidiModeSelect(widget: widget),
+			MidiZeroNumberBox(widget: widget),
+			MidiZeroNumberBox(widget: widget),
+			SnapDistanceNumberBox(widget: widget),
+			SnapDistanceNumberBox(widget: widget),
+			MidiResolutionNumberBox(widget: widget),
+			MidiResolutionNumberBox(widget: widget),
+			SlidersPerGroupNumberBox(widget: widget),
+			SlidersPerGroupNumberBox(widget: widget)
+		]
 	}
 
 	tearDown {
-		element1.close;
-		element2.close;
+		elements.do(_.close);
 		widget.remove;
 	}
 
@@ -401,13 +423,13 @@ TestMidiResolutionNumberBox : UnitTest {
 	}
 }
 
-TestSlidersPerGroupNumberTF : UnitTest {
+TestSlidersPerGroupNumberBox : UnitTest {
 	var widget, element1, element2;
 
 	setUp {
 		widget = CVWidgetKnob(\test);
-		element1 = SlidersPerGroupNumberTF(widget: widget);
-		element2 = SlidersPerGroupNumberTF(widget: widget);
+		element1 = SlidersPerGroupNumberBox(widget: widget);
+		element2 = SlidersPerGroupNumberBox(widget: widget);
 	}
 
 	tearDown {
@@ -417,24 +439,24 @@ TestSlidersPerGroupNumberTF : UnitTest {
 	}
 
 	test_new {
-		this.assert(SlidersPerGroupNumberTF.all[widget].size == 2 and: {
-			SlidersPerGroupNumberTF.all[widget][0] === element1
-		}, "SlidersPerGroupNumberTF's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
-		this.assertEquals(widget.syncKeys, [\default, \slidersPerGroupNumberTF], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'slidersPerGroupNumberTF', after creating a new SlidersPerGroupNumberTF");
+		this.assert(SlidersPerGroupNumberBox.all[widget].size == 2 and: {
+			SlidersPerGroupNumberBox.all[widget][0] === element1
+		}, "SlidersPerGroupNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
+		this.assertEquals(widget.syncKeys, [\default, \slidersPerGroupNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'SlidersPerGroupNumberBox', after creating a new SlidersPerGroupNumberBox");
 		this.assert(element1.connector === widget.midiConnectors[0] and: {
 			element2.connector === widget.midiConnectors[0]
 		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
-		element1.valueAction_(1);
-		this.assertEquals(element2.view.string, "1", "After calling element1.valueAction_(1) element2.string should return \"1\"");
+		element1.view.valueAction_(2);
+		this.assertEquals(element2.view.value, 2, "After calling element1.valueAction_(1) element2.value should return 2");
 	}
 
 	test_index_ {
 		widget.addMidiConnector;
 		element2.index_(1);
-		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the SlidersPerGroupNumberTF's connector should be identical with widget.midiConnectors[1]");
-		element2.valueAction_(1);
+		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the SlidersPerGroupNumberBox's connector should be identical with widget.midiConnectors[1]");
+		element2.view.valueAction_(4);
 		element1.index_(1);
-		this.assertEquals(element1.string, "1", "After calling element2.valueAction_(1) and setting element1.index_(1) element1.string should return \"1\"");
+		this.assertEquals(element1.view.value, 4, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.value should return 4");
 	}
 }
 
