@@ -16,7 +16,7 @@ TestCVCenter {
 			TestMidiZeroNumberBox,
 			TestSnapDistanceNumberBox,
 			TestMidiResolutionNumberBox,
-			TestSlidersPerGroupNumberTF,
+			TestSlidersPerGroupNumberBox,
 			TestMidiInitButton,
 			TestMidiConnectorRemoveButton,
 			TestMappings

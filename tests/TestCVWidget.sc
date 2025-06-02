@@ -14,7 +14,7 @@ TestCVWidget : UnitTest {
 		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default");
 		this.assertEquals(setup.midiResolution, 1, "CVWidget.midiResolution should be 1 by default");
 		this.assertEquals(setup.midiZero, 64, "CVWidget.midiZero should be 64 by default");
-		this.assertEquals(setup.ctrlButtonGroup, nil, "CVWidget.ctrlButtonGroup should be nil by default");
+		this.assertEquals(setup.ctrlButtonGroup, 1, "CVWidget.ctrlButtonGroup should be 1 by default");
 		this.assertEquals(setup.snapDistance, 0.1, "CVWidget.snapDistance should be 0.1 by default");
 	}
 
@@ -195,11 +195,11 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getCtrlButtonGroup {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getCtrlButtonGroup, [nil, nil, nil], "All widget.midiConnectors should be set to ctrlButtonGroup nil by default");
+		this.assertEquals(widget.getCtrlButtonGroup, [1, 1, 1], "All widget.midiConnectors should be set to ctrlButtonGroup 1 by default");
 		widget.setCtrlButtonGroup(16);
 		this.assertEquals(widget.getCtrlButtonGroup, [16, 16, 16], "All widget.midiConnectors should have been set to ctrlButtonGroup 16");
-		widget.setCtrlButtonGroup(nil, connection1);
-		this.assertEquals(widget.getCtrlButtonGroup, [16, nil, 16], "widget.midiConnectors ctrlButtonGroup should equal [16, nil, 16]");
+		widget.setCtrlButtonGroup(1, connection1);
+		this.assertEquals(widget.getCtrlButtonGroup, [16, 1, 16], "widget.midiConnectors ctrlButtonGroup should equal [16, 1, 16]");
 		widget.setCtrlButtonGroup(16, 1);
 		this.assertEquals(widget.getCtrlButtonGroup, [16, 16, 16], "widget.midiConnectors ctrlButtonGroup should equal [16, 16, 16]");
 	}

@@ -1,44 +1,22 @@
 TestConnectorElementView : UnitTest {
 	var widget, element1, element2;
-	var elements;
 
 	setUp {
 		widget = CVWidgetKnob(\test);
-		elements = [
-			MidiConnectorNameField(widget: widget),
-			MidiConnectorNameField(widget: widget),
-			MidiConnectorSelect(widget: widget),
-			MidiConnectorSelect(widget: widget),
-			MidiLearnButton(widget: widget),
-			MidiLearnButton(widget: widget),
-			MidiSrcSelect(widget: widget),
-			MidiSrcSelect(widget: widget),
-			MidiChanField(widget:widget),
-			MidiChanField(widget:widget),
-			MidiCtrlField(widget: widget),
-			MidiCtrlField(widget: widget),
-			MidiModeSelect(widget: widget),
-			MidiModeSelect(widget: widget),
-			MidiZeroNumberBox(widget: widget),
-			MidiZeroNumberBox(widget: widget),
-			SnapDistanceNumberBox(widget: widget),
-			SnapDistanceNumberBox(widget: widget),
-			MidiResolutionNumberBox(widget: widget),
-			MidiResolutionNumberBox(widget: widget),
-			SlidersPerGroupNumberBox(widget: widget),
-			SlidersPerGroupNumberBox(widget: widget)
-		]
+		element1 = MidiConnectorNameField(widget: widget);
+		element2 = MidiConnectorNameField(widget: widget);
 	}
 
 	tearDown {
-		elements.do(_.close);
+		element1.close;
+		element2.close;
 		widget.remove;
 	}
 
 	test_close {
 		element1.close;
 		this.assertEquals(MidiConnectorNameField.all[widget], List[element2], "After closing element1 the class' 'all' variable should hold a List with one element which is element2 under a key which is the widget itself.");
-		this.assertEquals(widget.syncKeys, [\default, \midiConnectorName], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after calling 'close'");
+		this.assertEquals(widget.syncKeys, [\default, \midiConnectorNameField], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after calling 'close'");
 		element2.close;
 		this.assertEquals(MidiConnectorNameField.all[widget], List[], "After closing element2 the class' 'all' variable should hold an empty List under a key which is the widget itself.");
 		this.assertEquals(widget.syncKeys, [\default], "The widget's 'syncKeys' should contain a single Symbol, 'default' after calling 'close'");
@@ -61,7 +39,7 @@ TestMidiConnectorNameField : UnitTest {
 
 	test_new {
 		this.assert(MidiConnectorNameField.all[widget][0] === element1, "MidiConnectorNameField's all variable at the key which is the widget itself should hold a List with one value: the element itself.");
-		this.assertEquals(widget.syncKeys, [\default, \midiConnectorName], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after creating a new MidiConnectorNameField");
+		this.assertEquals(widget.syncKeys, [\default, \midiConnectorNameField], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiConnectorName', after creating a new MidiConnectorNameField");
 		this.assert(element1.connector === widget.midiConnectors[0], "The elements connector should be identical with the connector at the widget's midiConnectors List");
 		this.assertEquals(widget.wmc.midiConnectorNames.model.value, List['MIDI Connection 1'], "The widget's midiConnectorNames model should hold a List with one value 'MIDI Connection 1'");
 		element1.view.valueAction_('new name');
@@ -442,21 +420,21 @@ TestSlidersPerGroupNumberBox : UnitTest {
 		this.assert(SlidersPerGroupNumberBox.all[widget].size == 2 and: {
 			SlidersPerGroupNumberBox.all[widget][0] === element1
 		}, "SlidersPerGroupNumberBox's all variable at the key which is the widget itself should hold a List with two elements of which element1 is held at index 0");
-		this.assertEquals(widget.syncKeys, [\default, \slidersPerGroupNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'SlidersPerGroupNumberBox', after creating a new SlidersPerGroupNumberBox");
+		this.assertEquals(widget.syncKeys, [\default, \slidersPerGroupNumberBox], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'slidersPerGroupNumberBox', after creating a new SlidersPerGroupNumberBox");
 		this.assert(element1.connector === widget.midiConnectors[0] and: {
 			element2.connector === widget.midiConnectors[0]
 		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
-		element1.view.valueAction_(2);
-		this.assertEquals(element2.view.value, 2, "After calling element1.valueAction_(1) element2.value should return 2");
+		element1.valueAction_(4);
+		this.assertEquals(element2.view.value, 4, "After calling element1.valueAction_(4) element2.string should return 4");
 	}
 
 	test_index_ {
 		widget.addMidiConnector;
 		element2.index_(1);
 		this.assert(element2.connector === widget.midiConnectors[1], "After setting element2.index_(1) the SlidersPerGroupNumberBox's connector should be identical with widget.midiConnectors[1]");
-		element2.view.valueAction_(4);
+		element2.valueAction_(3);
 		element1.index_(1);
-		this.assertEquals(element1.view.value, 4, "After calling element2.valueAction_(1) and setting element1.index_(1) element1.value should return 4");
+		this.assertEquals(element1.view.value, 3, "After calling element2.valueAction_(3) and setting element1.index_(1) element1.value should return 3");
 	}
 }
 
