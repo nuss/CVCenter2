@@ -39,7 +39,7 @@ MidiConnectorNameField : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiConnectorNameField;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -90,7 +90,7 @@ MidiConnectorSelect : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiConnectorSelect;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -205,7 +205,7 @@ MidiLearnButton : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiLearnButton;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			// the following is global for all MidiLearnButtons
@@ -284,7 +284,7 @@ MidiSrcSelect : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiSrcSelect;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -354,7 +354,7 @@ MidiChanField : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiChanField;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -417,7 +417,7 @@ MidiCtrlField : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiCtrlField;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -477,7 +477,7 @@ MidiModeSelect : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiModeSelect;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -534,7 +534,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiZeroNumberBox;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -590,7 +590,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \snapDistanceNumberBox;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -645,7 +645,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \midiResolutionNumberBox;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -700,7 +700,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \slidersPerGroupNumberBox;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -778,7 +778,7 @@ MidiInitButton : ConnectorElementView {
 		CVWidget.midiInitialized.controller ?? {
 			CVWidget.midiInitialized.controller = SimpleController(CVWidget.midiInitialized.model)
 		};
-		syncKey = \midiInitButton;
+		syncKey = this.class.asSymbol;
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true);
 			CVWidget.midiInitialized.controller.put(syncKey, { |changer, what|

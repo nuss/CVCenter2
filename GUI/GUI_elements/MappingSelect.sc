@@ -173,7 +173,7 @@ MappingSelect : CompositeView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = \mappingSelect;
+		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|

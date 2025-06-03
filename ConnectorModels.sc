@@ -188,12 +188,6 @@ MidiConnector {
 			wmc.midiConnectorNames.model = Ref(List[]);
 		};
 		wmc.midiConnectorNames.model.value.add(name);
-		// WIP
-		// wmc.midiInputRange ?? { wmc.midiInputRange = () };
-		wmc.midiMappingConstrainters ?? { wmc.midiMappingConstrainters = () };
-		wmc.midiMappingConstrainters.name ?? {
-			wmc.midiMappingConstrainters.put(name, (lo: CV([-inf, inf].asSpec), hi: CV([-inf, inf].asSpec)))
-		};
 		this.initControllers(wmc);
 	}
 
@@ -514,7 +508,7 @@ MidiConnector {
 			mc.midiInputMappings.model.value[index].curve = curve;
 			mc.midiInputMappings.model.value[index].env = nil;
 		}
-		{ mapping === \linexp } {
+		{ mapping === \linenv } {
 			mc.midiInputMappings.model.value[index].curve = nil;
 			mc.midiInputMappings.model.value[index].env = env;
 		}
