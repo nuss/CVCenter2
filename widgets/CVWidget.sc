@@ -103,6 +103,8 @@ CVWidget {
 	getCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
 	setMidiResolution { this.subclassResponsibility(thisMethod) }
 	getMidiResolution { this.subclassResponsibility(thisMethod) }
+	setMidiInputMapping { this.subclassResponsibility(thisMethod) }
+	getMidiInputMapping { this.subclassResponsibility(thisMethod) }
 	midiConnect { this.subclassResponsibility(thisMethod) }
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 	// OSC
