@@ -61,7 +61,7 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
-		this.assertEquals(widget.wmc.keys, Set[\midiInputMappings, \actions, \oscInputRange, \oscCalibration, \midiMappingConstrainters, \oscConnections, \midiDisplay, \midiConnectorNames, \midiConnections, \midiOptions, \oscDisplay, \cvSpec], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
+		this.assertEquals(widget.wmc.keys, Set['midiOptions', 'oscInputRange', 'cvSpec', 'midiConnections', 'oscConnections', 'midiDisplay', 'oscCalibration', 'midiInputMappings', 'actions', 'midiConnectorNames', 'oscDisplay'], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
 		this.assertEquals(widget.oscConnectors.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.oscConnectors[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
 		this.assertEquals(widget.midiConnectors.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
@@ -214,6 +214,18 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnectors midiResolution should equal [0.5, 1, 0.5]");
 		widget.setMidiResolution(1, 2);
 		this.assertEquals(widget.getMidiResolution, [0.5, 1, 1], "widget.midiConnectors midiResolution should equal [0.5, 1, 1]");
+	}
+
+	test_set_getMidiInputMapping {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.midiConnectors should have been set to (mapping: \linlin) by default.");
+		widget.setMidiInputMapping(\lincurve, curve: 3);
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.midiConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		widget.setMidiInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connection2);
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.midiConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		widget.setMidiInputMapping(\linexp, connector: 1);
+		this.assertEquals(widget.getMidiInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.midiConnectors at index 1) should have been set to (mapping: \\linexp.");
 	}
 
 	test_midiConnect {

@@ -19,7 +19,8 @@ TestCVCenter {
 			TestSlidersPerGroupNumberBox,
 			TestMidiInitButton,
 			TestMidiConnectorRemoveButton,
-			TestMappings
+			TestMappings,
+			TestMappingSelect
 		].do(_.run)
 	}
 }
