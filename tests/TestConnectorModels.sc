@@ -46,11 +46,33 @@ TestMidiConnector : UnitTest {
 	}
 
 	test_name {
-
+		this.assertEquals(widget.midiConnectors[0].name, widget.wmc.midiConnectorNames.model.value[0], "On creation a CVWidgetKnob should have one MideiConnector named 'MIDI Connection 1'. This name is held in the widget's midiConnectorNames model value at index 0.");
+		widget.midiConnectors[0].name_('xxxx');
+		this.assertEquals(widget.midiConnectors[0].name, widget.wmc.midiConnectorNames.model.value[0], "After renaming the MidiConnector the name returned by calling the method 'name' should be equal the widget's midiConnectorNames model value at index 0.");
 	}
 
 	test_remove {
-
+		var connector2 = widget.addMidiConnector;
+		this.assertEquals([
+			widget.wmc.midiConnectorNames.model.value,
+			widget.wmc.midiConnections.model.value,
+			widget.wmc.midiOptions.model.value,
+			widget.wmc.midiInputMappings.model.value,
+			widget.wmc.midiDisplay.model.value
+		].collectAs({ |m| m.size }, Set), Set[2], "After adding MidiConnector connector2 to widget models related to the widget's connector should hold values of size 2.");
+		widget.midiConnectors[0].remove;
+		this.assertEquals(widget.midiConnectors, List[connector2], "After removing the widget's connector at index 0 in widget.midiConnectors widget.midiConnectors should hold a single connector, connector2, at in widget.midiConnectors.");
+		this.assertEquals([
+			widget.wmc.midiConnectorNames.model.value,
+			widget.wmc.midiConnections.model.value,
+			widget.wmc.midiOptions.model.value,
+			widget.wmc.midiInputMappings.model.value,
+			widget.wmc.midiDisplay.model.value
+		].collectAs({ |m| m.size }, Set), Set[1], "After removing the MidiConnector at widget.midiConnectors[0] widget models related to the widget's connector should hold values of size 1.");
+		widget.midiConnectors[0].remove;
+		this.assertEquals(widget.midiConnectors.size, 1, "After calling 'remove' on the last remaining MidiConnector in widget.midiConnectors widget.midiConnectors.size should still return 1.");
+		widget.midiConnectors[0].remove(true);
+		this.assertEquals(widget.midiConnectors.size, 0, "After calling 'remove' with arg 'forceAll' set to true on the last remaining MidiConnector in widget.midiConnectors widget.midiConnectors.size should return 0.");
 	}
 
 	test_midiConnect_disconnect {
