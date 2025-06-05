@@ -1,6 +1,6 @@
 OscConnector {
 	classvar cAnons = 0;
-	var <widget, <>name;
+	var <widget;
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -8,17 +8,16 @@ OscConnector {
 		}) {
 			Error("An OscConnector can only be created for an existing CVWidget").throw;
 		};
-		^super.newCopyArgs(widget, name).init;
+		^super.newCopyArgs(widget).init(name);
 	}
 
-	init {
+	init { |name|
 		widget.numOscConnectors = widget.numOscConnectors + 1;
-		if (this.name.isNil) {
-			this.name_("OSC Connection %".format(widget.numOscConnectors).asSymbol);
-		} { this.name_(this.name.asSymbol) };
-		// add to the widget's oscConnection and automatically update GUI
+		name ?? {
+			name = "OSC Connection %".format(widget.numMidiConnectors).asSymbol;
+		};
+		this.initModels(widget.wmc, name);
 		widget.oscConnectors.add(this).changed(\value);
-		this.initModels(widget.wmc);
 	}
 
 	initModels { |wmc|
@@ -584,8 +583,8 @@ MidiConnector {
 				}
 			};
 			\MappingSelect.asClass !? {
-				\MappingSelect.asClass.all[widget] !? {
-					allMS = \MappingSelect.asClass.all[widget];
+				\MappingSelect.asClass.all[widget][\midi] !? {
+					allMS = \MappingSelect.asClass.all[widget][\midi];
 					if (index > 0) {
 						allMS.do(_.index_(index - 1))
 					} {
