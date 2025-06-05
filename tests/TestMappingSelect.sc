@@ -13,8 +13,8 @@ TestMappingSelect : UnitTest {
 	}
 
 	test_new {
-		this.assert(MappingSelect.all[widget][0] === ms1, "MappingSelect.all[widget] should hold a list with a single MappingSelect instance.");
-		this.assertEquals(widget.syncKeys, [\default, MappingSelect.asSymbol], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'MappingSelect', after creating a new MappingSelect");
+		this.assert(MappingSelect.all[widget][\midi][0] === ms1, "MappingSelect.all[widget] should hold a list with a single MappingSelect instance.");
+		this.assertEquals(widget.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiMappingSelect', after creating a new MappingSelect");
 		this.assert(ms1.connector === widget.midiConnectors[0], "The elements connector should be identical with the connector at the widget's midiConnectors List at index 0");
 		widget.setMidiInputMapping(\lincurve, 3);
 		this.assertEquals(ms1.e.mselect.value, 4, "After calling widget.setMidiInputMapping('lincurve', 3) the MappingSelect ms1's PopUpMenu should have been set to the item at index 4");
@@ -39,7 +39,7 @@ TestMappingSelect : UnitTest {
 	test_close {
 		ms2 = MappingSelect(widget: widget, connectorKind: \midi);
 		ms1.close;
-		this.assertEquals(widget.syncKeys, [\default, MappingSelect.asSymbol], "After closing MappingSelect ms1 widget.syncKeys should hold 2 Symbols: 'default' and 'MappingSelect'.");
+		this.assertEquals(widget.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol], "After closing MappingSelect ms1 widget.syncKeys should hold 2 Symbols: 'default' and 'MappingSelect'.");
 		ms2.close;
 		this.assertEquals(widget.syncKeys, [\default], "After closing MappingSelect ms2 widget.syncKeys should hold 1 Symbol: 'default'.");
 	}
