@@ -1,7 +1,7 @@
 MappingSelect : CompositeView {
 	classvar <all;
 	var mc, connectors, syncKey;
-	var <connector, <widget;
+	var <connector, <widget, connectorKind;
 	var <e;
 	var defaultEnv;
 
@@ -10,27 +10,33 @@ MappingSelect : CompositeView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0, connectorKind, layout([[\mselect, \mcurve, \mplot], [\menv]])|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID, connectorKind, layout);
 	}
 
-	init { |parentView, wdgt, rect, index, connectorKind, layout|
+	init { |parentView, wdgt, rect, index, kind, layout|
 		var parent, row, i;
 		var ramp, env;
 
+		if (kind.isNil) {
+			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
+		} {
+			connectorKind = kind.asSymbol;
+			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
+			}
+		};
+
 		defaultEnv = Env([0, 1], [1]);
 
-		all[wdgt] ?? {
-			all.put(wdgt, List[])
-		};
-		all[wdgt].add(this);
-
 		widget = wdgt;
-
-		connectorKind ?? {
-			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
+		all[widget] ?? { all[widget] = () };
+		all[widget][connectorKind] ?? {
+			all[widget][connectorKind] = List[];
 		};
-		connectorKind = connectorKind.asSymbol;
-
+		all[widget][connectorKind].add(this);
 
 		case
 		{ connectorKind === \midi } {
@@ -147,24 +153,26 @@ MappingSelect : CompositeView {
 	index_ { |connectorID|
 		// "connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
-		e.mselect.value_(e.mselect.items.indexOf(mc.model.value[connectorID].mapping));
-		e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
-		e.menv.string_((mc.model.value[connectorID].env ? defaultEnv).asCompileString);
-		case
-		{ mc.model.value[connectorID].mapping === \lincurve or: { mc.model.value[connectorID].mapping === \linbicurve }} {
-			e.mplot.draw([mc.model.value[connectorID].mapping, mc.model.value[connectorID].curve]);
-			e.menv.enabled_(false);
-			e.mcurve.enabled_(true);
-		}
-		{ mc.model.value[connectorID].mapping === \linenv } {
-			e.mplot.draw(mc.model.value[connectorID].env);
-			e.menv.enabled_(true);
-			e.mcurve.enabled_(false);
-		}
-		{
-			e.mplot.draw(mc.model.value[connectorID].mapping);
-			e.menv.enabled_(false);
-			e.mcurve.enabled_(false);
+		mc.model.value[connectorID] !? {
+			e.mselect.value_(e.mselect.items.indexOf(mc.model.value[connectorID].mapping));
+			e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
+			e.menv.string_((mc.model.value[connectorID].env ? defaultEnv).asCompileString);
+			case
+			{ mc.model.value[connectorID].mapping === \lincurve or: { mc.model.value[connectorID].mapping === \linbicurve }} {
+				e.mplot.draw([mc.model.value[connectorID].mapping, mc.model.value[connectorID].curve]);
+				e.menv.enabled_(false);
+				e.mcurve.enabled_(true);
+			}
+			{ mc.model.value[connectorID].mapping === \linenv } {
+				e.mplot.draw(mc.model.value[connectorID].env);
+				e.menv.enabled_(true);
+				e.mcurve.enabled_(false);
+			}
+			{
+				e.mplot.draw(mc.model.value[connectorID].mapping);
+				e.menv.enabled_(false);
+				e.mcurve.enabled_(false);
+			}
 		}
 	}
 
@@ -173,12 +181,12 @@ MappingSelect : CompositeView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
-		syncKey = this.class.asSymbol;
+		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true);
 			mc.controller.put(syncKey, { |changer, what ... moreArgs|
 				conID = moreArgs[0];
-				all[widget].do { |ms, i|
+				all[widget][connectorKind].do { |ms, i|
 					if (ms.connector === connectors[conID]) {
 						{
 							ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID].mapping));
@@ -206,9 +214,9 @@ MappingSelect : CompositeView {
 	}
 
 	close {
-		all[widget].remove(this);
+		all[widget][connectorKind].remove(this);
 		e.do(_.close);
-		if (all[widget].isEmpty) {
+		if (all[widget][connectorKind].isEmpty) {
 			mc.controller.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
 		}
