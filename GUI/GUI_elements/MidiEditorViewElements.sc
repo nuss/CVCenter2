@@ -9,14 +9,17 @@ MidiConnectorNameField : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiConnectorNames;
 		this.view = TextField(parentView, rect);
 		this.index_(index);
@@ -48,7 +51,7 @@ MidiConnectorNameField : ConnectorElementView {
 					if (tf.connector === widget.midiConnectors[conID]) {
 						tf.view.string_(changer.value[conID]);
 					}
-				};
+				}
 			})
 		}
 	}
@@ -63,14 +66,17 @@ MidiConnectorSelect : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiConnectorNames;
 		this.view = PopUpMenu(parentView)
 		.items_(widget.midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
@@ -125,11 +131,15 @@ MidiLearnButton : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
 		var defaultState;
+
 		widget = wdgt;
 		all[widget] ?? { all.put(widget, List[]) };
 		all[widget].add(this);
@@ -241,14 +251,17 @@ MidiSrcSelect : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID = 0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiDisplay;
 
 		this.view = PopUpMenu(parentView, rect)
@@ -318,14 +331,17 @@ MidiChanField : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect)
 		.enabled_(mc.model.value[index].learn != "X");
@@ -381,14 +397,17 @@ MidiCtrlField : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiDisplay;
 		this.view = TextField(parentView, rect)
 		.enabled_(mc.model.value[index].learn != "X");
@@ -444,6 +463,9 @@ MidiModeSelect : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
@@ -502,14 +524,17 @@ MidiZeroNumberBox : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect);
 		this.view.onClose_({ this.close });
@@ -558,14 +583,17 @@ SnapDistanceNumberBox : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.view.onClose_({ this.close });
@@ -614,14 +642,17 @@ MidiResolutionNumberBox : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
@@ -669,14 +700,17 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		mc = widget.wmc.midiOptions;
 		this.view = NumberBox(parentView, rect).clipLo_(1).step_(1).scroll_step_(1);
 		this.view.onClose_({ this.close });
@@ -820,14 +854,17 @@ MidiConnectorRemoveButton : ConnectorElementView {
 	}
 
 	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
 		^super.new.init(parent, widget, rect, connectorID);
 	}
 
 	init { |parentView, wdgt, rect, index|
-		all[wdgt] ?? { all[wdgt] = List[] };
-		all[wdgt].add(this);
-
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
 		this.index_(index);
 		this.view = Button(parentView, rect)
 		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
