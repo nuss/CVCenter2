@@ -23,34 +23,34 @@ OscConnector {
 	initModels { |wmc|
 		wmc.oscCalibration ?? { wmc.oscCalibration = () };
 		wmc.oscCalibration.model ?? {
-			wmc.oscCalibration.model = List[];
+			wmc.oscCalibration.model = Ref(List[]);
 		};
-		wmc.oscCalibration.model.add(Ref(CVWidget.oscCalibration));
+		wmc.oscCalibration.model.add(CVWidget.oscCalibration);
 
 		wmc.oscInputRange ?? { wmc.oscInputRange = () };
 		wmc.oscInputRange.model ?? {
-			wmc.oscInputRange.model = List[];
+			wmc.oscInputRange.model = Ref(List[]);
 		};
-		wmc.oscInputRange.model.add(Ref([0.0001, 0.0001]));
+		wmc.oscInputRange.model.add([0.0001, 0.0001]);
 
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.model ?? {
-			wmc.oscConnections.model = List[];
+			wmc.oscConnections.model = Ref(List[]);
 		};
-		wmc.oscConnections.model.add(Ref(false));
+		wmc.oscConnections.model.add(false);
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
 		wmc.oscDisplay.model ?? {
-			wmc.oscDisplay.model = List[];
+			wmc.oscDisplay.model = Ref(List[]);
 		};
-		wmc.oscDisplay.model.add(Ref((
+		wmc.oscDisplay.model.add((
 			ipField: nil,
 			portField: nil,
 			nameField: "/my/cmd/name",
 			index: 1,
 			connectorButVal: 0,
 			editEnabled: true
-		)));
+		));
 
 		this.initControllers(wmc);
 	}
