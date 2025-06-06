@@ -5,10 +5,11 @@ OSCCommands {
 
 	*initClass {
 		var localOscFunc;
+		var addrWithPort;
 
 		cmdList = ();
 		collectFunc = { |msg, time, addr, recvPort|
-			if (msg[0] != '/status.reply'){
+			if (msg[0] !== '/status.reply'){
 				cmdList.put(msg[0], msg[1..].size);
 			}
 		};
@@ -16,21 +17,15 @@ OSCCommands {
 		tempIPsAndCmds = ();
 
 		localOscFunc = { |argAddr, argMsg|
-			if (tempIPsAndCmds.keys.includes(
-				(argAddr.ip.asString++":"++argAddr.port.asString).asSymbol
-			).not and:{
+			addrWithPort = (argAddr.ip.asString++":"++argAddr.port.asString).asSymbol;
+
+			if (tempIPsAndCmds.keys.includes(addrWithPort).not and:{
 				Server.all.collect(_.addr).includesEqual(argAddr).not
 			}) {
-				tempIPsAndCmds.put(
-					(argAddr.ip.asString++":"++argAddr.port.asString).asSymbol, ()
-				)
+				tempIPsAndCmds.put(addrWithPort, ())
 			};
-			if (tempIPsAndCmds.keys.includes(
-				(argAddr.ip.asString++":"++argAddr.port.asString).asSymbol
-			)) {
-				tempIPsAndCmds[(argAddr.ip.asString++":"++argAddr.port.asString).asSymbol].put(
-					argMsg[0], argMsg[1..].size
-				)
+			if (tempIPsAndCmds.keys.includes(addrWithPort)) {
+				tempIPsAndCmds[addrWithPort].put(argMsg[0], argMsg[1..].size)
 			}
 		};
 
