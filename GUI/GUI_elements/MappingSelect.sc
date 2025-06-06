@@ -2,7 +2,7 @@ MappingSelect : CompositeView {
 	classvar <all;
 	var mc, connectors, syncKey;
 	var <connector, <widget, connectorKind;
-	var <e;
+	var <e, bgColor;
 	var defaultEnv;
 
 	*initClass {
@@ -42,10 +42,12 @@ MappingSelect : CompositeView {
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
 			connectors = widget.midiConnectors;
+			bgColor = Color(0.8, alpha: 0.3);
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
 			connectors = widget.oscConnectors;
+			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 		};
 
 		// the kind of connector must be known by now, so, index_ should already know
@@ -56,7 +58,7 @@ MappingSelect : CompositeView {
 			parent = parentView;
 		};
 
-		this.background_(Color.green(alpha: 0.5)).minHeight_(80);
+		this.background_(bgColor).minHeight_(80);
 
 		ramp = switch (mc.model.value[index].mapping)
 		{ \linenv } { mc.model.value[index].env }
