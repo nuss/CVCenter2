@@ -286,7 +286,7 @@ MidiSrcSelect : ConnectorElementView {
 		connector = widget.midiConnectors[connectorID];
 		mc.model.value[connectorID] !? {
 			display = if (mc.model.value[connectorID].src == "source...") { 0 } {
-				this.view.items.indexOfEqual(CVWidget.midiSources[mc.model.value[connectorID].src.asSymbol]);
+				this.view.items.indexOf(CVWidget.midiSources[mc.model.value[connectorID].src.asSymbol]);
 			};
 			this.view.value_(display)
 		}
