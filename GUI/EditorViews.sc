@@ -1,18 +1,20 @@
 OscConnectorsEditorView : CompositeView {
-	var <widget, <mc, <parent, <cIndex;
+	classvar <all;
+	var <widget, <parent, <cIndex;
 	// GUI elements
 	var <e;
 
-	// FIXME: an OscConnector is a single connection
-	// yet, a selection of connections can only belong
-	// to the widget
-	// -> must be considered when adding the model to the widget's
-	// model - maybe the model can't be kept with the view?
+	*initClass {
+		all = ();
+	}
+
 	*new { |widget, connectorID=0, parent|
 		^super.new.init(widget, connectorID, parent.asView);
 	}
 
 	init { |wdgt, index, parentView|
+		var o;
+
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
 			index = widget.oscConnectors.detect { |c| c.name == index }
@@ -21,28 +23,39 @@ OscConnectorsEditorView : CompositeView {
 			index = widget.oscConnectors.indexOf(index)
 		};
 
-		e ?? { e = () };
+		e = ();
+
 		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
+		OSCCommands.collectTempIPsAndCmds;
+
 		if (parentView.isNil) {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
 		} { parent = parentView };
-		// Just create a new OscConnector if none exists
-		// it will automatically be added to the widget's list
-		// of OscConnectors within OscConnector:-init - should
-		// also update the connectionSelect's items
+
 		if (widget.oscConnectors.isEmpty) {
 			OscConnector(widget)
 		};
-		mc = widget.wmc;
+
+		// fallback if index out of bounds
+		if (index >= widget.midiConnectors.size) {
+			index = widget.midiConnectors.size - 1;
+		};
+
+		e.connectorNameField = OscConnectorNameField(parent, widget, connectorID: index);
+		e.connectorSelect = OscConnectorSelect(parent, widget, connectorID: index);
+		e.addrSelect = OscAddrSelect(parent, widget, connectorID: index);
+
 		parent.layout_(
 			VLayout(
 				HLayout(
-					e.connectorSelect = PopUpMenu(parent),
-					e.addButton = Button(parent).states_([["+"]]),
-					e.removeButton = Button(parent).states_([["-"]])
+					[e.connectorNameField, stretch: 9],
+					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					e.ipSelect = PopUpMenu(parent),
+					[e.addrSelect],
 					StaticText(parent).string_("restrict to port"),
 					e.restrictToPortCheckBox = CheckBox(parent)
 				),

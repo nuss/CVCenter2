@@ -135,10 +135,28 @@ OscAddrSelect : ConnectorElementView {
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscConnectorNames;
+		mc = widget.wmc.oscDisplay;
 		this.view = PopUpMenu(parentView)
-		.items_(widget.midiConnectors.collect(_.name) ++ ["select IP address..."]);
+		.items_(widget.midiConnectors.collect(_.name) ++ ["select IP address... (optional)"]);
 		this.view.onClose_({ this.close });
 		this.index_(index);
+		this.view.action_({ |sel|
+
+		});
+		this.prAddController;
+	}
+
+	index_ { |connectorID|
+		var display;
+
+		connector = widget.oscConnectors[connectorID];
+		mc.model.value[connectorID] !? {
+			// TODO: is oscDisplay global to all widgets?
+			// this.view.items.indexOf()
+		}
+	}
+
+	prAddController {
+
 	}
 }
