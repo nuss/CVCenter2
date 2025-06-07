@@ -146,6 +146,7 @@ TestMidiSrcSelect : UnitTest {
 
 	setUp {
 		widget = CVWidgetKnob(\test);
+		CVWidget.midiSources = ('123': "abcd", '456': "efgh");
 		element1 = MidiSrcSelect(widget: widget);
 		element2 = MidiSrcSelect(widget: widget);
 	}
@@ -154,6 +155,7 @@ TestMidiSrcSelect : UnitTest {
 		element1.close;
 		element2.close;
 		widget.remove;
+		CVWidget.midiSources = ();
 	}
 
 	test_new {
