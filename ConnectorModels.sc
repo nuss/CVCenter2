@@ -25,25 +25,25 @@ OscConnector {
 		wmc.oscCalibration.model ?? {
 			wmc.oscCalibration.model = Ref(List[]);
 		};
-		wmc.oscCalibration.model.add(CVWidget.oscCalibration);
+		wmc.oscCalibration.model.value.add(CVWidget.oscCalibration);
 
 		wmc.oscInputRange ?? { wmc.oscInputRange = () };
 		wmc.oscInputRange.model ?? {
 			wmc.oscInputRange.model = Ref(List[]);
 		};
-		wmc.oscInputRange.model.add([0.0001, 0.0001]);
+		wmc.oscInputRange.model.value.add([0.0001, 0.0001]);
 
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.model ?? {
 			wmc.oscConnections.model = Ref(List[]);
 		};
-		wmc.oscConnections.model.add(false);
+		wmc.oscConnections.model.value.add(false);
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
 		wmc.oscDisplay.model ?? {
 			wmc.oscDisplay.model = Ref(List[]);
 		};
-		wmc.oscDisplay.model.add((
+		wmc.oscDisplay.model.value.add((
 			ipField: nil,
 			portField: nil,
 			nameField: "/my/cmd/name",
@@ -583,7 +583,9 @@ MidiConnector {
 				}
 			};
 			\MappingSelect.asClass !? {
-				\MappingSelect.asClass.all[widget][\midi] !? {
+				if (\MappingSelect.asClass.all[widget].notNil and: {
+					\MappingSelect.asClass.all[widget][\midi].notNil
+				}) {
 					allMS = \MappingSelect.asClass.all[widget][\midi];
 					if (index > 0) {
 						allMS.do(_.index_(index - 1))
