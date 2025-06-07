@@ -266,7 +266,7 @@ MidiSrcSelect : ConnectorElementView {
 
 		this.view = PopUpMenu(parentView, rect)
 		.enabled_(mc.model.value[index].learn != "X")
-		.items_(["source..."] ++ CVWidget.midiSources.values.sort).maxWidth_(100);
+		.items_(['source...'] ++ CVWidget.midiSources.values.sort).maxWidth_(100);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
@@ -311,7 +311,7 @@ MidiSrcSelect : ConnectorElementView {
 							}
 						} {
 							defer {
-								sel.view.value_(sel.items.indexOfEqual(CVWidget.midiSources[changer.value[conID].src.asSymbol]));
+								sel.view.value_(sel.items.indexOf(CVWidget.midiSources[changer.value[conID].src.asSymbol]));
 								sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 							}
 						}
@@ -774,24 +774,14 @@ MidiInitButton : ConnectorElementView {
 
 		this.view = Button(parentView, rect)
 		.action_({ |bt|
-			if (MIDIClient.initialized) {
-				MIDIClient.restart;
-			} {
-				MIDIClient.init;
-			};
 			try { MIDIIn.connectAll } { |error|
 				error.postln;
 				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 			};
 			MIDIClient.externalSources.do { |source|
-				if (CVWidget.midiSources.values.includes(source.uid.asInteger).not, {
-					// OSX/Linux specific tweek
-					if(source.name == source.device) {
-						CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-					} {
-						CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-					}
-				})
+				if (CVWidget.midiSources.values.includes(source.uid.asInteger).not) {
+					CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+				}
 			};
 			CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
 		});
