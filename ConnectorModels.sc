@@ -20,7 +20,7 @@ OscConnector {
 		widget.oscConnectors.add(this).changed(\value);
 	}
 
-	initModels { |wmc|
+	initModels { |wmc, name|
 		wmc.oscCalibration ?? { wmc.oscCalibration = () };
 		wmc.oscCalibration.model ?? {
 			wmc.oscCalibration.model = Ref(List[]);
@@ -52,6 +52,12 @@ OscConnector {
 			editEnabled: true
 		));
 
+		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
+		wmc.oscConnectorNames.model ?? {
+			wmc.oscConnectorNames.model = Ref(List[]);
+		};
+		wmc.oscConnectorNames.model.value.add(name);
+
 		this.initControllers(wmc);
 	}
 
@@ -60,7 +66,8 @@ OscConnector {
 			prInitOscCalibration,
 			prInitOscInputRange,
 			prInitOscConnection,
-			prInitOscDisplay
+			prInitOscDisplay,
+			prInitOscConnectorNames
 		].do { |method|
 			this.perform(method, wmc, widget.cv)
 		}
@@ -95,11 +102,31 @@ OscConnector {
 
 	prInitOscDisplay { |mc, cv|
 		mc.oscDisplay.controller ?? {
-			mc.oscDisplay.controller = SimpleController(mc.oscDisplay.model);
+			mc.oscDisplay.controller = SimpleController(mc.oscDisplay.model)
 		};
 		mc.oscDisplay.controller.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
+	}
+
+	prInitOscConnectorNames { |mc, cv|
+		mc.oscConnectorNames.controller ?? {
+			mc.oscConnectorNames.controller = SimpleController(mc.oscConnectorNames.model)
+		};
+		mc.oscConnectorNames.controller.put(\default, { |changer, what, moreArgs|
+
+		})
+	}
+
+	name {
+		var conID = widget.oscConnectors.indexOf(this);
+		^widget.wmc.oscConnectorNames.model.value[conID];
+	}
+
+	name_ { |name|
+		var conID = widget.oscConnectors.indexOf(this);
+		widget.wmc.oscConnectorNames.model.value[conID] = name.asSymbol;
+		widget.wmc.oscConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
 	}
 
 	remove {
@@ -108,6 +135,7 @@ OscConnector {
 
 	oscConnect {}
 	oscDisconnect {}
+
 }
 
 MidiConnector {
@@ -383,30 +411,30 @@ MidiConnector {
 		mc.midiInputMappings.controller ?? {
 			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
 		};
-		// mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
-		// 	"yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
-		// })
+		mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
+			// "yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
+		})
 	}
 
 	prInitMidiDisplay { |mc, cv|
 		mc.midiDisplay.controller ?? {
 			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
 		};
-		// mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
-		// "midiDisplay.controller.triggered".postln;
-		// 	var index = widget.midiConnectors.indexOf(this);
-		// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
-		// 	// ...
-// })
+		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
+			// "midiDisplay.controller.triggered".postln;
+			// 	var index = widget.midiConnectors.indexOf(this);
+			// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
+			// 	// ...
+		})
 	}
 
 	prInitMidiConnectorNames { |mc, cv|
 		mc.midiConnectorNames.controller ?? {
 			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
 		};
-		// mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
-		// 	"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
-		// })
+		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
+			// 	"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
+		})
 	}
 
 	name {
