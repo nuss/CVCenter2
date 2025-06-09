@@ -55,6 +55,23 @@ MidiConnectorNameField : ConnectorElementView {
 			})
 		}
 	}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob".throw)
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.midiConnectorNames;
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
+	}
 }
 
 MidiConnectorSelect : ConnectorElementView {
@@ -79,7 +96,7 @@ MidiConnectorSelect : ConnectorElementView {
 
 		mc = widget.wmc.midiConnectorNames;
 		this.view = PopUpMenu(parentView)
-		.items_(widget.midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
+		.items_(widget.midiConnectors.collect(_.name) ++ ['add MidiConnector...']);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.prAddController;
@@ -114,6 +131,23 @@ MidiConnectorSelect : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob".throw)
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.midiConnectorNames;
+		// midiConnector at index 0 should always exist (who knows...)
+		this.view.items_(widget.midiConnectors.collect(_.name) ++ this.view.items.last);
+		this.index_(0);
+		this.prAddController;
+	}
 }
 
 // Elements must not hold a fixed ID as connectors can get deleted from
