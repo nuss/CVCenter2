@@ -24,14 +24,13 @@ CVWidgetKnob : CVWidget {
 		#oscConnectors, midiConnectors = List[]!2;
 
 		oscConnectors.addDependant({
-			// if dropdown menu is present automatically add/remove item to/from items
 			OscConnectorSelect.all[this].do { |select|
-				select.view.items_(["Select connector..."] ++ oscConnectors.collect(_.name))
+				select.view.items_(oscConnectors.collect(_.name) ++ ['addOscConnector...'])
 			}
 		});
 		midiConnectors.addDependant({
 			MidiConnectorSelect.all[this].do { |select|
-				select.view.items_(midiConnectors.collect(_.name) ++ ["add MidiConnector..."]);
+				select.view.items_(midiConnectors.collect(_.name) ++ ['add MidiConnector...']);
 			}
 		});
 

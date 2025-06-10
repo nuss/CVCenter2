@@ -178,6 +178,10 @@ MappingSelect : CompositeView {
 		}
 	}
 
+	widget_ { |otherwidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {

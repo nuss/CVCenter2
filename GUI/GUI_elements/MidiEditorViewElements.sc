@@ -37,6 +37,23 @@ MidiConnectorNameField : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob".throw)
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.midiConnectorNames;
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -54,23 +71,6 @@ MidiConnectorNameField : ConnectorElementView {
 				}
 			})
 		}
-	}
-
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob".throw)
-		};
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		mc = widget.wmc.midiConnectorNames;
-		// midiConnector at index 0 should always exist (who knows...)
-		this.index_(0);
-		this.prAddController;
 	}
 }
 
@@ -107,6 +107,24 @@ MidiConnectorSelect : ConnectorElementView {
 		this.view.value_(connectorID);
 	}
 
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob".throw)
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.midiConnectorNames;
+		this.view.items_(widget.midiConnectors.collect(_.name) ++ this.view.items.last);
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
+	}
+
 	prAddController {
 		var items, conID;
 		var curValue;
@@ -129,24 +147,6 @@ MidiConnectorSelect : ConnectorElementView {
 				}
 			})
 		}
-	}
-
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob".throw)
-		};
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		mc = widget.wmc.midiConnectorNames;
-		// midiConnector at index 0 should always exist (who knows...)
-		this.view.items_(widget.midiConnectors.collect(_.name) ++ this.view.items.last);
-		this.index_(0);
-		this.prAddController;
 	}
 }
 
@@ -244,6 +244,35 @@ MidiLearnButton : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+		var defaultState;
+
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob".throw)
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.midiDisplay;
+		if (mc.model.value[0].learn == "C") {
+			defaultState = [mc.model.value[0].learn, Color.black, Color.green];
+			mc.model.value[0].toolTip = "Connect using selected parameters";
+		} {
+			defaultState = ["L", Color.white, Color.blue];
+		};
+		this.view.states_([
+			defaultState,
+			["X", Color.white, Color.red]
+		]).maxWidth_(25).toolTip_(mc.model.value[0].toolTip);
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
+	}
+
 	prAddController {
 		var pos, conID;
 		mc.controller ?? {
@@ -274,6 +303,7 @@ MidiLearnButton : ConnectorElementView {
 			})
 		}
 	}
+
 }
 
 MidiSrcSelect : ConnectorElementView {
@@ -324,6 +354,10 @@ MidiSrcSelect : ConnectorElementView {
 			};
 			this.view.value_(display)
 		}
+	}
+
+	widget_ { |otherWidget|
+
 	}
 
 	prAddController {
@@ -399,6 +433,10 @@ MidiChanField : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -465,6 +503,10 @@ MidiCtrlField : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -528,6 +570,10 @@ MidiModeSelect : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -586,6 +632,10 @@ MidiZeroNumberBox : ConnectorElementView {
 		mc.model.value[connectorID] !? {
 			this.view.value_(mc.model.value[connectorID].midiZero)
 		}
+	}
+
+	widget_ { |otherWidget|
+
 	}
 
 	prAddController {
@@ -647,6 +697,10 @@ SnapDistanceNumberBox : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -705,6 +759,10 @@ MidiResolutionNumberBox : ConnectorElementView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
 	prAddController {
 		var conID;
 		mc.controller ?? {
@@ -761,6 +819,10 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		mc.model.value[connectorID] !? {
 			this.view.value_(mc.model.value[connectorID].ctrlButtonGroup)
 		}
+	}
+
+	widget_ { |otherWidget|
+
 	}
 
 	prAddController {
@@ -832,6 +894,8 @@ MidiInitButton : ConnectorElementView {
 
 	index_ {}
 
+	widget_ {}
+
 	prAddController {
 		CVWidget.midiInitialized.controller ?? {
 			CVWidget.midiInitialized.controller = SimpleController(CVWidget.midiInitialized.model)
@@ -897,6 +961,10 @@ MidiConnectorRemoveButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = widget.midiConnectors[connectorID];
+	}
+
+	widget_ { |otherWidget|
+
 	}
 
 	close {

@@ -227,6 +227,13 @@ MidiConnectorsEditorView : CompositeView {
 		e.do(_.index_(index));
 	}
 
+	widget_ { |otherWidget|
+		widget = otherWidget;
+		all[widget] ?? { all[widget] = List[] };
+		if (all[widget].includes(this).not) { all[widget].add(this) };
+		e.do(_.widget_(widget))
+	}
+
 	front {
 		parent.front;
 	}
