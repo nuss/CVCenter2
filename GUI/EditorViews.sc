@@ -228,6 +228,11 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
 		widget = otherWidget;
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
