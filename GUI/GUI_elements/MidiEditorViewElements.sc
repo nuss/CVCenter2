@@ -40,7 +40,7 @@ MidiConnectorNameField : ConnectorElementView {
 	widget_ { |otherWidget|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob".throw)
+			Error("Widget must be a CVWidgetKnob").throw
 		};
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
@@ -110,7 +110,7 @@ MidiConnectorSelect : ConnectorElementView {
 	widget_ { |otherWidget|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob".throw)
+			Error("Widget must be a CVWidgetKnob").throw
 		};
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
@@ -249,7 +249,7 @@ MidiLearnButton : ConnectorElementView {
 
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob".throw)
+			Error("Widget must be a CVWidgetKnob").throw
 		};
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
