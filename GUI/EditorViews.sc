@@ -236,7 +236,10 @@ MidiConnectorsEditorView : CompositeView {
 		widget = otherWidget;
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
-		e.do(_.widget_(widget))
+		e.do(_.widget_(widget));
+		if (parent.class === Window) {
+			parent.name_("%: MIDI connections".format(widget.name))
+		}
 	}
 
 	front {

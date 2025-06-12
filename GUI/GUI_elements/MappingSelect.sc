@@ -89,7 +89,6 @@ MappingSelect : CompositeView {
 			e.mcurve.enabled_(false);
 		};
 
-
 		if (layout.size > 1) {
 			this.layout_(VLayout());
 			layout.size.do { |i|
@@ -178,8 +177,53 @@ MappingSelect : CompositeView {
 		}
 	}
 
-	widget_ { |otherwidget|
+	widget_ { |otherWidget|
+		var ramp;
 
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+
+		case
+		{ connectorKind === \midi } {
+			mc = widget.wmc.midiInputMappings;
+			connectors = widget.midiConnectors;
+		}
+		{ connectorKind === \osc } {
+			mc = widget.wmc.oscInputMappings;
+			connectors = widget.oscConnectors;
+		};
+
+		ramp = switch (mc.model.value[0].mapping)
+		{ \linenv } { mc.model.value[0].env }
+		{ \lincurve } { [\lincurve, mc.model.value[0].curve] }
+		{ \linbicurve } { [\linbicurve, mc.model.value[0].curve] }
+		{ mc.model.value[0].mapping };
+
+		case
+		{ mc.model.value[0].mapping === \lincurve or: { mc.model.value[0].mapping === \linbicurve }} {
+			e.mcurve.enabled_(true);
+			e.menv.enabled_(false);
+		}
+		{ mc.model.value[0].mapping === \linenv } {
+			e.menv.enabled_(true);
+			e.mcurve.enabled_(false);
+		}
+		{
+			e.menv.enabled_(false);
+			e.mcurve.enabled_(false);
+		};
+
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
 	}
 
 	prAddController {
@@ -222,12 +266,15 @@ MappingSelect : CompositeView {
 	close {
 		all[widget][connectorKind].remove(this);
 		e.do(_.close);
+		this.prCleanup;
+	}
+
+	prCleanup {
 		if (all[widget][connectorKind].isEmpty) {
 			mc.controller.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
-
 }
 
 RampPlot : SCViewHolder {

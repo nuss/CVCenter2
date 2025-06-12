@@ -357,8 +357,6 @@ MidiSrcSelect : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -451,8 +449,6 @@ MidiChanField : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -537,8 +533,6 @@ MidiCtrlField : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -620,8 +614,6 @@ MidiModeSelect : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -699,8 +691,6 @@ MidiZeroNumberBox : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -777,8 +767,6 @@ SnapDistanceNumberBox : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -854,8 +842,6 @@ MidiResolutionNumberBox : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -931,8 +917,6 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -1048,13 +1032,16 @@ MidiInitButton : ConnectorElementView {
 	close {
 		this.remove;
 		this.viewDidClose;
+		this.prCleanup;
+	}
+
+	prCleanup {
 		all.remove(this);
 		if (all.isEmpty) {
 			CVWidget.midiInitialized.controller.removeAt(syncKey);
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
-
 }
 
 MidiConnectorRemoveButton : ConnectorElementView {
@@ -1088,8 +1075,6 @@ MidiConnectorRemoveButton : ConnectorElementView {
 	}
 
 	widget_ { |otherWidget|
-		var defaultState;
-
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -1101,14 +1086,15 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		this.index_(0);
-		// midiConnector at index 0 should always exist (who knows...)
-		this.prAddController;
 	}
 
 	close {
 		this.remove;
 		this.viewDidClose;
-		all[widget].remove(this);
+		this.prCleanup;
 	}
 
+	prCleanup {
+		all[widget].remove(this);
+	}
 }
