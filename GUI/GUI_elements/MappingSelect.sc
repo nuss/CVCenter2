@@ -185,8 +185,12 @@ MappingSelect : CompositeView {
 			Error("Widget must be a CVWidgetKnob").throw
 		};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
+		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget][connectorKind] ?? {
+			all[otherWidget][connectorKind] = List[];
+		};
+		all[otherWidget][connectorKind].add(this);
+
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
