@@ -115,15 +115,21 @@ MidiConnectorsEditorView : CompositeView {
 
 	init { |wdgt, index, parentView|
 		var m;
-		// index can be an Integer, a Symbol or a MidiConnector instance
-		if (index.class == Symbol) {
-			index = widget.midiConnectors.detect { |c| c.name == index }
-		};
-		if (index.class == MidiConnector) {
-			index = widget.midiConnectors.indexOf(index)
+
+		if (wdgt.midiConnectors.isEmpty) {
+			MidiConnector(wdgt)
 		};
 
-		e = ();
+		// index can be an Integer, a Symbol or a MidiConnector instance
+		if (index.class == Symbol) {
+			index = wdgt.midiConnectors.detect { |c| c.name == index }
+		};
+		if (index.class == MidiConnector) {
+			index = wdgt.midiConnectors.indexOf(index)
+		};
+		// after all, if index is nil or greater the set it to 0
+		if (index.isNil or: { index > wdgt.midiConnectors.lastIndex }) { index = 0 };
+
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
@@ -132,19 +138,9 @@ MidiConnectorsEditorView : CompositeView {
 			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 375))
 		} { parent = parentView };
 
-		parent.onClose_({
-			this.close
-		});
+		parent.onClose_({ this.close });
 
-		if (widget.midiConnectors.isEmpty) {
-			MidiConnector(widget)
-		};
-
-		// fallback if index out of bounds
-		if (index >= widget.midiConnectors.size) {
-			index = widget.midiConnectors.size - 1;
-		};
-
+		e = ();
 		e.connectorNameField = MidiConnectorNameField(parent, widget, connectorID: index);
 		e.connectorSelect = MidiConnectorSelect(parent, widget, connectorID: index);
 		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
@@ -234,6 +230,7 @@ MidiConnectorsEditorView : CompositeView {
 		};
 
 		widget = otherWidget;
+		connector = widget.midiConnectors[0];
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
 		e.do(_.widget_(widget));
@@ -252,6 +249,6 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	*closeAll {
-		all.do { |eds| eds.do(_.close) }
+		all.pairsDo { |key, eds| eds.do(_.close) }
 	}
 }

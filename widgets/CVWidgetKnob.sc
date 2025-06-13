@@ -433,13 +433,11 @@ CVWidgetKnob : CVWidget {
 		^OscConnector(this, name);
 	}
 
-	removeOscConnector { |connector|
+	removeOscConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
-		// FIXME: should call connector.remove instead?
-		connector.oscDisconnect;
-		oscConnectors.remove(connector);
+		connector.remove(forceAll);
 	}
 
 	addMidiConnector { |name|
@@ -447,11 +445,11 @@ CVWidgetKnob : CVWidget {
 		^MidiConnector(this, name);
 	}
 
-	removeMidiConnector { |connector|
+	removeMidiConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
 			connector = midiConnectors[connector]
 		};
-		connector.remove;
+		connector.remove(forceAll);
 	}
 
 	remove {
