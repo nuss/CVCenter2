@@ -401,7 +401,7 @@ MidiConnector {
 				allMidiFuncs[widget][index].clear;
 				if (mc.midiConnections.model.value.select(_.notNil).isEmpty) {
 					// no conections for widget, uninitialize accum[widget]
-					accum[widget] = nil;
+					accum[widget] !? { accum[widget] = nil };
 				}
 			};
 		})
