@@ -143,6 +143,8 @@ MidiConnector {
 	classvar allMidiFuncs;
 	classvar accum;
 	var <widget;
+	var <onRemove;
+
 
 	*initClass {
 		allMidiFuncs = ();
@@ -437,6 +439,11 @@ MidiConnector {
 		})
 	}
 
+	onRemove_ { |func|
+		onRemove ?? { onRemove = FunctionList.new };
+		onRemove.addFunc(func);
+	}
+
 	name {
 		var conID = widget.midiConnectors.indexOf(this);
 		^widget.wmc.midiConnectorNames.model.value[conID];
@@ -592,24 +599,25 @@ MidiConnector {
 			// after midiConnectors have been changed
 			// make sure display in all MIDI editors get set to valid entries
 			// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
-			\ConnectorElementView.asClass !? {
-				\ConnectorElementView.asClass.subclasses.do { |class|
-					// elements that have a meaning in the context of a connector
-					// hold an Event in their 'all'' classvar
-					// 'global' elements like MidiInitButton hold a List in 'all'
-					// following block only needs to run for elements that keep a reference
-					// to an index of one or more connectors
-					if (class.all.class == Event) {
-						class.all[widget] !? {
-							if (index > 0) {
-								class.all[widget].do(_.index_(index - 1))
-							} {
-								class.all[widget].do(_.index_(index))
-							}
-						}
-					}
-				}
-			};
+			this.onRemove.value(index);
+			// \ConnectorElementView.asClass !? {
+			// 	\ConnectorElementView.asClass.subclasses.do { |class|
+			// 		// elements that have a meaning in the context of a connector
+			// 		// hold an Event in their 'all'' classvar
+			// 		// 'global' elements like MidiInitButton hold a List in 'all'
+			// 		// following block only needs to run for elements that keep a reference
+			// 		// to an index of one or more connectors
+			// 		if (class.all.class == Event) {
+			// 			class.all[widget] !? {
+			// 				if (index > 0) {
+			// 					class.all[widget].do(_.index_(index - 1))
+			// 				} {
+			// 					class.all[widget].do(_.index_(index))
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// };
 			\MappingSelect.asClass !? {
 				if (\MappingSelect.asClass.all[widget].notNil and: {
 					\MappingSelect.asClass.all[widget][\midi].notNil
@@ -625,11 +633,11 @@ MidiConnector {
 		}
 	}
 
-	storeOn { |stream|
-		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
-	}
-
-	printOn { |stream|
-		this.storeOn(stream)
-	}
+	// storeOn { |stream|
+	// 	stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
+	// }
+	//
+	// printOn { |stream|
+	// 	this.storeOn(stream)
+	// }
 }

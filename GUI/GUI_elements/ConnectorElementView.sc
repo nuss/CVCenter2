@@ -15,4 +15,20 @@ ConnectorElementView : SCViewHolder {
 			this.widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
+
+	prOnRemoveConnector { |index, connectorKind|
+		var connectors;
+
+		"%: prOnRemoveConnector called: %".format(this.class, connectorKind).postln;
+		switch (connectorKind)
+		{ \midi } { connectors = this.widget.midiConnectors }
+		{ \osc } { connectors = this.widget.oscConnectors };
+
+		[index, this.class, this.class.all[this.widget]].postln;
+		if (index > 0) {
+			this.class.all[this.widget].do(_.index_(index - 1))
+		} {
+			this.class.all[this.widget].do(_.index_(index))
+		}
+	}
 }
