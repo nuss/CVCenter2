@@ -27,10 +27,12 @@ MidiConnectorNameField : ConnectorElementView {
 			this.connector.name_(tf.string.asSymbol)
 		});
 		this.view.onClose_({ this.close });
-		// FIXME: don't funcs pile up in onRemove
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		// FIXME: don't let funcs pile up in onRemove
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -103,9 +105,11 @@ MidiConnectorSelect : ConnectorElementView {
 		.items_(widget.midiConnectors.collect(_.name) ++ ['add MidiConnector...']);
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -228,9 +232,11 @@ MidiLearnButton : ConnectorElementView {
 				}
 			}
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -350,9 +356,11 @@ MidiSrcSelect : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -450,9 +458,11 @@ MidiChanField : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -537,9 +547,11 @@ MidiCtrlField : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -621,9 +633,11 @@ MidiModeSelect : ConnectorElementView {
 			// "My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
 			this.connector.setMidiMode(sel.value);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -701,9 +715,11 @@ MidiZeroNumberBox : ConnectorElementView {
 			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setMidiZero(nb.value);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -780,9 +796,11 @@ SnapDistanceNumberBox : ConnectorElementView {
 			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setSnapDistance(nb.value);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -858,9 +876,11 @@ MidiResolutionNumberBox : ConnectorElementView {
 		this.view.action_({ |nb|
 			this.connector.setMidiResolution(nb.value);
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -936,9 +956,11 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		this.view.action_({ |nb|
 			this.connector.setCtrlButtonGroup(nb.value.asInteger)
 		});
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -1105,9 +1127,11 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		this.view = Button(parentView, rect)
 		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
 		.action_({ this.connector.remove });
-		this.connector.onRemove_({ |id|
-			this.prOnRemoveConnector(id, \midi)
-		});
+		if (all[widget].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, \midi)
+			})
+		};
 	}
 
 	index_ { |connectorID|

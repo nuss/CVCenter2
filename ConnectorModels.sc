@@ -142,8 +142,9 @@ MidiConnector {
 	classvar cAnons = 0;
 	classvar allMidiFuncs;
 	classvar accum;
+	classvar <onConnectorRemove;
 	var <widget;
-	var <onRemove;
+	// var <onRemove;
 
 
 	*initClass {
@@ -151,6 +152,11 @@ MidiConnector {
 		// input accumulation of input in a linear range in 'endless' mode
 		// see ccAction in prInitMidiConnection
 		accum = ();
+		onConnectorRemove = FunctionList.new;
+	}
+
+	*onConnectorRemove_ { |func|
+		onConnectorRemove.addFunc(func)
 	}
 
 	*new { |widget, name|
@@ -439,11 +445,6 @@ MidiConnector {
 		})
 	}
 
-	onRemove_ { |func|
-		onRemove ?? { onRemove = FunctionList.new };
-		onRemove.addFunc(func);
-	}
-
 	name {
 		var conID = widget.midiConnectors.indexOf(this);
 		^widget.wmc.midiConnectorNames.model.value[conID];
@@ -595,40 +596,12 @@ MidiConnector {
 			].do(_.removeAt(index));
 			widget.midiConnectors.remove(this);
 			widget.midiConnectors.changed(\value);
-			// order matters - next block must be executed
-			// after midiConnectors have been changed
-			// make sure display in all MIDI editors get set to valid entries
-			// MidiConnectorsEditorView is a view which shouldn't necessarily have to exist
-			this.onRemove.value(index);
-			// \ConnectorElementView.asClass !? {
-			// 	\ConnectorElementView.asClass.subclasses.do { |class|
-			// 		// elements that have a meaning in the context of a connector
-			// 		// hold an Event in their 'all'' classvar
-			// 		// 'global' elements like MidiInitButton hold a List in 'all'
-			// 		// following block only needs to run for elements that keep a reference
-			// 		// to an index of one or more connectors
-			// 		if (class.all.class == Event) {
-			// 			class.all[widget] !? {
-			// 				if (index > 0) {
-			// 					class.all[widget].do(_.index_(index - 1))
-			// 				} {
-			// 					class.all[widget].do(_.index_(index))
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// };
-			\MappingSelect.asClass !? {
-				if (\MappingSelect.asClass.all[widget].notNil and: {
-					\MappingSelect.asClass.all[widget][\midi].notNil
-				}) {
-					allMS = \MappingSelect.asClass.all[widget][\midi];
-					if (index > 0) {
-						allMS.do(_.index_(index - 1))
-					} {
-						allMS.do(_.index_(index))
-					}
-				}
+			// set editor elements (and other custom elements depending
+			// on widget.midiConnectors) to suitable connector
+			onConnectorRemove.value(index);
+			if (widget.midiConnectors.size == 0) {
+				// TODO: cleanup onConnectorRemove FunctionList
+				// onConnectorRemove.array
 			}
 		}
 	}

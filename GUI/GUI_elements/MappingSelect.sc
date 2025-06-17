@@ -147,7 +147,11 @@ MappingSelect : CompositeView {
 				mc.model.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
-
+		if (all[widget][connectorKind].size == 1) {
+			MidiConnector.onConnectorRemove_({ |id|
+				this.prOnRemoveConnector(id, connectorKind)
+			})
+		};
 		this.prAddController;
 	}
 
@@ -264,6 +268,20 @@ MappingSelect : CompositeView {
 					}
 				}
 			})
+		}
+	}
+
+	prOnRemoveConnector { |index, connectorKind|
+		var connectors;
+
+		switch (connectorKind)
+		{ \midi } { connectors = widget.midiConnectors }
+		{ \osc } { connectors = widget.oscConnectors };
+
+		if (index > 0) {
+			all[widget][connectorKind].do(_.index_(index - 1))
+		} {
+			all[widget][connectorKind].do(_.index_(index))
 		}
 	}
 
