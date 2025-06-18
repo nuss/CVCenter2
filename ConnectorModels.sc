@@ -447,13 +447,17 @@ MidiConnector {
 
 	name {
 		var conID = widget.midiConnectors.indexOf(this);
-		^widget.wmc.midiConnectorNames.model.value[conID];
+		if (conID.notNil) {
+			^widget.wmc.midiConnectorNames.model.value[conID]
+		} { ^nil }
 	}
 
 	name_ { |name|
 		var conID = widget.midiConnectors.indexOf(this);
-		widget.wmc.midiConnectorNames.model.value[conID] = name.asSymbol;
-		widget.wmc.midiConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+		conID !? {
+			widget.wmc.midiConnectorNames.model.value[conID] = name.asSymbol;
+			widget.wmc.midiConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+		}
 	}
 
 	setMidiMode { |mode|
@@ -603,6 +607,7 @@ MidiConnector {
 	}
 
 	storeOn { |stream|
+		widget.midiConnectors.indexOf(this).postln;
 		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
 	}
 
