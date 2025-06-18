@@ -1,5 +1,5 @@
 MappingSelect : CompositeView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var mc, connectors, syncKey;
 	var <connector, <widget, connectorKind;
 	var <e, bgColor;
@@ -147,10 +147,11 @@ MappingSelect : CompositeView {
 				mc.model.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
-		if (all[widget][connectorKind].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, connectorKind)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -271,7 +272,7 @@ MappingSelect : CompositeView {
 		}
 	}
 
-	prOnRemoveConnector { |index, connectorKind|
+	prOnRemoveConnector { |widget, index, connectorKind|
 		var connectors;
 
 		switch (connectorKind)

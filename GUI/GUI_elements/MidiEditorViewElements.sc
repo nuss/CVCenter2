@@ -1,7 +1,7 @@
 // MIDI editors
 
 MidiConnectorNameField : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -28,10 +28,11 @@ MidiConnectorNameField : ConnectorElementView {
 		});
 		this.view.onClose_({ this.close });
 		// FIXME: don't let funcs pile up in onRemove
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -81,7 +82,7 @@ MidiConnectorNameField : ConnectorElementView {
 }
 
 MidiConnectorSelect : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -105,10 +106,11 @@ MidiConnectorSelect : ConnectorElementView {
 		.items_(widget.midiConnectors.collect(_.name) ++ ['add MidiConnector...']);
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -166,7 +168,7 @@ MidiConnectorSelect : ConnectorElementView {
 // the current index from querying the widget's oscConnectors / midiConnectors list.
 
 MidiLearnButton : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	// widget must be a getter as it's called
 	// in close(), defined in ConnectorElementView
 	var <connector, <widget;
@@ -232,10 +234,11 @@ MidiLearnButton : ConnectorElementView {
 				}
 			}
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -323,7 +326,7 @@ MidiLearnButton : ConnectorElementView {
 }
 
 MidiSrcSelect : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -356,10 +359,11 @@ MidiSrcSelect : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -427,7 +431,7 @@ MidiSrcSelect : ConnectorElementView {
 }
 
 MidiChanField : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -458,10 +462,11 @@ MidiChanField : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -516,7 +521,7 @@ MidiChanField : ConnectorElementView {
 }
 
 MidiCtrlField : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -547,10 +552,11 @@ MidiCtrlField : ConnectorElementView {
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -605,7 +611,7 @@ MidiCtrlField : ConnectorElementView {
 }
 
 MidiModeSelect : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -633,10 +639,11 @@ MidiModeSelect : ConnectorElementView {
 			// "My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
 			this.connector.setMidiMode(sel.value);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -688,7 +695,7 @@ MidiModeSelect : ConnectorElementView {
 }
 
 MidiZeroNumberBox : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -715,10 +722,11 @@ MidiZeroNumberBox : ConnectorElementView {
 			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setMidiZero(nb.value);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -769,7 +777,7 @@ MidiZeroNumberBox : ConnectorElementView {
 }
 
 SnapDistanceNumberBox : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -796,10 +804,11 @@ SnapDistanceNumberBox : ConnectorElementView {
 			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setSnapDistance(nb.value);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -850,7 +859,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 }
 
 MidiResolutionNumberBox : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -876,10 +885,11 @@ MidiResolutionNumberBox : ConnectorElementView {
 		this.view.action_({ |nb|
 			this.connector.setMidiResolution(nb.value);
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -930,7 +940,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 }
 
 SlidersPerGroupNumberBox : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -956,10 +966,11 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		this.view.action_({ |nb|
 			this.connector.setCtrlButtonGroup(nb.value.asInteger)
 		});
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
 	}
@@ -1104,7 +1115,7 @@ MidiInitButton : ConnectorElementView {
 }
 
 MidiConnectorRemoveButton : ConnectorElementView {
-	classvar <all;
+	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 
 	*initClass {
@@ -1127,10 +1138,11 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		this.view = Button(parentView, rect)
 		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
 		.action_({ this.connector.remove });
-		if (all[widget].size == 1) {
-			MidiConnector.onConnectorRemove_({ |id|
-				this.prOnRemoveConnector(id, \midi)
-			})
+		connectorRemovedFuncAdded ?? {
+			MidiConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, \midi)
+			});
+			connectorRemovedFuncAdded = true
 		};
 	}
 

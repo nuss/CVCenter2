@@ -598,19 +598,15 @@ MidiConnector {
 			widget.midiConnectors.changed(\value);
 			// set editor elements (and other custom elements depending
 			// on widget.midiConnectors) to suitable connector
-			onConnectorRemove.value(index);
-			if (widget.midiConnectors.size == 0) {
-				// TODO: cleanup onConnectorRemove FunctionList
-				// onConnectorRemove.array
-			}
+			onConnectorRemove.value(widget, index);
 		}
 	}
 
-	// storeOn { |stream|
-	// 	stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
-	// }
-	//
-	// printOn { |stream|
-	// 	this.storeOn(stream)
-	// }
+	storeOn { |stream|
+		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
+	}
+
+	printOn { |stream|
+		this.storeOn(stream)
+	}
 }

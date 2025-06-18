@@ -16,20 +16,20 @@ ConnectorElementView : SCViewHolder {
 		}
 	}
 
-	prOnRemoveConnector { |index, connectorKind|
+	prOnRemoveConnector { |widget, index, connectorKind|
 		var connectors;
 
 		// "%: prOnRemoveConnector called".format(this.class).postln;
 		switch (connectorKind)
-		{ \midi } { connectors = this.widget.midiConnectors }
-		{ \osc } { connectors = this.widget.oscConnectors };
+		{ \midi } { connectors = widget.midiConnectors }
+		{ \osc } { connectors = widget.oscConnectors };
 		// index = connectors.indexOf(this.connector);
 
-		// [this.connector, connectors, connectors[0] === this.connector, index, this.widget, this.class, this.class.all[this.widget]].postln;
+		// [connectors, index, widget, this.class, this.class.all[widget]].postln;
 		if (index > 0) {
-			this.class.all[this.widget].do(_.index_(index - 1))
+			this.class.all[widget].do(_.index_(index - 1))
 		} {
-			this.class.all[this.widget].do(_.index_(index))
+			this.class.all[widget].do(_.index_(index))
 		}
 	}
 }
