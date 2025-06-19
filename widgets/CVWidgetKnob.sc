@@ -482,8 +482,8 @@ CVWidgetKnob : CVWidget {
 	}
 
 	storeOn { |stream|
-		stream << this.class.name << "(" <<< [
-			this.name,
+		stream << this.class.name << "(" <<* [
+			this.name.cs,
 			this.cv
 		] << ")"
 	}
