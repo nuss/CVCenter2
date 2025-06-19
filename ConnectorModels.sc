@@ -144,7 +144,6 @@ MidiConnector {
 	classvar accum;
 	classvar <onConnectorRemove;
 	var <widget;
-	// var <onRemove;
 
 
 	*initClass {
@@ -152,11 +151,10 @@ MidiConnector {
 		// input accumulation of input in a linear range in 'endless' mode
 		// see ccAction in prInitMidiConnection
 		accum = ();
-		onConnectorRemove = FunctionList.new;
 	}
 
 	*onConnectorRemove_ { |func|
-		onConnectorRemove.addFunc(func)
+		onConnectorRemove = onConnectorRemove.addFunc(func)
 	}
 
 	*new { |widget, name|
@@ -607,7 +605,6 @@ MidiConnector {
 	}
 
 	storeOn { |stream|
-		widget.midiConnectors.indexOf(this).postln;
 		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
 	}
 
