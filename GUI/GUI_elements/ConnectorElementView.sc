@@ -16,16 +16,9 @@ ConnectorElementView : SCViewHolder {
 		}
 	}
 
-	prOnRemoveConnector { |widget, index, connectorKind|
-		var connectors;
-
-		// "%: prOnRemoveConnector called".format(this.class).postln;
-		switch (connectorKind)
-		{ \midi } { connectors = widget.midiConnectors }
-		{ \osc } { connectors = widget.oscConnectors };
-		// index = connectors.indexOf(this.connector);
-
-		// [connectors, index, widget, this.class, this.class.all[widget]].postln;
+	// suitable for all instances, hence, widget must
+	// be passed in explicitly within MidiConnector:-remove
+	prOnRemoveConnector { |widget, index|
 		if (index > 0) {
 			this.class.all[widget].do(_.index_(index - 1))
 		} {
