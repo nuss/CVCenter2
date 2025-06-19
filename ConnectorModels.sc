@@ -605,7 +605,7 @@ MidiConnector {
 	}
 
 	storeOn { |stream|
-		stream << this.class.name << "(" <<* [widget.name, this.name] << ")"
+		stream << this.class.name << "(" <<* [widget.name.cs, this.name] << ")"
 	}
 
 	printOn { |stream|
