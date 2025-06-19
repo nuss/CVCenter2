@@ -70,6 +70,7 @@ MidiConnectorNameField : ConnectorElementView {
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
+		// if there's already a function defined for synKey simply replace it
 		mc.controller.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|

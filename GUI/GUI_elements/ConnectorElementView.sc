@@ -16,7 +16,7 @@ ConnectorElementView : SCViewHolder {
 		}
 	}
 
-	// suitable for all instances, hence, widget must
+	// suitable for all instances, hence widget must
 	// be passed in explicitly within MidiConnector:-remove
 	prOnRemoveConnector { |widget, index|
 		if (index > 0) {
