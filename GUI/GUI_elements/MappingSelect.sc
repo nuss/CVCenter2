@@ -242,34 +242,34 @@ MappingSelect : CompositeView {
 		};
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget][connectorKind].do { |ms, i|
-					if (ms.connector === connectors[conID]) {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget][connectorKind].do { |ms, i|
+				if (ms.connector === connectors[conID]) {
+					{
+						ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID].mapping));
+						case
+						{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
+							ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
+							ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
+							ms.e.menv.enabled_(false);
+						}
+						{ changer.value[conID].mapping === \linenv } {
+							ms.e.mcurve.enabled_(false);
+							ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
+							ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
+						}
 						{
-							ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID].mapping));
-							case
-							{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
-								ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
-								ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
-								ms.e.menv.enabled_(false);
-							}
-							{ changer.value[conID].mapping === \linenv } {
-								ms.e.mcurve.enabled_(false);
-								ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
-								ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
-							}
-							{
-								ms.e.mcurve.enabled_(false);
-								ms.e.mplot.draw(changer.value[conID].mapping);
-								ms.e.menv.enabled_(false);
-							}
-						}.defer
-					}
+							ms.e.mcurve.enabled_(false);
+							ms.e.mplot.draw(changer.value[conID].mapping);
+							ms.e.menv.enabled_(false);
+						}
+					}.defer
 				}
-			})
-		}
+			}
+		})
 	}
 
 	prOnRemoveConnector { |widget, index, connectorKind|

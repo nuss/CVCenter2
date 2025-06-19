@@ -30,7 +30,7 @@ MidiConnectorNameField : ConnectorElementView {
 		// FIXME: don't let funcs pile up in onRemove
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -68,16 +68,16 @@ MidiConnectorNameField : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |tf|
-					if (tf.connector === widget.midiConnectors[conID]) {
-						tf.view.string_(changer.value[conID]);
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |tf|
+				if (tf.connector === widget.midiConnectors[conID]) {
+					tf.view.string_(changer.value[conID]);
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -108,7 +108,7 @@ MidiConnectorSelect : ConnectorElementView {
 		this.index_(index);
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -146,20 +146,20 @@ MidiConnectorSelect : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |sel, i|
-					items = sel.view.items;
-					items[conID] = changer.value[conID];
-					curValue = sel.view.value;
-					sel.view.items_(items).value_(curValue);
-					if (sel.connector === widget.midiConnectors[conID]) {
-						sel.view.value_(conID)
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |sel, i|
+				items = sel.view.items;
+				items[conID] = changer.value[conID];
+				curValue = sel.view.value;
+				sel.view.items_(items).value_(curValue);
+				if (sel.connector === widget.midiConnectors[conID]) {
+					sel.view.value_(conID)
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -236,7 +236,7 @@ MidiLearnButton : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -299,28 +299,28 @@ MidiLearnButton : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			// the following is global for all MidiLearnButtons
-			// there must be no notion of 'this' as all MidiLearnButton instances are affected
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |but, i|
-					if (but.connector === widget.midiConnectors[conID]) {
-						if (changer.value[conID].learn == "C") {
-							// mc.model.value[i].toolTip = "Connect using selected parameters";
-							but.view.states_([
-								["C", Color.black, Color.green],
-								["X", Color.white, Color.red]
-							])
-						};
-						pos = but.view.states.detectIndex { |state, j|
-							state[0] == changer.value[conID].learn
-						};
-						defer { but.view.value_(pos).toolTip_(mc.model.value[conID].toolTip) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		// the following is global for all MidiLearnButtons
+		// there must be no notion of 'this' as all MidiLearnButton instances are affected
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |but, i|
+				if (but.connector === widget.midiConnectors[conID]) {
+					if (changer.value[conID].learn == "C") {
+						// mc.model.value[i].toolTip = "Connect using selected parameters";
+						but.view.states_([
+							["C", Color.black, Color.green],
+							["X", Color.white, Color.red]
+						])
+					};
+					pos = but.view.states.detectIndex { |state, j|
+						state[0] == changer.value[conID].learn
+					};
+					defer { but.view.value_(pos).toolTip_(mc.model.value[conID].toolTip) }
 				}
-			})
-		}
+			}
+		})
 	}
 
 }
@@ -361,7 +361,7 @@ MidiSrcSelect : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -407,26 +407,26 @@ MidiSrcSelect : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |sel|
-					if (sel.connector === widget.midiConnectors[conID]) {
-						if (changer.value[conID].src.isNil or: { changer.value[conID].src == "source..." }) {
-							defer {
-								sel.view.value_(0);
-								sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
-							}
-						} {
-							defer {
-								sel.view.value_(sel.items.indexOf(CVWidget.midiSources[changer.value[conID].src.asSymbol]));
-								sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
-							}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |sel|
+				if (sel.connector === widget.midiConnectors[conID]) {
+					if (changer.value[conID].src.isNil or: { changer.value[conID].src == "source..." }) {
+						defer {
+							sel.view.value_(0);
+							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
+						}
+					} {
+						defer {
+							sel.view.value_(sel.items.indexOf(CVWidget.midiSources[changer.value[conID].src.asSymbol]));
+							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 						}
 					}
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -464,7 +464,7 @@ MidiChanField : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -504,19 +504,19 @@ MidiChanField : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |tf|
-					if (tf.connector === widget.midiConnectors[conID]) {
-						defer {
-							tf.view.string_(changer.value[conID].chan);
-							tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
-						}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |tf|
+				if (tf.connector === widget.midiConnectors[conID]) {
+					defer {
+						tf.view.string_(changer.value[conID].chan);
+						tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 					}
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -554,7 +554,7 @@ MidiCtrlField : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -594,19 +594,19 @@ MidiCtrlField : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |tf|
-					if (tf.connector === widget.midiConnectors[conID]) {
-						defer {
-							tf.view.string_(changer.value[conID].ctrl);
-							tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
-						}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |tf|
+				if (tf.connector === widget.midiConnectors[conID]) {
+					defer {
+						tf.view.string_(changer.value[conID].ctrl);
+						tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 					}
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -641,7 +641,7 @@ MidiModeSelect : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -680,17 +680,17 @@ MidiModeSelect : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |sel|
-					// [sel.connector, widget.midiConnectors[conID], this.connector].postln;
-					if (sel.connector === widget.midiConnectors[conID]) {
-						defer { sel.view.value_(changer[conID].value.midiMode) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |sel|
+				// [sel.connector, widget.midiConnectors[conID], this.connector].postln;
+				if (sel.connector === widget.midiConnectors[conID]) {
+					defer { sel.view.value_(changer[conID].value.midiMode) }
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -719,12 +719,11 @@ MidiZeroNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setMidiZero(nb.value);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -763,16 +762,16 @@ MidiZeroNumberBox : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |nb|
-					if (nb.connector === widget.midiConnectors[conID]) {
-						defer { nb.view.value_(changer[conID].value.midiZero) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === widget.midiConnectors[conID]) {
+					defer { nb.view.value_(changer[conID].value.midiZero) }
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -801,12 +800,11 @@ SnapDistanceNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			// var i = widget.midiConnectors.indexOf(this.connector);
 			this.connector.setSnapDistance(nb.value);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -845,16 +843,16 @@ SnapDistanceNumberBox : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |nb|
-					if (nb.connector === widget.midiConnectors[conID]) {
-						defer { nb.view.value_(changer.value[conID].snapDistance) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === widget.midiConnectors[conID]) {
+					defer { nb.view.value_(changer.value[conID].snapDistance) }
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -887,7 +885,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -926,16 +924,16 @@ MidiResolutionNumberBox : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |nb|
-					if (nb.connector === widget.midiConnectors[conID]) {
-						defer { nb.view.value_(changer.value[conID].midiResolution) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === widget.midiConnectors[conID]) {
+					defer { nb.view.value_(changer.value[conID].midiResolution) }
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -968,7 +966,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -1007,16 +1005,16 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true);
-			mc.controller.put(syncKey, { |changer, what ... moreArgs|
-				conID = moreArgs[0];
-				all[widget].do { |nb|
-					if (nb.connector === widget.midiConnectors[conID]) {
-						defer { nb.view.value_(changer.value[conID].ctrlButtonGroup) }
-					}
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === widget.midiConnectors[conID]) {
+					defer { nb.view.value_(changer.value[conID].ctrlButtonGroup) }
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
@@ -1140,7 +1138,7 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		.action_({ this.connector.remove });
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id)
 			});
 			connectorRemovedFuncAdded = true
 		};
