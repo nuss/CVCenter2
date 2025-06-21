@@ -14,7 +14,7 @@ OscConnector {
 	init { |name|
 		widget.numOscConnectors = widget.numOscConnectors + 1;
 		name ?? {
-			name = "OSC Connection %".format(widget.numMidiConnectors).asSymbol;
+			name = "OSC Connection %".format(widget.numOscConnectors).asSymbol;
 		};
 		this.initModels(widget.wmc, name);
 		widget.oscConnectors.add(this).changed(\value);
@@ -120,13 +120,17 @@ OscConnector {
 
 	name {
 		var conID = widget.oscConnectors.indexOf(this);
-		^widget.wmc.oscConnectorNames.model.value[conID];
+		if (conID.notNil) {
+			^widget.wmc.oscConnectorNames.model.value[conID]
+		} { ^nil };
 	}
 
 	name_ { |name|
 		var conID = widget.oscConnectors.indexOf(this);
-		widget.wmc.oscConnectorNames.model.value[conID] = name.asSymbol;
-		widget.wmc.oscConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+		conID !? {
+			widget.wmc.oscConnectorNames.model.value[conID] = name.asSymbol;
+			widget.wmc.oscConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+		}
 	}
 
 	remove {
