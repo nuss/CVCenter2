@@ -29,8 +29,6 @@ OscConnectorsEditorView : CompositeView {
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		OSCCommands.collectTempIPsAndCmds;
-
 		if (parentView.isNil) {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
 		} { parent = parentView };
@@ -229,6 +227,7 @@ MidiConnectorsEditorView : CompositeView {
 			Error("Widget must be a CVWidgetKnob").throw
 		};
 
+		all[widget].remove(this);
 		widget = otherWidget;
 		connector = widget.midiConnectors[0];
 		all[widget] ?? { all[widget] = List[] };
