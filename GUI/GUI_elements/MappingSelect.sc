@@ -287,12 +287,13 @@ MappingSelect : CompositeView {
 	}
 
 	close {
-		all[widget][connectorKind].remove(this);
+		this.remove;
 		e.do(_.close);
 		this.prCleanup;
 	}
 
 	prCleanup {
+		all[widget][connectorKind].remove(this);
 		if (all[widget][connectorKind].isEmpty) {
 			mc.controller.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
