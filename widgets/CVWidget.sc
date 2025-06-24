@@ -4,7 +4,7 @@ CVWidget {
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup = 1, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
 	classvar syncKeysEvent;
-	classvar <midiInitialized;
+	classvar <wmc; // models and controllers tied to the class
 
 	// widget models and controllers
 	// defined individually in subclasses
@@ -25,17 +25,15 @@ CVWidget {
 		Class.initClassTree(CVWidgetShortcuts);
 
 		// all CVWidgets
-		all = ();
+		#all, wmc = ()!2;
 		syncKeysEvent ?? {
 			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
 		this.midiSources = ();
 		StartUp.add {
-			midiInitialized ?? { midiInitialized = () };
-			midiInitialized.model ?? {
-				midiInitialized.model = Ref(false);
-			};
+			wmc.midiInitialized = (model: Ref(false));
+			wmc.midiSources = (model: Ref(()));
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
 				try { MIDIIn.connectAll } { |error|
@@ -43,16 +41,11 @@ CVWidget {
 					"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 				};
 				MIDIClient.externalSources.do { |source|
-					if (this.midiSources.values.includes(source.uid.asInteger).not, {
-						// OSX/Linux specific tweek
-						if(source.name == source.device) {
-							this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-						} {
-							this.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
-						}
-					})
+					if (wmc.midiSources.model.value.includes(source.uid).not) {
+						wmc.midiSources.model.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
+					}
 				};
-				midiInitialized.model.value_(MIDIClient.initialized);
+				wmc.midiInitialized.model.value_(MIDIClient.initialized);
 			}
 		};
 

@@ -211,13 +211,13 @@ MidiLearnButton : ConnectorElementView {
 			mc.model.value[i].learn = bt.states[bt.value][0];
 			mc.model.changedPerformKeys(widget.syncKeys, i);
 			if (mc.model.value[i].learn == "X") {
-				if (mc.model.value[i].src != "source...") { src = mc.model.value[i].src };
+				if (mc.model.value[i].src != 'source...') { src = mc.model.value[i].src };
 				if (mc.model.value[i].chan != "chan") { chan = mc.model.value[i].chan };
 				if (mc.model.value[i].ctrl != "ctrl") { ctrl = mc.model.value[i].ctrl };
 				widget.midiConnect(connector, src, chan, ctrl);
 				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
 					all[widget].do { |b|
-						if (widget.midiConnectors.indexOf(b.connector.postln) == i) {
+						if (widget.midiConnectors.indexOf(b.connector) == i) {
 							b.view.states_([
 								["L", Color.white, Color.blue],
 								["X", Color.white, Color.red]
@@ -229,7 +229,7 @@ MidiLearnButton : ConnectorElementView {
 			{
 				widget.midiDisconnect(connector);
 				all[widget].do { |b|
-					if (widget.midiConnectors.indexOf(b.connector.postln) == i) {
+					if (widget.midiConnectors.indexOf(b.connector) == i) {
 						b.view.toolTip_(mc.model.value[i].toolTip);
 					}
 				}
@@ -329,6 +329,7 @@ MidiLearnButton : ConnectorElementView {
 MidiSrcSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
+	var wmc; // models and controllers tied to the class CVWidget
 
 	*initClass {
 		all = ();
@@ -347,6 +348,7 @@ MidiSrcSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
+		wmc = CVWidget.wmc.midiSources;
 
 		this.view = PopUpMenu(parentView, rect)
 		.enabled_(mc.model.value[index].learn != "X")
@@ -355,7 +357,7 @@ MidiSrcSelect : ConnectorElementView {
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(this.connector);
-			mc.model.value[i].src = CVWidget.midiSources.findKeyForValue(sel.item);
+			mc.model.value[i].src = wmc[sel.item];
 			mc.model.value[i].learn = "C";
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
@@ -375,8 +377,10 @@ MidiSrcSelect : ConnectorElementView {
 
 		connector = widget.midiConnectors[connectorID];
 		mc.model.value[connectorID] !? {
-			display = if (mc.model.value[connectorID].src == "source...") { 0 } {
-				this.view.items.indexOf(CVWidget.midiSources[mc.model.value[connectorID].src.asSymbol]);
+			display = if (mc.model.value[connectorID].src == 'source...') { 0 } {
+				this.view.items.indexOf(
+					wmc.model.value.findKeyForValue(mc.model.value[connectorID].src)
+				)
 			};
 			this.view.value_(display)
 		}
@@ -395,7 +399,8 @@ MidiSrcSelect : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
 		this.view.enabled_(mc.model.value[0].learn != "X")
-		.items_(['source...'] ++ CVWidget.midiSources.values.sort).maxWidth_(100);
+		.items_(['source...'] ++ wmc.model.value.sort).maxWidth_(100)
+		.value_(wmc.model.value.findKeyForValue(mc.model.value[0].src));
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -406,22 +411,38 @@ MidiSrcSelect : ConnectorElementView {
 		mc.controller ?? {
 			mc.controller = SimpleController(mc.model)
 		};
+		wmc.controller ?? {
+			wmc.controller = SimpleController(wmc.model)
+		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
+		CVWidget.syncKeys.indexOf(syncKey) ?? {
+			CVWidget.prAddSyncKey(syncKey, true)
+		};
+		wmc.controller.put(syncKey, { |changer, what ... moreArgs|
+			all.do { |selects|
+				selects.do { |sel|
+					defer { sel.view.items_(['source...'] ++ wmc.model.value.keys.asArray.sort) }
+				}
+			}
+		});
 		mc.controller.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
+			changer.value[conID].src;
 			all[widget].do { |sel|
 				if (sel.connector === widget.midiConnectors[conID]) {
-					if (changer.value[conID].src.isNil or: { changer.value[conID].src == "source..." }) {
+					if (changer.value[conID].src.isNil or: { changer.value[conID].src == 'source...' }) {
 						defer {
 							sel.view.value_(0);
 							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 						}
 					} {
 						defer {
-							sel.view.value_(sel.items.indexOf(CVWidget.midiSources[changer.value[conID].src.asSymbol]));
+							sel.view.value_(sel.items.indexOf(
+								wmc.model.value.findKeyForValue(changer.value[conID].src)
+							));
 							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
 						}
 					}
@@ -429,6 +450,22 @@ MidiSrcSelect : ConnectorElementView {
 			}
 		})
 	}
+
+	// we need a specially extended version
+	// of the cleanup method since we also
+	// need to remove the controller from
+	// CVWidget.wmc.midiSources and the syncKey
+	// from CVWidget.syncKeys
+	prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.controller.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+			wmc.controller.removeAt(syncKey);
+			CVWidget.prRemoveSyncKey(syncKey, true);
+		}
+	}
+
 }
 
 MidiChanField : ConnectorElementView {
@@ -637,7 +674,6 @@ MidiModeSelect : ConnectorElementView {
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(this.connector);
-			// "My ID: %, my connector: %".format(MidiModeSelect.all[widget].indexOf(this), this.connector).postln;
 			this.connector.setMidiMode(sel.value);
 		});
 		connectorRemovedFuncAdded ?? {
@@ -686,7 +722,6 @@ MidiModeSelect : ConnectorElementView {
 		mc.controller.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |sel|
-				// [sel.connector, widget.midiConnectors[conID], this.connector].postln;
 				if (sel.connector === widget.midiConnectors[conID]) {
 					defer { sel.view.value_(changer[conID].value.midiMode) }
 				}
@@ -1021,7 +1056,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 
 MidiInitButton : ConnectorElementView {
 	classvar <all;
-	var syncKey;
+	var syncKey, wmc;
 
 
 	*initClass {
@@ -1041,6 +1076,7 @@ MidiInitButton : ConnectorElementView {
 		};
 
 		all.add(this);
+		wmc = CVWidget.wmc;
 
 		this.view = Button(parentView, rect)
 		.action_({ |bt|
@@ -1049,11 +1085,12 @@ MidiInitButton : ConnectorElementView {
 				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 			};
 			MIDIClient.externalSources.do { |source|
-				if (CVWidget.midiSources.values.includes(source.uid.asInteger).not) {
-					CVWidget.midiSources.put(source.uid.asSymbol, "% (%)".format(source.name, source.uid))
+				if (wmc.midiSources.model.value.includes(source.uid).not) {
+					wmc.midiSources.model.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
 				}
 			};
-			CVWidget.midiInitialized.model.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
+			wmc.midiInitialized.model.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
+			wmc.midiSources.model.changedPerformKeys(CVWidget.syncKeys);
 		});
 		this.view.onClose_({ this.close });
 
@@ -1063,7 +1100,6 @@ MidiInitButton : ConnectorElementView {
 		} {
 			this.view.states_([["init MIDI", Color.black, Color.green]]);
 		};
-		// this.connector.onRemove_({ this.prOnRemoveConnector });
 		this.prAddController;
 	}
 
@@ -1072,24 +1108,18 @@ MidiInitButton : ConnectorElementView {
 	widget_ {}
 
 	prAddController {
-		CVWidget.midiInitialized.controller ?? {
-			CVWidget.midiInitialized.controller = SimpleController(CVWidget.midiInitialized.model)
+		wmc.midiInitialized.controller ?? {
+			wmc.midiInitialized.controller = SimpleController(wmc.midiInitialized.model)
 		};
 		syncKey = this.class.asSymbol;
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true);
-			CVWidget.midiInitialized.controller.put(syncKey, { |changer, what|
+			wmc.midiInitialized.controller.put(syncKey, { |changer, what|
 				all.do { |bt|
 					if (changer.value) {
 						bt.view.states_([["reinit MIDI", Color.white, Color.red]]);
 					} {
 						bt.view.states_([["init MIDI", Color.black, Color.green]]);
-					};
-				};
-				// in case MIDI hasn't been initialized on startup
-				MidiSrcSelect.all.do { |list|
-					list.do { |sel|
-						sel.view.items_(["source..."] ++ CVWidget.midiSources.values.sort);
 					}
 				}
 			})
@@ -1105,7 +1135,7 @@ MidiInitButton : ConnectorElementView {
 	prCleanup {
 		all.remove(this);
 		if (all.isEmpty) {
-			CVWidget.midiInitialized.controller.removeAt(syncKey);
+			wmc.midiInitialized.controller.removeAt(syncKey);
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}

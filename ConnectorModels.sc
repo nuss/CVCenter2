@@ -214,7 +214,7 @@ MidiConnector {
 			wmc.midiDisplay.model = Ref(List[]);
 		};
 		wmc.midiDisplay.model.value.add((
-			src: "source...",
+			src: 'source...',
 			chan: "chan",
 			ctrl: "ctrl",
 			learn: "L",
@@ -257,7 +257,7 @@ MidiConnector {
 			mc.midiConnections.model.value[index] = (num: num, chan: chan, src: src);
 			mc.midiDisplay.model.value[index] = (
 				learn: "X",
-				src: src ? "source...",
+				src: src ? 'source...',
 				chan: chan ? "chan",
 				ctrl: num ? "ctrl",
 				toolTip: "Click to disconnect"
@@ -402,7 +402,7 @@ MidiConnector {
 			} {
 				mc.midiDisplay.model.value[index] = (
 					learn: "L",
-					src: "source...",
+					src: 'source...',
 					chan: "chan",
 					ctrl: "ctrl",
 					toolTip: "Click and move hardware slider/knob to connect to"
