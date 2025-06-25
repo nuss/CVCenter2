@@ -399,7 +399,7 @@ MidiSrcSelect : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
 		this.view.enabled_(mc.model.value[0].learn != "X")
-		.items_(['source...'] ++ wmc.model.value.keys.asArray.sort).maxWidth_(100)
+		.items_(['source...'] ++ wmc.model.value.keys.asArray.sort).maxWidth_(100);
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
