@@ -173,16 +173,16 @@ TestMidiSrcSelect : UnitTest {
 
 	setUp {
 		widget1 = CVWidgetKnob(\test1);
-		CVWidget.midiSources = ('123': "abcd", '456': "efgh");
 		element1 = MidiSrcSelect(widget: widget1);
 		element2 = MidiSrcSelect(widget: widget1);
+		CVWidget.wmc.midiSources.model.value_((abcd: 123, efgh: 456)).changedPerformKeys(CVWidget.syncKeys);
 	}
 
 	tearDown {
 		element1.close;
 		element2.close;
 		widget1.remove;
-		CVWidget.midiSources = ();
+		CVWidget.wmc.midiSources.model.value_(()).changedPerformKeys(CVWidget.syncKeys);
 	}
 
 	test_new {
@@ -193,7 +193,7 @@ TestMidiSrcSelect : UnitTest {
 		this.assert(element1.connector === widget1.midiConnectors[0] and: {
 			element2.connector === widget1.midiConnectors[0]
 		}, "The elements connector should be identical with the first connector in the widget's midiConnectors List");
-		element1.valueAction_(1);
+		element1.view.valueAction_(1);
 		this.assertEquals(element2.view.value, 1, "After calling element1.valueAction_(1) element2.value should return 1");
 	}
 
@@ -213,6 +213,13 @@ TestMidiSrcSelect : UnitTest {
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiSrcSelect with arg 'widget' set to widget2 the MidiSrcSelect's 'widget' getter should return widget2");
 		this.assertEquals(element1.view.value, 0, "After setting element1.valueAction_(1) should leave element1's value at 0 after calling element1.widget_(widget2).");
 		widget2.remove;
+	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol]);
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default]);
 	}
 }
 
