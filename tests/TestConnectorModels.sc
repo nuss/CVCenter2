@@ -4,11 +4,12 @@ TestMidiConnector : UnitTest {
 	setUp {
 		CVWidget.initMidiOnStartUp = false;
 		widget = CVWidgetKnob(\test);
-		CVWidget.midiSources = ('12345': "source 1", '54321': "source 2");
+		CVWidget.wmc.midiSources.model.value_(('source 1': 12345, 'source 2': 54321)).changedPerformKeys(CVWidget.syncKeys);
 	}
 
 	tearDown {
 		widget.remove;
+		CVWidget.wmc.midiSources.model.value_(()).changedPerformKeys(CVWidget.syncKeys);
 	}
 
 	test_new {

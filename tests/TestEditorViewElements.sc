@@ -12,15 +12,6 @@ TestConnectorElementView : UnitTest {
 		element2.close;
 		widget1.remove;
 	}
-
-	test_close {
-		element1.close;
-		this.assertEquals(MidiConnectorNameField.all[widget1], List[element2], "After closing element1 the class' 'all' variable should hold a List with one element which is element2 under a key which is the widget itself.");
-		this.assertEquals(widget1.syncKeys, [\default, MidiConnectorNameField.asSymbol], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'MidiConnectorNameField', after calling 'close'");
-		element2.close;
-		this.assertEquals(MidiConnectorNameField.all[widget1], List[], "After closing element2 the class' 'all' variable should hold an empty List under a key which is the widget itself.");
-		this.assertEquals(widget1.syncKeys, [\default], "The widget's 'syncKeys' should contain a single Symbol, 'default' after calling 'close'");
-	}
 }
 
 TestMidiConnectorNameField : UnitTest {
@@ -72,6 +63,11 @@ TestMidiConnectorNameField : UnitTest {
 		this.assertEquals(element1.string.asSymbol, widget2.wmc.midiConnectorNames.model.value[0], "The MidiConnectorNameField's TextField should have been set to the name of the currently set value in widget2.wmc.midiConnectorNames.model.value[0]");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element1 widget1.syncKeys should hold one remaining value: 'default'.");
+	}
 }
 
 TestMidiConnectorSelect : UnitTest {
@@ -120,6 +116,11 @@ TestMidiConnectorSelect : UnitTest {
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiConnectorSelect with arg 'widget' set to widget2 the MidiConnectorSelect's 'widget' getter should return widget2");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element1 widget1.syncKeys should hold one remaining value: 'default'.");
+	}
 }
 
 TestMidiLearnButton : UnitTest {
@@ -165,6 +166,13 @@ TestMidiLearnButton : UnitTest {
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiLearnButton with arg 'widget' set to widget2 the MidiLearnButton's 'widget' getter should return widget2");
 		this.assertEquals(element1.view.value, 0, "After setting element1.valueAction_(1) should leave element1's value at 0 after calling element1.widget_(widget2).");
 		widget2.remove;
+	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
 	}
 }
 
@@ -217,9 +225,11 @@ TestMidiSrcSelect : UnitTest {
 
 	test_close {
 		element1.close;
-		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol]);
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		this.assertEquals(CVWidget.syncKeys, [\default, element1.class.asSymbol], "After closing button1 CVWidget.syncKeys should hold two values: 'default' and '%'.".format(element1.class.asSymbol));
 		element2.close;
-		this.assertEquals(widget1.syncKeys, [\default]);
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
+		this.assertEquals(CVWidget.syncKeys, [\default], "After closing element1 CVWidget.syncKeys should hold  one remaining value: 'default'");
 	}
 }
 
@@ -267,6 +277,13 @@ TestMidiChanField : UnitTest {
 		this.assertEquals(element1.string, "chan", "After setting element1.valueAction_(1) should leave element1's string at \"chan\" after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
+	}
 }
 
 TestMidiCtrlField : UnitTest {
@@ -312,6 +329,13 @@ TestMidiCtrlField : UnitTest {
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiCtrlField with arg 'widget' set to widget2 the MidiCtrlField's 'widget' getter should return widget2");
 		this.assertEquals(element1.string, "ctrl", "After setting element1.valueAction_(1) should leave element1's string at \"ctrl\" after calling element1.widget_(widget2).");
 		widget2.remove;
+	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
 	}
 }
 
@@ -405,6 +429,13 @@ TestMidiZeroNumberBox : UnitTest {
 		this.assertEquals(element1.view.value, 64, "After setting element1.valueAction_(60) should leave element1's value at 64 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
+	}
 }
 
 TestSnapDistanceNumberBox : UnitTest {
@@ -450,6 +481,13 @@ TestSnapDistanceNumberBox : UnitTest {
 		this.assert(element1.widget === widget2, "After calling widget_ on the SnapDistanceNumberBox with arg 'widget' set to widget2 the SnapDistanceNumberBox's 'widget' getter should return widget2");
 		this.assertEquals(element1.view.value, 0.1, "After setting element1.valueAction_(1) should leave element1's value at 0.1 after calling element1.widget_(widget2).");
 		widget2.remove;
+	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
 	}
 }
 
@@ -497,6 +535,13 @@ TestMidiResolutionNumberBox : UnitTest {
 		this.assertEquals(element1.view.value, 1, "After setting element1.valueAction_(0.5) should leave element1's value at 1 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
+	}
 }
 
 TestSlidersPerGroupNumberBox : UnitTest {
@@ -543,6 +588,13 @@ TestSlidersPerGroupNumberBox : UnitTest {
 		this.assertEquals(element1.view.value, 1, "After setting element1.valueAction_(6) should leave element1's value at 1 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
+
+	test_close {
+		element1.close;
+		this.assertEquals(widget1.syncKeys, [\default, element1.class.asSymbol], "After closing element1 widget1.syncKeys should hold two value: 'default' and '%'".format(element1.class.asSymbol));
+		element2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing element2 widget1.syncKeys should hold one remaining value: 'default'");
+	}
 }
 
 TestMidiInitButton : UnitTest {
@@ -576,6 +628,14 @@ TestMidiInitButton : UnitTest {
 		this.assertEquals(button2.view.states, [["reinit MIDI", Color.white, Color.red]], "after clicking button1 button2.view.states should equal [[\"reinit MIDI\", Color.white, Color.red]] as well");
 	}
 
+	test_close {
+		button1.close;
+		this.assertEquals(button1.class.all, List[button2], "After closing button1 the 'all' variable should hold a list with a singel value: button2");
+		this.assertEquals(CVWidget.syncKeys, [\default, button1.class.asSymbol], "After closing button1 CVWidget.syncKeys should hold two values: 'default' and '%'.".format(button1.class.asSymbol));
+		button2.close;
+		this.assertEquals(button2.class.all, List[], "After closing button2 the 'all' variable should hold an empty list");
+		this.assertEquals(CVWidget.syncKeys, [\default], "After closing button1 CVWidget.syncKeys should hold a single value: 'default'.");
+	}
 }
 
 TestMidiConnectorRemoveButton : UnitTest {
@@ -620,4 +680,10 @@ TestMidiConnectorRemoveButton : UnitTest {
 		this.assertEquals([button1.connector.name, button2.connector.name], ['MIDI Connection 2', 'MIDI Connection 2'], "After adding another MidiConnector to the CVWidgetKnob stored in widget and clicking button2 both, button1's and button2's connectors, should hold the MidiConnector named 'MIDI Connection 2' as connector though index_(1) has only been called on button1");
 	}
 
+	test_close {
+		button1.close;
+		this.assertEquals(button1.class.all[widget1], List[button2], "After closing button1 the 'all' variable at key widget1 should hold a list with a single value: button2");
+		button2.close;
+		this.assertEquals(button2.class.all[widget1], List[], "After closing button2 the 'all' variable should hold an empty list");
+	}
 }
