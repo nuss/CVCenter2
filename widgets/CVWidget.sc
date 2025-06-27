@@ -1,6 +1,6 @@
 CVWidget {
 	classvar <all;
-	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>midiSources, <>shortcuts, prefs;
+	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup = 1, <>snapDistance = 0.1;
 	classvar <>oscCalibration = true;
 	classvar syncKeysEvent;
@@ -30,7 +30,6 @@ CVWidget {
 			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
-		this.midiSources = ();
 		StartUp.add {
 			wmc.midiInitialized = (model: Ref(false));
 			wmc.midiSources = (model: Ref(()));

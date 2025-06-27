@@ -249,19 +249,17 @@ MidiLearnButton : ConnectorElementView {
 	// midiConnectors list gets deleted!!!
 	index_ { |connectorID|
 		// we need the connector, not its current ID in widget.midiConnectors
-		// widget.midiConnectors[connectorID] !? {
-			connector = widget.midiConnectors[connectorID];
-			mc.model.value[connectorID] !? {
-				mc.model.value[connectorID].learn.switch(
-					"X", {
-						this.view.value_(1)
-					},
-					"L", {
-						this.view.value_(0)
-					}
-				)
-			}
-	// }
+		connector = widget.midiConnectors[connectorID];
+		mc.model.value[connectorID] !? {
+			mc.model.value[connectorID].learn.switch(
+				"X", {
+					this.view.value_(1)
+				},
+				"L", {
+					this.view.value_(0)
+				}
+			)
+		}
 	}
 
 	widget_ { |otherWidget|
@@ -352,12 +350,12 @@ MidiSrcSelect : ConnectorElementView {
 
 		this.view = PopUpMenu(parentView, rect)
 		.enabled_(mc.model.value[index].learn != "X")
-		.items_(['source...'] ++ CVWidget.midiSources.values.sort).maxWidth_(100);
+		.items_(['source...'] ++ wmc.model.value.sort).maxWidth_(100);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = widget.midiConnectors.indexOf(this.connector);
-			mc.model.value[i].src = wmc[sel.item];
+			mc.model.value[i].src = wmc.model.value[sel.item];
 			mc.model.value[i].learn = "C";
 			mc.model.value[i].toolTip = "Connect using selected parameters";
 			mc.model.changedPerformKeys(widget.syncKeys, i);
@@ -1138,8 +1136,6 @@ MidiInitButton : ConnectorElementView {
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
-
-	// prOnRemoveConnector {}
 }
 
 MidiConnectorRemoveButton : ConnectorElementView {
