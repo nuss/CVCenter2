@@ -17,7 +17,9 @@ OscConnector {
 			name = "OSC Connection %".format(widget.numOscConnectors).asSymbol;
 		};
 		this.initModels(widget.wmc, name);
-		widget.oscConnectors.add(this).changed(\value);
+		widget.wmc.oscConnectors.model.value_(
+			widget.wmc.oscConnectors.model.value.add(this)
+		).changedPerformKeys(widget.syncKeys);
 	}
 
 	initModels { |wmc, name|
@@ -67,10 +69,20 @@ OscConnector {
 			prInitOscInputRange,
 			prInitOscConnection,
 			prInitOscDisplay,
+			prInitOscConnectors,
 			prInitOscConnectorNames
 		].do { |method|
 			this.perform(method, wmc, widget.cv)
 		}
+	}
+
+	prInitOscConnectors { |mc, cv|
+		mc.oscConnectors.controller ?? {
+			mc.oscConnectors.controller = SimpleController(mc.oscConnectors.model)
+		};
+		mc.oscConnectors.controller.put(\default, { |changer, what ... moreArgs|
+			"blablabla, do something..."
+		})
 	}
 
 	prInitOscCalibration { |mc, cv|
@@ -119,14 +131,14 @@ OscConnector {
 	}
 
 	name {
-		var conID = widget.oscConnectors.indexOf(this);
+		var conID = widget.wmc.oscConnectors.model.value.indexOf(this);
 		if (conID.notNil) {
 			^widget.wmc.oscConnectorNames.model.value[conID]
 		} { ^nil };
 	}
 
 	name_ { |name|
-		var conID = widget.oscConnectors.indexOf(this);
+		var conID = widget.wmc.oscConnectors.model.value.indexOf(this);
 		conID !? {
 			widget.wmc.oscConnectorNames.model.value[conID] = name.asSymbol;
 			widget.wmc.oscConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
@@ -176,7 +188,9 @@ MidiConnector {
 			name = "MIDI Connection %".format(widget.numMidiConnectors).asSymbol;
 		};
 		this.initModels(widget.wmc, name);
-		widget.midiConnectors.add(this).changed(\value);
+		widget.wmc.midiConnectors.model.value_(
+			widget.wmc.midiConnectors.model.value.add(this)
+		).changedPerformKeys(widget.syncKeys);
 
 		allMidiFuncs[widget] ?? {
 			allMidiFuncs.put(widget, List[])
@@ -230,6 +244,7 @@ MidiConnector {
 
 	initControllers { |wmc|
 		#[
+			prInitMidiConnectors,
 			prInitMidiConnectorNames,
 			prInitMidiOptions,
 			prInitMidiInputMappings,
@@ -241,12 +256,21 @@ MidiConnector {
 	}
 
 	// private: default controllers
+	prInitMidiConnectors { |mc, cv|
+		mc.midiConnectors.controller ?? {
+			mc.midiConnectors.controller = SimpleController(mc.midiConnectors.model);
+		};
+		mc.midiConnectors.controller.put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
+	}
+
 	prInitMidiOptions { |mc, cv|
 		mc.midiOptions.controller ?? {
 			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
 		};
 		mc.midiOptions.controller.put(\default, { |changer, what ... moreArgs|
-			var index = widget.midiConnectors.indexOf(this);
+			var index = mc.midiConnectors.model.value.indexOf(this);
 		})
 	}
 
@@ -271,7 +295,7 @@ MidiConnector {
 		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
 			var index = moreArgs[0];
 			// brute force fix - why is 'this' not considered correctly?
-			var self = widget.midiConnectors[index];
+			var self = mc.midiConnectors.model.value[index];
 			var inputMapping, input;
 			// for endless mode we're going to perate on a linearly in-/decremented value,
 			// starting at the CV's current input (value normalized from 0 to 1)
@@ -432,7 +456,7 @@ MidiConnector {
 		};
 		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
 			// "midiDisplay.controller.triggered".postln;
-			// 	var index = widget.midiConnectors.indexOf(this);
+			// 	var index = mc.midiConnectors.model.value.indexOf(this);
 			// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
 			// 	// ...
 		})
@@ -448,14 +472,16 @@ MidiConnector {
 	}
 
 	name {
-		var conID = widget.midiConnectors.indexOf(this);
+		var mc = widget.wmc;
+		var conID = mc.midiConnectors.model.value.indexOf(this);
 		if (conID.notNil) {
 			^widget.wmc.midiConnectorNames.model.value[conID]
 		} { ^nil }
 	}
 
 	name_ { |name|
-		var conID = widget.midiConnectors.indexOf(this);
+		var mc = widget.wmc;
+		var conID = mc.midiConnectors.model.value.indexOf(this);
 		conID !? {
 			widget.wmc.midiConnectorNames.model.value[conID] = name.asSymbol;
 			widget.wmc.midiConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
@@ -464,7 +490,7 @@ MidiConnector {
 
 	setMidiMode { |mode|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		// 14-bit MIDI mode?
 		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
@@ -475,13 +501,13 @@ MidiConnector {
 
 	getMidiMode {
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^mc.midiOptions.model.value[index].midiMode;
 	}
 
 	setMidiZero { |zeroval|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		zeroval = zeroval.asInteger;
 		mc.midiOptions.model.value[index].midiZero = zeroval;
 		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
@@ -489,13 +515,13 @@ MidiConnector {
 
 	getMidiZero {
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^mc.midiOptions.model.value[index].midiZero;
 	}
 
 	setSnapDistance { |snapDistance|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		snapDistance = snapDistance.asFloat;
 		mc.midiOptions.model.value[index].snapDistance = snapDistance;
 		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
@@ -503,13 +529,13 @@ MidiConnector {
 
 	getSnapDistance {
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^mc.midiOptions.model.value[index].snapDistance;
 	}
 
 	setCtrlButtonGroup { |numButtons|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		if (numButtons.notNil and:{ numButtons.isInteger.not }) {
 			Error("setCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
@@ -519,25 +545,26 @@ MidiConnector {
 
 	getCtrlButtonGroup {
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^mc.midiOptions.model.value[index].ctrlButtonGroup;
 	}
 
 	setMidiResolution { |resolution|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		mc.midiOptions.model.value[index].midiResolution = resolution;
 		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiResolution {
-		var index = widget.midiConnectors.indexOf(this);
+		var mc = widget.wmc;
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^widget.wmc.midiOptions.model.value[index].midiResolution;
 	}
 
 	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
@@ -561,13 +588,14 @@ MidiConnector {
 	}
 
 	getMidiInputMapping {
-		var index = widget.midiConnectors.indexOf(this);
+		var mc = widget.wmc;
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		^widget.wmc.midiInputMappings.model.value[index];
 	}
 
 	midiConnect { |src, chan, num|
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		mc.midiConnections.model.value[index] = (src: src, chan: chan, num: num);
 		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
@@ -580,16 +608,17 @@ MidiConnector {
 
 	midiDisconnect {
 		var mc = widget.wmc;
-		var index = widget.midiConnectors.indexOf(this);
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		mc.midiConnections.model.value[index] = nil;
 		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	remove { |forceAll = false|
-		var index = widget.midiConnectors.indexOf(this);
+		var mc = widget.wmc;
+		var index = mc.midiConnectors.model.value.indexOf(this);
 		var names, allMS;
 
-		if (widget.midiConnectors.size > 1 or: { forceAll }) {
+		if (mc.midiConnectors.model.value.size > 1 or: { forceAll }) {
 			this.midiDisconnect;
 			allMidiFuncs[widget][index].free;
 			allMidiFuncs[widget].removeAt(index);
@@ -600,10 +629,10 @@ MidiConnector {
 				widget.wmc.midiConnectorNames.model.value,
 				widget.wmc.midiInputMappings.model.value
 			].do(_.removeAt(index));
-			widget.midiConnectors.remove(this);
-			widget.midiConnectors.changed(\value);
+			mc.midiConnectors.model.value.remove(this);
+			mc.midiConnectors.model.value.changed(\value);
 			// set editor elements (and other custom elements depending
-			// on widget.midiConnectors) to suitable connector
+			// on mc.midiConnectors.model.value) to suitable connector
 			onConnectorRemove.value(widget, index);
 		}
 	}

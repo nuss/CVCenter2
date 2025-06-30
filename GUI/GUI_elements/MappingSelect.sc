@@ -41,12 +41,12 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.midiConnectors;
+			connectors = widget.wmc.midiConnectors.model.value;
 			bgColor = Color(0.8, alpha: 0.3);
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
-			connectors = widget.oscConnectors;
+			connectors = widget.wmc.oscConnectors.model.value;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 		};
 
@@ -149,7 +149,7 @@ MappingSelect : CompositeView {
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id, \midi)
+				this.prOnRemoveConnector(widget, id, connectorKind)
 			});
 			connectorRemovedFuncAdded = true
 		};
@@ -203,11 +203,11 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.midiConnectors;
+			connectors = widget.wmc.midiConnectors.model.value;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
-			connectors = widget.oscConnectors;
+			connectors = widget.wmc.oscConnectors.model.value;
 		};
 
 		ramp = switch (mc.model.value[0].mapping)
@@ -273,11 +273,11 @@ MappingSelect : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index, connectorKind|
-		var connectors;
+		// var connectors;
 
-		switch (connectorKind)
-		{ \midi } { connectors = widget.midiConnectors }
-		{ \osc } { connectors = widget.oscConnectors };
+		// switch (connectorKind)
+		// { \midi } { connectors = widget.wmc.midiConnectors.model.value }
+		// { \osc } { connectors = widget.wmc.oscConnectors.model.value };
 
 		if (index > 0) {
 			all[widget][connectorKind].do(_.index_(index - 1))

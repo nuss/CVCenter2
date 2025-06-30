@@ -1,5 +1,5 @@
 ConnectorElementView : SCViewHolder {
-	var mc, syncKey;
+	var mc, conModel, syncKey;
 	var toolTip;
 
 	close {
