@@ -17,35 +17,35 @@ OscConnector {
 			name = "OSC Connection %".format(widget.numOscConnectors).asSymbol;
 		};
 		this.initModels(widget.wmc, name);
-		widget.wmc.oscConnectors.model.value_(
-			widget.wmc.oscConnectors.model.value.add(this)
+		widget.wmc.oscConnectors.m.value_(
+			widget.wmc.oscConnectors.m.value.add(this)
 		).changedPerformKeys(widget.syncKeys);
 	}
 
 	initModels { |wmc, name|
 		wmc.oscCalibration ?? { wmc.oscCalibration = () };
-		wmc.oscCalibration.model ?? {
-			wmc.oscCalibration.model = Ref(List[]);
+		wmc.oscCalibration.m ?? {
+			wmc.oscCalibration.m = Ref(List[]);
 		};
-		wmc.oscCalibration.model.value.add(CVWidget.oscCalibration);
+		wmc.oscCalibration.m.value.add(CVWidget.oscCalibration);
 
 		wmc.oscInputRange ?? { wmc.oscInputRange = () };
-		wmc.oscInputRange.model ?? {
-			wmc.oscInputRange.model = Ref(List[]);
+		wmc.oscInputRange.m ?? {
+			wmc.oscInputRange.m = Ref(List[]);
 		};
-		wmc.oscInputRange.model.value.add([0.0001, 0.0001]);
+		wmc.oscInputRange.m.value.add([0.0001, 0.0001]);
 
 		wmc.oscConnections ?? { wmc.oscConnections = () };
-		wmc.oscConnections.model ?? {
-			wmc.oscConnections.model = Ref(List[]);
+		wmc.oscConnections.m ?? {
+			wmc.oscConnections.m = Ref(List[]);
 		};
-		wmc.oscConnections.model.value.add(false);
+		wmc.oscConnections.m.value.add(false);
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
-		wmc.oscDisplay.model ?? {
-			wmc.oscDisplay.model = Ref(List[]);
+		wmc.oscDisplay.m ?? {
+			wmc.oscDisplay.m = Ref(List[]);
 		};
-		wmc.oscDisplay.model.value.add((
+		wmc.oscDisplay.m.value.add((
 			ipField: nil,
 			portField: nil,
 			nameField: "/my/cmd/name",
@@ -55,10 +55,10 @@ OscConnector {
 		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
-		wmc.oscConnectorNames.model ?? {
-			wmc.oscConnectorNames.model = Ref(List[]);
+		wmc.oscConnectorNames.m ?? {
+			wmc.oscConnectorNames.m = Ref(List[]);
 		};
-		wmc.oscConnectorNames.model.value.add(name);
+		wmc.oscConnectorNames.m.value.add(name);
 
 		this.initControllers(wmc);
 	}
@@ -77,71 +77,71 @@ OscConnector {
 	}
 
 	prInitOscConnectors { |mc, cv|
-		mc.oscConnectors.controller ?? {
-			mc.oscConnectors.controller = SimpleController(mc.oscConnectors.model)
+		mc.oscConnectors.c ?? {
+			mc.oscConnectors.c = SimpleController(mc.oscConnectors.m)
 		};
-		mc.oscConnectors.controller.put(\default, { |changer, what ... moreArgs|
+		mc.oscConnectors.c.put(\default, { |changer, what ... moreArgs|
 			"blablabla, do something..."
 		})
 	}
 
 	prInitOscCalibration { |mc, cv|
-		mc.oscCalibration.controller ?? {
-			mc.oscCalibration.controller = SimpleController(mc.oscCalibration.model)
+		mc.oscCalibration.c ?? {
+			mc.oscCalibration.c = SimpleController(mc.oscCalibration.m)
 		};
-		mc.oscCalibration.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscCalibration.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
 
 	prInitOscInputRange { |mc, cv|
-		mc.oscInputRange.controller ?? {
-			mc.oscInputRange.controller = SimpleController(mc.oscInputRange.model)
+		mc.oscInputRange.c ?? {
+			mc.oscInputRange.c = SimpleController(mc.oscInputRange.m)
 		};
-		mc.oscInputRange.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscInputRange.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
 
 	prInitOscConnection { |mc, cv|
-		mc.oscConnections.controller ?? {
-			mc.oscConnections.controller = SimpleController(mc.oscConnections.model)
+		mc.oscConnections.c ?? {
+			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
 		};
-		mc.oscConnections.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
 
 	prInitOscDisplay { |mc, cv|
-		mc.oscDisplay.controller ?? {
-			mc.oscDisplay.controller = SimpleController(mc.oscDisplay.model)
+		mc.oscDisplay.c ?? {
+			mc.oscDisplay.c = SimpleController(mc.oscDisplay.m)
 		};
-		mc.oscDisplay.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscDisplay.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
 
 	prInitOscConnectorNames { |mc, cv|
-		mc.oscConnectorNames.controller ?? {
-			mc.oscConnectorNames.controller = SimpleController(mc.oscConnectorNames.model)
+		mc.oscConnectorNames.c ?? {
+			mc.oscConnectorNames.c = SimpleController(mc.oscConnectorNames.m)
 		};
-		mc.oscConnectorNames.controller.put(\default, { |changer, what, moreArgs|
+		mc.oscConnectorNames.c.put(\default, { |changer, what, moreArgs|
 
 		})
 	}
 
 	name {
-		var conID = widget.wmc.oscConnectors.model.value.indexOf(this);
+		var conID = widget.wmc.oscConnectors.m.value.indexOf(this);
 		if (conID.notNil) {
-			^widget.wmc.oscConnectorNames.model.value[conID]
+			^widget.wmc.oscConnectorNames.m.value[conID]
 		} { ^nil };
 	}
 
 	name_ { |name|
-		var conID = widget.wmc.oscConnectors.model.value.indexOf(this);
+		var conID = widget.wmc.oscConnectors.m.value.indexOf(this);
 		conID !? {
-			widget.wmc.oscConnectorNames.model.value[conID] = name.asSymbol;
-			widget.wmc.oscConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+			widget.wmc.oscConnectorNames.m.value[conID] = name.asSymbol;
+			widget.wmc.oscConnectorNames.m.changedPerformKeys(widget.syncKeys, conID);
 		}
 	}
 
@@ -188,8 +188,8 @@ MidiConnector {
 			name = "MIDI Connection %".format(widget.numMidiConnectors).asSymbol;
 		};
 		this.initModels(widget.wmc, name);
-		widget.wmc.midiConnectors.model.value_(
-			widget.wmc.midiConnectors.model.value.add(this)
+		widget.wmc.midiConnectors.m.value_(
+			widget.wmc.midiConnectors.m.value.add(this)
 		).changedPerformKeys(widget.syncKeys);
 
 		allMidiFuncs[widget] ?? {
@@ -200,10 +200,10 @@ MidiConnector {
 
 	initModels { |wmc, name|
 		wmc.midiOptions ?? { wmc.midiOptions = () };
-		wmc.midiOptions.model ?? {
-			wmc.midiOptions.model = Ref(List[]);
+		wmc.midiOptions.m ?? {
+			wmc.midiOptions.m = Ref(List[]);
 		};
-		wmc.midiOptions.model.value.add((
+		wmc.midiOptions.m.value.add((
 			midiMode: CVWidget.midiMode,
 			midiZero: CVWidget.midiZero,
 			ctrlButtonGroup: CVWidget.ctrlButtonGroup,
@@ -212,22 +212,22 @@ MidiConnector {
 		));
 
 		wmc.midiConnections ?? { wmc.midiConnections = () };
-		wmc.midiConnections.model ?? {
-			wmc.midiConnections.model = Ref(List[]);
+		wmc.midiConnections.m ?? {
+			wmc.midiConnections.m = Ref(List[]);
 		};
-		wmc.midiConnections.model.value.add(nil);
+		wmc.midiConnections.m.value.add(nil);
 
 		wmc.midiInputMappings ?? { wmc.midiInputMappings = () };
-		wmc.midiInputMappings.model ?? {
-			wmc.midiInputMappings.model = Ref(List[]);
+		wmc.midiInputMappings.m ?? {
+			wmc.midiInputMappings.m = Ref(List[]);
 		};
-		wmc.midiInputMappings.model.value.add((mapping: \linlin));
+		wmc.midiInputMappings.m.value.add((mapping: \linlin));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
-		wmc.midiDisplay.model ?? {
-			wmc.midiDisplay.model = Ref(List[]);
+		wmc.midiDisplay.m ?? {
+			wmc.midiDisplay.m = Ref(List[]);
 		};
-		wmc.midiDisplay.model.value.add((
+		wmc.midiDisplay.m.value.add((
 			src: 'source...',
 			chan: "chan",
 			ctrl: "ctrl",
@@ -235,10 +235,10 @@ MidiConnector {
 			toolTip: "Click and move hardware slider/knob to connect to"
 		));
 		wmc.midiConnectorNames ?? { wmc.midiConnectorNames = () };
-		wmc.midiConnectorNames.model ?? {
-			wmc.midiConnectorNames.model = Ref(List[]);
+		wmc.midiConnectorNames.m ?? {
+			wmc.midiConnectorNames.m = Ref(List[]);
 		};
-		wmc.midiConnectorNames.model.value.add(name);
+		wmc.midiConnectorNames.m.value.add(name);
 		this.initControllers(wmc);
 	}
 
@@ -257,20 +257,20 @@ MidiConnector {
 
 	// private: default controllers
 	prInitMidiConnectors { |mc, cv|
-		mc.midiConnectors.controller ?? {
-			mc.midiConnectors.controller = SimpleController(mc.midiConnectors.model);
+		mc.midiConnectors.c ?? {
+			mc.midiConnectors.c = SimpleController(mc.midiConnectors.m);
 		};
-		mc.midiConnectors.controller.put(\default, { |changer, what ... moreArgs|
+		mc.midiConnectors.c.put(\default, { |changer, what ... moreArgs|
 			// blablabla, do something...
 		})
 	}
 
 	prInitMidiOptions { |mc, cv|
-		mc.midiOptions.controller ?? {
-			mc.midiOptions.controller = SimpleController(mc.midiOptions.model);
+		mc.midiOptions.c ?? {
+			mc.midiOptions.c = SimpleController(mc.midiOptions.m);
 		};
-		mc.midiOptions.controller.put(\default, { |changer, what ... moreArgs|
-			var index = mc.midiConnectors.model.value.indexOf(this);
+		mc.midiOptions.c.put(\default, { |changer, what ... moreArgs|
+			var index = mc.midiConnectors.m.value.indexOf(this);
 		})
 	}
 
@@ -278,24 +278,24 @@ MidiConnector {
 		var ccAction, makeCCconnection;
 		var slotChanger;
 		var updateModelsFunc = { |num, chan, src, index|
-			mc.midiConnections.model.value[index] = (num: num, chan: chan, src: src);
-			mc.midiDisplay.model.value[index] = (
+			mc.midiConnections.m.value[index] = (num: num, chan: chan, src: src);
+			mc.midiDisplay.m.value[index] = (
 				learn: "X",
 				src: src ? 'source...',
 				chan: chan ? "chan",
 				ctrl: num ? "ctrl",
 				toolTip: "Click to disconnect"
 			);
-			mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
+			mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		};
 
-		mc.midiConnections.controller ?? {
-			mc.midiConnections.controller = SimpleController(mc.midiConnections.model);
+		mc.midiConnections.c ?? {
+			mc.midiConnections.c = SimpleController(mc.midiConnections.m);
 		};
-		mc.midiConnections.controller.put(\default, { |changer, what ... moreArgs|
+		mc.midiConnections.c.put(\default, { |changer, what ... moreArgs|
 			var index = moreArgs[0];
 			// brute force fix - why is 'this' not considered correctly?
-			var self = mc.midiConnectors.model.value[index];
+			var self = mc.midiConnectors.m.value[index];
 			var inputMapping, input;
 			// for endless mode we're going to perate on a linearly in-/decremented value,
 			// starting at the CV's current input (value normalized from 0 to 1)
@@ -309,7 +309,7 @@ MidiConnector {
 				ccAction = { |val, num, chan, src|
 					// MIDI learn
 					// we must infer the connections parameters here
-					if (mc.midiConnections.model.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
+					if (mc.midiConnections.m.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
 					inputMapping = self.getMidiInputMapping;
 					self.getMidiMode.switch(
 						//  0-127
@@ -424,16 +424,16 @@ MidiConnector {
 					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
 				};
 			} {
-				mc.midiDisplay.model.value[index] = (
+				mc.midiDisplay.m.value[index] = (
 					learn: "L",
 					src: 'source...',
 					chan: "chan",
 					ctrl: "ctrl",
 					toolTip: "Click and move hardware slider/knob to connect to"
 				);
-				mc.midiDisplay.model.changedPerformKeys(widget.syncKeys, index);
+				mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 				allMidiFuncs[widget][index].clear;
-				if (mc.midiConnections.model.value.select(_.notNil).isEmpty) {
+				if (mc.midiConnections.m.value.select(_.notNil).isEmpty) {
 					// no conections for widget, uninitialize accum[widget]
 					accum[widget] !? { accum[widget] = nil };
 				}
@@ -442,162 +442,162 @@ MidiConnector {
 	}
 
 	prInitMidiInputMappings { |mc, cv|
-		mc.midiInputMappings.controller ?? {
-			mc.midiInputMappings.controller = SimpleController(mc.midiInputMappings.model);
+		mc.midiInputMappings.c ?? {
+			mc.midiInputMappings.c = SimpleController(mc.midiInputMappings.m);
 		};
-		mc.midiInputMappings.controller.put(\default, { |changer, what ... moreArgs|
+		mc.midiInputMappings.c.put(\default, { |changer, what ... moreArgs|
 			// "yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
 		})
 	}
 
 	prInitMidiDisplay { |mc, cv|
-		mc.midiDisplay.controller ?? {
-			mc.midiDisplay.controller = SimpleController(mc.midiDisplay.model);
+		mc.midiDisplay.c ?? {
+			mc.midiDisplay.c = SimpleController(mc.midiDisplay.m);
 		};
-		mc.midiDisplay.controller.put(\default, { |changer, what ... moreArgs|
-			// "midiDisplay.controller.triggered".postln;
-			// 	var index = mc.midiConnectors.model.value.indexOf(this);
-			// 	// "midiDisplay.controller - changer.value: %, moreArgs: %".format(changer.value, index).postln;
+		mc.midiDisplay.c.put(\default, { |changer, what ... moreArgs|
+			// "midiDisplay.c.triggered".postln;
+			// 	var index = mc.midiConnectors.m.value.indexOf(this);
+			// 	// "midiDisplay.c - changer.value: %, moreArgs: %".format(changer.value, index).postln;
 			// 	// ...
 		})
 	}
 
 	prInitMidiConnectorNames { |mc, cv|
-		mc.midiConnectorNames.controller ?? {
-			mc.midiConnectorNames.controller = SimpleController(mc.midiConnectorNames.model);
+		mc.midiConnectorNames.c ?? {
+			mc.midiConnectorNames.c = SimpleController(mc.midiConnectorNames.m);
 		};
-		mc.midiConnectorNames.controller.put(\default, { |changer, what ... moreArgs|
-			// 	"midiConnectorNames.controller triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
+		mc.midiConnectorNames.c.put(\default, { |changer, what ... moreArgs|
+			// 	"midiConnectorNames.c triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
 		})
 	}
 
 	name {
 		var mc = widget.wmc;
-		var conID = mc.midiConnectors.model.value.indexOf(this);
+		var conID = mc.midiConnectors.m.value.indexOf(this);
 		if (conID.notNil) {
-			^widget.wmc.midiConnectorNames.model.value[conID]
+			^widget.wmc.midiConnectorNames.m.value[conID]
 		} { ^nil }
 	}
 
 	name_ { |name|
 		var mc = widget.wmc;
-		var conID = mc.midiConnectors.model.value.indexOf(this);
+		var conID = mc.midiConnectors.m.value.indexOf(this);
 		conID !? {
-			widget.wmc.midiConnectorNames.model.value[conID] = name.asSymbol;
-			widget.wmc.midiConnectorNames.model.changedPerformKeys(widget.syncKeys, conID);
+			widget.wmc.midiConnectorNames.m.value[conID] = name.asSymbol;
+			widget.wmc.midiConnectorNames.m.changedPerformKeys(widget.syncKeys, conID);
 		}
 	}
 
 	setMidiMode { |mode|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		// 14-bit MIDI mode?
 		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
 		};
-		mc.midiOptions.model.value[index].midiMode = mode;
-		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
+		mc.midiOptions.m.value[index].midiMode = mode;
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiMode {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^mc.midiOptions.model.value[index].midiMode;
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^mc.midiOptions.m.value[index].midiMode;
 	}
 
 	setMidiZero { |zeroval|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		zeroval = zeroval.asInteger;
-		mc.midiOptions.model.value[index].midiZero = zeroval;
-		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
+		mc.midiOptions.m.value[index].midiZero = zeroval;
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiZero {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^mc.midiOptions.model.value[index].midiZero;
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^mc.midiOptions.m.value[index].midiZero;
 	}
 
 	setSnapDistance { |snapDistance|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		snapDistance = snapDistance.asFloat;
-		mc.midiOptions.model.value[index].snapDistance = snapDistance;
-		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
+		mc.midiOptions.m.value[index].snapDistance = snapDistance;
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getSnapDistance {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^mc.midiOptions.model.value[index].snapDistance;
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^mc.midiOptions.m.value[index].snapDistance;
 	}
 
 	setCtrlButtonGroup { |numButtons|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		if (numButtons.notNil and:{ numButtons.isInteger.not }) {
 			Error("setCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
-		mc.midiOptions.model.value[index].ctrlButtonGroup = numButtons;
-		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
+		mc.midiOptions.m.value[index].ctrlButtonGroup = numButtons;
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getCtrlButtonGroup {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^mc.midiOptions.model.value[index].ctrlButtonGroup;
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^mc.midiOptions.m.value[index].ctrlButtonGroup;
 	}
 
 	setMidiResolution { |resolution|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		mc.midiOptions.model.value[index].midiResolution = resolution;
-		mc.midiOptions.model.changedPerformKeys(widget.syncKeys, index);
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		mc.midiOptions.m.value[index].midiResolution = resolution;
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiResolution {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^widget.wmc.midiOptions.model.value[index].midiResolution;
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^widget.wmc.midiOptions.m.value[index].midiResolution;
 	}
 
 	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
 			^nil
 		};
-		mc.midiInputMappings.model.value[index].mapping = mapping;
+		mc.midiInputMappings.m.value[index].mapping = mapping;
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
-			mc.midiInputMappings.model.value[index].curve = curve;
-			mc.midiInputMappings.model.value[index].env = nil;
+			mc.midiInputMappings.m.value[index].curve = curve;
+			mc.midiInputMappings.m.value[index].env = nil;
 		}
 		{ mapping === \linenv } {
-			mc.midiInputMappings.model.value[index].curve = nil;
-			mc.midiInputMappings.model.value[index].env = env;
+			mc.midiInputMappings.m.value[index].curve = nil;
+			mc.midiInputMappings.m.value[index].env = env;
 		}
 		{
-			mc.midiInputMappings.model.value[index].curve = nil;
-			mc.midiInputMappings.model.value[index].env = nil;
+			mc.midiInputMappings.m.value[index].curve = nil;
+			mc.midiInputMappings.m.value[index].env = nil;
 		};
-		mc.midiInputMappings.model.changedPerformKeys(widget.syncKeys, index);
+		mc.midiInputMappings.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiInputMapping {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		^widget.wmc.midiInputMappings.model.value[index];
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		^widget.wmc.midiInputMappings.m.value[index];
 	}
 
 	midiConnect { |src, chan, num|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		mc.midiConnections.model.value[index] = (src: src, chan: chan, num: num);
-		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		mc.midiConnections.m.value[index] = (src: src, chan: chan, num: num);
+		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? {
@@ -608,31 +608,31 @@ MidiConnector {
 
 	midiDisconnect {
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
-		mc.midiConnections.model.value[index] = nil;
-		mc.midiConnections.model.changedPerformKeys(widget.syncKeys, index);
+		var index = mc.midiConnectors.m.value.indexOf(this);
+		mc.midiConnections.m.value[index] = nil;
+		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	remove { |forceAll = false|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.model.value.indexOf(this);
+		var index = mc.midiConnectors.m.value.indexOf(this);
 		var names, allMS;
 
-		if (mc.midiConnectors.model.value.size > 1 or: { forceAll }) {
+		if (mc.midiConnectors.m.value.size > 1 or: { forceAll }) {
 			this.midiDisconnect;
 			allMidiFuncs[widget][index].free;
 			allMidiFuncs[widget].removeAt(index);
 			[
-				widget.wmc.midiOptions.model.value,
-				widget.wmc.midiConnections.model.value,
-				widget.wmc.midiDisplay.model.value,
-				widget.wmc.midiConnectorNames.model.value,
-				widget.wmc.midiInputMappings.model.value
+				widget.wmc.midiOptions.m.value,
+				widget.wmc.midiConnections.m.value,
+				widget.wmc.midiDisplay.m.value,
+				widget.wmc.midiConnectorNames.m.value,
+				widget.wmc.midiInputMappings.m.value
 			].do(_.removeAt(index));
-			mc.midiConnectors.model.value.remove(this);
-			mc.midiConnectors.model.value.changed(\value);
+			mc.midiConnectors.m.value.remove(this);
+			mc.midiConnectors.m.value.changed(\value);
 			// set editor elements (and other custom elements depending
-			// on mc.midiConnectors.model.value) to suitable connector
+			// on mc.midiConnectors.m.value) to suitable connector
 			onConnectorRemove.value(widget, index);
 		}
 	}

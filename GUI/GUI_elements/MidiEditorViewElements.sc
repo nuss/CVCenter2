@@ -21,7 +21,7 @@ MidiConnectorNameField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiConnectorNames;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = TextField(parentView, rect);
 		this.index_(index);
@@ -41,8 +41,8 @@ MidiConnectorNameField : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value !? {
-			this.view.string_(mc.model.value[connectorID])
+		mc.m.value !? {
+			this.view.string_(mc.m.value[connectorID])
 		}
 	}
 
@@ -58,7 +58,7 @@ MidiConnectorNameField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiConnectorNames;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -66,15 +66,15 @@ MidiConnectorNameField : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
 		// if there's already a function defined for synKey simply replace it
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
 				if (tf.connector === conModel[conID]) {
@@ -109,7 +109,7 @@ MidiConnectorSelect : ConnectorElementView {
 		cons = widget.wmc.midiConnectors;
 
 		this.view = PopUpMenu(parentView)
-		.items_(mc.model.value ++ ['add MidiConnector...']);
+		.items_(mc.m.value ++ ['add MidiConnector...']);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		connectorRemovedFuncAdded ?? {
@@ -122,7 +122,7 @@ MidiConnectorSelect : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = cons.model.value[connectorID];
+		connector = cons.m.value[connectorID];
 		this.view.value_(connectorID);
 	}
 
@@ -139,7 +139,7 @@ MidiConnectorSelect : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.midiConnectorNames;
 		cons = widget.wmc.midiConnectors;
-		this.view.items_(mc.model.value ++ this.view.items.last);
+		this.view.items_(mc.m.value ++ this.view.items.last);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -148,31 +148,31 @@ MidiConnectorSelect : ConnectorElementView {
 	prAddController {
 		var items, conID;
 		var curValue;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
-		cons.controller ?? {
-			cons.controller = SimpleController(cons.model)
+		cons.c ?? {
+			cons.c = SimpleController(cons.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		cons.controller.put(syncKey, { |changer, what ... moreArgs|
+		cons.c.put(syncKey, { |changer, what ... moreArgs|
 			all[widget].do { |sel, i|
 				curValue = sel.view.value;
-				sel.view.items_(mc.model.value ++ sel.view.items.last)
+				sel.view.items_(mc.m.value ++ sel.view.items.last)
 				.value_(curValue);
 			}
 		});
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |sel, i|
 				items = sel.view.items;
 				items[conID] = changer.value[conID];
 				curValue = sel.view.value;
 				sel.view.items_(items).value_(curValue);
-				if (sel.connector === cons.model.value[conID]) {
+				if (sel.connector === cons.m.value[conID]) {
 					sel.view.value_(conID)
 				}
 			}
@@ -209,29 +209,29 @@ MidiLearnButton : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
-		if (mc.model.value[index].learn == "C") {
-			defaultState = [mc.model.value[index].learn, Color.black, Color.green];
-			mc.model.value[index].toolTip = "Connect using selected parameters";
+		if (mc.m.value[index].learn == "C") {
+			defaultState = [mc.m.value[index].learn, Color.black, Color.green];
+			mc.m.value[index].toolTip = "Connect using selected parameters";
 		} {
 			defaultState = ["L", Color.white, Color.blue];
 		};
 		this.view = Button(parentView, rect).states_([
 			defaultState,
 			["X", Color.white, Color.red]
-		]).maxWidth_(25).toolTip_(mc.model.value[index].toolTip);
+		]).maxWidth_(25).toolTip_(mc.m.value[index].toolTip);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
 			var i = conModel.indexOf(this.connector);
 			var src, chan, ctrl;
-			mc.model.value[i].learn = bt.states[bt.value][0];
-			mc.model.changedPerformKeys(widget.syncKeys, i);
-			if (mc.model.value[i].learn == "X") {
-				if (mc.model.value[i].src != 'source...') { src = mc.model.value[i].src };
-				if (mc.model.value[i].chan != "chan") { chan = mc.model.value[i].chan };
-				if (mc.model.value[i].ctrl != "ctrl") { ctrl = mc.model.value[i].ctrl };
+			mc.m.value[i].learn = bt.states[bt.value][0];
+			mc.m.changedPerformKeys(widget.syncKeys, i);
+			if (mc.m.value[i].learn == "X") {
+				if (mc.m.value[i].src != 'source...') { src = mc.m.value[i].src };
+				if (mc.m.value[i].chan != "chan") { chan = mc.m.value[i].chan };
+				if (mc.m.value[i].ctrl != "ctrl") { ctrl = mc.m.value[i].ctrl };
 				widget.midiConnect(connector, src, chan, ctrl);
 				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
 					all[widget].do { |b|
@@ -239,7 +239,7 @@ MidiLearnButton : ConnectorElementView {
 							b.view.states_([
 								["L", Color.white, Color.blue],
 								["X", Color.white, Color.red]
-							]).value_(1).toolTip_(mc.model.value[i].toolTip)
+							]).value_(1).toolTip_(mc.m.value[i].toolTip)
 						}
 					}
 				}
@@ -248,7 +248,7 @@ MidiLearnButton : ConnectorElementView {
 				widget.midiDisconnect(connector);
 				all[widget].do { |b|
 					if (conModel.indexOf(b.connector) == i) {
-						b.view.toolTip_(mc.model.value[i].toolTip);
+						b.view.toolTip_(mc.m.value[i].toolTip);
 					}
 				}
 			}
@@ -268,8 +268,8 @@ MidiLearnButton : ConnectorElementView {
 	index_ { |connectorID|
 		// we need the connector, not its current ID in conModel
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			mc.model.value[connectorID].learn.switch(
+		mc.m.value[connectorID] !? {
+			mc.m.value[connectorID].learn.switch(
 				"X", {
 					this.view.value_(1)
 				},
@@ -294,17 +294,17 @@ MidiLearnButton : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
-		if (mc.model.value[0].learn == "C") {
-			defaultState = [mc.model.value[0].learn, Color.black, Color.green];
-			mc.model.value[0].toolTip = "Connect using selected parameters";
+		conModel = widget.wmc.midiConnectors.m.value;
+		if (mc.m.value[0].learn == "C") {
+			defaultState = [mc.m.value[0].learn, Color.black, Color.green];
+			mc.m.value[0].toolTip = "Connect using selected parameters";
 		} {
 			defaultState = ["L", Color.white, Color.blue];
 		};
 		this.view.states_([
 			defaultState,
 			["X", Color.white, Color.red]
-		]).maxWidth_(25).toolTip_(mc.model.value[0].toolTip);
+		]).maxWidth_(25).toolTip_(mc.m.value[0].toolTip);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -312,8 +312,8 @@ MidiLearnButton : ConnectorElementView {
 
 	prAddController {
 		var pos, conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -321,12 +321,12 @@ MidiLearnButton : ConnectorElementView {
 		};
 		// the following is global for all MidiLearnButtons
 		// there must be no notion of 'this' as all MidiLearnButton instances are affected
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |but, i|
 				if (but.connector === conModel[conID]) {
 					if (changer.value[conID].learn == "C") {
-						// mc.model.value[i].toolTip = "Connect using selected parameters";
+						// mc.m.value[i].toolTip = "Connect using selected parameters";
 						but.view.states_([
 							["C", Color.black, Color.green],
 							["X", Color.white, Color.red]
@@ -335,7 +335,7 @@ MidiLearnButton : ConnectorElementView {
 					pos = but.view.states.detectIndex { |state, j|
 						state[0] == changer.value[conID].learn
 					};
-					defer { but.view.value_(pos).toolTip_(mc.model.value[conID].toolTip) }
+					defer { but.view.value_(pos).toolTip_(mc.m.value[conID].toolTip) }
 				}
 			}
 		})
@@ -365,20 +365,20 @@ MidiSrcSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		wmc = CVWidget.wmc.midiSources;
 
 		this.view = PopUpMenu(parentView, rect)
-		.enabled_(mc.model.value[index].learn != "X")
-		.items_(['source...'] ++ wmc.model.value.sort).maxWidth_(100);
+		.enabled_(mc.m.value[index].learn != "X")
+		.items_(['source...'] ++ wmc.m.value.keys.asArray.sort).maxWidth_(100);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
 			var i = conModel.indexOf(this.connector);
-			mc.model.value[i].src = wmc.model.value[sel.item];
-			mc.model.value[i].learn = "C";
-			mc.model.value[i].toolTip = "Connect using selected parameters";
-			mc.model.changedPerformKeys(widget.syncKeys, i);
+			mc.m.value[i].src = wmc.m.value[sel.item];
+			mc.m.value[i].learn = "C";
+			mc.m.value[i].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -394,10 +394,10 @@ MidiSrcSelect : ConnectorElementView {
 		var display;
 
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			display = if (mc.model.value[connectorID].src == 'source...') { 0 } {
+		mc.m.value[connectorID] !? {
+			display = if (mc.m.value[connectorID].src == 'source...') { 0 } {
 				this.view.items.indexOf(
-					wmc.model.value.findKeyForValue(mc.model.value[connectorID].src)
+					wmc.m.value.findKeyForValue(mc.m.value[connectorID].src)
 				)
 			};
 			this.view.value_(display)
@@ -416,9 +416,9 @@ MidiSrcSelect : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
-		this.view.enabled_(mc.model.value[0].learn != "X")
-		.items_(['source...'] ++ wmc.model.value.keys.asArray.sort).maxWidth_(100);
+		conModel = widget.wmc.midiConnectors.m.value;
+		this.view.enabled_(mc.m.value[0].learn != "X")
+		.items_(['source...'] ++ wmc.m.value.keys.asArray.sort).maxWidth_(100);
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -426,11 +426,11 @@ MidiSrcSelect : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
-		wmc.controller ?? {
-			wmc.controller = SimpleController(wmc.model)
+		wmc.c ?? {
+			wmc.c = SimpleController(wmc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -439,14 +439,14 @@ MidiSrcSelect : ConnectorElementView {
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true)
 		};
-		wmc.controller.put(syncKey, { |changer, what ... moreArgs|
+		wmc.c.put(syncKey, { |changer, what ... moreArgs|
 			all.do { |selects|
 				selects.do { |sel|
-					defer { sel.view.items_(['source...'] ++ wmc.model.value.keys.asArray.sort) }
+					defer { sel.view.items_([sel.view.items.first] ++ changer.value.keys.asArray.sort) }
 				}
 			}
 		});
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			changer.value[conID].src;
 			all[widget].do { |sel|
@@ -454,14 +454,14 @@ MidiSrcSelect : ConnectorElementView {
 					if (changer.value[conID].src.isNil or: { changer.value[conID].src == 'source...' }) {
 						defer {
 							sel.view.value_(0);
-							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
+							sel.view.enabled_(widget.wmc.midiConnections.m.value[conID].isNil);
 						}
 					} {
 						defer {
 							sel.view.value_(sel.items.indexOf(
-								wmc.model.value.findKeyForValue(changer.value[conID].src)
+								wmc.m.value.findKeyForValue(changer.value[conID].src)
 							));
-							sel.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
+							sel.view.enabled_(widget.wmc.midiConnections.m.value[conID].isNil);
 						}
 					}
 				}
@@ -477,9 +477,9 @@ MidiSrcSelect : ConnectorElementView {
 	prCleanup {
 		all[widget].remove(this);
 		if (all[widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
+			mc.c.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
-			wmc.controller.removeAt(syncKey);
+			wmc.c.removeAt(syncKey);
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
@@ -507,18 +507,18 @@ MidiChanField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = TextField(parentView, rect)
-		.enabled_(mc.model.value[index].learn != "X");
+		.enabled_(mc.m.value[index].learn != "X");
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var i = conModel.indexOf(this.connector);
-			mc.model.value[i].chan = tf.string;
-			mc.model.value[i].learn = "C";
-			mc.model.value[i].toolTip = "Connect using selected parameters";
-			mc.model.changedPerformKeys(widget.syncKeys, i);
+			mc.m.value[i].chan = tf.string;
+			mc.m.value[i].learn = "C";
+			mc.m.value[i].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -532,8 +532,8 @@ MidiChanField : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.string_(mc.model.value[connectorID].chan);
+		mc.m.value[connectorID] !? {
+			this.view.string_(mc.m.value[connectorID].chan);
 		}
 	}
 
@@ -549,8 +549,8 @@ MidiChanField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
-		this.view.enabled_(mc.model.value[0].learn != "X");
+		conModel = widget.wmc.midiConnectors.m.value;
+		this.view.enabled_(mc.m.value[0].learn != "X");
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -558,20 +558,20 @@ MidiChanField : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
 				if (tf.connector === conModel[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].chan);
-						tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
+						tf.view.enabled_(widget.wmc.midiConnections.m.value[conID].isNil);
 					}
 				}
 			}
@@ -600,18 +600,18 @@ MidiCtrlField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = TextField(parentView, rect)
-		.enabled_(mc.model.value[index].learn != "X");
+		.enabled_(mc.m.value[index].learn != "X");
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
 			var i = conModel.indexOf(this.connector);
-			mc.model.value[i].ctrl = tf.string;
-			mc.model.value[i].learn = "C";
-			mc.model.value[i].toolTip = "Connect using selected parameters";
-			mc.model.changedPerformKeys(widget.syncKeys, i);
+			mc.m.value[i].ctrl = tf.string;
+			mc.m.value[i].learn = "C";
+			mc.m.value[i].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -625,8 +625,8 @@ MidiCtrlField : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.string_(mc.model.value[connectorID].ctrl);
+		mc.m.value[connectorID] !? {
+			this.view.string_(mc.m.value[connectorID].ctrl);
 		}
 	}
 
@@ -642,8 +642,8 @@ MidiCtrlField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.model.value;
-		this.view.enabled_(mc.model.value[0].learn != "X");
+		conModel = widget.wmc.midiConnectors.m.value;
+		this.view.enabled_(mc.m.value[0].learn != "X");
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -651,20 +651,20 @@ MidiCtrlField : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
 				if (tf.connector === conModel[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].ctrl);
-						tf.view.enabled_(widget.wmc.midiConnections.model.value[conID].isNil);
+						tf.view.enabled_(widget.wmc.midiConnections.m.value[conID].isNil);
 					}
 				}
 			}
@@ -693,7 +693,7 @@ MidiModeSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "endless"]);
 		this.view.onClose_({ this.close });
@@ -714,8 +714,8 @@ MidiModeSelect : ConnectorElementView {
 	// index_ the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.value_(mc.model.value[connectorID].midiMode)
+		mc.m.value[connectorID] !? {
+			this.view.value_(mc.m.value[connectorID].midiMode)
 		}
 	}
 
@@ -731,7 +731,7 @@ MidiModeSelect : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -739,14 +739,14 @@ MidiModeSelect : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |sel|
 				if (sel.connector === conModel[conID]) {
@@ -778,7 +778,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = NumberBox(parentView, rect);
 		this.view.onClose_({ this.close });
@@ -798,8 +798,8 @@ MidiZeroNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.value_(mc.model.value[connectorID].midiZero)
+		mc.m.value[connectorID] !? {
+			this.view.value_(mc.m.value[connectorID].midiZero)
 		}
 	}
 
@@ -815,7 +815,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -823,14 +823,14 @@ MidiZeroNumberBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
@@ -862,7 +862,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.view.onClose_({ this.close });
@@ -882,8 +882,8 @@ SnapDistanceNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.value_(mc.model.value[connectorID].snapDistance)
+		mc.m.value[connectorID] !? {
+			this.view.value_(mc.m.value[connectorID].snapDistance)
 		}
 	}
 
@@ -899,7 +899,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -907,14 +907,14 @@ SnapDistanceNumberBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
@@ -946,7 +946,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
@@ -966,8 +966,8 @@ MidiResolutionNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.value_(mc.model.value[connectorID].midiResolution)
+		mc.m.value[connectorID] !? {
+			this.view.value_(mc.m.value[connectorID].midiResolution)
 		}
 	}
 
@@ -983,7 +983,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -991,14 +991,14 @@ MidiResolutionNumberBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
@@ -1030,7 +1030,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.view = NumberBox(parentView, rect).clipLo_(1).step_(1).scroll_step_(1);
 		this.view.onClose_({ this.close });
@@ -1050,8 +1050,8 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.model.value[connectorID] !? {
-			this.view.value_(mc.model.value[connectorID].ctrlButtonGroup)
+		mc.m.value[connectorID] !? {
+			this.view.value_(mc.m.value[connectorID].ctrlButtonGroup)
 		}
 	}
 
@@ -1067,7 +1067,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -1075,14 +1075,14 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
@@ -1124,12 +1124,12 @@ MidiInitButton : ConnectorElementView {
 				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 			};
 			MIDIClient.externalSources.do { |source|
-				if (wmc.midiSources.model.value.includes(source.uid).not) {
-					wmc.midiSources.model.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
+				if (wmc.midiSources.m.value.includes(source.uid).not) {
+					wmc.midiSources.m.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
 				}
 			};
-			wmc.midiInitialized.model.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
-			wmc.midiSources.model.changedPerformKeys(CVWidget.syncKeys);
+			wmc.midiInitialized.m.value_(MIDIClient.initialized).changedPerformKeys(CVWidget.syncKeys);
+			wmc.midiSources.m.changedPerformKeys(CVWidget.syncKeys);
 		});
 		this.view.onClose_({ this.close });
 
@@ -1147,13 +1147,13 @@ MidiInitButton : ConnectorElementView {
 	widget_ {}
 
 	prAddController {
-		wmc.midiInitialized.controller ?? {
-			wmc.midiInitialized.controller = SimpleController(wmc.midiInitialized.model)
+		wmc.midiInitialized.c ?? {
+			wmc.midiInitialized.c = SimpleController(wmc.midiInitialized.m)
 		};
 		syncKey = this.class.asSymbol;
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true);
-			wmc.midiInitialized.controller.put(syncKey, { |changer, what|
+			wmc.midiInitialized.c.put(syncKey, { |changer, what|
 				all.do { |bt|
 					if (changer.value) {
 						bt.view.states_([["reinit MIDI", Color.white, Color.red]]);
@@ -1174,7 +1174,7 @@ MidiInitButton : ConnectorElementView {
 	prCleanup {
 		all.remove(this);
 		if (all.isEmpty) {
-			wmc.midiInitialized.controller.removeAt(syncKey);
+			wmc.midiInitialized.c.removeAt(syncKey);
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
@@ -1200,7 +1200,7 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 
 		this.index_(index);
 		this.view = Button(parentView, rect)
@@ -1229,7 +1229,7 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		conModel = widget.wmc.midiConnectors.model.value;
+		conModel = widget.wmc.midiConnectors.m.value;
 		this.index_(0);
 	}
 

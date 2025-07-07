@@ -11,7 +11,7 @@ ConnectorElementView : SCViewHolder {
 	prCleanup {
 		this.class.all[this.widget].remove(this);
 		if (this.class.all[this.widget].isEmpty) {
-			mc.controller.removeAt(syncKey);
+			mc.c.removeAt(syncKey);
 			this.widget.prRemoveSyncKey(syncKey, true);
 		}
 	}

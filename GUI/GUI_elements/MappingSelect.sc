@@ -41,12 +41,12 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.wmc.midiConnectors.model.value;
+			connectors = widget.wmc.midiConnectors.m.value;
 			bgColor = Color(0.8, alpha: 0.3);
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
-			connectors = widget.wmc.oscConnectors.model.value;
+			connectors = widget.wmc.oscConnectors.m.value;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 		};
 
@@ -60,11 +60,11 @@ MappingSelect : CompositeView {
 
 		this.background_(bgColor).minHeight_(80);
 
-		ramp = switch (mc.model.value[index].mapping)
-		{ \linenv } { mc.model.value[index].env }
-		{ \lincurve } { [\lincurve, mc.model.value[index].curve] }
-		{ \linbicurve } { [\linbicurve, mc.model.value[index].curve] }
-		{ mc.model.value[index].mapping };
+		ramp = switch (mc.m.value[index].mapping)
+		{ \linenv } { mc.m.value[index].env }
+		{ \lincurve } { [\lincurve, mc.m.value[index].curve] }
+		{ \linbicurve } { [\linbicurve, mc.m.value[index].curve] }
+		{ mc.m.value[index].mapping };
 
 		e = ();
 		e.mplot = RampPlot(parent, ramp: ramp).maxHeight_(25);
@@ -73,14 +73,14 @@ MappingSelect : CompositeView {
 		]).minHeight_(25);
 		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(25);
 		e.menv = TextField(parent).minHeight_(25)
-		.string_((mc.model.value[index].env ? Env([0, 1], [1])).asCompileString);
+		.string_((mc.m.value[index].env ? Env([0, 1], [1])).asCompileString);
 
 		case
-		{ mc.model.value[index].mapping === \lincurve or: { mc.model.value[index].mapping === \linbicurve }} {
+		{ mc.m.value[index].mapping === \lincurve or: { mc.m.value[index].mapping === \linbicurve }} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.model.value[index].mapping === \linenv } {
+		{ mc.m.value[index].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -113,27 +113,27 @@ MappingSelect : CompositeView {
 
 			case
 			{ sel.value == 4 or: { sel.value == 5 }} {
-				mc.model.value[i].mapping = sel.items[sel.value];
-				mc.model.value[i].curve = e.mcurve.value;
-				mc.model.value[i].env = nil;
+				mc.m.value[i].mapping = sel.items[sel.value];
+				mc.m.value[i].curve = e.mcurve.value;
+				mc.m.value[i].env = nil;
 			}
 			{ sel.value == 6 } {
-				mc.model.value[i].env = env;
-				mc.model.value[i].mapping = sel.items[sel.value];
-				mc.model.value[i].curve = nil;
+				mc.m.value[i].env = env;
+				mc.m.value[i].mapping = sel.items[sel.value];
+				mc.m.value[i].curve = nil;
 			}
 			{
-				mc.model.value[i].mapping = sel.items[sel.value];
-				mc.model.value[i].env = nil;
-				mc.model.value[i].curve = nil;
+				mc.m.value[i].mapping = sel.items[sel.value];
+				mc.m.value[i].env = nil;
+				mc.m.value[i].curve = nil;
 			};
-			mc.model.changedPerformKeys(widget.syncKeys, i);
+			mc.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.mcurve.action_({ |nb|
 			i = connectors.indexOf(this.connector);
 			if (e.mselect.value == 4 or: { e.mselect.value == 5 }) {
-				mc.model.value[i].curve = nb.value;
-				mc.model.changedPerformKeys(widget.syncKeys, i)
+				mc.m.value[i].curve = nb.value;
+				mc.m.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		e.menv.action_({ |tf|
@@ -143,8 +143,8 @@ MappingSelect : CompositeView {
 			} { defaultEnv };
 
 			if (e.mselect.value == 6) {
-				mc.model.value[i].env = env;
-				mc.model.changedPerformKeys(widget.syncKeys, i)
+				mc.m.value[i].env = env;
+				mc.m.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		connectorRemovedFuncAdded ?? {
@@ -159,23 +159,23 @@ MappingSelect : CompositeView {
 	index_ { |connectorID|
 		// "connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
-		mc.model.value[connectorID] !? {
-			e.mselect.value_(e.mselect.items.indexOf(mc.model.value[connectorID].mapping));
-			e.mcurve.value_(mc.model.value[connectorID].curve ? 0);
-			e.menv.string_((mc.model.value[connectorID].env ? defaultEnv).asCompileString);
+		mc.m.value[connectorID] !? {
+			e.mselect.value_(e.mselect.items.indexOf(mc.m.value[connectorID].mapping));
+			e.mcurve.value_(mc.m.value[connectorID].curve ? 0);
+			e.menv.string_((mc.m.value[connectorID].env ? defaultEnv).asCompileString);
 			case
-			{ mc.model.value[connectorID].mapping === \lincurve or: { mc.model.value[connectorID].mapping === \linbicurve }} {
-				e.mplot.draw([mc.model.value[connectorID].mapping, mc.model.value[connectorID].curve]);
+			{ mc.m.value[connectorID].mapping === \lincurve or: { mc.m.value[connectorID].mapping === \linbicurve }} {
+				e.mplot.draw([mc.m.value[connectorID].mapping, mc.m.value[connectorID].curve]);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(true);
 			}
-			{ mc.model.value[connectorID].mapping === \linenv } {
-				e.mplot.draw(mc.model.value[connectorID].env);
+			{ mc.m.value[connectorID].mapping === \linenv } {
+				e.mplot.draw(mc.m.value[connectorID].env);
 				e.menv.enabled_(true);
 				e.mcurve.enabled_(false);
 			}
 			{
-				e.mplot.draw(mc.model.value[connectorID].mapping);
+				e.mplot.draw(mc.m.value[connectorID].mapping);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(false);
 			}
@@ -203,25 +203,25 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.wmc.midiConnectors.model.value;
+			connectors = widget.wmc.midiConnectors.m.value;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
-			connectors = widget.wmc.oscConnectors.model.value;
+			connectors = widget.wmc.oscConnectors.m.value;
 		};
 
-		ramp = switch (mc.model.value[0].mapping)
-		{ \linenv } { mc.model.value[0].env }
-		{ \lincurve } { [\lincurve, mc.model.value[0].curve] }
-		{ \linbicurve } { [\linbicurve, mc.model.value[0].curve] }
-		{ mc.model.value[0].mapping };
+		ramp = switch (mc.m.value[0].mapping)
+		{ \linenv } { mc.m.value[0].env }
+		{ \lincurve } { [\lincurve, mc.m.value[0].curve] }
+		{ \linbicurve } { [\linbicurve, mc.m.value[0].curve] }
+		{ mc.m.value[0].mapping };
 
 		case
-		{ mc.model.value[0].mapping === \lincurve or: { mc.model.value[0].mapping === \linbicurve }} {
+		{ mc.m.value[0].mapping === \lincurve or: { mc.m.value[0].mapping === \linbicurve }} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.model.value[0].mapping === \linenv } {
+		{ mc.m.value[0].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -238,7 +238,7 @@ MappingSelect : CompositeView {
 	prAddController {
 		var conID;
 		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+			mc.controller = SimpleController(mc.m)
 		};
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -276,8 +276,8 @@ MappingSelect : CompositeView {
 		// var connectors;
 
 		// switch (connectorKind)
-		// { \midi } { connectors = widget.wmc.midiConnectors.model.value }
-		// { \osc } { connectors = widget.wmc.oscConnectors.model.value };
+		// { \midi } { connectors = widget.wmc.midiConnectors.m.value }
+		// { \osc } { connectors = widget.wmc.oscConnectors.m.value };
 
 		if (index > 0) {
 			all[widget][connectorKind].do(_.index_(index - 1))

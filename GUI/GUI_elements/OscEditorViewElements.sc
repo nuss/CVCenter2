@@ -32,8 +32,8 @@ OscConnectorNameField : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = widget.oscConnectors[connectorID];
-		mc.model.value !? {
-			this.view.string_(mc.model.value[connectorID])
+		mc.m.value !? {
+			this.view.string_(mc.m.value[connectorID])
 		}
 	}
 
@@ -56,14 +56,14 @@ OscConnectorNameField : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
 				if (tf.connector === widget.oscConnectors[conID]) {
@@ -128,14 +128,14 @@ OscConnectorSelect : ConnectorElementView {
 	prAddController {
 		var items, conID;
 		var curValue;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.model)
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |sel, i|
 				items = sel.view.items;
@@ -185,7 +185,7 @@ OscAddrSelect : ConnectorElementView {
 		var display;
 
 		connector = widget.oscConnectors[connectorID];
-		mc.model.value[connectorID] !? {
+		mc.m.value[connectorID] !? {
 			// this.view.items.indexOf()
 		}
 	}
@@ -226,7 +226,7 @@ AddPortRadioButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = widget.oscConnectors[connectorID];
-		mc.model.value[connectorID] !? {
+		mc.m.value[connectorID] !? {
 			// this.view.items.indexOf()
 		}
 	}

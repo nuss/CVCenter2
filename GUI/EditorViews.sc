@@ -17,10 +17,10 @@ OscConnectorsEditorView : CompositeView {
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = widget.wmc.oscConnectors.model.value.detect { |c| c.name == index }
+			index = widget.wmc.oscConnectors.m.value.detect { |c| c.name == index }
 		};
 		if (index.class == OscConnector) {
-			index = widget.wmc.oscConnectors.model.value.indexOf(index)
+			index = widget.wmc.oscConnectors.m.value.indexOf(index)
 		};
 
 		e = ();
@@ -33,13 +33,13 @@ OscConnectorsEditorView : CompositeView {
 			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
 		} { parent = parentView };
 
-		if (widget.wmc.oscConnectors.model.value.isEmpty) {
+		if (widget.wmc.oscConnectors.m.value.isEmpty) {
 			OscConnector(widget)
 		};
 
 		// fallback if index out of bounds
-		if (index >= widget.wmc.midiConnectors.model.value.size) {
-			index = widget.wmc.midiConnectors.model.value.size - 1;
+		if (index >= widget.wmc.midiConnectors.m.value.size) {
+			index = widget.wmc.midiConnectors.m.value.size - 1;
 		};
 
 		e.connectorNameField = OscConnectorNameField(parent, widget, connectorID: index);
@@ -85,9 +85,9 @@ OscConnectorsEditorView : CompositeView {
 
 	set { |connector|
 		if (connector.isInteger) {
-			connector = widget.wmc.oscConnectors.model.value[connector]
+			connector = widget.wmc.oscConnectors.m.value[connector]
 		};
-		cIndex = widget.wmc.oscConnectors.model.value.indexOf(connector);
+		cIndex = widget.wmc.oscConnectors.m.value.indexOf(connector);
 		e.do(_.index_(cIndex));
 	}
 
@@ -114,19 +114,19 @@ MidiConnectorsEditorView : CompositeView {
 	init { |wdgt, index, parentView|
 		var m;
 
-		if (wdgt.wmc.midiConnectors.model.value.isEmpty) {
+		if (wdgt.wmc.midiConnectors.m.value.isEmpty) {
 			MidiConnector(wdgt)
 		};
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = wdgt.wmc.midiConnectors.model.value.detect { |c| c.name == index }
+			index = wdgt.wmc.midiConnectors.m.value.detect { |c| c.name == index }
 		};
 		if (index.class == MidiConnector) {
-			index = wdgt.wmc.midiConnectors.model.value.indexOf(index)
+			index = wdgt.wmc.midiConnectors.m.value.indexOf(index)
 		};
 		// after all, if index is nil or greater the set it to 0
-		if (index.isNil or: { index > wdgt.wmc.midiConnectors.model.value.lastIndex }) { index = 0 };
+		if (index.isNil or: { index > wdgt.wmc.midiConnectors.m.value.lastIndex }) { index = 0 };
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -199,14 +199,14 @@ MidiConnectorsEditorView : CompositeView {
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.size - 1)) {
 				m = widget.addMidiConnector;
-				e.connectorSelect.view.value_(widget.wmc.midiConnectors.model.value.indexOf(m));
+				e.connectorSelect.view.value_(widget.wmc.midiConnectors.m.value.indexOf(m));
 			};
 
 			if (sel.value < (sel.items.size - 1)) {
 				e.do(_.index_(sel.value));
 				// enable or disable selects for MIDI source, channel and ctrl number based on connection status
 				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
-					elem.view.enabled_(widget.wmc.midiConnections.model[sel.value].value.isNil)
+					elem.view.enabled_(widget.wmc.midiConnections.m[sel.value].value.isNil)
 				}
 			}
 		})
@@ -216,7 +216,7 @@ MidiConnectorsEditorView : CompositeView {
 		if (connector.isInteger) {
 			index = connector
 		} {
-			index = widget.wmc.midiConnectors.model.value.indexOf(connector)
+			index = widget.wmc.midiConnectors.m.value.indexOf(connector)
 		};
 		e.do(_.index_(index));
 	}
@@ -229,7 +229,7 @@ MidiConnectorsEditorView : CompositeView {
 
 		all[widget].remove(this);
 		widget = otherWidget;
-		connector = widget.wmc.midiConnectors.model.value[0];
+		connector = widget.wmc.midiConnectors.m.value[0];
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
 		e.do(_.widget_(widget));
