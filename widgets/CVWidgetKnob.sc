@@ -77,7 +77,8 @@ CVWidgetKnob : CVWidget {
 	}
 
 	initModels { |modelsControllers|
-		// TODO: should be separate in CVWidget class because CVWidget2D needs two...
+		// models, not tied to connectors, global to all
+		// MIDI and OSC connections
 		wmc.cvSpec ?? { wmc.cvSpec = () };
 		wmc.cvSpec.model ?? {
 			wmc.cvSpec.model = Ref(this.getSpec);
@@ -88,18 +89,14 @@ CVWidgetKnob : CVWidget {
 			wmc.actions.model = Ref((numActions: 0, activeActions: 0))
 		};
 
-
-		// should probly go to an appropriate place in the widget's view
-		/*wmc.cvGuiConnections ?? { wmc.cvGuiConnections = () };
-		wmc.cvGuiConnections.model ?? {
-		wmc.cvGuiConnections.model = Ref([true, true])
-		};*/
-
 		this.initControllers(wmc);
+
 		// every new CVWidget should
 		// immediately be amended by
 		// an empty OscConnector
 		// resp. an empty MidiConnector
+		// controllers for connectors
+		// are added within these classes
 		OscConnector(this);
 		MidiConnector(this);
 	}

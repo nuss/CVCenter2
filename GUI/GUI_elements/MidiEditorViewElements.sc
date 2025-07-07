@@ -139,7 +139,7 @@ MidiConnectorSelect : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.midiConnectorNames;
 		cons = widget.wmc.midiConnectors;
-		this.view.items_(cons.model.value.collect(_.name) ++ this.view.items.last);
+		this.view.items_(mc.model.value ++ this.view.items.last);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -160,7 +160,9 @@ MidiConnectorSelect : ConnectorElementView {
 		};
 		cons.controller.put(syncKey, { |changer, what ... moreArgs|
 			all[widget].do { |sel, i|
-				sel.view.items_(mc.model.value ++  ['add MidiConnector...'])
+				curValue = sel.view.value;
+				sel.view.items_(mc.model.value ++ sel.view.items.last)
+				.value_(curValue);
 			}
 		});
 		mc.controller.put(syncKey, { |changer, what ... moreArgs|
@@ -170,7 +172,7 @@ MidiConnectorSelect : ConnectorElementView {
 				items[conID] = changer.value[conID];
 				curValue = sel.view.value;
 				sel.view.items_(items).value_(curValue);
-				if (sel.connector === conModel[conID]) {
+				if (sel.connector === cons.model.value[conID]) {
 					sel.view.value_(conID)
 				}
 			}
