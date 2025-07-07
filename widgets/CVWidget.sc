@@ -31,10 +31,10 @@ CVWidget {
 		};
 
 		StartUp.add {
-			wmc.midiInitialized = (model: Ref(false));
-			wmc.midiSources = (model: Ref(()));
-			wmc.isScanningOsc = (model: Ref(false));
-			wmc.oscDevices = (model: Ref(()));
+			wmc.midiInitialized = (m: Ref(false));
+			wmc.midiSources = (m: Ref(()));
+			wmc.isScanningOsc = (m: Ref(false));
+			wmc.oscDevices = (m: Ref(()));
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
 				try { MIDIIn.connectAll } { |error|
@@ -42,11 +42,11 @@ CVWidget {
 					"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 				};
 				MIDIClient.externalSources.do { |source|
-					if (wmc.midiSources.model.value.includes(source.uid).not) {
-						wmc.midiSources.model.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
-					}
+					if (wmc.midiSources.m.value.includes(source.uid).not) {
+						wmc.midiSources.m.value.put("% (%)".format(source.name, source.uid).asSymbol, source.uid)
+					};
 				};
-				wmc.midiInitialized.model.value_(MIDIClient.initialized);
+				wmc.midiInitialized.m.value_(MIDIClient.initialized);
 			}
 		};
 
@@ -190,7 +190,7 @@ CVWidget {
 					if (k != \mapConstrainterHi and:{
 						k != \mapConstrainterLo
 					}) {
-						v.controller.put(thisKey, func)
+						v.c.put(thisKey, func)
 					}
 				}
 			} {
@@ -200,7 +200,7 @@ CVWidget {
 							c != \mapConstrainterLo
 						}
 					}) {
-						wmc[c].controller.put(thisKey, func)
+						wmc[c].c.put(thisKey, func)
 					}
 				}
 			}
@@ -220,7 +220,7 @@ CVWidget {
 					if (k != \mapConstrainterHi and: {
 						k != \mapConstrainterLo
 					}) {
-						v.controller !? { v.controller.removeAt(thisKey) }
+						v.c !? { v.c.removeAt(thisKey) }
 					}
 				}
 			};

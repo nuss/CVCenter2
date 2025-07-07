@@ -67,12 +67,12 @@ CVWidgetKnob : CVWidget {
 
 	initConnectors { |modelsControllers|
 		wmc.midiConnectors ?? { wmc.midiConnectors = () };
-		wmc.midiConnectors.model ?? {
-			wmc.midiConnectors.model = Ref(List[])
+		wmc.midiConnectors.m ?? {
+			wmc.midiConnectors.m = Ref(List[])
 		};
 		wmc.oscConnectors ?? { wmc.oscConnectors = () };
-		wmc.oscConnectors.model ?? {
-			wmc.oscConnectors.model = Ref(List[])
+		wmc.oscConnectors.m ?? {
+			wmc.oscConnectors.m = Ref(List[])
 		}
 	}
 
@@ -80,13 +80,13 @@ CVWidgetKnob : CVWidget {
 		// models, not tied to connectors, global to all
 		// MIDI and OSC connections
 		wmc.cvSpec ?? { wmc.cvSpec = () };
-		wmc.cvSpec.model ?? {
-			wmc.cvSpec.model = Ref(this.getSpec);
+		wmc.cvSpec.m ?? {
+			wmc.cvSpec.m = Ref(this.getSpec);
 		};
 
 		wmc.actions ?? { wmc.actions = () };
-		wmc.actions.model ?? {
-			wmc.actions.model = Ref((numActions: 0, activeActions: 0))
+		wmc.actions.m ?? {
+			wmc.actions.m = Ref((numActions: 0, activeActions: 0))
 		};
 
 		this.initControllers(wmc);
@@ -115,7 +115,7 @@ CVWidgetKnob : CVWidget {
 		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
 			Error("No valid ControlSpec given for setSpec.").throw;
 		};
-		wmc.cvSpec.model.value_(spec).changedPerformKeys(this.syncKeys);
+		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
 	getSpec {
@@ -156,7 +156,7 @@ CVWidgetKnob : CVWidget {
 			})
 		};
 
-		wmc.actions.model.value_((
+		wmc.actions.m.value_((
 			numActions: widgetActions.size,
 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
 		)).changedPerformKeys(this.syncKeys);
@@ -175,7 +175,7 @@ CVWidgetKnob : CVWidget {
 				widgetActions[name].key.remove
 			};
 			widgetActions.removeAt(name);
-			wmc.actions.model.value_((
+			wmc.actions.m.value_((
 				numActions: widgetActions.size,
 				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
 			)).changedPerformKeys(this.syncKeys);
@@ -207,7 +207,7 @@ CVWidgetKnob : CVWidget {
 				}
 			};
 			widgetActions[name].value[1] = activate;
-			wmc.actions.model.value_((
+			wmc.actions.m.value_((
 				numActions: widgetActions.size,
 				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
 			)).changedPerformKeys(this.syncKeys);
@@ -233,7 +233,7 @@ CVWidgetKnob : CVWidget {
 				widgetActions[name].value[0] = action.asCompileString
 			}
 		};
-		wmc.actions.model.value_((
+		wmc.actions.m.value_((
 			numActions: widgetActions.size,
 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
 		)).changedPerformKeys(this.syncKeys);
@@ -252,11 +252,11 @@ CVWidgetKnob : CVWidget {
 	// MIDI
 	setMidiMode { |mode, connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setMidiMode(mode))
+			wmc.midiConnectors.m.value.do(_.setMidiMode(mode))
 		} {
 			connector.setMidiMode(mode)
 		}
@@ -264,11 +264,11 @@ CVWidgetKnob : CVWidget {
 
 	getMidiMode { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getMidiMode);
+			^wmc.midiConnectors.m.value.collect(_.getMidiMode);
 		} {
 			^connector.getMidiMode;
 		}
@@ -276,11 +276,11 @@ CVWidgetKnob : CVWidget {
 
 	setMidiZero { |zeroval, connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setMidiZero(zeroval))
+			wmc.midiConnectors.m.value.do(_.setMidiZero(zeroval))
 		} {
 			connector.setMidiZero(zeroval)
 		}
@@ -288,11 +288,11 @@ CVWidgetKnob : CVWidget {
 
 	getMidiZero { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getMidiZero)
+			^wmc.midiConnectors.m.value.collect(_.getMidiZero)
 		} {
 			^connector.getMidiZero;
 		}
@@ -300,11 +300,11 @@ CVWidgetKnob : CVWidget {
 
 	setSnapDistance { |snapDistance, connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setSnapDistance(snapDistance));
+			wmc.midiConnectors.m.value.do(_.setSnapDistance(snapDistance));
 		} {
 			connector.setSnapDistance(snapDistance);
 		}
@@ -312,11 +312,11 @@ CVWidgetKnob : CVWidget {
 
 	getSnapDistance { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getSnapDistance);
+			^wmc.midiConnectors.m.value.collect(_.getSnapDistance);
 		} {
 			^connector.getSnapDistance;
 		}
@@ -324,11 +324,11 @@ CVWidgetKnob : CVWidget {
 
 	setCtrlButtonGroup { |numButtons, connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setCtrlButtonGroup(numButtons));
+			wmc.midiConnectors.m.value.do(_.setCtrlButtonGroup(numButtons));
 		} {
 			connector.setCtrlButtonGroup(numButtons);
 		}
@@ -336,11 +336,11 @@ CVWidgetKnob : CVWidget {
 
 	getCtrlButtonGroup { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getCtrlButtonGroup);
+			^wmc.midiConnectors.m.value.collect(_.getCtrlButtonGroup);
 		} {
 			^connector.getCtrlButtonGroup;
 		}
@@ -348,11 +348,11 @@ CVWidgetKnob : CVWidget {
 
 	setMidiResolution { |resolution, connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setMidiResolution(resolution));
+			wmc.midiConnectors.m.value.do(_.setMidiResolution(resolution));
 		} {
 			connector.setMidiResolution(resolution);
 		}
@@ -360,11 +360,11 @@ CVWidgetKnob : CVWidget {
 
 	getMidiResolution { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getMidiResolution)
+			^wmc.midiConnectors.m.value.collect(_.getMidiResolution)
 		} {
 			^connector.getMidiResolution
 		}
@@ -372,11 +372,11 @@ CVWidgetKnob : CVWidget {
 
 	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1])), connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.model.value.do(_.setMidiInputMapping(mapping, curve, env))
+			wmc.midiConnectors.m.value.do(_.setMidiInputMapping(mapping, curve, env))
 		} {
 			connector.setMidiInputMapping(mapping, curve, env)
 		}
@@ -384,11 +384,11 @@ CVWidgetKnob : CVWidget {
 
 	getMidiInputMapping { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.model.value.collect(_.getMidiInputMapping)
+			^wmc.midiConnectors.m.value.collect(_.getMidiInputMapping)
 		} {
 			^connector.getMidiInputMapping
 		}
@@ -397,16 +397,16 @@ CVWidgetKnob : CVWidget {
 	midiConnect { |connector, src, chan, num|
 		// create new annonymous connector if none is given
 		connector ?? {
-			if (wmc.midiConnectors.model.value.size == 1 and: {
-				wmc.midiConnections.model.value[0].isNil
+			if (wmc.midiConnectors.m.value.size == 1 and: {
+				wmc.midiConnections.m.value[0].isNil
 			}) {
-				connector = wmc.midiConnectors.model.value[0]
+				connector = wmc.midiConnectors.m.value[0]
 			} {
 				connector = MidiConnector(this)
 			}
 		};
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		// pass execution to connector
@@ -418,7 +418,7 @@ CVWidgetKnob : CVWidget {
 			Error("No connector given. Don't know which connector to disconnect!").throw;
 		};
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		// pass execution to connector
@@ -443,7 +443,7 @@ CVWidgetKnob : CVWidget {
 
 	removeOscConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 		connector.remove(forceAll);
 	}
@@ -455,14 +455,14 @@ CVWidgetKnob : CVWidget {
 
 	removeMidiConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.model.value[connector]
+			connector = wmc.midiConnectors.m.value[connector]
 		};
 		connector.remove(forceAll);
 	}
 
 	remove {
-		wmc.midiConnectors.model.value.do(_.remove(true));
-		this.oscConnectors.do(_.remove(true));
+		wmc.midiConnectors.m.value.do(_.remove(true));
+		wmc.oscConnectors.m.value.do(_.remove(true));
 		// SimpleControllers should be removed explicitely
 		this.widgetActions.do { |asoc|
 			asoc.key.remove;
@@ -472,19 +472,19 @@ CVWidgetKnob : CVWidget {
 
 	// init controllers (private)
 	prInitSpecControl { |wmc, cv|
-		wmc.cvSpec.controller ?? {
-			wmc.cvSpec.controller = SimpleController(wmc.cvSpec.model);
+		wmc.cvSpec.c ?? {
+			wmc.cvSpec.c = SimpleController(wmc.cvSpec.m);
 		};
-		wmc.cvSpec.controller.put(\default, { |changer, what, moreArgs|
+		wmc.cvSpec.c.put(\default, { |changer, what, moreArgs|
 			this.cv.spec_(changer.value);
 		})
 	}
 
 	prInitActionsControl { |wmc, cv|
-		wmc.actions.controller ?? {
-			wmc.actions.controller = SimpleController(wmc.actions.model);
+		wmc.actions.c ?? {
+			wmc.actions.c = SimpleController(wmc.actions.m);
 		};
-		wmc.actions.controller.put(\default, { |changer, what, moreArgs|
+		wmc.actions.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}
