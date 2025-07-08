@@ -37,7 +37,7 @@ CVWidget {
 			wmc.oscDevices = (m: Ref(()));
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
-				try { MIDIIn.connectAll } { |error|
+				try { MIDIIn.connectAll(false) } { |error|
 					error.postln;
 					"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 				};

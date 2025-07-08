@@ -1119,7 +1119,8 @@ MidiInitButton : ConnectorElementView {
 
 		this.view = Button(parentView, rect)
 		.action_({ |bt|
-			try { MIDIIn.connectAll } { |error|
+			MIDIClient.init;
+			try { MIDIIn.connectAll(false) } { |error|
 				error.postln;
 				"MIDIIn.connectAll failed. Please establish the necessary connections manually.".warn;
 			};
