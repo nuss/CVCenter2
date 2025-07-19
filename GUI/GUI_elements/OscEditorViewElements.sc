@@ -156,6 +156,65 @@ OscConnectorSelect : ConnectorElementView {
 	}
 }
 
+OscScanButton : ConnectorElementView {
+	classvar <all;
+	var wmc;
+
+	*initClass {
+		all = List[];
+	}
+
+	*new { |parent, rect|
+		^super.new.init(parent, rect)
+	}
+
+	init { |parentView, rect|
+		all.add(this);
+		wmc = CVWidget.wmc;
+
+		this.view = Button(parentView, rect)
+		.states_([
+			["start OSC scan", Color.black, Color.cyan],
+			["stop OSC scan", Color.white, Color.red]
+		])
+		.action_({ |bt|
+			OSCCommands.collectIPsAndCmds(bt.value.asBoolean);
+			wmc.isScanningOsc.m.value_(bt.value.asBoolean).changedPerformKeys(CVWidget.syncKeys);
+			if (bt.value == 0) {
+				wmc.oscDevices.m.value.putAll(OSCCommands.ipsAndCmds).changedPerformKeys(CVWidget.syncKeys)
+			}
+		});
+		this.view.onClose_({ this.close });
+		this.prAddController;
+	}
+
+	index_ {}
+
+	widget_ {}
+
+	prAddController {
+		wmc.isScanningOsc.c ?? {
+			wmc.isScanningOsc.c = SimpleController(wmc.isScanningOsc.m)
+		};
+		wmc.oscDevices.c ?? {
+			wmc.isScanningOsc.c = SimpleController(wmc.oscDevices.m)
+		};
+		syncKey = this.class.asSymbol;
+		CVWidget.syncKeys.indexOf(syncKey) ?? {
+			CVWidget.syncKeys.prAddSyncKey(syncKey, true);
+			wmc.isScanningOsc.c.put(syncKey, { |changer, what|
+				all.do { |bt|
+					bt.view.value_(changer.asInteger)
+				}
+			});
+			wmc.oscDevices.c.put(syncKey, { |changer, what|
+				// TODO: should update list addresses in OscAddrSelect
+				// probably in controller within OscAddrSelect
+			})
+		}
+	}
+}
+
 OscAddrSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget, wmc;
@@ -192,11 +251,11 @@ OscAddrSelect : ConnectorElementView {
 	index_ { |connectorID|
 		var display;
 
-		connector = widget.wmc.oscConnectors.model.value[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = conModel[connectorID];
+		// mc.m.value[connectorID] !? {
 			// TODO: should be set to IP of current connection if it exists?
 			// otherwise set it to view.items.last
-		}
+	// }
 	}
 
 	widget_ { |otherWidget|
@@ -218,7 +277,17 @@ OscAddrSelect : ConnectorElementView {
 	}
 
 	prAddController {
-
+		var items, conID;
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+		})
 	}
 }
 
@@ -250,7 +319,7 @@ AddPortRadioButton : ConnectorElementView {
 	index_ { |connectorID|
 		connector = widget.oscConnectors[connectorID];
 		mc.m.value[connectorID] !? {
-			// this.view.items.indexOf()
+			// this.view.items.indexOf()n
 		}
 	}
 

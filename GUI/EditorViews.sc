@@ -45,6 +45,21 @@ OscConnectorsEditorView : CompositeView {
 		e.connectorNameField = OscConnectorNameField(parent, widget, connectorID: index);
 		e.connectorSelect = OscConnectorSelect(parent, widget, connectorID: index);
 		e.addrSelect = OscAddrSelect(parent, widget, connectorID: index);
+		// preliminary
+		e.restrictToPortCheckBox = CheckBox(parent);
+		e.deviceSelect = PopUpMenu(parent).items_(['select device']);
+		e.oscCmdSelect = PopUpMenu(parent).items_(['select command']);
+		e.newDeviceBut = Button(parent).states_([["new device"]]);
+		e.oscCmdTextField = TextField(parent);
+		e.oscCmdSlotNumBox = NumberBox(parent).value_(1);
+		e.inputConstraintsLoNumBox = NumberBox(parent).value_(0.1);
+		e.inputConstraintsHiNumBox = NumberBox(parent).value_(1.0);
+		e.zeroCrossCorrectStaticText = StaticText(parent);
+		e.calibrationButton = Button(parent).states_([["calibrate"]]);
+		e.resetButton = Button(parent).states_([['reset']]);
+		e.specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0");
+		e.inOutMappingSelect = PopUpMenu(parent).items_(['linlin']);
+		e.connectorButton = Button(parent).states_([['connect']]);
 
 		parent.layout_(
 			VLayout(
@@ -54,31 +69,37 @@ OscConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[e.addrSelect],
-					StaticText(parent).string_("restrict to port"),
-					e.restrictToPortCheckBox = CheckBox(parent)
-				),
-				StaticText(parent).string_("OSC command name - either select from list provided by the selected device or set custom one"),
-				HLayout(
-					e.deviceSelect = PopUpMenu(parent),
-					e.oscCmdSelect = PopUpMenu(parent),
-					e.newDeviceBut = Button(parent)
+					[StaticText(parent).string_("restrict to port")],
+					[e.restrictToPortCheckBox]
 				),
 				HLayout(
-					e.oscCmdTextField = TextField(parent),
-					e.oscCmdSlotNumBox = NumberBox(parent)
+					StaticText(parent).string_("OSC command name - either select from list provided by the selected device or set custom one")
 				),
-				StaticText(parent).string_("OSC input constraints, zero-crossing correction"),
 				HLayout(
-					e.inputConstraintsLoNumBox = NumberBox(parent),
-					e.inputConstraintsHiNumBox = NumberBox(parent),
-					e.zeroCrossCorrectStaticText = StaticText(parent),
-					e.calibrationButton = Button(parent),
-					e.resetButton = Button(parent),
+					[e.deviceSelect],
+					[e.oscCmdSelect],
+					[e.newDeviceBut]
 				),
-				e.specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0"),
-				StaticText(parent).string_("input to output mapping"),
-				e.inOutMappingSelect = PopUpMenu(parent),
-				e.connectorButton = Button(parent)
+				HLayout(
+					[e.oscCmdTextField],
+					[e.oscCmdSlotNumBox]
+				),
+				HLayout(
+					StaticText(parent).string_("OSC input constraints, zero-crossing correction")
+				),
+				HLayout(
+					[e.inputConstraintsLoNumBox],
+					[e.inputConstraintsHiNumBox],
+					[e.zeroCrossCorrectStaticText],
+					[e.calibrationButton],
+					[e.resetButton]
+				),
+				HLayout(
+					[e.specConstraintsStaticText],
+					[StaticText(parent).string_("input to output mapping")],
+					[e.inOutMappingSelect],
+					[e.connectorButton]
+				)
 			)
 		);
 	}

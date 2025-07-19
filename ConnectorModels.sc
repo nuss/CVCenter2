@@ -151,7 +151,6 @@ OscConnector {
 
 	oscConnect {}
 	oscDisconnect {}
-
 }
 
 MidiConnector {
