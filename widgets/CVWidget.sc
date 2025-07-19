@@ -172,6 +172,14 @@ CVWidget {
 		}
 	}
 
+	midiConnectors {
+		^wmc.midiConnectors.m.value
+	}
+
+	oscConnectors {
+		^wmc.oscConnectors.m.value
+	}
+
 	syncKeys {
 		^syncKeysEvent.proto ++ syncKeysEvent.user;
 	}
