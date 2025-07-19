@@ -1095,7 +1095,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 
 MidiInitButton : ConnectorElementView {
 	classvar <all;
-	var syncKey, wmc;
+	var wmc;
 
 
 	*initClass {
