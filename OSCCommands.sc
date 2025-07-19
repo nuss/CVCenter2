@@ -1,61 +1,61 @@
 OSCCommands {
 	classvar <window;
-	classvar collectFunc, collectRunning = false, cmdList;
-	classvar <tempIPsAndCmds, oscFunc, <tempCollectRunning = false;
+	classvar collectFunc, collectRunning = false, cmds;
+	classvar <ipsAndCmds, oscFunc, <tempCollectRunning = false;
 
 	*initClass {
 		var localOscFunc;
 		var addrWithPort;
 
-		cmdList = ();
+		cmds = ();
 		collectFunc = { |msg, time, addr, recvPort|
 			if (msg[0] !== '/status.reply'){
-				cmdList.put(msg[0], msg[1..].size);
+				cmds.put(msg[0], msg[1..].size);
 			}
 		};
 
-		tempIPsAndCmds = ();
+		ipsAndCmds = ();
 
 		localOscFunc = { |argAddr, argMsg|
-			addrWithPort = (argAddr.ip.asString++":"++argAddr.port.asString).asSymbol;
+			addrWithPort = "%:%".format(argAddr.ip, argAddr.port).asSymbol;
 
-			if (tempIPsAndCmds.keys.includes(addrWithPort).not and:{
+			if (ipsAndCmds.keys.includes(addrWithPort).not and:{
 				Server.all.collect(_.addr).includesEqual(argAddr).not
 			}) {
-				tempIPsAndCmds.put(addrWithPort, ())
+				ipsAndCmds.put(addrWithPort, ())
 			};
-			if (tempIPsAndCmds.keys.includes(addrWithPort)) {
-				tempIPsAndCmds[addrWithPort].put(argMsg[0], argMsg[1..].size)
+			if (ipsAndCmds.keys.includes(addrWithPort)) {
+				ipsAndCmds[addrWithPort].put(argMsg[0], argMsg[1..].size)
 			}
 		};
 
 		oscFunc = { |msg, time, addr, recvPort| localOscFunc.(addr, msg) }
 	}
 
-	*collectTempIPsAndCmds { |play = true|
+	*collectIPsAndCmds { |play = true|
 		if (play) {
 			if (tempCollectRunning == false) {
 				thisProcess.addOSCRecvFunc(oscFunc);
 			};
-			CmdPeriod.add({ this.collectTempIPsAndCmds(false) });
+			CmdPeriod.add({ this.collectIPsAndCmds(false) });
 			tempCollectRunning = true;
 		} {
 			thisProcess.removeOSCRecvFunc(oscFunc);
-			CmdPeriod.remove({ this.collectTempIPsAndCmds(false) });
+			CmdPeriod.remove({ this.collectIPsAndCmds(false) });
 			tempCollectRunning = false;
 		}
 	}
 
-	*collect { |play = true|
+	*collectCmds { |play = true|
 		if (play) {
 			if (collectRunning == false) {
 				thisProcess.addOSCRecvFunc(collectFunc);
-				CmdPeriod.add({ this.collect(false) });
+				CmdPeriod.add({ this.collectCmds(false) });
 				collectRunning = true;
 			}
 		} {
 			thisProcess.removeOSCRecvFunc(collectFunc);
-			CmdPeriod.remove({ this.collect(false) });
+			CmdPeriod.remove({ this.collectCmds(false) });
 			collectRunning = false;
 		}
 	}
@@ -67,7 +67,7 @@ OSCCommands {
 			Error("Please provide the device- or application-name whose command-names you want to save.").throw;
 		};
 
-		this.collect(false);
+		this.collectCmds(false);
 
 		thisDeviceName = deviceName.asSymbol;
 		cmdsPath = this.filenameSymbol.asString.dirname;
@@ -77,8 +77,8 @@ OSCCommands {
 			allDevices = ();
 		};
 
-		allDevices.put(thisDeviceName, cmdList).writeArchive(cmdsPath +/+ "OSCCommands.archive");
-		cmdList.clear;
+		allDevices.put(thisDeviceName, cmds).writeArchive(cmdsPath +/+ "OSCCommands.archive");
+		cmds.clear;
 	}
 
 	*front {
@@ -103,7 +103,7 @@ OSCCommands {
 			bigMonoFont = Font(Font.defaultMonoFace, 15);
 		};
 
-		this.collect;
+		this.collectCmds;
 
 		makeField = { |cmds|
 			if (fields.keys.size < cmds.size, {
@@ -114,9 +114,9 @@ OSCCommands {
 						.background_(Color(1.0, 1.0, 1.0, 0.5))
 					;
 					if (cmds[nf] == 1, {
-						fields[nf].cmdName.string_(nf.asString+"("++cmds[nf]+"slot)");
+						fields[nf].cmdName.string_("% (% slot)".format(nf, cmds[nf]));
 					}, {
-						fields[nf].cmdName.string_(nf.asString+"("++cmds[nf]+"slots)");
+						fields[nf].cmdName.string_("% (% slots)".format(nf, cmds[nf]));
 					});
 					fields[nf].removeBut = Button(window, Point(flow.indentedRemaining.width-20, 20))
 						.states_([
@@ -137,9 +137,9 @@ OSCCommands {
 			), scroll: true);
 
 			window.onClose_({
-				this.collect(false);
+				this.collectCmds(false);
 				[progressRoutine, collectRoutine].do(_.stop);
-				cmdList.clear;
+				cmds.clear;
 			});
 
 			window.view.decorator = flow = FlowLayout(
@@ -151,7 +151,7 @@ OSCCommands {
 
 			flow.nextLine.shift(0, 0);
 
-			progressStates = Pseq(34.collect{ |i| "collecting" + ($.!i).join(' ') }, inf).asStream;
+			progressStates = Pseq(34.collectCmds{ |i| "collecting" + ($.!i).join(' ') }, inf).asStream;
 			progressRoutine = fork({
 				loop({
 					progress.string_(progressStates.next);
@@ -173,11 +173,11 @@ OSCCommands {
 					if (deviceNameField.string != "< device-name >" and:{
 						deviceNameField.string.size > 0
 					}, {
-						this.collect(false);
+						this.collectCmds(false);
 						[progressRoutine, collectRoutine].do(_.stop);
 						fields.pairsDo({ |k, v|
 							if (v.removeBut.value == 1, {
-								cmdList.removeAt(k);
+								cmds.removeAt(k);
 							})
 						});
 						this.saveCmdSet(deviceNameField.string.asSymbol);
@@ -189,7 +189,7 @@ OSCCommands {
 			collectRoutine = fork({
 				loop({
 					0.1.wait;
-					makeField.(cmdList);
+					makeField.(cmds);
 				})
 			}, AppClock);
 
