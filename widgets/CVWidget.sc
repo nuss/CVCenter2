@@ -15,7 +15,6 @@ CVWidget {
 	// to be evaluated on cv.value_ or cv.input_
 	var <env; // variables to be used inside actions
 	var <widgetActions/*, <userActions*/;
-	// var <oscConnectors, <midiConnectors;
 
 	*initClass {
 		var scPrefs = false;
