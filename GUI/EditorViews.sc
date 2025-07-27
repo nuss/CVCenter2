@@ -45,8 +45,9 @@ OscConnectorsEditorView : CompositeView {
 		e.connectorNameField = OscConnectorNameField(parent, widget, connectorID: index);
 		e.connectorSelect = OscConnectorSelect(parent, widget, connectorID: index);
 		e.addrSelect = OscAddrSelect(parent, widget, connectorID: index);
+		e.oscScanButton = OscScanButton(parent);
+		e.restrictToPortCheckBox = AddPortRadioButton(parent, widget, connectorID: index);
 		// preliminary
-		e.restrictToPortCheckBox = CheckBox(parent);
 		e.deviceSelect = PopUpMenu(parent).items_(['select device']);
 		e.oscCmdSelect = PopUpMenu(parent).items_(['select command']);
 		e.newDeviceBut = Button(parent).states_([["new device"]]);
@@ -68,16 +69,25 @@ OscConnectorsEditorView : CompositeView {
 					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					[e.addrSelect],
-					[StaticText(parent).string_("restrict to port")],
-					[e.restrictToPortCheckBox]
+					VLayout(
+						[e.addrSelect],
+						HLayout(
+							[StaticText(parent).string_("restrict to port")],
+							[e.restrictToPortCheckBox]
+						)
+					),
+					VLayout(
+						[e.oscScanButton]
+					)
 				),
 				HLayout(
 					StaticText(parent).string_("OSC command name - either select from list provided by the selected device or set custom one")
 				),
 				HLayout(
-					[e.deviceSelect],
-					[e.oscCmdSelect],
+					VLayout(
+						[e.deviceSelect],
+						[e.oscCmdSelect]
+					),
 					[e.newDeviceBut]
 				),
 				HLayout(

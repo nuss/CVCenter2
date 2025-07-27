@@ -33,7 +33,7 @@ CVWidget {
 			wmc.midiInitialized = (m: Ref(false));
 			wmc.midiSources = (m: Ref(()));
 			wmc.isScanningOsc = (m: Ref(false));
-			wmc.oscDevices = (m: Ref(()));
+			wmc.oscAddrAndCmds = (m: Ref(()));
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
 				try { MIDIIn.connectAll(false) } { |error|

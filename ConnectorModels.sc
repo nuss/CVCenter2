@@ -48,6 +48,7 @@ OscConnector {
 		wmc.oscDisplay.m.value.add((
 			ipField: nil,
 			portField: nil,
+			withPort: false,
 			nameField: "/my/cmd/name",
 			index: 1,
 			connectorButVal: 0,

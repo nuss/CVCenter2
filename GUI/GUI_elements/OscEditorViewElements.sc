@@ -174,14 +174,14 @@ OscScanButton : ConnectorElementView {
 
 		this.view = Button(parentView, rect)
 		.states_([
-			["start OSC scan", Color.black, Color.cyan],
+			["start OSC scan", Color.white, Color(green: 0.5, blue: 0.5)],
 			["stop OSC scan", Color.white, Color.red]
 		])
 		.action_({ |bt|
 			OSCCommands.collectIPsAndCmds(bt.value.asBoolean);
 			wmc.isScanningOsc.m.value_(bt.value.asBoolean).changedPerformKeys(CVWidget.syncKeys);
 			if (bt.value == 0) {
-				wmc.oscDevices.m.value.putAll(OSCCommands.ipsAndCmds).changedPerformKeys(CVWidget.syncKeys)
+				wmc.oscAddrAndCmds.m.value.putAll(OSCCommands.ipsAndCmds).changedPerformKeys(CVWidget.syncKeys)
 			}
 		});
 		this.view.onClose_({ this.close });
@@ -196,21 +196,22 @@ OscScanButton : ConnectorElementView {
 		wmc.isScanningOsc.c ?? {
 			wmc.isScanningOsc.c = SimpleController(wmc.isScanningOsc.m)
 		};
-		wmc.oscDevices.c ?? {
-			wmc.isScanningOsc.c = SimpleController(wmc.oscDevices.m)
-		};
 		syncKey = this.class.asSymbol;
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
-			CVWidget.syncKeys.prAddSyncKey(syncKey, true);
+			CVWidget.prAddSyncKey(syncKey, true);
 			wmc.isScanningOsc.c.put(syncKey, { |changer, what|
 				all.do { |bt|
-					bt.view.value_(changer.asInteger)
+					bt.view.value_(changer.value.asInteger)
 				}
-			});
-			wmc.oscDevices.c.put(syncKey, { |changer, what|
-				// TODO: should update list addresses in OscAddrSelect
-				// probably in controller within OscAddrSelect
 			})
+		}
+	}
+
+	prCleanup {
+		all.remove(this);
+		if (all.isEmpty) {
+			wmc.isScanningOsc.c.removeAt(syncKey);
+			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
 	}
 }
@@ -239,7 +240,7 @@ OscAddrSelect : ConnectorElementView {
 		conModel = widget.wmc.oscConnectors.m.value;
 		wmc = CVWidget.wmc;
 		this.view = PopUpMenu(parentView)
-		.items_(wmc.oscDevices.m.value.keys.asArray.sort ++ ["select IP address... (optional)"]);
+		.items_(['select IP address... (optional)'] ++ wmc.oscAddrAndCmds.m.value.keys.asArray.sort);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
@@ -281,12 +282,37 @@ OscAddrSelect : ConnectorElementView {
 		mc.c ?? {
 			mc.c = SimpleController(mc.m)
 		};
+		wmc.oscAddrAndCmds.c ?? {
+			wmc.oscAddrAndCmds.c = SimpleController(wmc.oscAddrAndCmds.m)
+		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
+		CVWidget.syncKeys.indexOf(syncKey) ?? {
+			CVWidget.prAddSyncKey(syncKey, true)
+		};
 		mc.c.put(syncKey, { |changer, what ... moreArgs|
+
 			conID = moreArgs[0];
+			all[widget].do { |sel|
+				if (sel.connector === conModel[conID]) {
+					if (changer.value[conID].ipField.isNil or: {
+						changer.value[conID].ipField === 'select IP address... (optional)'
+					}) {
+						defer {
+							sel.view.value_(0)
+						}
+					} {
+						defer {
+							sel.view.value_(sel.items.indexOf(
+								// FIXME
+								wmc.oscAddrAndCmds.m.value.findKeyForValue(changer.value[conID].ipField)
+							));
+						}
+					}
+				}
+			}
 		})
 	}
 }
@@ -312,23 +338,58 @@ AddPortRadioButton : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.oscDisplay;
+		this.view = CheckBox(parentView);
 		this.index_(index);
+		this.view.value_(mc.m.value[index].withPort)
+		.action_({ |cb|
+			mc.m.value[index].withPort = cb.value;
+			mc.m.changedPerformKeys(widget.syncKeys, index);
+		});
 		this.prAddController;
 	}
 
 	index_ { |connectorID|
 		connector = widget.oscConnectors[connectorID];
 		mc.m.value[connectorID] !? {
-			// this.view.items.indexOf()n
+			this.view.value_(mc.m.value[connectorID].withPort)
 		}
 	}
 
 	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
 
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.oscDisplay;
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
 	}
 
 	prAddController {
+		var conID;
 
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |cb|
+				if (cb.connector === widget.oscConnectors[conID]) {
+					cb.value_(changer.value[conID].withPort)
+				}
+			}
+		})
 	}
 }
 
