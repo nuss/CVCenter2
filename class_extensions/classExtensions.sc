@@ -8,3 +8,18 @@
 	}
 
 }
+
++Font {
+
+        *available { |...names|
+                var match;
+                names.do { |name|
+                        match = Font.availableFonts.detect(_ == name);
+                        match !? {
+                                ^match
+                        }
+                }
+                ^nil;
+        }
+
+}
