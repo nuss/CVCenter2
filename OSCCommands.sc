@@ -1,52 +1,51 @@
 OSCCommands {
-	classvar <window;
-	classvar collectFunc, collectRunning = false, cmds;
-	classvar <ipsAndCmds, oscFunc, <tempCollectRunning = false;
+	classvar <window, collectFunc;
+	classvar <ipsAndCmds, oscFunc, <collecting = false;
 
 	*initClass {
 		var localOscFunc;
 		var addrWithPort;
-
-		cmds = ();
-		collectFunc = { |msg, time, addr, recvPort|
-			if (msg[0] !== '/status.reply'){
-				cmds.put(msg[0], msg[1..].size);
-			}
-		};
+		var ip, port;
 
 		ipsAndCmds = ();
+		collectFunc = { |msg, addr|
+			ip = addr.ip.asSymbol;
+			port = addr.port.asSymbol;
 
-		localOscFunc = { |argAddr, argMsg|
-			addrWithPort = "%:%".format(argAddr.ip, argAddr.port).asSymbol;
-
-			if (ipsAndCmds.keys.includes(addrWithPort).not and:{
-				Server.all.collect(_.addr).includesEqual(argAddr).not
+			if (ipsAndCmds[ip].isNil and: {
+				Server.all.collect(_.addr).includesEqual(addr).not
 			}) {
-				ipsAndCmds.put(addrWithPort, ())
+				ipsAndCmds.put(ip, ())
 			};
-			if (ipsAndCmds.keys.includes(addrWithPort)) {
-				ipsAndCmds[addrWithPort].put(argMsg[0], argMsg[1..].size)
+			if (ipsAndCmds[ip].notNil) {
+				if (ipsAndCmds[ip][port].isNil) {
+					ipsAndCmds[ip].put(port, (msg[0] : msg[1..].size))
+				} {
+					ipsAndCmds[ip][port].put(msg[0], msg[1..].size);
+				}
 			}
 		};
 
-		oscFunc = { |msg, time, addr, recvPort| localOscFunc.(addr, msg) }
+		oscFunc = { |msg, time, addr, recvPort| collectFunc.(msg, addr) }
 	}
 
-	*collectIPsAndCmds { |play = true|
+	*collect { |play = true|
 		if (play) {
-			if (tempCollectRunning == false) {
+			if (collecting == false) {
 				thisProcess.addOSCRecvFunc(oscFunc);
-			};
-			CmdPeriod.add({ this.collectIPsAndCmds(false) });
-			tempCollectRunning = true;
+				CmdPeriod.add({ this.collect(false) });
+				collecting = true;
+				"collecting OSC commands started".inform;
+			}
 		} {
 			thisProcess.removeOSCRecvFunc(oscFunc);
-			CmdPeriod.remove({ this.collectIPsAndCmds(false) });
-			tempCollectRunning = false;
+			CmdPeriod.remove({ this.collect(false) });
+			collecting = false;
+			"collecting OSC commands stopped".inform;
 		}
 	}
 
-	*collectCmds { |play = true|
+	/**collectCmds { |play = true|
 		if (play) {
 			if (collectRunning == false) {
 				thisProcess.addOSCRecvFunc(collectFunc);
@@ -58,27 +57,18 @@ OSCCommands {
 			CmdPeriod.remove({ this.collectCmds(false) });
 			collectRunning = false;
 		}
+	}*/
+
+	*saveCmdsSet {
+		var cmdsPath = this.filenameSymbol.asString.dirname;
+		this.collect(false);
+		ipsAndCmds.writeArchive(cmdsPath +/+ "OSCCommands.sctxar");
+		ipsAndCmds.clear;
 	}
 
-	*saveCmdSet { |deviceName|
-		var thisDeviceName, allDevices, cmdsPath;
-
-		deviceName ?? {
-			Error("Please provide the device- or application-name whose command-names you want to save.").throw;
-		};
-
-		this.collectCmds(false);
-
-		thisDeviceName = deviceName.asSymbol;
-		cmdsPath = this.filenameSymbol.asString.dirname;
-		if (File.exists(cmdsPath+/+"OSCCommands.archive")) {
-			allDevices = Object.readArchive(cmdsPath +/+ "OSCCommands.archive");
-		} {
-			allDevices = ();
-		};
-
-		allDevices.put(thisDeviceName, cmds).writeArchive(cmdsPath +/+ "OSCCommands.archive");
-		cmds.clear;
+	*loadCmdsSet {
+		var cmdsPath = this.filenameSymbol.asString.dirname;
+		ipsAndCmds = Object.readArchive(cmdsPath +/+ "OSCCommands.sctxar")
 	}
 
 	*front {
@@ -139,7 +129,7 @@ OSCCommands {
 			window.onClose_({
 				this.collectCmds(false);
 				[progressRoutine, collectRoutine].do(_.stop);
-				cmds.clear;
+				ipsAndCmds.clear;
 			});
 
 			window.view.decorator = flow = FlowLayout(
@@ -151,7 +141,7 @@ OSCCommands {
 
 			flow.nextLine.shift(0, 0);
 
-			progressStates = Pseq(34.collectCmds{ |i| "collecting" + ($.!i).join(' ') }, inf).asStream;
+			progressStates = Pseq(34.collect{ |i| "collecting" + ($.!i).join(' ') }, inf).asStream;
 			progressRoutine = fork({
 				loop({
 					progress.string_(progressStates.next);
@@ -177,7 +167,7 @@ OSCCommands {
 						[progressRoutine, collectRoutine].do(_.stop);
 						fields.pairsDo({ |k, v|
 							if (v.removeBut.value == 1, {
-								cmds.removeAt(k);
+								ipsAndCmds.removeAt(k);
 							})
 						});
 						this.saveCmdSet(deviceNameField.string.asSymbol);
@@ -189,7 +179,7 @@ OSCCommands {
 			collectRoutine = fork({
 				loop({
 					0.1.wait;
-					makeField.(cmds);
+					makeField.(ipsAndCmds);
 				})
 			}, AppClock);
 
@@ -214,35 +204,35 @@ OSCCommands {
 		^this.front;
 	}
 
-	*deviceCmds { |deviceName|
-		var thisDeviceName, thisCmds, cmdsPath;
+	*deviceCmds { |deviceSet|
+		var thisDeviceSet, thisCmds, cmdsPath;
 
-		deviceName !? { thisDeviceName = deviceName.asSymbol };
-		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive")) {
-			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive";
+		deviceSet !? { thisDeviceSet = deviceSet.asSymbol };
+		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar")) {
+			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar";
 		} { ^nil };
 
 		thisCmds = Object.readArchive(cmdsPath);
 
-		if (deviceName.notNil) { ^thisCmds[thisDeviceName] } { ^thisCmds };
+		if (deviceSet.notNil) { ^thisCmds[thisDeviceSet] } { ^thisCmds };
 	}
 
-	*clearCmdsAt { |deviceName|
-		var cmdsPath, cmds;
-		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive")) {
-			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive";
-			cmds = Object.readArchive(cmdsPath);
-			cmds.removeAt(deviceName.asSymbol);
-			cmds.writeArchive(cmdsPath);
+	*clearCmdsAt { |deviceSet|
+		var cmdsPath, ipsAndCmds;
+		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar")) {
+			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar";
+			ipsAndCmds = Object.readArchive(cmdsPath);
+			ipsAndCmds.removeAt(deviceSet.asSymbol);
+			ipsAndCmds.writeArchive(cmdsPath);
 		}
 	}
 
 	*storedDevices {
-		var cmdsPath, cmds;
-		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive")) {
-			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.archive";
-			cmds = Object.readArchive(cmdsPath);
-			^cmds.keys;
+		var cmdsPath, ipsAndCmds;
+		if (File.exists(this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar")) {
+			cmdsPath = this.filenameSymbol.asString.dirname +/+ "OSCCommands.sctxar";
+			ipsAndCmds = Object.readArchive(cmdsPath);
+			^ipsAndCmds.keys;
 		} { ^nil }
 	}
 
