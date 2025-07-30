@@ -239,11 +239,11 @@ OscAddrSelect : ConnectorElementView {
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.wmc.oscConnectors.m.value;
 		wmc = CVWidget.wmc;
-		this.view = PopUpMenu(parentView)
-		.items_(['select IP address... (optional)'] ++ wmc.oscAddrAndCmds.m.value.keys.asArray.sort);
-		this.view.onClose_({ this.close });
+		this.view = PopUpMenu(parentView).onClose_({ this.close });
 		this.index_(index);
-		this.view.action_({ |sel|
+		this.view
+		.items_(	['select IP address... (optional)'] ++ wmc.oscAddrAndCmds.m.value.keys.asArray.sort)
+		.action_({ |sel|
 			// TODO: set command select according to selected IP, probably in controller
 		});
 		this.prAddController;
