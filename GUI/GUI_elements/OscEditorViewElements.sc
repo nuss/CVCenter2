@@ -178,10 +178,12 @@ OscScanButton : ConnectorElementView {
 			["stop OSC scan", Color.white, Color.red]
 		])
 		.action_({ |bt|
-			OSCCommands.collectIPsAndCmds(bt.value.asBoolean);
 			wmc.isScanningOsc.m.value_(bt.value.asBoolean).changedPerformKeys(CVWidget.syncKeys);
 			if (bt.value == 0) {
-				wmc.oscAddrAndCmds.m.value.putAll(OSCCommands.ipsAndCmds).changedPerformKeys(CVWidget.syncKeys)
+				wmc.oscAddrAndCmds.m.value.putAll(OSCCommands.ipsAndCmds);
+				wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			} {
+				OSCCommands.collect(bt.value.asBoolean);
 			}
 		});
 		this.view.onClose_({ this.close });
@@ -292,9 +294,9 @@ OscAddrSelect : ConnectorElementView {
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
-
-			conID = moreArgs[0];
+		wmc.oscAddrAndCmds.c.put(syncKey, { |changer, what ... moreArgs|
+			[changer.value, what, moreArgs].postln;
+			/*conID = moreArgs[0];
 			all[widget].do { |sel|
 				if (sel.connector === conModel[conID]) {
 					if (changer.value[conID].ipField.isNil or: {
@@ -312,7 +314,7 @@ OscAddrSelect : ConnectorElementView {
 						}
 					}
 				}
-			}
+			}*/
 		})
 	}
 }
