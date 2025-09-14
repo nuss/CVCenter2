@@ -273,12 +273,6 @@ MappingSelect : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index, connectorKind|
-		// var connectors;
-
-		// switch (connectorKind)
-		// { \midi } { connectors = widget.wmc.midiConnectors.m.value }
-		// { \osc } { connectors = widget.wmc.oscConnectors.m.value };
-
 		if (index > 0) {
 			all[widget][connectorKind].do(_.index_(index - 1))
 		} {

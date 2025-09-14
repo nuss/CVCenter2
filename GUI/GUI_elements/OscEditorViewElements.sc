@@ -220,7 +220,7 @@ OscScanButton : ConnectorElementView {
 
 OscAddrSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget, wmc;
+	var <connector, <widget, osc;
 
 	*initClass {
 		all = ();
@@ -240,11 +240,11 @@ OscAddrSelect : ConnectorElementView {
 
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.wmc.oscConnectors.m.value;
-		wmc = CVWidget.wmc;
+		osc = CVWidget.wmc.oscAddrAndCmds;
 		this.view = PopUpMenu(parentView).onClose_({ this.close });
 		this.index_(index);
 		this.view
-		.items_(	['select IP address... (optional)'] ++ wmc.oscAddrAndCmds.m.value.keys.asArray.sort)
+		.items_(['select IP address... (optional)'] ++ osc.m.value.keys.asArray.sort)
 		.action_({ |sel|
 			// TODO: set command select according to selected IP, probably in controller
 		});
@@ -284,8 +284,8 @@ OscAddrSelect : ConnectorElementView {
 		mc.c ?? {
 			mc.c = SimpleController(mc.m)
 		};
-		wmc.oscAddrAndCmds.c ?? {
-			wmc.oscAddrAndCmds.c = SimpleController(wmc.oscAddrAndCmds.m)
+		osc.c ?? {
+			osc.c = SimpleController(osc.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -294,8 +294,7 @@ OscAddrSelect : ConnectorElementView {
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true)
 		};
-		wmc.oscAddrAndCmds.c.put(syncKey, { |changer, what ... moreArgs|
-			[changer.value, what, moreArgs].postln;
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			/*conID = moreArgs[0];
 			all[widget].do { |sel|
 				if (sel.connector === conModel[conID]) {
@@ -315,6 +314,14 @@ OscAddrSelect : ConnectorElementView {
 					}
 				}
 			}*/
+		});
+		osc.c.put(syncKey, { |changer, what ... moreArgs|
+			// [changer.value, what, moreArgs].postln;
+			all.do { |wdgts|
+				wdgts.do { |sel|
+					sel.view.items_(['select IP address... (optional)'] ++ osc.m.value.keys.asArray.sort)
+				}
+			}
 		})
 	}
 }
