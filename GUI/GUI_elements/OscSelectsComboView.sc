@@ -1,6 +1,6 @@
 OscSelectsComboView : CompositeView {
 	classvar <all, connectorRemovedFuncAdded;
-	var wmc, osc, mc, connectors, syncKey;
+	var wmc, osc, oscDisplay, states, connectors, syncKey;
 	var <e, <connector, <widget, i;
 
 	*initClass {
@@ -22,7 +22,8 @@ OscSelectsComboView : CompositeView {
 
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
-		mc = widget.wmc.oscDisplay;
+		oscDisplay = widget.wmc.oscDisplay;
+		states = widget.wmc.oscSelectsStates;
 		connectors = widget.wmc.oscConnectors.m.value;
 
 		if (parentView.isNil) {
@@ -67,30 +68,34 @@ OscSelectsComboView : CompositeView {
 		e.ipselect.action_({ |sel|
 			i = connectors.indexOf(this.connector);
 			if (sel.value == 0) {
-				mc.m.value[i].ipField = nil;
-				mc.m.value[i].portField = nil;
-				e.portselect.items_(['select port... (optional)']);
+				oscDisplay.m.value[i].ipField = nil;
+				oscDisplay.m.value[i].portField = nil;
+				states.m.value[i].ipSelect = 0;
 			} {
-				mc.m.value[i].ipField = sel.items[sel.value];
-				e.portselect.items_(['select port... (optional)'] ++ osc.m.value[sel.items[sel.value]].keys.asArray.sort)
-				.value_(0);
-				// TODO: set e.cmdselect to all available cmds under selected IP (port should have been set to nil anyway)
+				oscDisplay.m.value[i].ipField = sel.items[sel.value];
+				states.m.value[i].ipSelect = sel.value;
 			};
-			mc.m.changedPerformKeys(widget.syncKeys, i)
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			states.m.changesPerformKeys(widget.syncKeys, i);
 		});
 		e.portselect.action_({ |sel|
 			i = connectors.indexOf(this.connector);
 			if (sel.value == 0) {
-				mc.m.value[i].portField = nil
+				oscDisplay.m.value[i].portField = nil;
+				states.m.value[i].portSelect = 0;
 			} {
-				mc.m.value[i].portField = sel.items[sel.value]
-				// TODO: limit e.cmdselect items to all available cmds under selected IP AND port
+				oscDisplay.m.value[i].portField = sel.items[sel.value];
+				states.m.value[i].portSelect = sel.value;
 			};
-			mc.m.changedPerformKeys(widget.syncKeys, i)
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			states.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.cmdselect.action_({ |sel|
 			i = connectors.indexOf(this.connectors);
-			// if ()
+			if (sel.value > 0) {
+				oscDisplay.m.value[i].nameField = sel.items[sel.value]
+			};
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
 		});
 
 		this.prAddController;
