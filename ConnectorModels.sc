@@ -49,7 +49,7 @@ OscConnector {
 			ipField: nil,
 			portField: nil,
 			// withPort: false,
-			nameField: "/my/cmd/name",
+			nameField: '/my/cmd/name',
 			index: 1,
 			connectorButVal: 0,
 			editEnabled: true

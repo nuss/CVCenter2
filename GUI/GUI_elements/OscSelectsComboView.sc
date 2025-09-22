@@ -55,6 +55,7 @@ OscSelectsComboView : CompositeView {
 		};
 
 		this.index_(index);
+		this.onClose_({ this.close });
 
 		e.scanbut.action_({ |bt|
 			wmc.isScanningOsc.m.value_(bt.value.asBoolean).changedPerformKeys(CVWidget.syncKeys);
@@ -102,8 +103,35 @@ OscSelectsComboView : CompositeView {
 	}
 
 	index_ { |connectorID|
-		connector = connectors[connectorID];
+		var ipId, portId, cmdId;
+		var cmds;
 
+		connector = connectors[connectorID];
+		if (oscDisplay.m.value[connectorID].ipField.isNil) {
+			e.ipselect.value_(0);
+			e.portselect.items_(['select port... (optional)']).value_(0);
+			e.cmdselect.items_(['select command name']).value_(0)
+		} {
+			ipId = e.ipselect.items.indexOf(oscDisplay.m.value[connectorID].ipField);
+			e.ipselect.value_(ipId);
+			e.portselect.items_(osc.m.value[e.ipselect.item].keys.asArray.sort);
+			if (oscDisplay.m.value[connectorID].portField.notNil) {
+				portId = e.portselect.items.indexOf(oscDisplay.m.value[connectorID].portField);
+				e.portselect.value_(portId);
+			} {
+				e.portselect.value_(0)
+			};
+			if (oscDisplay.m.value[connectorID].nameField !== '/my/cmd/name') {
+				if (oscDisplay.m.value[connectorID].portField.isNil) {
+					// select index of command across all port values
+					cmds = osc.m.value[e.ipselect.item].atAll(osc.m.value[e.ipselect.item].keys).asArray.flat.asSet.asArray.sort;
+				} {
+					// select index of command in values under given port
+					cmds = osc.m.value[oscDisplay.m.value[connectorID].portField]
+				};
+				e.cmdselect.items_(['select command name'] ++ cmds);
+			}
+		}
 	}
 
 }
