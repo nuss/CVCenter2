@@ -1,5 +1,6 @@
 OscConnector {
 	classvar cAnons = 0;
+	classvar <onConnectorRemove;
 	var <widget;
 
 	*new { |widget, name|
@@ -9,6 +10,10 @@ OscConnector {
 			Error("An OscConnector can only be created for an existing CVWidget").throw;
 		};
 		^super.newCopyArgs(widget).init(name);
+	}
+
+	*onConnectorRemove_ { |func|
+		onConnectorRemove = onConnectorRemove.addFunc(func)
 	}
 
 	init { |name|

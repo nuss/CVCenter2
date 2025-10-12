@@ -4,7 +4,7 @@ OscSelectsComboView : CompositeView {
 	var <e, <connector, <widget, i;
 
 	*initClass {
-		all = List[];
+		all = ();
 	}
 
 	*new { |parent, widget, rect, connectorID=0, layout([[\ipselect, \portselect], [\cmdselect, \scanbut]])|
@@ -18,13 +18,14 @@ OscSelectsComboView : CompositeView {
 		var parent, row, i;
 
 		widget = wdgt;
-		all.add(this);
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
 
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
 		states = widget.wmc.oscSelectsStates;
-		connectors = widget.wmc.oscConnectors.m.value;
+		connectors = widget.oscConnectors;
 
 		if (parentView.isNil) {
 			parent = Window("%: OSC addresses and commands".format(widget.name), Rect(0, 0, 300, 65));
@@ -134,4 +135,45 @@ OscSelectsComboView : CompositeView {
 		}
 	}
 
+	widget_ { |otherWidget|
+
+	}
+
+	prAddController {
+		var conID;
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		wmc.isScanningOsc.c ?? {
+			wmc.isScanningOsc.c = SimpleController(wmc.isScanning.m)
+		};
+		wmc.isScanningOsc.c.put(syncKey, { |changer, what ... moreArgs|
+			all.pairsDo { |w, selCombo|
+
+			}
+		});
+		osc.c ?? { osc.c = SimpleController(osc.m) };
+		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
+		states.c ?? { states.c = SimpleController(states.m) };
+	}
+
+	prOnRemoveConnector { |widget, index|
+
+	}
+
+	close {
+		this.remove;
+		e.do(_.close);
+		this.prCleanup;
+	}
+
+	prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			// remove controllers -> to be defined
+			// mc.controller.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
+	}
 }
