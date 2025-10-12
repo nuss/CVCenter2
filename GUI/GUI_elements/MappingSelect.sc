@@ -237,14 +237,12 @@ MappingSelect : CompositeView {
 
 	prAddController {
 		var conID;
-		mc.controller ?? {
-			mc.controller = SimpleController(mc.m)
-		};
+		mc.c ?? { mc.c = SimpleController(mc.m) };
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.controller.put(syncKey, { |changer, what ... moreArgs|
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget][connectorKind].do { |ms, i|
 				if (ms.connector === connectors[conID]) {
@@ -289,7 +287,7 @@ MappingSelect : CompositeView {
 	prCleanup {
 		all[widget][connectorKind].remove(this);
 		if (all[widget][connectorKind].isEmpty) {
-			mc.controller.removeAt(syncKey);
+			mc.c.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
