@@ -65,7 +65,7 @@ OscSelectsComboView : CompositeView {
 				wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
 			} {
 				OSCCommands.collect(bt.value.asBoolean);
-			}
+			};
 		});
 		e.ipselect.action_({ |sel|
 			i = connectors.indexOf(this.connector);
@@ -78,7 +78,7 @@ OscSelectsComboView : CompositeView {
 				states.m.value[i].ipSelect = sel.value;
 			};
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
-			states.m.changesPerformKeys(widget.syncKeys, i);
+			states.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.portselect.action_({ |sel|
 			i = connectors.indexOf(this.connector);
@@ -141,21 +141,49 @@ OscSelectsComboView : CompositeView {
 
 	prAddController {
 		var conID;
+		var ips, ports, cmds;
+		var ipsvals, portsvals;
+		var ip, port;
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
+		CVWidget.syncKeys.indexOf(syncKey) ?? {
+			CVWidget.prAddSyncKey(syncKey, true)
+		};
 		wmc.isScanningOsc.c ?? {
-			wmc.isScanningOsc.c = SimpleController(wmc.isScanning.m)
+			wmc.isScanningOsc.c = SimpleController(wmc.isScanningOsc.m)
 		};
 		wmc.isScanningOsc.c.put(syncKey, { |changer, what ... moreArgs|
-			all.pairsDo { |w, selCombo|
-
+			all.do { |comboList|
+				comboList.do { |combo|
+					combo.e.scanbut.value_(changer.value.asInteger)
+				}
 			}
 		});
 		osc.c ?? { osc.c = SimpleController(osc.m) };
+		osc.c.put(syncKey, { |changer, what ... moreArgs|
+			changer.value.postln;
+			"CVWidget.wmc.oscAddrAndCmds: %".format(osc.m.value).postln;
+			ips = changer.value.keys;
+			all.do { |comboList|
+				comboList.do { |combo|
+					ipsvals = (combo.e.ipselect.items[1..].asSet ++ ips).asArray.sort;
+					combo.e.ipselect.items_([e.ipselect.items[0]] ++ ipsvals);
+				}
+			}
+		});
 		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
 		states.c ?? { states.c = SimpleController(states.m) };
+		states.c.put(syncKey, { |changer, what ... moreArgs|
+			[changer.value, moreArgs].postln;
+			// populate portselect with ports available under the given IP
+			// or empty list if no IP is given (position 0)
+			// populate cmdselect with appropriate comd names
+			// if neither IP nor port is selected add all available cmd names
+			// otherwise restrict to IP or IP and port
+		})
 	}
 
 	prOnRemoveConnector { |widget, index|
