@@ -53,21 +53,10 @@ OscConnector {
 		wmc.oscDisplay.m.value.add((
 			ipField: nil,
 			portField: nil,
-			// withPort: false,
 			nameField: '/my/cmd/name',
 			index: 1,
 			connectorButVal: 0,
 			editEnabled: true
-		));
-
-		wmc.oscSelectsStates ?? { wmc.oscSelectsStates = () };
-		wmc.oscSelectsStates.m ?? {
-			wmc.oscSelectsStates.m = Ref(List[]);
-		};
-		wmc.oscSelectsStates.m.value.add((
-			ipSelect: 0,
-			portSelect: 0,
-			cmdSelect: 0
 		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
@@ -85,7 +74,6 @@ OscConnector {
 			prInitOscInputRange,
 			prInitOscConnection,
 			prInitOscDisplay,
-			prInitOscSelectsStates,
 			prInitOscConnectors,
 			prInitOscConnectorNames
 		].do { |method|
@@ -134,15 +122,6 @@ OscConnector {
 			mc.oscDisplay.c = SimpleController(mc.oscDisplay.m)
 		};
 		mc.oscDisplay.c.put(\default, { |changer, what, moreArgs|
-			// do something with changer.value
-		})
-	}
-
-	prInitOscSelectsStates { |mc, cv|
-		mc.oscSelectsStates.c ?? {
-			mc.oscSelectsStates.c = SimpleController(mc.oscSelectsStates.m)
-		};
-		mc.oscSelectsStates.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
 		})
 	}

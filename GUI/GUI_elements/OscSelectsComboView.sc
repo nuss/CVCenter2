@@ -72,25 +72,19 @@ OscSelectsComboView : CompositeView {
 			if (sel.value == 0) {
 				oscDisplay.m.value[i].ipField = nil;
 				oscDisplay.m.value[i].portField = nil;
-				states.m.value[i].ipSelect = 0;
 			} {
 				oscDisplay.m.value[i].ipField = sel.items[sel.value];
-				states.m.value[i].ipSelect = sel.value;
 			};
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
-			states.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.portselect.action_({ |sel|
 			i = connectors.indexOf(this.connector);
 			if (sel.value == 0) {
 				oscDisplay.m.value[i].portField = nil;
-				states.m.value[i].portSelect = 0;
 			} {
 				oscDisplay.m.value[i].portField = sel.items[sel.value];
-				states.m.value[i].portSelect = sel.value;
 			};
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
-			states.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.cmdselect.action_({ |sel|
 			i = connectors.indexOf(this.connectors);
@@ -142,8 +136,8 @@ OscSelectsComboView : CompositeView {
 	prAddController {
 		var conID;
 		var ips, ports, cmds;
-		var ipsvals, portsvals;
-		var ip, port;
+		var ipsvals, portsvals, cmdsvals;
+		var ip, port, val;
 
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -175,14 +169,22 @@ OscSelectsComboView : CompositeView {
 			}
 		});
 		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
-		states.c ?? { states.c = SimpleController(states.m) };
-		states.c.put(syncKey, { |changer, what ... moreArgs|
+		oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
 			[changer.value, moreArgs].postln;
-			// populate portselect with ports available under the given IP
-			// or empty list if no IP is given (position 0)
-			// populate cmdselect with appropriate comd names
-			// if neither IP nor port is selected add all available cmd names
-			// otherwise restrict to IP or IP and port
+			conID = moreArgs[0];
+			all[widget].do { |selCombo|
+				if (selCombo.connector === connectors[conID]) {
+					ip = changer.value[conID].ipField;
+					val = selCombo.e.portselect.value;
+					if (selCombo.e.ipselect.items.indexOf(ip) > 0) {
+						selCombo.e.portselect.items_(
+							[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.sort
+						).value_(val)
+					} {
+						selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0)
+					}
+				}
+			}
 		})
 	}
 
