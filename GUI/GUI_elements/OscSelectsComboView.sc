@@ -106,7 +106,19 @@ OscSelectsComboView : CompositeView {
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.rreset.action_({ |bt|
-			osc.m.value_(());
+			case
+			{ e.ipselect.value > 0 and: { e.portselect.value == 0 }} {
+				OSCCommands.ipsAndCmds[e.ipselect.item] = nil;
+				osc.m.value[e.ipselect.item] = nil;
+			}
+			{ e.ipselect.value > 0 and: { e.portselect.value > 0 }} {
+				OSCCommands.ipsAndCmds[e.ipselect.item][e.portselect.item] = nil;
+				osc.m.value[e.ipselect.item][e.portselect.item] = nil;
+			}
+			{
+				OSCCommands.ipsAndCmds.clear;
+				osc.m.value_(());
+			};
 			osc.m.changedPerformKeys(CVWidget.syncKeys)
 		});
 
@@ -223,6 +235,7 @@ OscSelectsComboView : CompositeView {
 						changer.value[conID].portField.isNil
 					}} {
 						// "ipField and portField are nil".postln;
+						selCombo.e.ipselect.value_(0);
 						selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
 						cmds = [];
 						osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
@@ -233,6 +246,7 @@ OscSelectsComboView : CompositeView {
 					}} {
 						// "ipField is not nil but portField is".postln;
 						ip = changer.value[conID].ipField;
+						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
 						// "osc.m.value['%'].keys.asArray.collect(_.asInteger).sort: %".format(ip, osc.m.value[ip].keys.asArray.collect(_.asInteger).sort).postln;
 						selCombo.e.portselect.items_(
 							[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.collect(_.asInteger).sort
@@ -246,6 +260,10 @@ OscSelectsComboView : CompositeView {
 						changer.value[conID].portField.notNil
 					}} {
 						// "neither ipField nor portField are nil".postln;
+						ip = changer.value[conID].ipField;
+						port = changer.value[conID].portField;
+						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
+						selCombo.e.portselect.value_(selCombo.e.portselect.items.indexOf(port));
 						cmds = osc.m.value[changer.value[conID].ipField][changer.value[conID].portField.asSymbol].keys.asArray.sort;
 						selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds)
 					};
