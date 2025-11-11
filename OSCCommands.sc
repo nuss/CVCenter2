@@ -39,7 +39,6 @@ OSCCommands {
 			}
 		} {
 			thisProcess.removeOSCRecvFunc(oscFunc);
-			CmdPeriod.remove({ this.collect(false) });
 			collecting = false;
 			"collecting OSC commands stopped".inform;
 		}

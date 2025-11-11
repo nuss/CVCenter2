@@ -19,6 +19,7 @@ CVWidget {
 	*initClass {
 		var scPrefs = false;
 
+		Class.initClassTree(OSCCommands);
 		Class.initClassTree(KeyDownActions);
 		// FIXME: CVWidgetShortcuts
 		Class.initClassTree(CVWidgetShortcuts);
@@ -33,7 +34,7 @@ CVWidget {
 			wmc.midiInitialized = (m: Ref(false));
 			wmc.midiSources = (m: Ref(()));
 			wmc.isScanningOsc = (m: Ref(false));
-			wmc.oscAddrAndCmds = (m: Ref(()));
+			wmc.oscAddrAndCmds = (m: Ref(OSCCommands.ipsAndCmds));
 			if (this.initMidiOnStartUp) {
 				MIDIClient.init;
 				try { MIDIIn.connectAll(false) } { |error|

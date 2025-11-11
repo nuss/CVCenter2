@@ -23,3 +23,24 @@
         }
 
 }
+
++OSCCommands {
+
+	*collectSync { |play = true|
+		if (play) {
+			if (collecting == false) {
+				thisProcess.addOSCRecvFunc(oscFunc);
+				CmdPeriod.add({ this.collect(false) });
+				collecting = true;
+				"collecting OSC commands started".inform;
+			}
+		} {
+			thisProcess.removeOSCRecvFunc(oscFunc);
+			CmdPeriod.remove({ this.collect(false) });
+			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			collecting = false;
+			"collecting OSC commands stopped".inform;
+		}
+	}
+
+}
