@@ -21,7 +21,8 @@ TestCVCenter {
 			TestMidiConnectorRemoveButton,
 			TestMappings,
 			TestMappingSelect,
-			TestMidiConnectorsEditorView
+			TestMidiConnectorsEditorView,
+			TestOscSelectsComboView
 		].do(_.run)
 	}
 }
