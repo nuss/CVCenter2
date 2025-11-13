@@ -39,6 +39,7 @@ OscSelectsComboView : CompositeView {
 		e.colon = StaticText(parent).string_($:);
 		e.portselect = PopUpMenu(parent).items_(['port...'])
 		.toolTip_("Optionally select a port");
+		// "e.portselect.items %".format(e.portselect.items).warn;
 		e.cmdselect = PopUpMenu(parent).items_(['cmd name...'])
 		.toolTip_("Select command name to be listened to");
 		e.scanbut = Button(parent).states_([
@@ -115,6 +116,9 @@ OscSelectsComboView : CompositeView {
 		});
 
 		this.prAddController;
+		// FIXME: how can it be guaranteed that select values are being set correctly if combo is created after
+		// another combo has already been created, populated with values and selects were set values > 0?
+		// oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	index_ { |connectorID|
@@ -125,26 +129,31 @@ OscSelectsComboView : CompositeView {
 		if (oscDisplay.m.value[connectorID].ipField.isNil) {
 			e.ipselect.value_(0);
 			e.portselect.items_([e.portselect.items[0]]).value_(0);
-			e.cmdselect.items_([e.cmdselect.items[0]]).value_(0)
+			cmds = [];
+			osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
+			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort).value_(0)
 		} {
 			ipId = e.ipselect.items.indexOf(oscDisplay.m.value[connectorID].ipField);
 			e.ipselect.value_(ipId);
-			e.portselect.items_(osc.m.value[e.ipselect.item].keys.asArray.sort);
+			e.portselect.items_([e.portselect.items[0]] ++ osc.m.value[e.ipselect.item].keys.asArray.collect(_.asInteger).sort);
 			if (oscDisplay.m.value[connectorID].portField.notNil) {
 				portId = e.portselect.items.indexOf(oscDisplay.m.value[connectorID].portField);
 				e.portselect.value_(portId);
 			} {
 				e.portselect.value_(0)
 			};
+			if (oscDisplay.m.value[connectorID].portField.isNil) {
+				// select index of command across all port values
+				cmds = osc.m.value[e.ipselect.item].atAll(osc.m.value[e.ipselect.item].keys).asArray.collect { |pairs| pairs.keys.asArray }.flat.sort;
+			} {
+				// select index of command in values under given port
+				cmds = osc.m.value[e.ipselect.item][oscDisplay.m.value[connectorID].portField.asSymbol].keys.asArray.sort;
+			};
+			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds);
 			if (oscDisplay.m.value[connectorID].nameField !== '/my/cmd/name') {
-				if (oscDisplay.m.value[connectorID].portField.isNil) {
-					// select index of command across all port values
-					cmds = osc.m.value[e.ipselect.item].atAll(osc.m.value[e.ipselect.item].keys).asArray.flat.asSet.asArray.sort;
-				} {
-					// select index of command in values under given port
-					cmds = osc.m.value[oscDisplay.m.value[connectorID].portField]
-				};
-				e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds);
+				e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[connectorID].nameField))
+			} {
+				e.cmdselect.value_(0)
 			}
 		}
 	}
@@ -178,7 +187,7 @@ OscSelectsComboView : CompositeView {
 		});
 		osc.c ?? { osc.c = SimpleController(osc.m) };
 		osc.c.put(syncKey, { |changer, what ... moreArgs|
-			"changer: %".format(changer.value.cs).postln;
+			// "changer: %".format(changer.value.cs).warn;
 			if (changer.value.isEmpty) {
 				all.do { |comboList|
 					comboList.do { |combo|
@@ -188,13 +197,14 @@ OscSelectsComboView : CompositeView {
 					}
 				}
 			} {
-				ips = changer.value.keys;
+				ips = changer.value.keys.asArray.sort;
 				all.do { |comboList|
 					comboList.do { |combo|
 						combo.e.ipselect.items_([e.ipselect.items[0]] ++ ips);
 						// [combo.widget, combo.connector].postln;
 						case
 						{ combo.e.ipselect.value == 0 } {
+							// "ipselect.value == 0".warn;
 							combo.e.portselect.value_(0);
 							cmds = [];
 							osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
@@ -203,11 +213,13 @@ OscSelectsComboView : CompositeView {
 						// TODO: test me...
 						// e = (a: (aa: (aa1: 1, aa2: 1), ab: (ab1: 1, ab2: 1)), b: (bb: (b1: 1, b2: 1)))
 						{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value == 0 }} {
+							// "ipselect.value > 0 and portselect.value == 0".warn;
 							cmds = osc.m.value[combo.e.ipselect.item].values.collect { |k| k.keys.asArray }.flat;
 							combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort)
 						}
 						// TODO: test me...
 						{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value > 0 }} {
+							// "ipselect and portselect value > 0".warn;
 							cmds = osc.m.value[combo.e.ipselect.item][combo.e.portselect.item].keys.asArray.sort;
 							combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds)
 						}
@@ -225,7 +237,7 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						// "ipField and portField are nil".postln;
+						// "ipField and portField are nil".warn;
 						selCombo.e.rreset.toolTip_("Reset all IP addresses, ports and command names");
 						selCombo.e.ipselect.value_(0);
 						selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
@@ -236,11 +248,10 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						// "ipField is not nil but portField is".postln;
+						// "ipField is not nil but portField is".warn;
 						ip = changer.value[conID].ipField;
 						selCombo.e.rreset.toolTip_("Reset all ports and command names under IP %".format(ip));
 						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
-						// "osc.m.value['%'].keys.asArray.collect(_.asInteger).sort: %".format(ip, osc.m.value[ip].keys.asArray.collect(_.asInteger).sort).postln;
 						selCombo.e.portselect.items_(
 							[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.collect(_.asInteger).sort
 						).value_(0);
@@ -252,7 +263,7 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.notNil
 					}} {
-						// "neither ipField nor portField are nil".postln;
+						// "neither ipField nor portField are nil".warn;
 						ip = changer.value[conID].ipField;
 						port = changer.value[conID].portField;
 						selCombo.e.rreset.toolTip_("Reset all command names under IP:port %:%".format(ip, port));
