@@ -10,6 +10,8 @@ TestOscSelectsComboView : UnitTest {
 	tearDown {
 		oscv1.close;
 		widget1.remove;
+		OSCCommands.ipsAndCmds.clear;
+		OSCCommands.collectSync(false);
 	}
 
 	test_new {
@@ -64,7 +66,29 @@ TestOscSelectsComboView : UnitTest {
 		oscv2.close;
 	}
 
-	test_index_ {}
+	test_index_ {
+		// hmmm...
+		OSCCommands.collectSync(false);
+		widget1.addOscConnector;
+		this.assertEquals(oscv1.e.ipselect.items, ['IP address...', '192.168.1.2', '192.168.1.3'], "After instantiation an OscSelectsComboView's IP select should contain all IP addresses currently held CVWidget's oscAddrAndCmds model prepended by 'IP address...'.");
+		oscv1.index_(1);
+		this.assertEquals(oscv1.e.ipselect.items, ['IP address...', '192.168.1.2', '192.168.1.3'], "After switching the connector by calling index_ on an OscSelectsComboView an OscSelectsComboView's IP select should still contain all IP addresses currently held CVWidget's oscAddrAndCmds model prepended by 'IP address...'.");
+		this.assert(oscv1.connector === widget1.wmc.oscConnectors.m.value[1], "After adding an OscConnector to the widget and calling oscv1.index_(1) oscv's 'connector' variable should be identical with the widget's OscConnector at index 1");
+		widget1.addOscConnector;
+		oscv2 = OscSelectsComboView(widget: widget1, connectorID: 2);
+		this.assert(oscv2.connector === widget1.wmc.oscConnectors.m.value[2], "After adding another OscConnector to the widget and creating OscSelectsComboView oscv2 with arg 'connectorID' set to 2' ms2's 'connector' variable should be identical with the widget's OscConnector at index 2.");
+		oscv1.e.ipselect.valueAction_(1);
+		this.assertEquals(oscv2.e.portselect.items, ['port...'], "After setting oscv1.e.ipselect.value to 1 oscv2.e.portselect.items should equal ['port...']");
+		oscv2.index_(1);
+		this.assertEquals(oscv2.e.portselect.items, ['port...', 3214, 42560], "After setting oscv1.e.ipselect.value to 1 and calling oscv2.index_(1) oscv2.e.portselect.items should equal ['port...', 3214, 42560]");
+		oscv1.index_(2);
+		this.assert(oscv1.e.ipselect.value == 0, "After calling oscv1.index_(2) of oscv1.e.ipselect.value should return 0");
+		oscv1.e.ipselect.valueAction_(1);
+		oscv1.e.portselect.valueAction_(2);
+		oscv2.index_(2);
+		this.assertEquals(oscv2.e.cmdselect.items, ['cmd name...', '/42560/1', '/42560/2'], "After calling oscv1.index_(2), oscv1.e.ipselect.valueAction_(1), oscv1.e.portselect.valueAction_(2) and calling oscv2.index_(2) oscv2's portselect items should equal ['cmd name...', '/42560/1', '/42560/2'].");
+		oscv2.close;
+	}
 
 	test_widget_ {}
 

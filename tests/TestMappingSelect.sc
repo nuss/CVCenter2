@@ -33,7 +33,7 @@ TestMappingSelect : UnitTest {
 		this.assert(ms1.connector === widget1.wmc.midiConnectors.m.value[1], "After adding a MidiConnector to the widget and calling ms1.index_(1) ms1's 'connector' variable should be identical with the widget's MidiConnector at index 1");
 		widget1.addMidiConnector;
 		ms2 = MappingSelect(widget: widget1, connectorID: 2, connectorKind: \midi);
-		this.assert(ms2.connector === widget1.wmc.midiConnectors.m.value[2], "After adding another MidiConnector to the widget and creating MappingSelect ms2 with arg 'connectorID' set to 2' ms2's 'connector' variable should be identical with the widget's MidiConnector at indes 2.");
+		this.assert(ms2.connector === widget1.wmc.midiConnectors.m.value[2], "After adding another MidiConnector to the widget and creating MappingSelect ms2 with arg 'connectorID' set to 2' ms2's 'connector' variable should be identical with the widget's MidiConnector at index 2.");
 		ms2.close;
 	}
 
