@@ -271,6 +271,7 @@ MappingSelect : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index, connectorKind|
+		"index: %, all[%]: %".format(index, all[widget]).postln;
 		if (index > 0) {
 			all[widget][connectorKind].do(_.index_(index - 1))
 		} {

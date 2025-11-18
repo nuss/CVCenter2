@@ -67,6 +67,7 @@ TestCVWidgetKnob : UnitTest {
 			'midiOptions',
 			'oscCalibration',
 			'oscInputRange',
+			'oscInputMappings',
 			'midiInputMappings',
 			'midiDisplay',
 			'actions',

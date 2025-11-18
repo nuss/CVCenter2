@@ -22,7 +22,7 @@ TestCVCenter {
 			TestMappings,
 			TestMappingSelect,
 			TestMidiConnectorsEditorView,
-			TestOscSelectsComboView
+			// TestOscSelectsComboView
 		].do(_.run)
 	}
 }

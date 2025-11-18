@@ -40,6 +40,12 @@ OscConnector {
 		};
 		wmc.oscInputRange.m.value.add([0.0001, 0.0001]);
 
+		wmc.oscInputMappings ?? { wmc.oscInputMappings = () };
+		wmc.oscInputMappings.m ?? {
+			wmc.oscInputMappings.m = Ref(List[]);
+		};
+		wmc.oscInputMappings.m.value.add(\linlin);
+
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.m ?? {
 			wmc.oscConnections.m = Ref(List[]);
@@ -72,6 +78,7 @@ OscConnector {
 		#[
 			prInitOscCalibration,
 			prInitOscInputRange,
+			prInitOscInputMappings,
 			prInitOscConnection,
 			prInitOscDisplay,
 			prInitOscConnectors,
@@ -105,6 +112,15 @@ OscConnector {
 		};
 		mc.oscInputRange.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
+		})
+	}
+
+	prInitOscInputMappings { |mc, cv|
+		mc.oscInputMappings.c ?? {
+			mc.oscInputMappings.c = SimpleController(mc.oscInputMappings.m)
+		};
+		mc.oscInputMappings.c.put(\default, { |changer, what, moreArgs|
+			// do something with changer values
 		})
 	}
 
@@ -150,8 +166,24 @@ OscConnector {
 		}
 	}
 
-	remove {
-		// remove views, OSCdefs...
+	remove { |forceAll = false|
+		var mc = widget.wmc;
+		// var wmc = CVWidget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+
+		if (mc.oscConnectors.m.value.size > 1 or: { forceAll }) {
+			this.oscDisconnect;
+			// allOscFuncs??
+			[
+				mc.oscDisplay.m.value,
+				mc.oscConnections.m.value,
+				mc.oscConnectorNames.m.value,
+				mc.oscInputMappings.m.value
+			].do(_.removeAt(index));
+			mc.oscConnectors.m.value.remove(this);
+			mc.oscConnectors.m.changedPerformKeys(widget.syncKeys, index);
+			onConnectorRemove.value(widget, index);
+		}
 	}
 
 	oscConnect {}
@@ -620,21 +652,20 @@ MidiConnector {
 	remove { |forceAll = false|
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
-		var names, allMS;
 
 		if (mc.midiConnectors.m.value.size > 1 or: { forceAll }) {
 			this.midiDisconnect;
 			allMidiFuncs[widget][index].free;
 			allMidiFuncs[widget].removeAt(index);
 			[
-				widget.wmc.midiOptions.m.value,
-				widget.wmc.midiConnections.m.value,
-				widget.wmc.midiDisplay.m.value,
-				widget.wmc.midiConnectorNames.m.value,
-				widget.wmc.midiInputMappings.m.value
+				mc.midiOptions.m.value,
+				mc.midiConnections.m.value,
+				mc.midiDisplay.m.value,
+				mc.midiConnectorNames.m.value,
+				mc.midiInputMappings.m.value
 			].do(_.removeAt(index));
 			mc.midiConnectors.m.value.remove(this);
-			mc.midiConnectors.m.value.changed(\value);
+			mc.midiConnectors.m.changedPerformKeys(widget.syncKeys, index);
 			// set editor elements (and other custom elements depending
 			// on mc.midiConnectors.m.value) to suitable connector
 			onConnectorRemove.value(widget, index);

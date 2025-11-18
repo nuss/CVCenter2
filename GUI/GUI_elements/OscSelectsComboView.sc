@@ -24,7 +24,6 @@ OscSelectsComboView : CompositeView {
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
-		states = widget.wmc.oscSelectsStates;
 		connectors = widget.oscConnectors;
 
 		if (parentView.isNil) {
@@ -115,10 +114,14 @@ OscSelectsComboView : CompositeView {
 			osc.m.changedPerformKeys(CVWidget.syncKeys)
 		});
 
+		connectorRemovedFuncAdded ?? {
+			OscConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id)
+			});
+			connectorRemovedFuncAdded = true
+		};
+
 		this.prAddController;
-		// FIXME: how can it be guaranteed that select values are being set correctly if combo is created after
-		// another combo has already been created, populated with values and selects were set values > 0?
-		// oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	index_ { |connectorID|
@@ -150,16 +153,41 @@ OscSelectsComboView : CompositeView {
 				cmds = osc.m.value[e.ipselect.item][oscDisplay.m.value[connectorID].portField.asSymbol].keys.asArray.sort;
 			};
 			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds);
-			if (oscDisplay.m.value[connectorID].nameField !== '/my/cmd/name') {
-				e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[connectorID].nameField))
-			} {
-				e.cmdselect.value_(0)
-			}
+			e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[connectorID].nameField))
 		}
 	}
 
 	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
 
+		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget].add(this);
+
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+
+		oscDisplay = widget.wmc.oscDisplay;
+		states = widget.wmc.oscSelectsStates;
+		connectors = widget.oscConnectors;
+
+		if (oscDisplay.m.value[0].ipField.isNil) {
+			e.ipselect.value_(0)
+		} {
+			e.ipselect.value_(e.ipselect.items.indexOf(oscDisplay.m.value[0].ipField));
+			if (oscDisplay.m.value[0].portField.isNil) {
+				e.portselect.value_(0)
+			} {
+				e.portselect.value_(e.portselect.items.indexOf(oscDisplay.m.value[0].portField))
+			}
+		};
+		e.cmdSelect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[0].nameField));
+
+		this.index_(0);
+		this.prAddControllers;
 	}
 
 	prAddController {
@@ -283,7 +311,11 @@ OscSelectsComboView : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index|
-
+		if (index > 0) {
+			all[widget].do(_.index_(index - 1))
+		} {
+			all[widget].do(_.index_(index))
+		}
 	}
 
 	close {
@@ -295,8 +327,9 @@ OscSelectsComboView : CompositeView {
 	prCleanup {
 		all[widget].remove(this);
 		if (all[widget].isEmpty) {
-			// remove controllers -> to be defined
-			// mc.controller.removeAt(syncKey);
+			wmc.isScanningOsc.c.removeAt(syncKey);
+			osc.c.removeAt(syncKey);
+			oscDisplay.c.removeAt(syncKey);
 			widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
