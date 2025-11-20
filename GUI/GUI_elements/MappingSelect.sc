@@ -271,11 +271,13 @@ MappingSelect : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index, connectorKind|
-		"index: %, all[%]: %".format(index, all[widget]).postln;
-		if (index > 0) {
-			all[widget][connectorKind].do(_.index_(index - 1))
-		} {
-			all[widget][connectorKind].do(_.index_(index))
+		// if widget has already been removed let it fail
+		try {
+			if (index > 0) {
+				all[widget][connectorKind].do(_.index_(index - 1))
+			} {
+				all[widget][connectorKind].do(_.index_(index))
+			}
 		}
 	}
 
@@ -287,9 +289,14 @@ MappingSelect : CompositeView {
 
 	prCleanup {
 		all[widget][connectorKind].remove(this);
-		if (all[widget][connectorKind].isEmpty) {
-			mc.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
+		try {
+			if (all[widget][connectorKind].isEmpty) {
+				mc.c.removeAt(syncKey);
+				widget.prRemoveSyncKey(syncKey, true);
+				// "all[%][%] before: %".format(widget, connectorKind, all[widget][connectorKind]).warn;
+				all[widget].removeAt(connectorKind);
+				// "all[%][%] after: %".format(widget, connectorKind, all[widget][connectorKind]).warn;
+			}
 		}
 	}
 }

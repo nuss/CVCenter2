@@ -311,10 +311,12 @@ OscSelectsComboView : CompositeView {
 	}
 
 	prOnRemoveConnector { |widget, index|
-		if (index > 0) {
-			all[widget].do(_.index_(index - 1))
-		} {
-			all[widget].do(_.index_(index))
+		try {
+			if (index > 0) {
+				all[widget].do(_.index_(index - 1))
+			} {
+				all[widget].do(_.index_(index))
+			}
 		}
 	}
 
@@ -326,11 +328,19 @@ OscSelectsComboView : CompositeView {
 
 	prCleanup {
 		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			wmc.isScanningOsc.c.removeAt(syncKey);
-			osc.c.removeAt(syncKey);
-			oscDisplay.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
+		try {
+			"all[%]: %".format(widget, all[widget]).warn;
+			if (all[widget].notNil and: { all[widget].isEmpty }) {
+				oscDisplay.c.removeAt(syncKey);
+				widget.prRemoveSyncKey(syncKey, true);
+				all.removeAt(widget);
+			};
+			"all: %".format(all).warn;
+			if (all.isEmpty) {
+				wmc.isScanningOsc.c.removeAt(syncKey);
+				osc.c.removeAt(syncKey);
+				CVWidget.prRemoveSyncKey(syncKey, true);
+			}
 		}
 	}
 }

@@ -467,6 +467,8 @@ CVWidgetKnob : CVWidget {
 		this.widgetActions.do { |asoc|
 			asoc.key.remove;
 		};
+		// remove 'default' controllers from Object.dependantsDictionary
+		this.wmc.do { |val| val.c.remove };
 		all.removeAt(name);
 	}
 

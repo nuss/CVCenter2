@@ -75,6 +75,7 @@ TestMidiConnectorsEditorView : UnitTest {
 		MidiConnectorsEditorView.closeAll;
 		MidiConnectorsEditorView.all { |list|
 			this.assertEquals(list, List[], "After calling MidiConnectorsEditorView.closeAll all keys in MidiConnectorsEditorView.all should reference empty lists.")
-		}
+		};
+		anotherWidget.remove;
 	}
 }
