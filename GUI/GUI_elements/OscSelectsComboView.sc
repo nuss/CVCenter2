@@ -329,13 +329,13 @@ OscSelectsComboView : CompositeView {
 	prCleanup {
 		all[widget].remove(this);
 		try {
-			"all[%]: %".format(widget, all[widget]).warn;
+			// "all[%]: %".format(widget, all[widget]).warn;
 			if (all[widget].notNil and: { all[widget].isEmpty }) {
 				oscDisplay.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all.removeAt(widget);
 			};
-			"all: %".format(all).warn;
+			// "all: %".format(all).warn;
 			if (all.isEmpty) {
 				wmc.isScanningOsc.c.removeAt(syncKey);
 				osc.c.removeAt(syncKey);

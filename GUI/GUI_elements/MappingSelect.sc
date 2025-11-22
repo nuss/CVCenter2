@@ -290,7 +290,7 @@ MappingSelect : CompositeView {
 	prCleanup {
 		all[widget][connectorKind].remove(this);
 		try {
-			if (all[widget][connectorKind].isEmpty) {
+			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
 				mc.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				// "all[%][%] before: %".format(widget, connectorKind, all[widget][connectorKind]).warn;

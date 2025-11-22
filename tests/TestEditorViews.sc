@@ -58,7 +58,7 @@ TestMidiConnectorsEditorView : UnitTest {
 		editor.e.do { |el|
 			switch (el.class)
 			{ MappingSelect } {
-				this.assert(MappingSelect.all[widget][\midi].isEmpty, "After calling 'close' on the editor MappingSelect.all[widget]['midi'] should be empty")
+				this.assert(MappingSelect.all[widget].isEmpty, "After calling 'close' on the editor MappingSelect.all[widget] should be empty")
 			}
 			{ MidiInitButton } {
 				this.assert(MidiInitButton.all.isEmpty, "After calling 'close' on the editor MidiInitButton.all should be empty")
@@ -73,7 +73,7 @@ TestMidiConnectorsEditorView : UnitTest {
 		var plusOneMore = MidiConnectorsEditorView(anotherWidget);
 
 		MidiConnectorsEditorView.closeAll;
-		MidiConnectorsEditorView.all { |list|
+		MidiConnectorsEditorView.all.do { |list|
 			this.assertEquals(list, List[], "After calling MidiConnectorsEditorView.closeAll all keys in MidiConnectorsEditorView.all should reference empty lists.")
 		};
 		anotherWidget.remove;

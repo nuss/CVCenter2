@@ -279,6 +279,16 @@ MidiConnectorsEditorView : CompositeView {
 	}
 
 	*closeAll {
-		all.pairsDo { |key, eds| eds.do(_.close) }
+		all.pairsDo { |key, eds|
+			// VERY IMPORTANT
+			// with each call to 'close' the index into the list of editors
+			// advances by 1. However, as the first call will already have
+			// removed the editor at index 0 the next call will not remove
+			// the editor at index 1 but the editor at index 2 which has meanwhile
+			// become index 1. Hence, every second editor will be omitted if
+			// the list of editors isn't reversed before invoking the loop by
+			// calling 'do'!!!
+			eds.reverse.do(_.close)
+		}
 	}
 }
