@@ -19,6 +19,7 @@ TestCVWidget : UnitTest {
 	}
 
 	test_syncKeys {
+		this.assertEquals(CVWidget.syncKeys, [\default], "After class compilation CVWidget.syncKeys should hold one key 'default'.");
 		this.assertEquals(widget.syncKeys, [\default], "Any new CVWidget instance should return an Array holding a key 'default' upon calling syncKeys");
 	}
 
@@ -26,7 +27,7 @@ TestCVWidget : UnitTest {
 		widget.extend(\test, { |c, w, m| widget.env.test = c.value }, [\cvSpec]);
 		this.assertEquals(widget.syncKeys, [\default, \test], "Calling the widget's syncKeys method should return the default syncKeys amended by the key given in extend");
 		widget.setSpec(\freq);
-		this.assertEquals(widget.env.test, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "The function given as second argument to 'extend' should have set the variable 'test_output' to a ControlSpec(20, 20000, 'exp', 0, 440, \" Hz\")");
+		this.assertEquals(widget.env.test, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "The function given as second argument to 'extend' should have set widget.env.test to a ControlSpec(20, 20000, 'exp', 0, 440, \" Hz\")");
 		widget.env.test = nil;
 		widget.addAction(\test, {});
 		this.assertEquals(widget.env.test, nil, "As extend has only amended 'cvSpec' model widget.env.test should be nil");
@@ -335,5 +336,28 @@ TestCVWidgetKnob : UnitTest {
 		widget.updateAction(\active, "{ |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
+	}
+
+	test_remove {
+		var testVals = [
+			List[('ctrlButtonGroup': 1, 'midiMode': 0, 'midiZero': 64, 'snapDistance': 0.1, 'midiResolution': 1)],
+			List[('editEnabled': true, 'nameField': '/my/cmd/name', 'index': 1, 'connectorButVal': 0)],
+			List['linlin'],
+			List[widget.oscConnectors[0]],
+			ControlSpec(0, 1, 'linear', 0.0, 0, ""),
+			('activeActions': 0, 'numActions': 0),
+			List[nil],
+			List['OSC Connection 1'],
+			List[[0.0001, 0.0001]],
+			List[('mapping': 'linlin')],
+			List['MIDI Connection 1'],
+			List[widget.midiConnectors[0]],
+			List[('chan': "chan", 'src': 'source...', 'ctrl': "ctrl", 'learn': "L", 'toolTip': "Click and move hardware slider/knob to connect to")],
+			List[false],
+			List[true]
+		];
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(testVals), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
+		widget.remove;
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(testVals), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
 	}
 }

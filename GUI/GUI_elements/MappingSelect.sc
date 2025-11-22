@@ -41,7 +41,7 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.wmc.midiConnectors.m.value;
+			connectors = widget.midiConnectors;
 			bgColor = Color(0.8, alpha: 0.3);
 		}
 		{ connectorKind === \osc } {
@@ -203,7 +203,7 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiInputMappings;
-			connectors = widget.wmc.midiConnectors.m.value;
+			connectors = widget.midiConnectors;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscInputMappings;
@@ -293,9 +293,7 @@ MappingSelect : CompositeView {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
 				mc.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
-				// "all[%][%] before: %".format(widget, connectorKind, all[widget][connectorKind]).warn;
 				all[widget].removeAt(connectorKind);
-				// "all[%][%] after: %".format(widget, connectorKind, all[widget][connectorKind]).warn;
 			}
 		}
 	}

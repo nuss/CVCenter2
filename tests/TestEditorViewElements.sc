@@ -608,6 +608,7 @@ TestMidiInitButton : UnitTest {
 	tearDown {
 		button1.close;
 		button2.close;
+		MIDIClient.disposeClient;
 	}
 
 	test_new {

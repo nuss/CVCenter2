@@ -2,7 +2,6 @@ TestCVCenter {
 	*runAll {
 		[
 			TestCVWidget,
-			TestCVWidgetKnob,
 			TestMidiConnector,
 			TestOscConnector,
 			TestConnectorElementView,
@@ -23,6 +22,7 @@ TestCVCenter {
 			TestMappingSelect,
 			TestMidiConnectorsEditorView,
 			TestOscSelectsComboView,
+			TestCVWidgetKnob,
 		].do(_.run)
 	}
 }

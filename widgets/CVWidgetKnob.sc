@@ -461,13 +461,13 @@ CVWidgetKnob : CVWidget {
 	}
 
 	remove {
-		wmc.midiConnectors.m.value.do(_.remove(true));
-		wmc.oscConnectors.m.value.do(_.remove(true));
+		this.midiConnectors.reverse.do(_.remove(true));
+		this.oscConnectors.reverse.do(_.remove(true));
 		// SimpleControllers should be removed explicitely
 		this.widgetActions.do { |asoc|
 			asoc.key.remove;
 		};
-		// remove 'default' controllers from Object.dependantsDictionary
+		// remove the widget's controllers from Object.dependantsDictionary
 		this.wmc.do { |val| val.c.remove };
 		all.removeAt(name);
 	}

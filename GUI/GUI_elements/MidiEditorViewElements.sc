@@ -21,7 +21,7 @@ MidiConnectorNameField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiConnectorNames;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = TextField(parentView, rect);
 		this.index_(index);
@@ -58,7 +58,7 @@ MidiConnectorNameField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiConnectorNames;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -209,7 +209,7 @@ MidiLearnButton : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		if (mc.m.value[index].learn == "C") {
 			defaultState = [mc.m.value[index].learn, Color.black, Color.green];
@@ -294,7 +294,7 @@ MidiLearnButton : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		if (mc.m.value[0].learn == "C") {
 			defaultState = [mc.m.value[0].learn, Color.black, Color.green];
 			mc.m.value[0].toolTip = "Connect using selected parameters";
@@ -365,7 +365,7 @@ MidiSrcSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		wmc = CVWidget.wmc.midiSources;
 
 		this.view = PopUpMenu(parentView, rect)
@@ -416,7 +416,7 @@ MidiSrcSelect : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.view.enabled_(mc.m.value[0].learn != "X")
 		.items_(['source...'] ++ wmc.m.value.keys.asArray.sort).maxWidth_(100);
 		this.index_(0);
@@ -507,7 +507,7 @@ MidiChanField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = TextField(parentView, rect)
 		.enabled_(mc.m.value[index].learn != "X");
@@ -549,7 +549,7 @@ MidiChanField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.view.enabled_(mc.m.value[0].learn != "X");
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
@@ -600,7 +600,7 @@ MidiCtrlField : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = TextField(parentView, rect)
 		.enabled_(mc.m.value[index].learn != "X");
@@ -642,7 +642,7 @@ MidiCtrlField : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiDisplay;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.view.enabled_(mc.m.value[0].learn != "X");
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
@@ -693,7 +693,7 @@ MidiModeSelect : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = PopUpMenu(parentView, rect).items_(["0-127", "endless"]);
 		this.view.onClose_({ this.close });
@@ -731,7 +731,7 @@ MidiModeSelect : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -778,7 +778,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = NumberBox(parentView, rect);
 		this.view.onClose_({ this.close });
@@ -815,7 +815,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -862,7 +862,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.view.onClose_({ this.close });
@@ -899,7 +899,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -946,7 +946,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
@@ -983,7 +983,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -1030,7 +1030,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.view = NumberBox(parentView, rect).clipLo_(1).step_(1).scroll_step_(1);
 		this.view.onClose_({ this.close });
@@ -1067,7 +1067,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc.midiOptions;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -1201,7 +1201,7 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 
 		this.index_(index);
 		this.view = Button(parentView, rect)
@@ -1230,7 +1230,7 @@ MidiConnectorRemoveButton : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		conModel = widget.wmc.midiConnectors.m.value;
+		conModel = widget.midiConnectors;
 		this.index_(0);
 	}
 

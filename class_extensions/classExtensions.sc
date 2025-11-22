@@ -44,3 +44,22 @@
 	}
 
 }
+
++Collection {
+
+	includesAllEqual { |aCollection|
+		aCollection.do { |item| if (this.includesEqual(item).not) { ^false }};
+		^true
+	}
+
+	includesNone { |aCollection|
+		aCollection.do { |item| if (this.includes(item)) { ^false }};
+		^true
+	}
+
+	includesNoneEqual { |aCollection|
+		aCollection.do { |item| if (this.includesEqual(item)) { ^false }};
+		^true
+	}
+
+}
