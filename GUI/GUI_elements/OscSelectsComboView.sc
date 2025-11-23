@@ -163,15 +163,16 @@ OscSelectsComboView : CompositeView {
 			Error("Widget must be a CVWidgetKnob").throw
 		};
 
-		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
 
+		wmc = CVWidget.wmc;
+		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
-		states = widget.wmc.oscSelectsStates;
 		connectors = widget.oscConnectors;
 
 		if (oscDisplay.m.value[0].ipField.isNil) {
@@ -184,10 +185,10 @@ OscSelectsComboView : CompositeView {
 				e.portselect.value_(e.portselect.items.indexOf(oscDisplay.m.value[0].portField))
 			}
 		};
-		e.cmdSelect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[0].nameField));
+		e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[0].nameField));
 
 		this.index_(0);
-		this.prAddControllers;
+		this.prAddController;
 	}
 
 	prAddController {
@@ -215,7 +216,6 @@ OscSelectsComboView : CompositeView {
 		});
 		osc.c ?? { osc.c = SimpleController(osc.m) };
 		osc.c.put(syncKey, { |changer, what ... moreArgs|
-			// "changer: %".format(changer.value.cs).warn;
 			if (changer.value.isEmpty) {
 				all.do { |comboList|
 					comboList.do { |combo|
@@ -257,7 +257,6 @@ OscSelectsComboView : CompositeView {
 		});
 		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
 		oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
-			// [changer.value, moreArgs].postln;
 			conID = moreArgs[0];
 			all[widget].do { |selCombo|
 				if (selCombo.connector === connectors[conID]) {
@@ -265,7 +264,6 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						// "ipField and portField are nil".warn;
 						selCombo.e.rreset.toolTip_("Reset all IP addresses, ports and command names");
 						selCombo.e.ipselect.value_(0);
 						selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
@@ -276,14 +274,12 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						// "ipField is not nil but portField is".warn;
 						ip = changer.value[conID].ipField;
 						selCombo.e.rreset.toolTip_("Reset all ports and command names under IP %".format(ip));
 						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
 						selCombo.e.portselect.items_(
 							[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.collect(_.asInteger).sort
 						).value_(0);
-						// "osc.m.value['%'].values.collect(_.keys).collect(_.asArray).flat.sort: %".format(ip, osc.m.value[ip].values.collect(_.keys).collect(_.asArray).flat.sort).postln;
 						selCombo.e.cmdselect.items_(
 							[selCombo.e.cmdselect.items[0]] ++ osc.m.value[ip].values.collect(_.keys).collect(_.asArray).flat.sort
 						)
@@ -291,7 +287,6 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.notNil
 					}} {
-						// "neither ipField nor portField are nil".warn;
 						ip = changer.value[conID].ipField;
 						port = changer.value[conID].portField;
 						selCombo.e.rreset.toolTip_("Reset all command names under IP:port %:%".format(ip, port));
@@ -329,13 +324,11 @@ OscSelectsComboView : CompositeView {
 	prCleanup {
 		all[widget].remove(this);
 		try {
-			// "all[%]: %".format(widget, all[widget]).warn;
 			if (all[widget].notNil and: { all[widget].isEmpty }) {
 				oscDisplay.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all.removeAt(widget);
 			};
-			// "all: %".format(all).warn;
 			if (all.isEmpty) {
 				wmc.isScanningOsc.c.removeAt(syncKey);
 				osc.c.removeAt(syncKey);

@@ -90,7 +90,28 @@ TestOscSelectsComboView : UnitTest {
 		oscv2.close;
 	}
 
-	test_widget_ {}
+	test_widget_ {
+		OSCCommands.collectSync(false);
+		widget2 = CVWidgetKnob(\t2);
+		oscv1.e.ipselect.valueAction_(1);
+		oscv1.e.portselect.valueAction_(2);
+		oscv1.e.cmdselect.valueAction_(2);
+		oscv1.widget_(widget2);
 
-	test_close {}
+		this.assert(oscv1.widget === widget2, "After calling widget_ on the OscSelectsComboView with arg 'widget' set to widget2 the OscSelectsComboView's widget getter should return widget2");
+		this.assert(oscv1.e.ipselect.value == 0 and: {
+			oscv1.e.portselect.value == 0 and: {
+				oscv1.e.cmdselect.value == 0
+			}
+		}, "The OscSelectsComboView's PopUpMenus 'ipselect', 'portselect' and 'cmdselect' should all have been set to value 0");
+		widget2.remove;
+	}
+
+	test_close {
+		oscv2 = OscSelectsComboView(widget: widget1);
+		oscv1.close;
+		this.assertEquals(widget1.syncKeys, [\default, OscSelectsComboView.asSymbol], "After closing OscSelectsComboView oscv1 widget.syncKeys should hold 2 symbols: 'default' and 'OscSelectsComboView'.");
+		oscv2.close;
+		this.assertEquals(widget1.syncKeys, [\default], "After closing OscSelectsComboView oscv2 widget.syncKeys one symbol 'default' should have remained in widget.syncKeys.");
+	}
 }
