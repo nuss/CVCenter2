@@ -42,8 +42,8 @@ OscConnectorsEditorView : CompositeView {
 			index = widget.wmc.midiConnectors.m.value.size - 1;
 		};
 
-		e.connectorNameField = OscConnectorNameField(parent, widget, connectorID: index);
-		e.connectorSelect = OscConnectorSelect(parent, widget, connectorID: index);
+		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \osc);
+		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \osc);
 		e.addrSelect = OscAddrSelect(parent, widget, connectorID: index);
 		e.oscScanButton = OscScanButton(parent);
 		e.restrictToPortCheckBox = AddPortRadioButton(parent, widget, connectorID: index);
@@ -145,19 +145,19 @@ MidiConnectorsEditorView : CompositeView {
 	init { |wdgt, index, parentView|
 		var m;
 
-		if (wdgt.wmc.midiConnectors.m.value.isEmpty) {
+		if (wdgt.midiConnectors.isEmpty) {
 			MidiConnector(wdgt)
 		};
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = wdgt.wmc.midiConnectors.m.value.detect { |c| c.name == index }
+			index = wdgt.midiConnectors.detect { |c| c.name == index }
 		};
 		if (index.class == MidiConnector) {
-			index = wdgt.wmc.midiConnectors.m.value.indexOf(index)
+			index = wdgt.midiConnectors.indexOf(index)
 		};
 		// after all, if index is nil or greater the set it to 0
-		if (index.isNil or: { index > wdgt.wmc.midiConnectors.m.value.lastIndex }) { index = 0 };
+		if (index.isNil or: { index > wdgt.midiConnectors.lastIndex }) { index = 0 };
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -170,8 +170,8 @@ MidiConnectorsEditorView : CompositeView {
 		parent.onClose_({ this.close });
 
 		e = ();
-		e.connectorNameField = MidiConnectorNameField(parent, widget, connectorID: index);
-		e.connectorSelect = MidiConnectorSelect(parent, widget, connectorID: index);
+		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \midi);
+		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \midi);
 		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
 		e.midiZeroBox = MidiZeroNumberBox(parent, widget, connectorID: index);
 		e.snapDistanceBox = SnapDistanceNumberBox(parent, widget, connectorID: index);
