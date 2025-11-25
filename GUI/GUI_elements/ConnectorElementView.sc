@@ -105,7 +105,7 @@ ConnectorNameField : ConnectorElementView {
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
 		};
-		all[otherWidget].add(this);
+		all[otherWidget][connectorKind].add(this);
 
 		this.prCleanup;
 		// switch after cleanup has finished
@@ -245,7 +245,7 @@ ConnectorSelect : ConnectorElementView {
 			all[otherWidget][connectorKind] = List[]
 		};
 
-		all[otherWidget].add(this);
+		all[otherWidget][connectorKind].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
