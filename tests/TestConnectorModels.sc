@@ -23,13 +23,13 @@ TestMidiConnector : UnitTest {
 		vals = widget.wmc.midiOptions.m.value.collect { |v|
 			v == (
 				midiMode: 0,
-				midiZero: 64,
+				midiZero: 63,
 				midiResolution: 1,
 				snapDistance: 0.1,
 				ctrlButtonGroup: 1
 			);
 		};
-		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 64, midiResolution: 1, softWithin: 0.1)");
+		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 63, midiResolution: 1, softWithin: 0.1)");
 		vals = widget.wmc.midiDisplay.m.value.collect { |v|
 			v == (
 				src: 'source...',

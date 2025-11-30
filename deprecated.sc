@@ -10,23 +10,23 @@
 	}
 
 	setSoftWithin { |snapDistance, connector|
-		this.deprecated(thisMethod, this.class.findMethod(\setSnapDistance));
-		^this.setSnapDistance(snapDistance, connector);
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiSnapDistance));
+		^this.setMidiSnapDistance(snapDistance, connector);
 	}
 
 	getSoftWithin { |connector|
-		this.deprecated(thisMethod, this.class.findMethod(\getSnapDistance));
-		^this.getSnapDistance(connector);
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiSnapDistance));
+		^this.getMidiSnapDistance(connector);
 	}
 
 	setCtrlButtonBank { |numButtons, connector|
-		this.deprecated(thisMethod, this.class.findMethod(\setCtrlButtonGroup));
-		^this.setCtrlButtonGroup(numButtons, connector);
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiCtrlButtonGroup));
+		^this.setMidiCtrlButtonGroup(numButtons, connector);
 	}
 
 	getCtrlButtonBank { |connector|
-		this.deprecated(thisMethod, this.class.findMethod(\getCtrlButtonGroup));
-		^this.getCtrlButtonGroup(connector);
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiCtrlButtonGroup));
+		^this.getMidiCtrlButtonGroup(connector);
 	}
 }
 
@@ -42,23 +42,23 @@
 	}
 
 	setSoftWithin { |snapDistance|
-		this.deprecated(thisMethod, this.class.findMethod(\setSnapDistance));
-		^this.setSnapDistance(snapDistance);
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiSnapDistance));
+		^this.setMidiSnapDistance(snapDistance);
 	}
 
 	getSoftWithin {
-		this.deprecated(thisMethod, this.class.findMethod(\getSnapDistance));
-		^this.getSnapDistance;
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiSnapDistance));
+		^this.getMidiSnapDistance;
 	}
 
 	setCtrlButtonBank { |numButtons|
-		this.deprecated(thisMethod, this.class.findMethod(\setCtrlButtonGroup));
-		^this.setCtrlButtonGroup(numButtons);
+		this.deprecated(thisMethod, this.class.findMethod(\setMidiCtrlButtonGroup));
+		^this.setMidiCtrlButtonGroup(numButtons);
 	}
 
 	getCtrlButtonBank {
-		this.deprecated(thisMethod, this.class.findMethod(\getCtrlButtonGroup));
-		^this.getCtrlButtonGroup;
+		this.deprecated(thisMethod, this.class.findMethod(\getMidiCtrlButtonGroup));
+		^this.getMidiCtrlButtonGroup;
 	}
 
 }

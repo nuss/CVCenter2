@@ -11,11 +11,13 @@ TestCVWidget : UnitTest {
 
 	test_globalSetup {
 		var setup = CVWidget.globalSetup;
-		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default");
-		this.assertEquals(setup.midiResolution, 1, "CVWidget.midiResolution should be 1 by default");
-		this.assertEquals(setup.midiZero, 64, "CVWidget.midiZero should be 64 by default");
-		this.assertEquals(setup.ctrlButtonGroup, 1, "CVWidget.ctrlButtonGroup should be 1 by default");
+		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default.");
+		this.assertEquals(setup.resolution, 1, "CVWidget.resolution should be 1 by default.");
+		this.assertEquals(setup.midiZero, 63, "CVWidget.midiZero should be 63 by default.");
+		this.assertEquals(setup.midiCtrlButtonGroup, 1, "CVWidget.midiCtrlButtonGroup should be 1 by default.");
 		this.assertEquals(setup.snapDistance, 0.1, "CVWidget.snapDistance should be 0.1 by default");
+		this.assertEquals(setup.oscEndless, false, "CVWidget.oscEndless should be false by default");
+		this.assertEquals(setup.oscCalibration, true, "CVWidget.oscCalibration should be true by default")
 	}
 
 	test_syncKeys {
@@ -63,21 +65,21 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
 		this.assertEquals(widget.wmc.keys, Set[
-			'midiConnectors',
-			'oscConnectors',
-			'midiOptions',
-			'oscCalibration',
-			'oscInputRange',
-			'oscInputMappings',
-			'midiInputMappings',
-			'midiDisplay',
-			'actions',
-			'oscDisplay',
-			'oscConnectorNames',
-			'midiConnections',
-			'oscConnections',
-			'cvSpec',
-			'midiConnectorNames'
+			\oscConnectors,
+			\actions,
+			\oscConnections,
+			\midiInputMappings,
+			\cvSpec,
+			\midiConnectorNames,
+			\oscInputRange,
+			\oscOptions,
+			\oscConnectorNames,
+			\midiOptions,
+			\oscDisplay,
+			\midiConnectors,
+			\midiDisplay,
+			\oscInputMappings,
+			\midiConnections
 		], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.wmc.oscConnectors.m.value[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
@@ -111,8 +113,8 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
 			widget.getMidiMode.size,
 			widget.getMidiZero.size,
-			widget.getSnapDistance.size,
-			widget.getCtrlButtonGroup.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
 			widget.getMidiResolution.size
 		], "(1) The number of MidiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
@@ -128,8 +130,8 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
 			widget.getMidiMode.size,
 			widget.getMidiZero.size,
-			widget.getSnapDistance.size,
-			widget.getCtrlButtonGroup.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
 			widget.getMidiResolution.size
 		], "(2) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
@@ -145,8 +147,8 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
 			widget.getMidiMode.size,
 			widget.getMidiZero.size,
-			widget.getSnapDistance.size,
-			widget.getCtrlButtonGroup.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
 			widget.getMidiResolution.size
 		], "(3) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
@@ -161,8 +163,8 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
 			widget.getMidiMode.size,
 			widget.getMidiZero.size,
-			widget.getSnapDistance.size,
-			widget.getCtrlButtonGroup.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
 			widget.getMidiResolution.size
 		], "(4) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
 		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
@@ -188,7 +190,7 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getMidiZero {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiZero, [64, 64, 64], "All widget.wmc.midiConnectors.m.value should be set to midiZero 64 by default");
+		this.assertEquals(widget.getMidiZero, [63, 63, 63], "All widget.wmc.midiConnectors.m.value should be set to midiZero 64 by default");
 		widget.setMidiZero(0);
 		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.wmc.midiConnectors.m.value should have been set to midiZero 0");
 		widget.setMidiZero(64, connection1);
@@ -197,28 +199,28 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getMidiZero, [0, 64, 64], "widget.wmc.midiConnectors.m.value midiZero should equal [0, 64, 64]");
 	}
 
-	test_set_getSnapDistance {
+	test_set_getMidiSnapDistance {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getSnapDistance, [0.1, 0.1, 0.1], "All widget.wmc.midiConnectors.m.value should be set to snapDistance 0.1 by default");
-		widget.setSnapDistance(0.5);
-		this.assertEquals(widget.getSnapDistance, [0.5, 0.5, 0.5], "All widget.wmc.midiConnectors.m.value should have been set to snapDistance 0.5");
-		widget.setSnapDistance(0.1, connection1);
-		this.assertEquals(widget.getSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
-		widget.setSnapDistance(0.5, 0);
-		this.assertEquals(widget.getSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getMidiSnapDistance, [0.1, 0.1, 0.1], "All widget.wmc.midiConnectors.m.value should be set to snapDistance 0.1 by default");
+		widget.setMidiSnapDistance(0.5);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.wmc.midiConnectors.m.value should have been set to snapDistance 0.5");
+		widget.setMidiSnapDistance(0.1, connection1);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
+		widget.setMidiSnapDistance(0.5, 0);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
 	}
 
-	test_set_getCtrlButtonGroup {
+	test_set_getMidiCtrlButtonGroup {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getCtrlButtonGroup, [1, 1, 1], "All widget.wmc.midiConnectors.m.value should be set to ctrlButtonGroup 1 by default");
-		widget.setCtrlButtonGroup(16);
-		this.assertEquals(widget.getCtrlButtonGroup, [16, 16, 16], "All widget.wmc.midiConnectors.m.value should have been set to ctrlButtonGroup 16");
-		widget.setCtrlButtonGroup(1, connection1);
-		this.assertEquals(widget.getCtrlButtonGroup, [16, 1, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 1, 16]");
-		widget.setCtrlButtonGroup(16, 1);
-		this.assertEquals(widget.getCtrlButtonGroup, [16, 16, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 16, 16]");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [1, 1, 1], "All widget.wmc.midiConnectors.m.value should be set to ctrlButtonGroup 1 by default");
+		widget.setMidiCtrlButtonGroup(16);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "All widget.wmc.midiConnectors.m.value should have been set to ctrlButtonGroup 16");
+		widget.setMidiCtrlButtonGroup(1, connection1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 1, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 1, 16]");
+		widget.setMidiCtrlButtonGroup(16, 1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 16, 16]");
 	}
 
 	test_set_getMidiResolution {
@@ -340,21 +342,21 @@ TestCVWidgetKnob : UnitTest {
 
 	test_remove {
 		var testVals = [
-			List[('ctrlButtonGroup': 1, 'midiMode': 0, 'midiZero': 64, 'snapDistance': 0.1, 'midiResolution': 1)],
-			List[('editEnabled': true, 'nameField': '/my/cmd/name', 'index': 1, 'connectorButVal': 0)],
-			List['linlin'],
-			List[widget.oscConnectors[0]],
-			ControlSpec(0, 1, 'linear', 0.0, 0, ""),
-			('activeActions': 0, 'numActions': 0),
+			List[('oscCalibration': true, 'oscEndless': false, 'oscResolution': 1)],
 			List[nil],
-			List['OSC Connection 1'],
-			List[[0.0001, 0.0001]],
-			List[('mapping': 'linlin')],
-			List['MIDI Connection 1'],
-			List[widget.midiConnectors[0]],
+			List[('ctrlButtonGroup': 1, 'midiMode': 0, 'midiZero': 63, 'snapDistance': 0.1, 'midiResolution': 1)],
 			List[('chan': "chan", 'src': 'source...', 'ctrl': "ctrl", 'learn': "L", 'toolTip': "Click and move hardware slider/knob to connect to")],
 			List[false],
-			List[true]
+			('activeActions': 0, 'numActions': 0),
+			List[('nameField': '/my/cmd/name', 'index': 1, 'connectorButVal': 0, 'connect': "Learn")],
+			List['MIDI Connection 1'],
+			List[('mapping': 'linlin')],
+			ControlSpec(0, 1, 'linear', 0.0, 0, ""),
+			List[[0.0001, 0.0001]],
+			List[widget.midiConnectors[0]],
+			List['linlin'],
+			List[widget.oscConnectors[0]],
+			List['OSC Connection 1']
 		];
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(testVals), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
 		widget.remove;

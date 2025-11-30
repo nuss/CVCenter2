@@ -570,7 +570,7 @@ MidiModeSelect : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |sel|
 				if (sel.connector === conModel[conID]) {
-					defer { sel.view.value_(changer[conID].value.midiMode) }
+					defer { sel.view.value_(changer.value[conID].midiMode) }
 				}
 			}
 		})
@@ -654,7 +654,7 @@ MidiZeroNumberBox : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
-					defer { nb.view.value_(changer[conID].value.midiZero) }
+					defer { nb.view.value_(changer.value[conID].midiZero) }
 				}
 			}
 		})
@@ -688,7 +688,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			this.connector.setSnapDistance(nb.value);
+			this.connector.setMidiSnapDistance(nb.value);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -856,7 +856,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |nb|
-			this.connector.setCtrlButtonGroup(nb.value.asInteger)
+			this.connector.setMidiCtrlButtonGroup(nb.value.asInteger)
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|

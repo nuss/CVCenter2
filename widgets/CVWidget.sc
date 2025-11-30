@@ -1,8 +1,9 @@
 CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>shortcuts, prefs;
-	classvar <>midiMode = 0, <>midiResolution = 1, <>midiZero = 64, <>ctrlButtonGroup = 1, <>snapDistance = 0.1;
-	classvar <>oscCalibration = true;
+	classvar <>midiMode = 0, <>midiZero = 63, <>midiCtrlButtonGroup = 1;
+	classvar <>oscEndless = false, <>oscCalibration = true;
+	classvar <>snapDistance = 0.1, <>resolution = 1;
 	classvar syncKeysEvent;
 	classvar <wmc; // models and controllers tied to the class
 
@@ -64,13 +65,17 @@ CVWidget {
 
 	*globalSetup {
 		^(
-			midiMode: this.midiMode,
-			midiResolution: this.midiResolution,
-			midiZero: this.midiZero,
-			ctrlButtonGroup: this.ctrlButtonGroup,
+			// global
 			snapDistance: this.snapDistance,
+			resolution: this.resolution,
+			// midi
+			midiMode: this.midiMode,
+			midiZero: this.midiZero,
+			midiCtrlButtonGroup: this.midiCtrlButtonGroup,
+			// osc
+			oscEndless: this.oscEndless,
 			oscCalibration: this.oscCalibration
-		);
+		)
 	}
 
 	/*** common interface ***/
@@ -91,10 +96,10 @@ CVWidget {
 	getMidiMode { this.subclassResponsibility(thisMethod) }
 	setMidiZero { this.subclassResponsibility(thisMethod) }
 	getMidiZero { this.subclassResponsibility(thisMethod) }
-	setSnapDistance { this.subclassResponsibility(thisMethod) }
-	getSnapDistance { this.subclassResponsibility(thisMethod) }
-	setCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
-	getCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
+	setMidiSnapDistance { this.subclassResponsibility(thisMethod) }
+	getMidiSnapDistance { this.subclassResponsibility(thisMethod) }
+	setMidiCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
+	getMidiCtrlButtonGroup { this.subclassResponsibility(thisMethod) }
 	setMidiResolution { this.subclassResponsibility(thisMethod) }
 	getMidiResolution { this.subclassResponsibility(thisMethod) }
 	setMidiInputMapping { this.subclassResponsibility(thisMethod) }

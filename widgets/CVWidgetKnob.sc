@@ -39,11 +39,13 @@ CVWidgetKnob : CVWidget {
 				Error("a setup has to be provided as a Dictionary or an Event").throw
 			};
 			this.setMidiMode(setupArgs[\midiMode] ? this.class.midiMode);
-			this.setMidiResolution(setupArgs[\midiResolution] ? this.class.midiResolution);
+			this.setMidiResolution(setupArgs[\midiResolution] ? this.class.resolution);
 			this.setMidiZero(setupArgs[\midiMean] ? this.class.midiMean);
-			this.setCtrlButtonGroup(setupArgs[\ctrlButtonBank]);
-			this.setSnapDistance(setupArgs[\softWithin] ? this.class.softWithin);
+			this.setMidiCtrlButtonGroup(setupArgs[\midiCtrlButtonBank]);
+			this.setMidiSnapDistance(setupArgs[\snapDistance] ? this.class.snapDistance);
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
+			this.setOscEndless(setupArgs[\oscEndless] ? this.class.oscEndless);
+			this.setOscResolution(setupArgs[\oscResolution] ? this.class.resolution);
 		};
 
 		// an Event to be used for variables defined outside actions
@@ -298,51 +300,51 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
-	setSnapDistance { |snapDistance, connector|
+	setMidiSnapDistance { |snapDistance, connector|
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setSnapDistance(snapDistance));
+			wmc.midiConnectors.m.value.do(_.setMidiSnapDistance(snapDistance));
 		} {
-			connector.setSnapDistance(snapDistance);
+			connector.setMidiSnapDistance(snapDistance);
 		}
 	}
 
-	getSnapDistance { |connector|
+	getMidiSnapDistance { |connector|
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getSnapDistance);
+			^wmc.midiConnectors.m.value.collect(_.getMidiSnapDistance);
 		} {
-			^connector.getSnapDistance;
+			^connector.getMidiSnapDistance;
 		}
 	}
 
-	setCtrlButtonGroup { |numButtons, connector|
+	setMidiCtrlButtonGroup { |numButtons, connector|
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setCtrlButtonGroup(numButtons));
+			wmc.midiConnectors.m.value.do(_.setMidiCtrlButtonGroup(numButtons));
 		} {
-			connector.setCtrlButtonGroup(numButtons);
+			connector.setMidiCtrlButtonGroup(numButtons);
 		}
 	}
 
-	getCtrlButtonGroup { |connector|
+	getMidiCtrlButtonGroup { |connector|
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
 		};
 
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getCtrlButtonGroup);
+			^wmc.midiConnectors.m.value.collect(_.getMidiCtrlButtonGroup);
 		} {
-			^connector.getCtrlButtonGroup;
+			^connector.getMidiCtrlButtonGroup;
 		}
 	}
 

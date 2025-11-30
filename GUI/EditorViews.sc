@@ -44,15 +44,9 @@ OscConnectorsEditorView : CompositeView {
 
 		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \osc);
 		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \osc);
-		e.addrSelect = OscAddrSelect(parent, widget, connectorID: index);
-		e.oscScanButton = OscScanButton(parent);
-		e.restrictToPortCheckBox = AddPortRadioButton(parent, widget, connectorID: index);
-		// preliminary
-		e.deviceSelect = PopUpMenu(parent).items_(['select device']);
-		e.oscCmdSelect = PopUpMenu(parent).items_(['select command']);
-		e.newDeviceBut = Button(parent).states_([["new device"]]);
-		e.oscCmdTextField = TextField(parent);
-		e.oscCmdSlotNumBox = NumberBox(parent).value_(1);
+		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
+		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
+		e.oscCmdIndexNumBox = OscCmdIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
 		e.inputConstraintsLoNumBox = NumberBox(parent).value_(0.1);
 		e.inputConstraintsHiNumBox = NumberBox(parent).value_(1.0);
 		e.zeroCrossCorrectStaticText = StaticText(parent);
@@ -69,16 +63,7 @@ OscConnectorsEditorView : CompositeView {
 					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					VLayout(
-						[e.addrSelect],
-						HLayout(
-							[StaticText(parent).string_("restrict to port")],
-							[e.restrictToPortCheckBox]
-						)
-					),
-					VLayout(
-						[e.oscScanButton]
-					)
+					[e.addrAndCmdSelect]
 				),
 				HLayout(
 					StaticText(parent).string_("OSC command name - either select from list provided by the selected device or set custom one")
@@ -92,7 +77,7 @@ OscConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[e.oscCmdTextField],
-					[e.oscCmdSlotNumBox]
+					[e.oscCmdIndexNumBox]
 				),
 				HLayout(
 					StaticText(parent).string_("OSC input constraints, zero-crossing correction")

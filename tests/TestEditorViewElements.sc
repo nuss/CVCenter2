@@ -485,7 +485,7 @@ TestMidiZeroNumberBox : UnitTest {
 		element1.valueAction_(60);
 		element1.widget_(widget2);
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiZeroNumberBox with arg 'widget' set to widget2 the MidiZeroNumberBox's 'widget' getter should return widget2");
-		this.assertEquals(element1.view.value, 64, "After setting element1.valueAction_(60) should leave element1's value at 64 after calling element1.widget_(widget2).");
+		this.assertEquals(element1.view.value, 63, "After setting element1.valueAction_(60) should leave element1's value at 63 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
 

@@ -28,12 +28,6 @@ OscConnector {
 	}
 
 	initModels { |wmc, name|
-		wmc.oscCalibration ?? { wmc.oscCalibration = () };
-		wmc.oscCalibration.m ?? {
-			wmc.oscCalibration.m = Ref(List[]);
-		};
-		wmc.oscCalibration.m.value.add(CVWidget.oscCalibration);
-
 		wmc.oscInputRange ?? { wmc.oscInputRange = () };
 		wmc.oscInputRange.m ?? {
 			wmc.oscInputRange.m = Ref(List[]);
@@ -62,7 +56,18 @@ OscConnector {
 			nameField: '/my/cmd/name',
 			index: 1,
 			connectorButVal: 0,
-			editEnabled: true
+			// editEnabled: true,
+			connect: "Learn"
+		));
+
+		wmc.oscOptions ?? { wmc.oscOptions = () };
+		wmc.oscOptions.m ?? {
+			wmc.oscOptions.m = Ref(List[])
+		};
+		wmc.oscOptions.m.value.add((
+			oscEndless: CVWidget.oscEndless,
+			oscResolution: CVWidget.resolution,
+			oscCalibration: CVWidget.oscCalibration
 		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
@@ -76,12 +81,12 @@ OscConnector {
 
 	initControllers { |wmc|
 		#[
-			prInitOscCalibration,
 			prInitOscInputRange,
 			prInitOscInputMappings,
 			prInitOscConnection,
 			prInitOscDisplay,
 			prInitOscConnectors,
+			prInitOscOptions,
 			prInitOscConnectorNames
 		].do { |method|
 			this.perform(method, wmc, widget.cv)
@@ -142,12 +147,21 @@ OscConnector {
 		})
 	}
 
+	prInitOscOptions { |mc, cv|
+		mc.oscOptions.c ?? {
+			mc.oscOptions.c = SimpleController(mc.oscOptions.m)
+		};
+		mc.oscOptions.c.put(\default, { |changer, what, moreArgs|
+			// do something
+		})
+	}
+
 	prInitOscConnectorNames { |mc, cv|
 		mc.oscConnectorNames.c ?? {
 			mc.oscConnectorNames.c = SimpleController(mc.oscConnectorNames.m)
 		};
 		mc.oscConnectorNames.c.put(\default, { |changer, what, moreArgs|
-
+			//  do something
 		})
 	}
 
@@ -242,8 +256,8 @@ MidiConnector {
 		wmc.midiOptions.m.value.add((
 			midiMode: CVWidget.midiMode,
 			midiZero: CVWidget.midiZero,
-			ctrlButtonGroup: CVWidget.ctrlButtonGroup,
-			midiResolution: CVWidget.midiResolution,
+			ctrlButtonGroup: CVWidget.midiCtrlButtonGroup,
+			midiResolution: CVWidget.resolution,
 			snapDistance: CVWidget.snapDistance
 		));
 
@@ -351,32 +365,32 @@ MidiConnector {
 						//  0-127
 						0, {
 							input = val/127;
-							if ((self.getSnapDistance <= 0).or(
-								input < (cv.input + (self.getSnapDistance/2)) and: {
-									input > (cv.input - (self.getSnapDistance/2))
+							if ((self.getMidiSnapDistance <= 0).or(
+								input < (cv.input + (self.getMidiSnapDistance/2)) and: {
+									input > (cv.input - (self.getMidiSnapDistance/2))
 							})) {
 								case
 								{ inputMapping.mapping === \lincurve } {
-									if (inputMapping.curve != 0 and: { self.getSnapDistance > 0 }) {
-										self.setSnapDistance(0)
+									if (inputMapping.curve != 0 and: { self.getMidiSnapDistance > 0 }) {
+										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linbicurve } {
-									if (inputMapping.curve != 0 and: { self.getSnapDistance > 0 }) {
-										self.setSnapDistance(0)
+									if (inputMapping.curve != 0 and: { self.getMidiSnapDistance > 0 }) {
+										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linenv } {
-									if (self.getSnapDistance > 0) {
-										self.setSnapDistance(0)
+									if (self.getMidiSnapDistance > 0) {
+										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.linenv(env: inputMapping.env))
 								}
 								{ inputMapping.mapping === \explin } {
-									if (self.getSnapDistance > 0) {
-										self.setSnapDistance(0)
+									if (self.getMidiSnapDistance > 0) {
+										self.setMidiSnapDistance(0)
 									};
 									cv.input_((input+1).explin(1, 2, 0, 1))
 								}
@@ -385,8 +399,8 @@ MidiConnector {
 										self.setMidiInputMapping(\linlin);
 										cv.input_(input.linlin(0, 1, 0, 1))
 									} {
-										if (self.getSnapDistance > 0) {
-											self.setSnapDistance(0)
+										if (self.getMidiSnapDistance > 0) {
+											self.setMidiSnapDistance(0)
 										};
 										cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
 									}
@@ -555,7 +569,7 @@ MidiConnector {
 		^mc.midiOptions.m.value[index].midiZero;
 	}
 
-	setSnapDistance { |snapDistance|
+	setMidiSnapDistance { |snapDistance|
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
 		snapDistance = snapDistance.asFloat;
@@ -563,23 +577,23 @@ MidiConnector {
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
-	getSnapDistance {
+	getMidiSnapDistance {
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
 		^mc.midiOptions.m.value[index].snapDistance;
 	}
 
-	setCtrlButtonGroup { |numButtons|
+	setMidiCtrlButtonGroup { |numButtons|
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
 		if (numButtons.notNil and:{ numButtons.isInteger.not }) {
-			Error("setCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
+			Error("setMidiCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
 		mc.midiOptions.m.value[index].ctrlButtonGroup = numButtons;
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
-	getCtrlButtonGroup {
+	getMidiCtrlButtonGroup {
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
 		^mc.midiOptions.m.value[index].ctrlButtonGroup;

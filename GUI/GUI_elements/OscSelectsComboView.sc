@@ -34,23 +34,23 @@ OscSelectsComboView : CompositeView {
 
 		e = ();
 		e.ipselect = PopUpMenu(parent).items_(['IP address...'] ++ osc.m.value.keys.asArray.sort)
-		.toolTip_("Optionally select an IP address");
+		.toolTip_("Optionally select an IP address").minHeight_(25);
 		e.colon = StaticText(parent).string_($:);
 		e.portselect = PopUpMenu(parent).items_(['port...'])
-		.toolTip_("Optionally select a port");
+		.toolTip_("Optionally select a port").minHeight_(25);
 		// "e.portselect.items %".format(e.portselect.items).warn;
 		e.cmdselect = PopUpMenu(parent).items_(['cmd name...'])
-		.toolTip_("Select command name to be listened to");
+		.toolTip_("Select command name to be listened to").minHeight_(25);
 		e.scanbut = Button(parent).states_([
 			["scan OSC", Color.white, Color(green: 0.5, blue: 0.5)],
 			["stop  scan", Color.white, Color.red]
 		])
-		.maxWidth_(80)
+		.maxWidth_(80).minHeight_(25)
 		.toolTip_("Scan for incoming OSC messages");
 		e.rreset = Button(parent).states_([
 			["reset", Color.white, Color(red: 1.0, green: 0.5)]
 		])
-		.maxWidth_(50)
+		.maxWidth_(50).minHeight_(25)
 		.toolTip_("Reset all IP addresses, ports and command names");
 
 		if (layout.size > 1) {
