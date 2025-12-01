@@ -2,7 +2,7 @@ CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiZero = 63, <>midiCtrlButtonGroup = 1;
-	classvar <>oscEndless = false, <>oscCalibration = true;
+	classvar <>oscEndless = false, <>oscCalibration = true, <>oscInputRange = #[0.0001, 0.0001];
 	classvar <>snapDistance = 0.1, <>resolution = 1;
 	classvar syncKeysEvent;
 	classvar <wmc; // models and controllers tied to the class
@@ -110,14 +110,21 @@ CVWidget {
 	addOscConnector { this.subclassResponsibility(thisMethod) }
 	oscDialog { this.subclassResponsibility(thisMethod) }
 	removeOscConnector { this.subclassResponsibility(thisMethod) }
+	setOscEndless { this.subclassResponsibility(thisMethod) }
+	getOscEndless { this.subclassResponsibility(thisMethod) }
+	setOscResolution { this.subclassResponsibility(thisMethod) }
+	getOscResolution { this.subclassResponsibility(thisMethod) }
+	setOscSnapDistance { this.subclassResponsibility(thisMethod) }
+	getOscSnapDistance { this.subclassResponsibility(thisMethod) }
 	setOscCalibration { this.subclassResponsibility(thisMethod) }
 	getOscCalibration { this.subclassResponsibility(thisMethod) }
-	setOscMapping { this.subclassResponsibility(thisMethod) }
-	getOscMapping { this.subclassResponsibility(thisMethod) }
+	setOscInputMapping { this.subclassResponsibility(thisMethod) }
+	getOscInputMapping { this.subclassResponsibility(thisMethod) }
 	setOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	getOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
+	// remove (invalidate) widget
 	remove { this.subclassResponsibility(thisMethod) }
 	// Initializing models and controllers
 	initModels { this.subclassResponsibility(thisMethod) }

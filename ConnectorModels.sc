@@ -28,17 +28,11 @@ OscConnector {
 	}
 
 	initModels { |wmc, name|
-		wmc.oscInputRange ?? { wmc.oscInputRange = () };
-		wmc.oscInputRange.m ?? {
-			wmc.oscInputRange.m = Ref(List[]);
-		};
-		wmc.oscInputRange.m.value.add([0.0001, 0.0001]);
-
 		wmc.oscInputMappings ?? { wmc.oscInputMappings = () };
 		wmc.oscInputMappings.m ?? {
 			wmc.oscInputMappings.m = Ref(List[]);
 		};
-		wmc.oscInputMappings.m.value.add(\linlin);
+		wmc.oscInputMappings.m.value.add((mapping: \linlin));
 
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.m ?? {
@@ -67,7 +61,9 @@ OscConnector {
 		wmc.oscOptions.m.value.add((
 			oscEndless: CVWidget.oscEndless,
 			oscResolution: CVWidget.resolution,
-			oscCalibration: CVWidget.oscCalibration
+			oscCalibration: CVWidget.oscCalibration,
+			oscSnapDistance: CVWidget.snapDistance,
+			oscInputRange: CVWidget.oscInputRange
 		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
@@ -81,7 +77,6 @@ OscConnector {
 
 	initControllers { |wmc|
 		#[
-			prInitOscInputRange,
 			prInitOscInputMappings,
 			prInitOscConnection,
 			prInitOscDisplay,
@@ -111,17 +106,8 @@ OscConnector {
 		})
 	}
 
-	prInitOscInputRange { |mc, cv|
-		mc.oscInputRange.c ?? {
-			mc.oscInputRange.c = SimpleController(mc.oscInputRange.m)
-		};
-		mc.oscInputRange.c.put(\default, { |changer, what, moreArgs|
-			// do something with changer.value
-		})
-	}
-
 	prInitOscInputMappings { |mc, cv|
-		mc.oscInputMappings.c ?? {
+		mc.oscOptions.c ?? {
 			mc.oscInputMappings.c = SimpleController(mc.oscInputMappings.m)
 		};
 		mc.oscInputMappings.c.put(\default, { |changer, what, moreArgs|
@@ -180,6 +166,114 @@ OscConnector {
 		}
 	}
 
+	setOscEndless { |boolEndless|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscEndless = boolEndless;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscEndless {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscEndless;
+	}
+
+	setOscResolution { |resolution|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscResolution = resolution;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscResolution {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscResolution;
+	}
+
+	setOscSnapDistance { |distance|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscSnapDistance = distance;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscSnapDistance {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscSnapDistance;
+	}
+
+	setOscCalibration { |boolCalibration|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscCalibration = boolCalibration;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscCalibration {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscCalibration;
+	}
+
+	setOscInputConstraints { |constraintsPair|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		var lo, hi;
+
+		if (constraintsPair.class === Point) {
+			lo = constraintsPair.x;
+			hi = constraintsPair.y;
+		} {
+			#lo, hi = constraintsPair;
+		};
+
+		mc.oscOptions.m.value[index].oscInputRange = [lo, hi];
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscInputConstraints {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscInputRange;
+	}
+
+	setOscInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mapping = mapping.asSymbol;
+		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
+			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
+			^nil
+		};
+		mc.oscInputMappings.m.value[index].mapping = mapping;
+		case
+		{ mapping === \lincurve or: { mapping === \linbicurve }} {
+			mc.oscInputMappings.m.value[index].curve = curve;
+			mc.oscInputMappings.m.value[index].env = nil;
+		}
+		{ mapping === \linenv } {
+			mc.oscInputMappings.m.value[index].curve = nil;
+			mc.oscInputMappings.m.value[index].env = env;
+		}
+		{
+			mc.oscInputMappings.m.value[index].curve = nil;
+			mc.oscInputMappings.m.value[index].env = nil;
+		};
+		mc.oscInputMappings.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscInputMapping {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscInputMappings.m.value[index];
+	}
+
+	oscConnect {}
+	oscDisconnect {}
+
 	remove { |forceAll = false|
 		var mc = widget.wmc;
 		// var wmc = CVWidget.wmc;
@@ -200,8 +294,13 @@ OscConnector {
 		}
 	}
 
-	oscConnect {}
-	oscDisconnect {}
+	storeOn { |stream|
+		stream << this.class.name << "(" <<* [widget.name.cs, this.name] << ")"
+	}
+
+	printOn { |stream|
+		this.storeOn(stream)
+	}
 }
 
 MidiConnector {

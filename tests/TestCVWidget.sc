@@ -65,21 +65,20 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
 		this.assertEquals(widget.wmc.keys, Set[
-			\oscConnectors,
+			\oscInputMappings,
+			\midiDisplay,
+			\oscDisplay,
+			\midiOptions,
 			\actions,
-			\oscConnections,
 			\midiInputMappings,
-			\cvSpec,
 			\midiConnectorNames,
-			\oscInputRange,
+			\oscConnections,
+			\oscConnectors,
 			\oscOptions,
 			\oscConnectorNames,
-			\midiOptions,
-			\oscDisplay,
-			\midiConnectors,
-			\midiDisplay,
-			\oscInputMappings,
-			\midiConnections
+			\midiConnections,
+			\cvSpec,
+			\midiConnectors
 		], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.wmc.oscConnectors.m.value[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
@@ -178,73 +177,88 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getMidiMode {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.wmc.midiConnectors.m.value should be set to midiMode 0 by default");
+		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnectors should be set to midiMode 0 by default");
 		widget.setMidiMode(1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.wmc.midiConnectors.m.value should have been set to midiMode 1");
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnectors should have been set to midiMode 1");
 		widget.setMidiMode(0, connection1);
-		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.wmc.midiConnectors.m.value midiMode should equal [1, 0, 1]");
+		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnectors' midiMode should equal [1, 0, 1]");
 		widget.setMidiMode(1, 1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "widget.wmc.midiConnectors.m.value midiMode should equal [0, 1, 1]")
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "widget.midiConnectors' midiMode should equal [1, 1, 1]");
+		widget.setMidiMode(0, 1);
+		this.assertEquals(widget.getMidiMode(1), 0, "widget.midiConnectors' midiMode at index 1 should equal 0.");
+		widget.setMidiMode(0, connection2);
+		this.assertEquals(widget.getMidiMode(connection2), 0, "widget.midiConnectors' midiMode for connector2 should equal 0.");
 	}
 
 	test_set_getMidiZero {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiZero, [63, 63, 63], "All widget.wmc.midiConnectors.m.value should be set to midiZero 64 by default");
+		this.assertEquals(widget.getMidiZero, [63, 63, 63], "All widget.midiConnectors should be set to midiZero 64 by default");
 		widget.setMidiZero(0);
-		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.wmc.midiConnectors.m.value should have been set to midiZero 0");
-		widget.setMidiZero(64, connection1);
-		this.assertEquals(widget.getMidiZero, [0, 64, 0], "widget.wmc.midiConnectors.m.value midiZero should equal [0, 64, 0]");
-		widget.setMidiZero(64, 2);
-		this.assertEquals(widget.getMidiZero, [0, 64, 64], "widget.wmc.midiConnectors.m.value midiZero should equal [0, 64, 64]");
+		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.midiConnectors should have been set to midiZero 0");
+		widget.setMidiZero(63, connection1);
+		this.assertEquals(widget.getMidiZero, [0, 63, 0], "widget.midiConnectors' midiZero should equal [0, 63, 0]");
+		widget.setMidiZero(63, 2);
+		this.assertEquals(widget.getMidiZero, [0, 63, 63], "widget.midiConnectors' midiZero should equal [0, 63, 63].");
+		this.assertEquals(widget.getMidiZero(1), 63, "widget.midiConnectors' midiZero at index 1 should equal 63.");
+		this.assertEquals(widget.getMidiZero(connection2), 63, "widget.midiConnectors' midiZero for connection2 should equal 63.");
 	}
 
 	test_set_getMidiSnapDistance {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiSnapDistance, [0.1, 0.1, 0.1], "All widget.wmc.midiConnectors.m.value should be set to snapDistance 0.1 by default");
+		this.assertEquals(widget.getMidiSnapDistance, [0.1, 0.1, 0.1], "All widget.midiConnectors should be set to snapDistance 0.1 by default");
 		widget.setMidiSnapDistance(0.5);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.wmc.midiConnectors.m.value should have been set to snapDistance 0.5");
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to snapDistance 0.5");
 		widget.setMidiSnapDistance(0.1, connection1);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
 		widget.setMidiSnapDistance(0.5, 0);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.wmc.midiConnectors.m.value snapDistance should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getMidiSnapDistance(1), 0.1, "widget.midiConnectors' snapDistance at index 1 should equal 0.1.");
+		this.assertEquals(widget.getMidiSnapDistance(connection2), 0.5, "widget.midiConnectors' snapDistance for connection2 should equal 0.5.");
 	}
 
 	test_set_getMidiCtrlButtonGroup {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [1, 1, 1], "All widget.wmc.midiConnectors.m.value should be set to ctrlButtonGroup 1 by default");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [1, 1, 1], "All widget.midiConnectors should be set to ctrlButtonGroup 1 by default.");
 		widget.setMidiCtrlButtonGroup(16);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "All widget.wmc.midiConnectors.m.value should have been set to ctrlButtonGroup 16");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "All widget.midiConnectors should have been set to ctrlButtonGroup 16.");
 		widget.setMidiCtrlButtonGroup(1, connection1);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 1, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 1, 16]");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 1, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 1, 16].");
 		widget.setMidiCtrlButtonGroup(16, 1);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "widget.wmc.midiConnectors.m.value ctrlButtonGroup should equal [16, 16, 16]");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 16, 16].");
+		widget.setMidiCtrlButtonGroup(5, 1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(1), 5, "widget.midiConnectors' ctrlButtonGroup at index 1 should equal 5.");
+		widget.setMidiCtrlButtonGroup(7, connection2);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(connection2), 7, "widget.midiConnectors' ctrlButtonGroup for connection2 should equal 7.");
 	}
 
 	test_set_getMidiResolution {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.wmc.midiConnectors.m.value should be set to midiResolution 1 by default");
+		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnectors should be set to midiResolution 1 by default.");
 		widget.setMidiResolution(0.5);
-		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.wmc.midiConnectors.m.value should have been set to midiResolution 0.5");
+		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to midiResolution 0.5.");
 		widget.setMidiResolution(1, connection1);
-		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.wmc.midiConnectors.m.value midiResolution should equal [0.5, 1, 0.5]");
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnectors' midiResolution should equal [0.5, 1, 0.5].");
 		widget.setMidiResolution(1, 2);
-		this.assertEquals(widget.getMidiResolution, [0.5, 1, 1], "widget.wmc.midiConnectors.m.value midiResolution should equal [0.5, 1, 1]");
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 1], "widget.midiConnectors' midiResolution should equal [0.5, 1, 1].");
+		this.assertEquals(widget.getMidiResolution(1), 1, "widget.midiConnectors' midiResolution at index 1 should equal 1.");
+		this.assertEquals(widget.getMidiResolution(widget.midiConnectors[0]), 0.5, "widget.midiConnectors' at index 1 should equal 0.5.")
 	}
 
 	test_set_getMidiInputMapping {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.wmc.midiConnectors.m.value should have been set to (mapping: \linlin) by default.");
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.midiConnectors should have been set to (mapping: \linlin) by default.");
 		widget.setMidiInputMapping(\lincurve, curve: 3);
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.wmc.midiConnectors.m.value should have been set to (mapping: \\lincurve, curve: 3).");
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.midiConnectors should have been set to (mapping: \\lincurve, curve: 3).");
 		widget.setMidiInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connection2);
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.wmc.midiConnectors.m.value at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.midiConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
 		widget.setMidiInputMapping(\linexp, connector: 1);
-		this.assertEquals(widget.getMidiInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.wmc.midiConnectors.m.value at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getMidiInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.midiConnectors at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getMidiInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.midiConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
 	}
 
 	test_midiConnect {
@@ -272,17 +286,90 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.wmc.midiConnections.m[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.m.value should equal (num: 1)");
 	}
 
-	test_setOscCalibration {}
+	test_set_getOscEndless {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscEndless, [false, false, false], "All widget.oscConnectors should have been set to oscEndless equaling false.");
+		widget.setOscEndless(true);
+		this.assertEquals(widget.getOscEndless, [true, true, true], "All widget.oscConnectors should have been set to oscEndless equaling true.");
+		widget.setOscEndless(false, 2);
+		this.assertEquals(widget.getOscEndless, [true, true, false], "widget.oscGetEndless should return [true, true, false] after calling widget.setOscEndless(true, 2).");
+		widget.setOscEndless(false, connection1);
+		this.assertEquals(widget.getOscEndless, [true, false, false], "widget.oscGetEndless should return [true, false, false] after calling widget.setOscEndless(false, connection1).");
+		this.assertEquals(widget.getOscEndless(0), true, "Calling widget.getOscEndless(0) should return true.");
+		this.assertEquals(widget.getOscEndless(connection2), false, "Calling widget.getOscEndless(connection2) should return false.");
+	}
 
-	test_getOscCalibration {}
+	test_set_getOscResolution {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscResolution, [1, 1, 1], "All widget.oscConnectors should have been set to oscResolution equaling 1.");
+		widget.setOscResolution(0.1);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.1], "All widget.oscConnectors should have been set to oscResolution equaling 0.1.");
+		widget.setOscResolution(0.5, 2);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.5], "widget.getOscResolution should return [0.1, 0.1, 0.5] after calling widget.setOscResolution(0.5, 2).");
+		widget.setOscResolution(0.3, connection1);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.3, 0.5], "widget.getOscResolution should return [0.1, 0.3, 0.5] after calling widget.setOscResolution(0.3, connection1).");
+		this.assertEquals(widget.getOscResolution(0), 0.1, "Calling widget.getOscResolution(0) should return 0.1.");
+		this.assertEquals(widget.getOscResolution(connection2), 0.5, "Calling widget.getOscResolution(connection2) should return 0.5.");
+	}
 
-	test_setOscMapping {}
+	test_set_getOscSnapDistance {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscSnapDistance, [0.1, 0.1, 0.1], "All widget.oscConnectors should have been set to snapDistances equaling 1.");
+		widget.setOscSnapDistance(0.5);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.5], "All widget.oscCommecters should have been set to snapDistances equaling 0.5.");
+		widget.setOscSnapDistance(0.1, 2);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.5, 0.1].");
+		widget.setOscSnapDistance(0.3, connection1);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.3, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.3, 0.1].");
+		this.assertEquals(widget.getOscSnapDistance(1), 0.3, "widget.oscConnectors' snapDistance at index 1 should equal 0.3.");
+		this.assertEquals(widget.getOscSnapDistance(connection2), 0.1, "widget.oscConnectors' snapDistance for connection2 should equal 0.1.");
+	}
 
-	test_getOscMapping {}
+	test_set_getOscCalibration {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscCalibration, [true, true, true], "All widget.oscConnectors should have been set to oscCalibration equaling true.");
+		widget.setOscCalibration(false);
+		this.assertEquals(widget.getOscCalibration, [false, false, false], "All widget.oscCommecters should have been set to oscCalibartion equaling false.");
+		widget.setOscCalibration(true, 2);
+		this.assertEquals(widget.getOscCalibration, [false, false, true], "widget.oscConnectors' oscCalibration should equal [false, false, true] after calling widget.setOscCalibration(true, 2).");
+		widget.setOscCalibration(true, connection1);
+		this.assertEquals(widget.getOscCalibration, [false, true, true], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscCalibration(true, connection1).");
+		this.assertEquals(widget.getOscCalibration(1), true, "widget.oscConnectors' oscCalibration at index 1 should equal true.");
+		this.assertEquals(widget.getOscCalibration(connection2), true, "widget.oscConnectors' oscCalibration for connection2 should equal true.");
+	}
 
-	test_setOscInputConstraints {}
+	test_set_getOscInputMapping {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.oscConnectors should have been set to (mapping: \\linlin) by default.");
+		widget.setOscInputMapping(\lincurve, curve: 3);
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.oscConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		widget.setOscInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connection2);
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.oscConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		widget.setOscInputMapping(\linexp, connector: 1);
+		this.assertEquals(widget.getOscInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.oscConnectors at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getOscInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.oscConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
+	}
 
-	test_getOscInputConstraints {}
+	test_set_getOscInputConstraints {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputConstraints, [[0.0001, 0.0001], [0.0001, 0.0001], [0.0001, 0.0001]], "All widget.oscConnectors should have been set to oscCalibration equaling [0.0001, 0.0001].");
+		widget.setOscInputConstraints([10, 60]);
+		this.assertEquals(widget.getOscInputConstraints, [[10, 60], [10, 60], [10, 60]], "All widget.oscCommecters should have been set to oscCalibartion equaling [10, 60] after calling widget.setOscInputConstraints([10, 60]).");
+		widget.setOscInputConstraints(-25@25);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [-25, 25]], "All widget.oscCommecters should have been set to oscCalibartion equaling [-25, 25] after calling widget.setOscInputConstraints(-25@25).");
+		widget.setOscInputConstraints(0@100, 2);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [0, 100]], "widget.oscConnectors' oscCalibration should equal [[-25, 25], [-25, 25], [0, 100]] after calling widget.setOscInputConstraints(0@100, 2).");
+		widget.setOscInputConstraints([3, 67], connection1);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [3, 67], [0, 100]], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscInputConstraints(true, connection1).");
+		this.assertEquals(widget.getOscInputConstraints(1), [3, 67], "widget.oscConnectors' oscCalibration at index 1 should equal [3, 67].");
+		this.assertEquals(widget.getOscInputConstraints(connection2), [0, 100], "widget.oscConnectors' oscCalibration for connection2 should equal [0, 100].");
+	}
 
 	test_oscConnect {}
 
@@ -331,7 +418,7 @@ TestCVWidgetKnob : UnitTest {
 	test_updateAction {
 		widget.addAction(\active, { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
 		widget.cv.value_(0.5);
-		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, \test] after setting the widget cv's value");
+		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after setting the widget cv's value");
 		widget.updateAction(\active, { |cv, wdgt| wdgt.env.res1 = [cv.value, wdgt.getSpec] });
 		widget.cv.value_(0);
 		this.assertEquals(widget.env.res1, [0.0, ControlSpec(0, 1, 'linear', 0.0, 0.0, "")], "widget.env.res1 should equal [0.0, ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
@@ -341,25 +428,10 @@ TestCVWidgetKnob : UnitTest {
 	}
 
 	test_remove {
-		var testVals = [
-			List[('oscCalibration': true, 'oscEndless': false, 'oscResolution': 1)],
-			List[nil],
-			List[('ctrlButtonGroup': 1, 'midiMode': 0, 'midiZero': 63, 'snapDistance': 0.1, 'midiResolution': 1)],
-			List[('chan': "chan", 'src': 'source...', 'ctrl': "ctrl", 'learn': "L", 'toolTip': "Click and move hardware slider/knob to connect to")],
-			List[false],
-			('activeActions': 0, 'numActions': 0),
-			List[('nameField': '/my/cmd/name', 'index': 1, 'connectorButVal': 0, 'connect': "Learn")],
-			List['MIDI Connection 1'],
-			List[('mapping': 'linlin')],
-			ControlSpec(0, 1, 'linear', 0.0, 0, ""),
-			List[[0.0001, 0.0001]],
-			List[widget.midiConnectors[0]],
-			List['linlin'],
-			List[widget.oscConnectors[0]],
-			List['OSC Connection 1']
-		];
-		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(testVals), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
+		var allModels = [];
+		widget.wmc.do { |it| it.m.do { |m| allModels = allModels.add(m.value) }};
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
 		widget.remove;
-		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(testVals), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
 	}
 }

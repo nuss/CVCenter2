@@ -106,4 +106,20 @@ TestOscConnector : UnitTest {
 	tearDown {
 		widget.remove;
 	}
+
+	test_new {
+
+	}
+
+	test_name {
+
+	}
+
+	test_remove {
+
+	}
+
+	test_oscConnect_disconnect {
+
+	}
 }

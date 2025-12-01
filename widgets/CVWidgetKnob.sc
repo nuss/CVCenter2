@@ -42,10 +42,12 @@ CVWidgetKnob : CVWidget {
 			this.setMidiResolution(setupArgs[\midiResolution] ? this.class.resolution);
 			this.setMidiZero(setupArgs[\midiMean] ? this.class.midiMean);
 			this.setMidiCtrlButtonGroup(setupArgs[\midiCtrlButtonBank]);
-			this.setMidiSnapDistance(setupArgs[\snapDistance] ? this.class.snapDistance);
+			this.setMidiSnapDistance(setupArgs[\midiSnapDistance] ? this.class.snapDistance);
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
+			this.setOscInputConstraints(setupArgs[\oscInputRange] ? this.class.oscInputRange);
 			this.setOscEndless(setupArgs[\oscEndless] ? this.class.oscEndless);
 			this.setOscResolution(setupArgs[\oscResolution] ? this.class.resolution);
+			this.setOscSnapDistance(setupArgs[\oscSnapDistance] ? this.class.snapDistance);
 		};
 
 		// an Event to be used for variables defined outside actions
@@ -372,7 +374,7 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
-	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1])), connector|
+	setMidiInputMapping { |mapping, curve, env, connector|
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
 		};
@@ -417,7 +419,7 @@ CVWidgetKnob : CVWidget {
 
 	midiDisconnect { |connector|
 		connector ?? {
-			Error("No connector given. Don't know which connector to disconnect!").throw;
+			Error("No connector given. Don't know which connector to disconnect.").throw;
 		};
 		if (connector.isInteger) {
 			connector = wmc.midiConnectors.m.value[connector]
@@ -428,12 +430,150 @@ CVWidgetKnob : CVWidget {
 	}
 
 	// OSC
-	setOscCalibration {}
-	getOscCalibration {}
-	setOscMapping {}
-	getOscMapping {}
-	setOscInputConstraints {}
-	getOscInputConstraints {}
+	setOscEndless { |boolEndless, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscEndless(boolEndless))
+		} {
+			connector.setOscEndless(boolEndless)
+		}
+	}
+
+	getOscEndless { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscEndless);
+		} {
+			^connector.getOscEndless;
+		}
+	}
+
+	setOscResolution { |resolution, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscResolution(resolution))
+		} {
+			connector.setOscResolution(resolution)
+		}
+	}
+
+	getOscResolution { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscResolution);
+		} {
+			^connector.getOscResolution;
+		}
+	}
+
+	setOscSnapDistance { |distance, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscSnapDistance(distance))
+		} {
+			connector.setOscSnapDistance(distance)
+		}
+	}
+
+	getOscSnapDistance { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscSnapDistance);
+		} {
+			^connector.getOscSnapDistance;
+		}
+	}
+
+	setOscCalibration { |boolCalibration, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscCalibration(boolCalibration))
+		} {
+			connector.setOscCalibration(boolCalibration)
+		}
+	}
+
+	getOscCalibration { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscCalibration);
+		} {
+			^connector.getOscCalibration;
+		}
+	}
+
+	setOscInputMapping { |mapping, curve, env, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscInputMapping(mapping, curve, env))
+		} {
+			connector.setOscInputMapping(mapping, curve, env)
+		}
+	}
+
+	getOscInputMapping { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscInputMapping);
+		} {
+			^connector.getOscInputMapping;
+		}
+	}
+
+	setOscInputConstraints { |constraintsPair, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscInputConstraints(constraintsPair))
+		} {
+			connector.setOscInputConstraints(constraintsPair)
+		}
+	}
+
+	getOscInputConstraints { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscInputConstraints);
+		} {
+			^connector.getOscInputConstraints;
+		}
+	}
+
 	oscConnect {}
 	oscDisconnect {}
 
