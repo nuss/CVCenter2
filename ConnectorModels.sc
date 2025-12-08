@@ -286,6 +286,7 @@ OscConnector {
 				mc.oscDisplay.m.value,
 				mc.oscConnections.m.value,
 				mc.oscConnectorNames.m.value,
+				mc.oscOptions.m.value,
 				mc.oscInputMappings.m.value
 			].do(_.removeAt(index));
 			mc.oscConnectors.m.value.remove(this);
