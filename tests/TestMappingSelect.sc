@@ -1,19 +1,22 @@
 TestMappingSelect : UnitTest {
-	var widget1, widget2, ms1, ms2;
+	var widget1, widget2, ms1, ms2, os1;
 
 	setUp {
 		widget1 = CVWidgetKnob(\test1);
 		ms1 = MappingSelect(widget: widget1, connectorKind: \midi);
+		os1 = MappingSelect(widget: widget1, connectorKind: \osc);
 	}
 
 	tearDown {
 		ms1.close;
+		os1.close;
 		widget1.remove;
 	}
 
 	test_new {
-		this.assert(MappingSelect.all[widget1][\midi][0] === ms1, "MappingSelect.all[widget1] should hold a list with a single MappingSelect instance.");
-		this.assertEquals(widget1.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol], "The widget's 'syncKeys' should contain  two Symbols, 'default' and 'midiMappingSelect', after creating a new MappingSelect.");
+		this.assert(MappingSelect.all[widget1][\midi][0] === ms1, "MappingSelect.all[widget1]['midi'] should hold a list with a single MappingSelect instance of kind 'midi'.");
+		this.assert(MappingSelect.all[widget1][\osc][0] === os1, "MappingSelect.all[widget1]['osc'] should hold a list with a single MappingSelect instance of kind 'osc'.");
+		this.assertEquals(widget1.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol, (\osc ++ MappingSelect.asString).asSymbol], "The widget's 'syncKeys' should contain  three Symbols, 'default', 'midiMappingSelect' and 'oscMappingSelect', after creating a new MappingSelect of kind 'midi' and a new MappingSelect of kind 'osc'.");
 		this.assert(ms1.connector === widget1.wmc.midiConnectors.m.value[0], "The elements connector should be identical with the connector at the widget's midiConnectors List at index 0.");
 		widget1.setMidiInputMapping(\lincurve, 3);
 		this.assertEquals(ms1.e.mselect.value, 4, "After calling widget1.setMidiInputMapping('lincurve', 3) the MappingSelect ms1's PopUpMenu should have been set to the item at index 4");
@@ -43,16 +46,17 @@ TestMappingSelect : UnitTest {
 		ms1.widget_(widget2);
 
 		this.assert(ms1.widget === widget2, "After calling widget_ on the MappingSelect with arg 'widget' set to widget2 the MappingSelect's 'widget' getter should returm widget2");
-		this.assertEquals(ms1.e.mselect.item, widget2.wmc.midiInputMappings.m.value[0].mapping, "The MappingSelect's PopUpMenu should have been set to the name of the currently set value in widget2.wmc.midiInputMappings.m.value[0].mapping");
-		this.assertEquals(ms1.e.mcurve.value, widget2.wmc.midiInputMappings.m.value[0].curve, "The MappingSelect's NumberBox for setting the curve characteristics should have been set to the value of the currently set value in widget2.wmc.midiInputMappings.m.value[0].curve");
+		this.assertEquals(ms1.e.mselect.item, widget2.wmc.midiOptions.m.value[0].midiInputMapping.mapping, "The MappingSelect's PopUpMenu should have been set to the name of the currently set value in widget2.wmc.midiOptions.m.value[0].midiInputMapping.mapping");
+		this.assertEquals(ms1.e.mcurve.value, widget2.wmc.midiOptions.m.value[0].midiInputMapping.curve, "The MappingSelect's NumberBox for setting the curve characteristics should have been set to the value of the currently set value in widget2.wmc.midiOptions.m.value[0].midiInputMapping.curve");
 		widget2.remove;
 	}
 
 	test_close {
 		ms2 = MappingSelect(widget: widget1, connectorKind: \midi);
 		ms1.close;
-		this.assertEquals(widget1.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol], "After closing MappingSelect ms1 widget.syncKeys should hold 2 Symbols: 'default' and 'MappingSelect'.");
+		this.assertEquals(widget1.syncKeys, [\default, (\midi ++ MappingSelect.asString).asSymbol, (\osc ++ MappingSelect.asString).asSymbol], "After closing MappingSelect ms1 widget.syncKeys should hold 3 Symbols: 'default', 'oscMappingSelect' and 'midiMappingSelect'.");
 		ms2.close;
+		os1.close;
 		this.assertEquals(widget1.syncKeys, [\default], "After closing MappingSelect ms2 widget.syncKeys should hold 1 Symbol: 'default'.");
 	}
 

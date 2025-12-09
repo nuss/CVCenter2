@@ -186,10 +186,7 @@ OscCmdNameField : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_( { |tf|
-			var i = conModel.indexOf(this.connector);
-			mc.m.value[i].nameField = tf.string;
-			mc.m.value[i].connect = "Connect";
-			mc.m.changedPerformKeys(widget.syncKeys, i);
+			this.connector.name_(tf.string.asSymbol)
 		});
 		connectorRemovedFuncAdded ?? {
 			OscConnector.onConnectorRemove_({ |widget, id|
@@ -356,20 +353,62 @@ OscModeSelect : ConnectorElementView {
 		mc = widget.wmc.oscOptions;
 		conModel = widget.oscConnectors;
 
-
+		this.view = PopUpMenu(parentView, rect)
+		.items_(['value', 'endless']);
+		this.view.onClose_({ this.close });
+		this.index_(index);
+		this.view.action_({ |nb|
+			this.connector.setOscEndless(nb.value.asBoolean)
+		});
+		connectorRemovedFuncAdded ?? {
+			OscConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id)
+			});
+			connectorRemovedFuncAdded = true
+		};
+		this.prAddController;
 	}
 
 	index_ { |connectorID|
-
+		connector = conModel[connectorID];
+		this.view.value_(mc.m.value[connectorID].oscEndless);
 	}
 
 
 	widget_ { |otherWidget|
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
 
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.oscOptions;
+		conModel = widget.oscConnectors;
+		this.index_(0);
+		// midiConnector at index 0 should always exist (who knows...)
+		this.prAddController;
 	}
 
 	prAddController {
-
+		var conID;
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === conModel[conID]) {
+					defer { nb.view.value_(changer.value[conID].oscEndless) }
+				}
+			}
+		})
 	}
 }
 

@@ -1,6 +1,6 @@
 MappingSelect : CompositeView {
 	classvar <all, connectorRemovedFuncAdded;
-	var mc, connectors, syncKey;
+	var mc, connectors, syncKey, mappingType;
 	var <connector, <widget, connectorKind;
 	var <e, bgColor;
 	var defaultEnv;
@@ -40,14 +40,16 @@ MappingSelect : CompositeView {
 
 		case
 		{ connectorKind === \midi } {
-			mc = widget.wmc.midiInputMappings;
+			mc = widget.wmc.midiOptions;
 			connectors = widget.midiConnectors;
 			bgColor = Color(0.8, alpha: 0.3);
+			mappingType = \midiInputMapping;
 		}
 		{ connectorKind === \osc } {
-			mc = widget.wmc.oscInputMappings;
+			mc = widget.wmc.oscOptions;
 			connectors = widget.wmc.oscConnectors.m.value;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
+			mappingType = \oscInputMapping;
 		};
 
 		// the kind of connector must be known by now, so, index_ should already know
@@ -60,11 +62,11 @@ MappingSelect : CompositeView {
 
 		this.background_(bgColor).minHeight_(80);
 
-		ramp = switch (mc.m.value[index].mapping)
-		{ \linenv } { mc.m.value[index].env }
-		{ \lincurve } { [\lincurve, mc.m.value[index].curve] }
-		{ \linbicurve } { [\linbicurve, mc.m.value[index].curve] }
-		{ mc.m.value[index].mapping };
+		ramp = switch (mc.m.value[index][mappingType].mapping)
+		{ \linenv } { mc.m.value[index][mappingType].env }
+		{ \lincurve } { [\lincurve, mc.m.value[index][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, mc.m.value[index][mappingType].curve] }
+		{ mc.m.value[index][mappingType].mapping };
 
 		e = ();
 		e.mplot = RampPlot(parent, ramp: ramp).maxHeight_(25);
@@ -73,14 +75,16 @@ MappingSelect : CompositeView {
 		]).minHeight_(25);
 		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(25);
 		e.menv = TextField(parent).minHeight_(25)
-		.string_((mc.m.value[index].env ? Env([0, 1], [1])).asCompileString);
+		.string_((mc.m.value[index][mappingType].env ? Env([0, 1], [1])).asCompileString);
 
 		case
-		{ mc.m.value[index].mapping === \lincurve or: { mc.m.value[index].mapping === \linbicurve }} {
+		{ mc.m.value[index][mappingType].mapping === \lincurve or: {
+			mc.m.value[index][mappingType].mapping === \linbicurve
+		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.m.value[index].mapping === \linenv } {
+		{ mc.m.value[index][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -113,26 +117,26 @@ MappingSelect : CompositeView {
 
 			case
 			{ sel.value == 4 or: { sel.value == 5 }} {
-				mc.m.value[i].mapping = sel.items[sel.value];
-				mc.m.value[i].curve = e.mcurve.value;
-				mc.m.value[i].env = nil;
+				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
+				mc.m.value[i][mappingType].curve = e.mcurve.value;
+				mc.m.value[i][mappingType].env = nil;
 			}
 			{ sel.value == 6 } {
-				mc.m.value[i].env = env;
-				mc.m.value[i].mapping = sel.items[sel.value];
-				mc.m.value[i].curve = nil;
+				mc.m.value[i][mappingType].env = env;
+				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
+				mc.m.value[i][mappingType].curve = nil;
 			}
 			{
-				mc.m.value[i].mapping = sel.items[sel.value];
-				mc.m.value[i].env = nil;
-				mc.m.value[i].curve = nil;
+				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
+				mc.m.value[i][mappingType].env = nil;
+				mc.m.value[i][mappingType].curve = nil;
 			};
 			mc.m.changedPerformKeys(widget.syncKeys, i);
 		});
 		e.mcurve.action_({ |nb|
 			i = connectors.indexOf(this.connector);
 			if (e.mselect.value == 4 or: { e.mselect.value == 5 }) {
-				mc.m.value[i].curve = nb.value;
+				mc.m.value[i][mappingType].curve = nb.value;
 				mc.m.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
@@ -143,7 +147,7 @@ MappingSelect : CompositeView {
 			} { defaultEnv };
 
 			if (e.mselect.value == 6) {
-				mc.m.value[i].env = env;
+				mc.m.value[i][mappingType].env = env;
 				mc.m.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
@@ -160,22 +164,24 @@ MappingSelect : CompositeView {
 		// "connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
 		mc.m.value[connectorID] !? {
-			e.mselect.value_(e.mselect.items.indexOf(mc.m.value[connectorID].mapping));
-			e.mcurve.value_(mc.m.value[connectorID].curve ? 0);
-			e.menv.string_((mc.m.value[connectorID].env ? defaultEnv).asCompileString);
+			e.mselect.value_(e.mselect.items.indexOf(mc.m.value[connectorID][mappingType].mapping));
+			e.mcurve.value_(mc.m.value[connectorID][mappingType].curve ? 0);
+			e.menv.string_((mc.m.value[connectorID][mappingType].env ? defaultEnv).asCompileString);
 			case
-			{ mc.m.value[connectorID].mapping === \lincurve or: { mc.m.value[connectorID].mapping === \linbicurve }} {
-				e.mplot.draw([mc.m.value[connectorID].mapping, mc.m.value[connectorID].curve]);
+			{ mc.m.value[connectorID][mappingType].mapping === \lincurve or: {
+				mc.m.value[connectorID][mappingType].mapping === \linbicurve
+			}} {
+				e.mplot.draw([mc.m.value[connectorID][mappingType].mapping, mc.m.value[connectorID][mappingType].curve]);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(true);
 			}
-			{ mc.m.value[connectorID].mapping === \linenv } {
-				e.mplot.draw(mc.m.value[connectorID].env);
+			{ mc.m.value[connectorID][mappingType].mapping === \linenv } {
+				e.mplot.draw(mc.m.value[connectorID][mappingType].env);
 				e.menv.enabled_(true);
 				e.mcurve.enabled_(false);
 			}
 			{
-				e.mplot.draw(mc.m.value[connectorID].mapping);
+				e.mplot.draw(mc.m.value[connectorID][mappingType].mapping);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(false);
 			}
@@ -202,26 +208,30 @@ MappingSelect : CompositeView {
 
 		case
 		{ connectorKind === \midi } {
-			mc = widget.wmc.midiInputMappings;
+			mc = widget.wmc.midiOptions;
 			connectors = widget.midiConnectors;
+			mappingType = \midiInputMapping;
 		}
 		{ connectorKind === \osc } {
-			mc = widget.wmc.oscInputMappings;
+			mc = widget.wmc.oscOptions;
 			connectors = widget.wmc.oscConnectors.m.value;
+			mappingType = \oscInputMapping;
 		};
 
-		ramp = switch (mc.m.value[0].mapping)
-		{ \linenv } { mc.m.value[0].env }
-		{ \lincurve } { [\lincurve, mc.m.value[0].curve] }
-		{ \linbicurve } { [\linbicurve, mc.m.value[0].curve] }
-		{ mc.m.value[0].mapping };
+		ramp = switch (mc.m.value[0][mappingType].mapping)
+		{ \linenv } { mc.m.value[0][mappingType].env }
+		{ \lincurve } { [\lincurve, mc.m.value[0][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, mc.m.value[0][mappingType].curve] }
+		{ mc.m.value[0][mappingType].mapping };
 
 		case
-		{ mc.m.value[0].mapping === \lincurve or: { mc.m.value[0].mapping === \linbicurve }} {
+		{ mc.m.value[0][mappingType].mapping === \lincurve or: {
+			mc.m.value[0][mappingType].mapping === \linbicurve
+		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.m.value[0].mapping === \linenv } {
+		{ mc.m.value[0][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -247,21 +257,23 @@ MappingSelect : CompositeView {
 			all[widget][connectorKind].do { |ms, i|
 				if (ms.connector === connectors[conID]) {
 					{
-						ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID].mapping));
+						ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID][mappingType].mapping));
 						case
-						{ changer.value[conID].mapping === \lincurve or: { changer.value[conID].mapping === \linbicurve }} {
-							ms.e.mcurve.value_(changer.value[conID].curve).enabled_(true);
-							ms.e.mplot.draw([changer.value[conID].mapping, changer.value[conID].curve]);
+						{ changer.value[conID][mappingType].mapping === \lincurve or: {
+							changer.value[conID][mappingType].mapping === \linbicurve
+						}} {
+							ms.e.mcurve.value_(changer.value[conID][mappingType].curve).enabled_(true);
+							ms.e.mplot.draw([changer.value[conID][mappingType].mapping, changer.value[conID][mappingType].curve]);
 							ms.e.menv.enabled_(false);
 						}
-						{ changer.value[conID].mapping === \linenv } {
+						{ changer.value[conID][mappingType].mapping === \linenv } {
 							ms.e.mcurve.enabled_(false);
-							ms.e.mplot.draw(changer.value[conID].env ? defaultEnv);
-							ms.e.menv.string_(changer.value[conID].env.asCompileString).enabled_(true);
+							ms.e.mplot.draw(changer.value[conID][mappingType].env ? defaultEnv);
+							ms.e.menv.string_(changer.value[conID][mappingType].env.asCompileString).enabled_(true);
 						}
 						{
 							ms.e.mcurve.enabled_(false);
-							ms.e.mplot.draw(changer.value[conID].mapping);
+							ms.e.mplot.draw(changer.value[conID][mappingType].mapping);
 							ms.e.menv.enabled_(false);
 						}
 					}.defer

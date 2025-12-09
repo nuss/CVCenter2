@@ -3,7 +3,7 @@ CVWidget {
 	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiZero = 63, <>midiCtrlButtonGroup = 1;
 	classvar <>oscEndless = false, <>oscCalibration = true, <>oscInputRange = #[0.0001, 0.0001];
-	classvar <>snapDistance = 0.1, <>resolution = 1;
+	classvar <>snapDistance = 0.1, <>resolution = 1, <>inputMapping;
 	classvar syncKeysEvent;
 	classvar <wmc; // models and controllers tied to the class
 
@@ -66,6 +66,7 @@ CVWidget {
 	*globalSetup {
 		^(
 			// global
+			inputMapping: this.inputMapping,
 			snapDistance: this.snapDistance,
 			resolution: this.resolution,
 			// midi

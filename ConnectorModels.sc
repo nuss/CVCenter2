@@ -28,12 +28,6 @@ OscConnector {
 	}
 
 	initModels { |wmc, name|
-		wmc.oscInputMappings ?? { wmc.oscInputMappings = () };
-		wmc.oscInputMappings.m ?? {
-			wmc.oscInputMappings.m = Ref(List[]);
-		};
-		wmc.oscInputMappings.m.value.add((mapping: \linlin));
-
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.m ?? {
 			wmc.oscConnections.m = Ref(List[]);
@@ -63,6 +57,8 @@ OscConnector {
 			oscResolution: CVWidget.resolution,
 			oscCalibration: CVWidget.oscCalibration,
 			oscSnapDistance: CVWidget.snapDistance,
+			// special case: a classvar getter/setter can only be defined as a literal
+			oscInputMapping: CVWidget.inputMapping ? (mapping: \linlin),
 			oscInputRange: CVWidget.oscInputRange
 		));
 
@@ -77,7 +73,6 @@ OscConnector {
 
 	initControllers { |wmc|
 		#[
-			prInitOscInputMappings,
 			prInitOscConnection,
 			prInitOscDisplay,
 			prInitOscConnectors,
@@ -93,7 +88,7 @@ OscConnector {
 			mc.oscConnectors.c = SimpleController(mc.oscConnectors.m)
 		};
 		mc.oscConnectors.c.put(\default, { |changer, what ... moreArgs|
-			"blablabla, do something..."
+			// blablabla, do something...
 		})
 	}
 
@@ -103,15 +98,6 @@ OscConnector {
 		};
 		mc.oscCalibration.c.put(\default, { |changer, what, moreArgs|
 			// do something with changer.value
-		})
-	}
-
-	prInitOscInputMappings { |mc, cv|
-		mc.oscOptions.c ?? {
-			mc.oscInputMappings.c = SimpleController(mc.oscInputMappings.m)
-		};
-		mc.oscInputMappings.c.put(\default, { |changer, what, moreArgs|
-			// do something with changer values
 		})
 	}
 
@@ -246,29 +232,29 @@ OscConnector {
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
-			^nil
+			^this
 		};
-		mc.oscInputMappings.m.value[index].mapping = mapping;
+		mc.oscOptions.m.value[index].oscInputMapping.mapping = mapping;
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
-			mc.oscInputMappings.m.value[index].curve = curve;
-			mc.oscInputMappings.m.value[index].env = nil;
+			mc.oscOptions.m.value[index].oscInputMapping.curve = curve;
+			mc.oscOptions.m.value[index].oscInputMapping.env = nil;
 		}
 		{ mapping === \linenv } {
-			mc.oscInputMappings.m.value[index].curve = nil;
-			mc.oscInputMappings.m.value[index].env = env;
+			mc.oscOptions.m.value[index].oscInputMapping.curve = nil;
+			mc.oscOptions.m.value[index].oscInputMapping.env = env;
 		}
 		{
-			mc.oscInputMappings.m.value[index].curve = nil;
-			mc.oscInputMappings.m.value[index].env = nil;
+			mc.oscOptions.m.value[index].oscInputMapping.curve = nil;
+			mc.oscOptions.m.value[index].oscInputMapping.env = nil;
 		};
-		mc.oscInputMappings.m.changedPerformKeys(widget.syncKeys, index);
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscInputMapping {
 		var mc = widget.wmc;
 		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscInputMappings.m.value[index];
+		^mc.oscOptions.m.value[index].oscInputMapping;
 	}
 
 	oscConnect {}
@@ -286,8 +272,7 @@ OscConnector {
 				mc.oscDisplay.m.value,
 				mc.oscConnections.m.value,
 				mc.oscConnectorNames.m.value,
-				mc.oscOptions.m.value,
-				mc.oscInputMappings.m.value
+				mc.oscOptions.m.value
 			].do(_.removeAt(index));
 			mc.oscConnectors.m.value.remove(this);
 			mc.oscConnectors.m.changedPerformKeys(widget.syncKeys, index);
@@ -358,7 +343,9 @@ MidiConnector {
 			midiZero: CVWidget.midiZero,
 			ctrlButtonGroup: CVWidget.midiCtrlButtonGroup,
 			midiResolution: CVWidget.resolution,
-			snapDistance: CVWidget.snapDistance
+			snapDistance: CVWidget.snapDistance,
+			// special case: a classvar getter/setter can only be defined as a literal
+			midiInputMapping: CVWidget.inputMapping ? (mapping: \linlin)
 		));
 
 		wmc.midiConnections ?? { wmc.midiConnections = () };
@@ -366,12 +353,6 @@ MidiConnector {
 			wmc.midiConnections.m = Ref(List[]);
 		};
 		wmc.midiConnections.m.value.add(nil);
-
-		wmc.midiInputMappings ?? { wmc.midiInputMappings = () };
-		wmc.midiInputMappings.m ?? {
-			wmc.midiInputMappings.m = Ref(List[]);
-		};
-		wmc.midiInputMappings.m.value.add((mapping: \linlin));
 
 		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.m ?? {
@@ -397,7 +378,6 @@ MidiConnector {
 			prInitMidiConnectors,
 			prInitMidiConnectorNames,
 			prInitMidiOptions,
-			prInitMidiInputMappings,
 			prInitMidiConnection,
 			prInitMidiDisplay
 		].do { |method|
@@ -420,7 +400,8 @@ MidiConnector {
 			mc.midiOptions.c = SimpleController(mc.midiOptions.m);
 		};
 		mc.midiOptions.c.put(\default, { |changer, what ... moreArgs|
-			var index = mc.midiConnectors.m.value.indexOf(this);
+			// var index = mc.midiConnectors.m.value.indexOf(this);
+			// do something...
 		})
 	}
 
@@ -591,15 +572,6 @@ MidiConnector {
 		})
 	}
 
-	prInitMidiInputMappings { |mc, cv|
-		mc.midiInputMappings.c ?? {
-			mc.midiInputMappings.c = SimpleController(mc.midiInputMappings.m);
-		};
-		mc.midiInputMappings.c.put(\default, { |changer, what ... moreArgs|
-			// "yadda yadda: %, %, %".format(changer.value, what, moreArgs).postln;
-		})
-	}
-
 	prInitMidiDisplay { |mc, cv|
 		mc.midiDisplay.c ?? {
 			mc.midiDisplay.c = SimpleController(mc.midiDisplay.m);
@@ -718,29 +690,29 @@ MidiConnector {
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
-			^nil
+			^this
 		};
-		mc.midiInputMappings.m.value[index].mapping = mapping;
+		mc.midiOptions.m.value[index].midiInputMapping.mapping = mapping;
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
-			mc.midiInputMappings.m.value[index].curve = curve;
-			mc.midiInputMappings.m.value[index].env = nil;
+			mc.midiOptions.m.value[index].midiInputMapping.curve = curve;
+			mc.midiOptions.m.value[index].midiInputMapping.env = nil;
 		}
 		{ mapping === \linenv } {
-			mc.midiInputMappings.m.value[index].curve = nil;
-			mc.midiInputMappings.m.value[index].env = env;
+			mc.midiOptions.m.value[index].midiInputMapping.curve = nil;
+			mc.midiOptions.m.value[index].midiInputMapping.env = env;
 		}
 		{
-			mc.midiInputMappings.m.value[index].curve = nil;
-			mc.midiInputMappings.m.value[index].env = nil;
+			mc.midiOptions.m.value[index].midiInputMapping.curve = nil;
+			mc.midiOptions.m.value[index].midiInputMapping.env = nil;
 		};
-		mc.midiInputMappings.m.changedPerformKeys(widget.syncKeys, index);
+		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiInputMapping {
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
-		^widget.wmc.midiInputMappings.m.value[index];
+		^widget.wmc.midiOptions.m.value[index].midiInputMapping;
 	}
 
 	midiConnect { |src, chan, num|
@@ -775,8 +747,7 @@ MidiConnector {
 				mc.midiOptions.m.value,
 				mc.midiConnections.m.value,
 				mc.midiDisplay.m.value,
-				mc.midiConnectorNames.m.value,
-				mc.midiInputMappings.m.value
+				mc.midiConnectorNames.m.value
 			].do(_.removeAt(index));
 			mc.midiConnectors.m.value.remove(this);
 			mc.midiConnectors.m.changedPerformKeys(widget.syncKeys, index);

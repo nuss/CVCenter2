@@ -16,9 +16,9 @@ TestMidiConnector : UnitTest {
 		var connector2, connector3;
 		var vals;
 		connector2 = MidiConnector(widget);
-		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 2, "After creating another MidiConnector the widget hold three MidiConnectors midiConnectors");
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 2, "After creating another MidiConnector the widget hold two MidiConnectors in widget.midiConnectors");
 		connector3 = MidiConnector(widget, "c2");
-		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 3, "After creating another MidiConnector the widget hold three MidiConnectors midiConnectors");
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 3, "After creating another MidiConnector the widget hold three MidiConnectors in widget.midiConnectors");
 		this.assertEquals(connector3.name, "c2", "The third MidiConnector should have been named 'c2'");
 		vals = widget.wmc.midiOptions.m.value.collect { |v|
 			v == (
@@ -26,10 +26,11 @@ TestMidiConnector : UnitTest {
 				midiZero: 63,
 				midiResolution: 1,
 				snapDistance: 0.1,
-				ctrlButtonGroup: 1
+				ctrlButtonGroup: 1,
+				midiInputMapping: (mapping: \linlin)
 			);
 		};
-		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 63, midiResolution: 1, softWithin: 0.1)");
+		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 63, midiResolution: 1, snapDistance: 0.1, ctrlButtonGroup: 1, midiInputMapping: (mapping: 'linlin'))");
 		vals = widget.wmc.midiDisplay.m.value.collect { |v|
 			v == (
 				src: 'source...',
@@ -39,11 +40,7 @@ TestMidiConnector : UnitTest {
 				toolTip: "Click and move hardware slider/knob to connect to"
 			)
 		};
-		this.assertEquals(vals, [true, true, true], "The values of midiDisplay model declared within the MidiConnectors should default to an Event (src: \"source\", chan: \"chan\", ctrl: \"ctrl\", learn: \"L\")");
-		vals = widget.wmc.midiInputMappings.m.value.collect { |v|
-			v == (mapping: \linlin)
-		};
-		this.assertEquals(vals, [true, true, true], "The values of midiInputMappings models declared within the MidiConnectors should default to an Event (mapping: \linlin)")
+		this.assertEquals(vals, [true, true, true], "The values of midiDisplay model declared within the MidiConnectors should default to an Event (src: \"source\", chan: \"chan\", ctrl: \"ctrl\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\")");
 	}
 
 	test_name {
@@ -58,7 +55,6 @@ TestMidiConnector : UnitTest {
 			widget.wmc.midiConnectorNames.m.value,
 			widget.wmc.midiConnections.m.value,
 			widget.wmc.midiOptions.m.value,
-			widget.wmc.midiInputMappings.m.value,
 			widget.wmc.midiDisplay.m.value
 		].collectAs({ |m| m.size }, Set), Set[2], "After adding MidiConnector connector2 to widget models related to the widget's connector should hold values of size 2.");
 		widget.wmc.midiConnectors.m.value[0].remove;
@@ -67,7 +63,6 @@ TestMidiConnector : UnitTest {
 			widget.wmc.midiConnectorNames.m.value,
 			widget.wmc.midiConnections.m.value,
 			widget.wmc.midiOptions.m.value,
-			widget.wmc.midiInputMappings.m.value,
 			widget.wmc.midiDisplay.m.value
 		].collectAs({ |m| m.size }, Set), Set[1], "After removing the MidiConnector at widget.wmc.midiConnectors.m.value[0] widget models related to the widget's connector should hold values of size 1.");
 		widget.wmc.midiConnectors.m.value[0].remove;
@@ -111,9 +106,9 @@ TestOscConnector : UnitTest {
 		var connector2, connector3;
 		var vals;
 		connector2 = OscConnector(widget);
-		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 2, "After creating another OscConnector the widget hold three MidiConnectors oscConnectors");
+		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 2, "After creating another OscConnector the widget hold two OscConnectors in widget.oscConnectors");
 		connector3 = OscConnector(widget, "c2");
-		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 3, "After creating another OscConnector the widget hold three MidiConnectors oscConnectors");
+		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 3, "After creating another OscConnector the widget hold three OscConnectors in widget.oscConnectors");
 		this.assertEquals(connector3.name, "c2", "The third OscConnector should have been named 'c2'");
 		vals = widget.wmc.oscOptions.m.value.collect { |v|
 			v == (
@@ -121,10 +116,11 @@ TestOscConnector : UnitTest {
 				oscResolution: 1,
 				oscCalibration: true,
 				oscSnapDistance: 0.1,
-				oscInputRange: [0.0001, 0.0001]
+				oscInputRange: [0.0001, 0.0001],
+				oscInputMapping: (mapping: \linlin)
 			);
 		};
-		this.assertEquals(vals, [true, true, true], "The values of oscOptions model declared within the OscConnectors should default to an Event (oscEndless: false, oscResolution: 1, oscCalibration: true, oscSnapDistance: 0.1, oscInputRange: [0.0001, 0.0001])");
+		this.assertEquals(vals, [true, true, true], "The values of oscOptions model declared within the OscConnectors should default to an Event (oscEndless: false, oscResolution: 1, oscCalibration: true, oscSnapDistance: 0.1, oscInputRange: [0.0001, 0.0001], oscInputMapping: (mapping: 'linlin'))");
 		vals = widget.wmc.oscDisplay.m.value.collect { |v|
 			v == (
 				ipField: nil,
@@ -136,10 +132,6 @@ TestOscConnector : UnitTest {
 			)
 		};
 		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/my/cmd/name', index: 1, connectorButVal: 0, connect: \"Learn\")");
-		vals = widget.wmc.oscInputMappings.m.value.collect { |v|
-			v == (mapping: \linlin)
-		};
-		this.assertEquals(vals, [true, true, true], "The values of oscInputMappings models declared within the OscConnectors should default to an Event (mapping: \linlin)")
 	}
 
 	test_name {
@@ -154,7 +146,6 @@ TestOscConnector : UnitTest {
 			widget.wmc.oscConnectorNames.m.value,
 			widget.wmc.oscConnections.m.value,
 			widget.wmc.oscOptions.m.value,
-			widget.wmc.oscInputMappings.m.value,
 			widget.wmc.oscDisplay.m.value
 		].collectAs({ |m| m.size }, Set), Set[2], "After adding OscConnector connector2 to widget models related to the widget's connector should hold values of size 2.");
 		widget.wmc.oscConnectors.m.value[0].remove;
@@ -163,7 +154,6 @@ TestOscConnector : UnitTest {
 			widget.wmc.oscConnectorNames.m.value,
 			widget.wmc.oscConnections.m.value,
 			widget.wmc.oscOptions.m.value,
-			widget.wmc.oscInputMappings.m.value,
 			widget.wmc.oscDisplay.m.value
 		].collectAs({ |m| m.size }, Set), Set[1], "After removing the OscConnector at widget.wmc.oscConnectors.m.value[0] widget models related to the widget's connector should hold values of size 1.");
 		widget.wmc.oscConnectors.m.value[0].remove;
