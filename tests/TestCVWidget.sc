@@ -11,7 +11,7 @@ TestCVWidget : UnitTest {
 
 	test_globalSetup {
 		var setup = CVWidget.globalSetup;
-		this.assertEquals(setup.inputMapping, nil, "CVWidget.inputMapping, should be nil by default");
+		this.assertEquals(setup.inputMapping, (mapping: \linlin), "CVWidget.inputMapping, should be (mapping: 'linlin') by default");
 		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default.");
 		this.assertEquals(setup.resolution, 1, "CVWidget.resolution should be 1 by default.");
 		this.assertEquals(setup.midiZero, 63, "CVWidget.midiZero should be 63 by default.");

@@ -57,8 +57,7 @@ OscConnector {
 			oscResolution: CVWidget.resolution,
 			oscCalibration: CVWidget.oscCalibration,
 			oscSnapDistance: CVWidget.snapDistance,
-			// special case: a classvar getter/setter can only be defined as a literal
-			oscInputMapping: CVWidget.inputMapping ? (mapping: \linlin),
+			oscInputMapping: CVWidget.inputMapping,
 			oscInputRange: CVWidget.oscInputRange
 		));
 
@@ -234,19 +233,16 @@ OscConnector {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
 			^this
 		};
-		mc.oscOptions.m.value[index].oscInputMapping.mapping = mapping;
+		// special care needs to be taken to NOT set CVWidget.inputMapping
+		// not working, would set CVWidget.inputMapping too:
+		// mc..oscOptions.m.value[index].oscInputMapping.mapping = mapping;
+		mc.oscOptions.m.value[index].oscInputMapping_((mapping: mapping));
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
 			mc.oscOptions.m.value[index].oscInputMapping.curve = curve;
-			mc.oscOptions.m.value[index].oscInputMapping.env = nil;
 		}
 		{ mapping === \linenv } {
-			mc.oscOptions.m.value[index].oscInputMapping.curve = nil;
 			mc.oscOptions.m.value[index].oscInputMapping.env = env;
-		}
-		{
-			mc.oscOptions.m.value[index].oscInputMapping.curve = nil;
-			mc.oscOptions.m.value[index].oscInputMapping.env = nil;
 		};
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
@@ -345,7 +341,7 @@ MidiConnector {
 			midiResolution: CVWidget.resolution,
 			snapDistance: CVWidget.snapDistance,
 			// special case: a classvar getter/setter can only be defined as a literal
-			midiInputMapping: CVWidget.inputMapping ? (mapping: \linlin)
+			midiInputMapping: CVWidget.inputMapping
 		));
 
 		wmc.midiConnections ?? { wmc.midiConnections = () };
@@ -692,19 +688,16 @@ MidiConnector {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
 			^this
 		};
-		mc.midiOptions.m.value[index].midiInputMapping.mapping = mapping;
+		// special care needs to be taken to NOT set CVWidget.inputMapping
+		// not working, would set CVWidget.inputMapping too:
+		// mc..midiOptions.m.value[index].midiInputMapping.mapping = mapping;
+		mc.midiOptions.m.value[index].midiInputMapping_((mapping: mapping));
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
 			mc.midiOptions.m.value[index].midiInputMapping.curve = curve;
-			mc.midiOptions.m.value[index].midiInputMapping.env = nil;
 		}
 		{ mapping === \linenv } {
-			mc.midiOptions.m.value[index].midiInputMapping.curve = nil;
 			mc.midiOptions.m.value[index].midiInputMapping.env = env;
-		}
-		{
-			mc.midiOptions.m.value[index].midiInputMapping.curve = nil;
-			mc.midiOptions.m.value[index].midiInputMapping.env = nil;
 		};
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}

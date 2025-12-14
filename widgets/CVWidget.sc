@@ -25,6 +25,8 @@ CVWidget {
 		// FIXME: CVWidgetShortcuts
 		Class.initClassTree(CVWidgetShortcuts);
 
+		this.inputMapping_((mapping: \linlin));
+
 		// all CVWidgets
 		#all, wmc = ()!2;
 		syncKeysEvent ?? {

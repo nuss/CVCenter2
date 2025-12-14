@@ -43,10 +43,10 @@ CVWidgetKnob : CVWidget {
 			this.setMidiZero(setupArgs[\midiMean] ? this.class.midiMean);
 			this.setMidiCtrlButtonGroup(setupArgs[\midiCtrlButtonBank] ? this.class.midiCtrlButtonGroup);
 			this.setMidiSnapDistance(setupArgs[\midiSnapDistance] ? this.class.snapDistance);
-			this.setMidiInputMapping(setupArgs[\midiInputMapping] ? (mapping: \linlin));
+			this.setMidiInputMapping(setupArgs[\midiInputMapping] ? this.class.inputMapping);
 			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
 			this.setOscInputConstraints(setupArgs[\oscInputRange] ? this.class.oscInputRange);
-			this.setOscInputMapping(setupArgs[\oscInputMapping] ? (mapping: \linlin));
+			this.setOscInputMapping(setupArgs[\oscInputMapping] ? this.class.inputMapping);
 			this.setOscEndless(setupArgs[\oscEndless] ? this.class.oscEndless);
 			this.setOscResolution(setupArgs[\oscResolution] ? this.class.resolution);
 			this.setOscSnapDistance(setupArgs[\oscSnapDistance] ? this.class.snapDistance);
