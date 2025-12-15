@@ -67,6 +67,14 @@ OscConnector {
 		};
 		wmc.oscConnectorNames.m.value.add(name);
 
+		wmc.oscInputContrainters ?? {
+			wmc.oscInputConstrainters = List[];
+		};
+		wmc.oscInputConstrainters.add((
+			lo: CV([-inf, inf].asSpec, CVWidget.oscInputRange[0]),
+			hi: CV([-inf, inf].asSpec, CVWidget.oscInputRange[1])
+		));
+
 		this.initControllers(wmc);
 	}
 
@@ -88,15 +96,6 @@ OscConnector {
 		};
 		mc.oscConnectors.c.put(\default, { |changer, what ... moreArgs|
 			// blablabla, do something...
-		})
-	}
-
-	prInitOscCalibration { |mc, cv|
-		mc.oscCalibration.c ?? {
-			mc.oscCalibration.c = SimpleController(mc.oscCalibration.m)
-		};
-		mc.oscCalibration.c.put(\default, { |changer, what, moreArgs|
-			// do something with changer.value
 		})
 	}
 
@@ -203,6 +202,13 @@ OscConnector {
 		^mc.oscOptions.m.value[index].oscCalibration;
 	}
 
+	resetOscCalibration {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscInputRange = CVWidget.oscInputRange;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
 	setOscInputConstraints { |constraintsPair|
 		var mc = widget.wmc;
 		var index = mc.oscConnectors.m.value.indexOf(this);
@@ -214,6 +220,8 @@ OscConnector {
 		} {
 			#lo, hi = constraintsPair;
 		};
+		mc.oscInputConstrainters[index].lo.value_(lo);
+		mc.oscInputConstrainters[index].hi.value_(hi);
 
 		mc.oscOptions.m.value[index].oscInputRange = [lo, hi];
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);

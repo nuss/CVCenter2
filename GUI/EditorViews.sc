@@ -47,13 +47,15 @@ OscConnectorsEditorView : CompositeView {
 		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
 		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
 		e.oscCmdIndexNumBox = OscCmdIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
-		e.inputConstraintsLoNumBox = NumberBox(parent).value_(0.1);
-		e.inputConstraintsHiNumBox = NumberBox(parent).value_(1.0);
-		e.zeroCrossCorrectStaticText = StaticText(parent);
-		e.calibrationButton = Button(parent).states_([["calibrate"]]);
-		e.resetButton = Button(parent).states_([['reset']]);
+		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
+		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
+		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 0);
+		e.inputConstraintsHiNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 1);
+		e.zeroCrossCorrectStaticText = OscZeroCrossingText(parent, widget, connectorID: index);
+		e.calibrationButton = OscCalibrationButton(parent, widget, connectorID: index);
+		e.resetButton = OscCalibrationResetButton(parent, widget, connectorID: index);
 		e.specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0");
-		e.inOutMappingSelect = PopUpMenu(parent).items_(['linlin']);
+		e.inOutMappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \osc);
 		e.connectorButton = Button(parent).states_([['connect']]);
 
 		parent.layout_(
@@ -80,6 +82,14 @@ OscConnectorsEditorView : CompositeView {
 					[e.oscCmdIndexNumBox]
 				),
 				HLayout(
+					[StaticText(parent).string_("OSC mode: absolute value or in-/decremental (endless):"), stretch: 7],
+					[e.oscModeSelect, stretch: 3]
+				),
+				HLayout(
+					[StaticText(parent).string_("OSC resolution ('endless' mode only)"), stretch: 7],
+					[e.oscResolutionNumBox, stretch: 3]
+				),
+				HLayout(
 					StaticText(parent).string_("OSC input constraints, zero-crossing correction")
 				),
 				HLayout(
@@ -90,9 +100,12 @@ OscConnectorsEditorView : CompositeView {
 					[e.resetButton]
 				),
 				HLayout(
-					[e.specConstraintsStaticText],
-					[StaticText(parent).string_("input to output mapping")],
-					[e.inOutMappingSelect],
+					[e.inOutMappingSelect]
+				),
+				HLayout(
+					[e.specConstraintsStaticText]
+				),
+				HLayout(
 					[e.connectorButton]
 				)
 			)
@@ -177,11 +190,11 @@ MidiConnectorsEditorView : CompositeView {
 					[e.connectorSelect, stretch: 1]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI mode: 0-127 or endless "), stretch: 7],
+					[StaticText(parent).string_("MIDI mode: 0-127 or endless:"), stretch: 7],
 					[e.midiModeSelect, stretch: 3]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI mean (endless mode only): "), stretch: 7],
+					[StaticText(parent).string_("MIDI mean ('endless' mode only): "), stretch: 7],
 					[e.midiZeroBox, stretch: 3]
 				),
 				HLayout(

@@ -522,9 +522,21 @@ CVWidgetKnob : CVWidget {
 		};
 
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscCalibration);
+			^wmc.oscConnectors.m.value.collect(_.getOscCalibration)
 		} {
 			^connector.getOscCalibration;
+		}
+	}
+
+	resetOscCalibration { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.resetOscCalibration)
+		} {
+			connector.resetOscCalibration
 		}
 	}
 

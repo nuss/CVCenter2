@@ -121,6 +121,7 @@ CVWidget {
 	getOscSnapDistance { this.subclassResponsibility(thisMethod) }
 	setOscCalibration { this.subclassResponsibility(thisMethod) }
 	getOscCalibration { this.subclassResponsibility(thisMethod) }
+	resetOscCalibration { this.subclassResponsibility(thisMethod) }
 	setOscInputMapping { this.subclassResponsibility(thisMethod) }
 	getOscInputMapping { this.subclassResponsibility(thisMethod) }
 	setOscInputConstraints { this.subclassResponsibility(thisMethod) }
