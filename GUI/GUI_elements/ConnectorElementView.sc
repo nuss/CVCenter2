@@ -320,5 +320,170 @@ ConnectorSelect : ConnectorElementView {
 			}
 		}
 	}
+}
 
+ConnectorRemoveButton : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var <connector, <widget, connectorKind, cclass;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect, connectorID=0, connectorKind|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect, connectorID, connectorKind);
+	}
+
+	init { |parentView, wdgt, rect, index, kind|
+		if (kind.isNil) {
+			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
+		} {
+			connectorKind = kind.asSymbol;
+			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
+			}
+		};
+
+		widget = wdgt;
+		all[widget] ?? { all[widget] = () };
+		all[widget][connectorKind] ?? {
+			all[widget][connectorKind] = List[]
+		};
+		all[widget][connectorKind].add(this);
+
+		case
+		{ connectorKind === \midi } {
+			conModel = widget.midiConnectors;
+		}
+		{ connectorKind === \osc } {
+			conModel = widget.oscConnectors;
+		};
+
+		this.index_(index);
+		this.view = Button(parentView, rect)
+		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
+		.action_({ this.connector.remove });
+		connectorRemovedFuncAdded ?? {
+			case
+			{ connectorKind === \midi } { cclass = MidiConnector }
+			{ connectorKind === \osc } { cclass = OscConnector };
+			cclass.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, connectorKind)
+			});
+			connectorRemovedFuncAdded = true
+		}
+	}
+
+	index_ { |connectorID|
+		connector = conModel[connectorID];
+	}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget][connectorKind] ?? {
+			all[otherWidget][connectorKind] = List[]
+		};
+		all[otherWidget][connectorKind].add(this);
+
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		this.index_(0);
+	}
+
+	close {
+		this.remove;
+		this.viewDidClose;
+		this.prCleanup;
+	}
+
+	prCleanup {
+		all[widget][connectorKind].remove(this);
+		try {
+			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
+				all[widget].removeAt(connectorKind);
+			}
+		}
+	}
+
+	prOnRemoveConnector { |widget, index, connectorKind|
+		// if widget has already been removed let it fail
+		try {
+			if (index > 0) {
+				all[widget][connectorKind].do(_.index_(index - 1))
+			} {
+				all[widget][connectorKind].do(_.index_(index))
+			}
+		}
+	}
+}
+
+// displays current ControlSpec,
+// independent from MIDI and OSC,
+// resp., current connector
+ControlSpecText : ConnectorElementView {
+	classvar <all;
+	var <widget;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect)
+	}
+
+	init { |parentView, wdgt, rect|
+		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
+		mc = widget.wmc.cvSpec;
+
+		this.view = StaticText(parentView, rect)
+		.string_("Current ControlSpec:\n%".format(mc.m.value));
+		this.view.onClose_({ this.close });
+		this.prAddController;
+	}
+
+	index_ {}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		mc = widget.wmc.cvSpec;
+		this.prAddController;
+	}
+
+	prAddController {
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			all[widget].do { |txt|
+				defer { txt.string_("Current ControlSpec:\n%".format(changer.value)) }
+			}
+		})
+	}
 }
