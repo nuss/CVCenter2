@@ -1,161 +1,5 @@
 // OSC Editors
 
-OscConnectorNameField : ConnectorElementView {
-	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
-
-	*initClass {
-		all = ();
-	}
-
-	*new { |parent, widget, rect, connectorID=0|
-		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
-		};
-		^super.new.init(parent, widget, rect, connectorID);
-	}
-
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
-		all[widget] ?? { all[widget] = List[] };
-		all[widget].add(this);
-
-		mc = widget.wmc.oscConnectorNames;
-		conModel = widget.wmc.oscConnectors.m.value;
-
-		this.view = TextField(parentView, rect);
-		this.index_(index);
-		this.view.action_({ |tf|
-			this.connector.name_(tf.string.asSymbol)
-		});
-		this.view.onClose_({ this.close });
-		this.prAddController;
-	}
-
-	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value !? {
-			this.view.string_(mc.m.value[connectorID])
-		}
-	}
-
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		mc = widget.wmc.oscConnectorNames;
-		conModel = widget.wmc.oscConnectors.m.value;
-		// oscConnector at index 0 should always exist (who knows...)
-		this.index_(0);
-		this.prAddController;
-	}
-
-	prAddController {
-		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		syncKey = this.class.asSymbol;
-		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true)
-		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
-			conID = moreArgs[0];
-			all[widget].do { |tf|
-				if (tf.connector === conModel[conID]) {
-					tf.view.string_(changer.value[conID]);
-				}
-			}
-		})
-	}
-}
-
-OscConnectorSelect : ConnectorElementView {
-	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
-
-	*initClass {
-		all = ();
-	}
-
-	*new { |parent, widget, rect, connectorID=0|
-		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
-		};
-		^super.new.init(parent, widget, rect, connectorID);
-	}
-
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
-		all[widget] ?? { all[widget] = List[] };
-		all[widget].add(this);
-
-		mc = widget.wmc.oscConnectorNames;
-		conModel = widget.wmc.oscConnectors.m.value;
-
-		this.view = PopUpMenu(parentView)
-		.items_(mc.m.value ++ ["add OscConnector..."]);
-		this.view.onClose_({ this.close });
-		this.index_(index);
-		this.prAddController;
-	}
-
-	index_ { |connectorID|
-		connector = conModel[connectorID];
-		this.view.value_(connectorID);
-	}
-
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		mc = widget.wmc.oscConnectorNames;
-		conModel = widget.wmc.oscConnectors.m.value;
-		this.view.items_(mc.m.value ++ this.view.items.last);
-		// midiConnector at index 0 should always exist (who knows...)
-		this.index_(0);
-		this.prAddController;
-	}
-
-	prAddController {
-		var items, conID;
-		var curValue;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		syncKey = this.class.asSymbol;
-		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true)
-		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
-			conID = moreArgs[0];
-			all[widget].do { |sel, i|
-				items = sel.view.items;
-				items[conID] = changer.value[conID];
-				curValue = sel.view.value;
-				sel.view.items_(items).value_(curValue);
-				if (sel.connector === conModel[conID]) {
-					sel.view.value_(conID)
-				}
-			}
-		})
-	}
-}
-
 OscCmdNameField : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
@@ -518,8 +362,6 @@ OscConstrainterNumBox : ConnectorElementView {
 		all[widget].add(this);
 
 		mc = widget.wmc.oscDisplay;
-		"position: %, index: %, widget.wmc.oscInputConstrainters: %".format(position, index, widget.wmc.oscInputConstrainters).postln;
-		"position: %, widget.wmc.oscInputConstrainter[%]: %".format(position, index, widget.wmc.oscInputConstrainters[index]).postln;
 		cv = switch(position)
 		{ 0 } { widget.wmc.oscInputConstrainters[index].lo }
 		{ 1 } { widget.wmc.oscInputConstrainters[index].hi };
@@ -836,5 +678,124 @@ OscCalibrationResetButton : ConnectorElementView {
 				}
 			}
 		})
+	}
+}
+
+OscConnectButton : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var <connector, <widget;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect, connectorID);
+	}
+
+	init { |parentView, wdgt, rect, index|
+		var defaultState;
+
+		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
+		mc = widget.wmc;
+		conModel = widget.oscConnectors;
+
+		case
+		{ mc.oscDisplay.m.value[index].nameField === '/my/cmd/name' or: {
+			"^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$".matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
+		}} {
+			defaultState = ["learn", Color.white, Color.blue]
+		}
+		// check https://www.boost.org/doc/libs/1_69_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html
+		{ "^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$".matchRegexp(mc.oscDisplay.m.value[index].nameField.asString) } {
+			defaultState = ["connect", Color.black, Color.green]
+		};
+
+		this.view = Button(parentView, rect)
+		.states_([
+			defaultState,
+			["disconnect", Color.white, Color.red]
+		]);
+		this.view.onClose_({ this.close });
+		this.index_(index);
+		this.view.action_({ |bt|
+			var i = conModel.indexOf(this.connector);
+			var ip, port, cmd, cmdIndex, matching;
+			mc.oscDisplay.m.value[i].connect = bt.states[bt.value][0];
+			mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			if (mc.oscDisplay.m.value[i].connect == "disconnect") {
+				mc.oscDisplay.m.value[i].ipField !? { ip = mc.oscDisplay.m.value[i].ipField };
+				mc.oscDisplay.m.value[i].portField !? { port = mc.oscDisplay.m.value[i].portField };
+				if (mc.oscDisplay.m.value[i].nameField != '/my/cmd/name' and: {
+					mc.oscDisplay.m.value[i].asString.size > 0
+				}) {
+					cmd = mc.oscDisplay.m.value[i].nameField
+				};
+				cmdIndex = mc.oscDisplay.m.value[i].index;
+				matching = mc.oscDisplay.m.value[i].matching;
+				this.connector.oscConnect(ip, port, cmd, cmdIndex, matching);
+				if (ip.notNil or: { port.notNil or: { cmd.notNil }}) {
+					all[widget].do { |b|
+						if (conModel.indexOf(b.connector) == i) {
+							b.view.states_([
+								["learn", Color.white, Color.blue],
+								["disconnect", Color.white, Color.red]
+							])
+						}
+					}
+				}
+			}
+		});
+		connectorRemovedFuncAdded ?? {
+			OscConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id)
+			});
+			connectorRemovedFuncAdded = true
+		};
+		this.prAddController;
+	}
+
+	index_ { |connectorID|
+		connector = conModel[connectorID];
+		mc.oscDisplay.m.value[connectorID] !? {
+			mc.oscDisplay.m.value[connectorID].learn.switch(
+				"disconnect", { this.view.value_(1) },
+				"learn", { this.view.value_(0) }
+			)
+		}
+	}
+
+	widget_ { |otherWidget|
+		var defaultState;
+
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc;
+		conModel = widget.midiConnectors;
+		if (mc.oscDisplay.m.value[0].learn == "connect") {
+			defaultState = ["connect", Color.black, Color.green];
+		} {
+			defaultState = ["learn", Color.white, Color.blue];
+		};
+		this.index_(0);
+		this.prAddController;
+	}
+
+	prAddController {
+
 	}
 }
