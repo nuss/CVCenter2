@@ -1,57 +1,26 @@
 CVWidgetKnob : CVWidget {
-	var <cv;
+	var <cv, setup;
 	// only needed for naming a connector
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
 
 	*new { |name, cv, setup, action, modelsAndControllers|
-		^super.new.init(name, cv, setup, action);
+		^super.newCopyArgs(name, modelsAndControllers, cv: cv, setup: setup).init(action);
 	}
 
-	init { |wdgtName, wdgtCV, setupArgs, action, modelsControllers|
-		wdgtName ?? {
+	init { |action|
+		name ?? {
 			Error("No name provided for new CVWidgetKnob").throw;
 		};
 
-		name = wdgtName.asSymbol;
+		name = name.asSymbol;
 
-		if (wdgtCV.isNil) { cv = CV.new } { cv = wdgtCV };
+		cv ?? { cv = CV.new };
 
 		syncKeysEvent ?? {
 			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
 		all[name] ?? { all.put(name, this) };
-		// #oscConnectors, midiConnectors = List[]!2;
-
-		// oscConnectors.addDependant({
-		// 	OscConnectorSelect.all[this].do { |select|
-		// 		select.view.items_(oscConnectors.collect(_.name) ++ ['addOscConnector...'])
-		// 	}
-		// });
-		// midiConnectors.addDependant({
-		// 	MidiConnectorSelect.all[this].do { |select|
-		// 		select.view.items_(midiConnectors.collect(_.name) ++ ['add MidiConnector...']);
-		// 	}
-		// });
-
-		setupArgs !? {
-			setupArgs.isKindOf(Dictionary).not.if {
-				Error("a setup has to be provided as a Dictionary or an Event").throw
-			};
-			this.setMidiMode(setupArgs[\midiMode] ? this.class.midiMode);
-			this.setMidiResolution(setupArgs[\midiResolution] ? this.class.resolution);
-			this.setMidiZero(setupArgs[\midiMean] ? this.class.midiMean);
-			this.setMidiCtrlButtonGroup(setupArgs[\midiCtrlButtonBank] ? this.class.midiCtrlButtonGroup);
-			this.setMidiSnapDistance(setupArgs[\midiSnapDistance] ? this.class.snapDistance);
-			this.setMidiInputMapping(setupArgs[\midiInputMapping] ? this.class.inputMapping);
-			this.setOscCalibration(setupArgs[\oscCalibration] ? this.class.oscCalibration);
-			this.setOscInputConstraints(setupArgs[\oscInputRange] ? this.class.oscInputRange);
-			this.setOscInputMapping(setupArgs[\oscInputMapping] ? this.class.inputMapping);
-			this.setOscEndless(setupArgs[\oscEndless] ? this.class.oscEndless);
-			this.setOscResolution(setupArgs[\oscResolution] ? this.class.resolution);
-			this.setOscSnapDistance(setupArgs[\oscSnapDistance] ? this.class.snapDistance);
-		};
-
 		// an Event to be used for variables defined outside actions
 		env = ();
 		// the functions that will be evaluated by a SimpleController that's added by calling addAction
@@ -62,13 +31,32 @@ CVWidgetKnob : CVWidget {
 		// add a 'default' action, if given
 		action !? { this.addAction(\default, action) };
 
-		if (modelsControllers.notNil) {
-			wmc = modelsControllers
-		} {
-			wmc ?? { wmc = () }
-		};
-		this.initConnectors(modelsControllers);
-		this.initModels(modelsControllers);
+		// if (modelsControllers.notNil) {
+		// 	wmc = modelsControllers
+		// } {
+			wmc ?? { wmc = () };
+	// };
+		this.initConnectors(wmc);
+		this.initModels(wmc);
+
+		setup !? {
+			setup.isKindOf(Dictionary).not.if {
+				Error("a setup has to be provided as a Dictionary or an Event").throw
+			};
+			setup[\midiMode] !? { this.setMidiMode(setup[\midiMode]) };
+			setup[\midiResolution] !? { this.setMidiResolution(setup[\midiResolution]) };
+			setup[\midiMean] !? { this.setMidiZero(setup[\midiMean]) };
+			setup[\midiCtrlButtonBank] !? { this.setMidiCtrlButtonGroup(setup[\midiCtrlButtonBank]) };
+			setup[\midiSnapDistance] !? { this.setMidiSnapDistance(setup[\midiSnapDistance]) };
+			setup[\midiInputMapping] !?	{ this.setMidiInputMapping(setup[\midiInputMapping]) };
+			setup[\oscCalibration] !? { this.setOscCalibration(setup[\oscCalibration]) };
+			setup[\oscInputRange] !? { this.setOscInputConstraints(setup[\oscInputRange]) };
+			setup[\oscInputMapping] !? { this.setOscInputMapping(setup[\oscInputMapping]) };
+			setup[\oscEndless] !? { this.setOscEndless(setup[\oscEndless]) };
+			setup[\oscResolution] !? { this.setOscResolution(setup[\oscResolution]) };
+			setup[\oscSnapDistance] !? { this.setOscSnapDistance(setup[\oscSnapDistance]) };
+			setup[\oscMatching] !? { this.setOscMatching(setup[\oscMatching]) };
+		}
 	}
 
 	initConnectors { |modelsControllers|
@@ -585,6 +573,30 @@ CVWidgetKnob : CVWidget {
 			^wmc.oscConnectors.m.value.collect(_.getOscInputConstraints);
 		} {
 			^connector.getOscInputConstraints;
+		}
+	}
+
+	setOscMatching { |boolMatching, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscMatching(boolMatching))
+		} {
+			connector.setOscMatching(boolMatching)
+		}
+	}
+
+	getOscMatching { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscMatching);
+		} {
+			^connector.getOscMatching;
 		}
 	}
 
