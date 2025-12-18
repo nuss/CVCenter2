@@ -45,7 +45,7 @@ OscConnector {
 			index: 1,
 			connectorButVal: 0,
 			// editEnabled: true,
-			connect: "Learn"
+			connect: "learn"
 		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
@@ -58,7 +58,8 @@ OscConnector {
 			oscCalibration: CVWidget.oscCalibration,
 			oscSnapDistance: CVWidget.snapDistance,
 			oscInputMapping: CVWidget.inputMapping,
-			oscInputRange: CVWidget.oscInputRange
+			oscInputRange: CVWidget.oscInputRange,
+			oscMatching: CVWidget.oscMatching
 		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
@@ -67,7 +68,7 @@ OscConnector {
 		};
 		wmc.oscConnectorNames.m.value.add(name);
 
-		wmc.oscInputContrainters ?? {
+		wmc.oscInputConstrainters ?? {
 			wmc.oscInputConstrainters = List[];
 		};
 		wmc.oscInputConstrainters.add((
@@ -259,6 +260,19 @@ OscConnector {
 		var mc = widget.wmc;
 		var index = mc.oscConnectors.m.value.indexOf(this);
 		^mc.oscOptions.m.value[index].oscInputMapping;
+	}
+
+	setOscMatching { |boolMatching|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscOptions.m.value[index].oscMatching = boolMatching;
+		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscMatching {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscOptions.m.value[index].oscMatching;
 	}
 
 	oscConnect {}
@@ -527,7 +541,7 @@ MidiConnector {
 									self.setMidiInputMapping(\linlin);
 									cv.input_(accum[widget])
 								} {
-									cv.value_((accum[widget]+1).expexp(1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+									cv.value_((accum[widget]+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
 								}
 							}
 							{ cv.input_(accum[widget]) };
