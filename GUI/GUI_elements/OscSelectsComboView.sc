@@ -32,6 +32,8 @@ OscSelectsComboView : CompositeView {
 			parent = parentView;
 		};
 
+		this.background_(Color(red: 0.5, green: 0.5, alpha: 0.5)).minHeight_(80);
+
 		e = ();
 		e.ipselect = PopUpMenu(parent).items_(['IP address...'] ++ osc.m.value.keys.asArray.sort)
 		.toolTip_("Optionally select an IP address").minHeight_(25);
