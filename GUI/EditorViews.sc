@@ -47,6 +47,7 @@ OscConnectorsEditorView : CompositeView {
 		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
 		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
 		e.oscCmdIndexNumBox = OscCmdIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
+		e.oscPatternMatchingCheckBox = CheckBox(parent);
 		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
 		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
 		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 0);
@@ -54,9 +55,10 @@ OscConnectorsEditorView : CompositeView {
 		e.zeroCrossCorrectStaticText = OscZeroCrossingText(parent, widget, connectorID: index);
 		e.calibrationButton = OscCalibrationButton(parent, widget, connectorID: index);
 		e.resetButton = OscCalibrationResetButton(parent, widget, connectorID: index);
-		e.specConstraintsStaticText = StaticText(parent).string_("current widget spec constraints (lo/hi): 0/0");
+		e.specStaticText = ControlSpecText(parent, widget);
 		e.inOutMappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \osc);
-		e.connectorButton = Button(parent).states_([['connect']]);
+		e.connectorButton = OscConnectButton(parent, widget, connectorID: index);
+		e.removeConnectorButton = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \osc);
 
 		parent.layout_(
 			VLayout(
@@ -79,7 +81,8 @@ OscConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[e.oscCmdTextField],
-					[e.oscCmdIndexNumBox]
+					[e.oscCmdIndexNumBox],
+					[e.oscPatternMatchingCheckBox]
 				),
 				HLayout(
 					[StaticText(parent).string_("OSC mode: absolute value or in-/decremental (endless):"), stretch: 7],
@@ -103,13 +106,30 @@ OscConnectorsEditorView : CompositeView {
 					[e.inOutMappingSelect]
 				),
 				HLayout(
-					[e.specConstraintsStaticText]
+					[e.specStaticText]
 				),
 				HLayout(
-					[e.connectorButton]
+					[e.connectorButton],
+					[e.removeConnectorButton]
 				)
 			)
 		);
+
+		e.connectorSelect.view.action_({ |sel|
+			if (sel.value == (sel.items.size - 1)) {
+				o = widget.addOscConnector;
+				e.connectorSelect.view.value_(widget.wmc.oscConnectors.m.value.indexOf(o));
+			};
+
+			if (sel.value < (sel.items.size - 1)) {
+				e.do(_.index_(sel.value));
+				// enable or disable elements based on current conection status
+				// TODO
+				// [e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
+				// elem.view.enabled_(widget.wmc.midiConnections.m[sel.value].value.isNil)
+			// }
+			}
+		})
 	}
 
 	set { |connector|
@@ -181,7 +201,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiNumTF = MidiCtrlField(parent, widget, connectorID: index);
 		e.mappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \midi);
 		e.midiInit = MidiInitButton(parent);
-		e.midiConnectorRemove = MidiConnectorRemoveButton(parent, widget, connectorID: index);
+		e.midiConnectorRemove = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \midi);
 
 		parent.layout_(
 			VLayout(
