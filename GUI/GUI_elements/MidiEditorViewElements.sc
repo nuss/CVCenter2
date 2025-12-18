@@ -52,7 +52,7 @@ MidiLearnButton : ConnectorElementView {
 				if (mc.m.value[i].src != 'source...') { src = mc.m.value[i].src };
 				if (mc.m.value[i].chan != "chan") { chan = mc.m.value[i].chan };
 				if (mc.m.value[i].ctrl != "ctrl") { ctrl = mc.m.value[i].ctrl };
-				widget.midiConnect(connector, src, chan, ctrl);
+				this.connector.midiConnect(src, chan, ctrl);
 				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
 					all[widget].do { |b|
 						if (conModel.indexOf(b.connector) == i) {
@@ -63,9 +63,8 @@ MidiLearnButton : ConnectorElementView {
 						}
 					}
 				}
-			}
-			{
-				widget.midiDisconnect(connector);
+			} {
+				this.connector.midiDisconnect;
 				all[widget].do { |b|
 					if (conModel.indexOf(b.connector) == i) {
 						b.view.toolTip_(mc.m.value[i].toolTip);
@@ -90,12 +89,8 @@ MidiLearnButton : ConnectorElementView {
 		connector = conModel[connectorID];
 		mc.m.value[connectorID] !? {
 			mc.m.value[connectorID].learn.switch(
-				"X", {
-					this.view.value_(1)
-				},
-				"L", {
-					this.view.value_(0)
-				}
+				"X", { this.view.value_(1) },
+				"L", { this.view.value_(0) }
 			)
 		}
 	}
@@ -116,7 +111,7 @@ MidiLearnButton : ConnectorElementView {
 		mc = widget.wmc.midiDisplay;
 		conModel = widget.midiConnectors;
 		if (mc.m.value[0].learn == "C") {
-			defaultState = [mc.m.value[0].learn, Color.black, Color.green];
+			defaultState = ["C", Color.black, Color.green];
 			mc.m.value[0].toolTip = "Connect using selected parameters";
 		} {
 			defaultState = ["L", Color.white, Color.blue];
@@ -998,69 +993,5 @@ MidiInitButton : ConnectorElementView {
 			wmc.midiInitialized.c.removeAt(syncKey);
 			CVWidget.prRemoveSyncKey(syncKey, true);
 		}
-	}
-}
-
-MidiConnectorRemoveButton : ConnectorElementView {
-	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
-
-	*initClass {
-		all = ();
-	}
-
-	*new { |parent, widget, rect, connectorID=0|
-		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
-		};
-		^super.new.init(parent, widget, rect, connectorID);
-	}
-
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
-		all[widget] ?? { all[widget] = List[] };
-		all[widget].add(this);
-
-		conModel = widget.midiConnectors;
-
-		this.index_(index);
-		this.view = Button(parentView, rect)
-		.states_([["remove Connector", Color.white, Color(0, 0.5, 0.5)]])
-		.action_({ this.connector.remove });
-		connectorRemovedFuncAdded ?? {
-			MidiConnector.onConnectorRemove_({ |widget, id|
-				this.prOnRemoveConnector(widget, id)
-			});
-			connectorRemovedFuncAdded = true
-		};
-	}
-
-	index_ { |connectorID|
-		connector = conModel[connectorID];
-	}
-
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		conModel = widget.midiConnectors;
-		this.index_(0);
-	}
-
-	close {
-		this.remove;
-		this.viewDidClose;
-		this.prCleanup;
-	}
-
-	prCleanup {
-		all[widget].remove(this);
 	}
 }
