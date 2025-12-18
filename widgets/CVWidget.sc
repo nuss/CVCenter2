@@ -2,7 +2,7 @@ CVWidget {
 	classvar <all;
 	classvar <>removeResponders = true, <>initMidiOnStartUp = false, <>shortcuts, prefs;
 	classvar <>midiMode = 0, <>midiZero = 63, <>midiCtrlButtonGroup = 1;
-	classvar <>oscEndless = false, <>oscCalibration = true, <>oscInputRange = #[0.0001, 0.0001];
+	classvar <>oscEndless = false, <>oscCalibration = true, <>oscInputRange = #[0.0001, 0.0001], <>oscMatching = false;
 	classvar <>snapDistance = 0.1, <>resolution = 1, <>inputMapping;
 	classvar syncKeysEvent;
 	classvar <wmc; // models and controllers tied to the class
@@ -77,7 +77,8 @@ CVWidget {
 			midiCtrlButtonGroup: this.midiCtrlButtonGroup,
 			// osc
 			oscEndless: this.oscEndless,
-			oscCalibration: this.oscCalibration
+			oscCalibration: this.oscCalibration,
+			oscMatching: this.oscMatching
 		)
 	}
 
@@ -126,6 +127,8 @@ CVWidget {
 	getOscInputMapping { this.subclassResponsibility(thisMethod) }
 	setOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	getOscInputConstraints { this.subclassResponsibility(thisMethod) }
+	setOscMatching { this.subclassResponsibility(thisMethod) }
+	getOscMatching { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
 	// remove (invalidate) widget
