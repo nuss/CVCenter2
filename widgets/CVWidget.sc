@@ -127,6 +127,10 @@ CVWidget {
 	getOscInputMapping { this.subclassResponsibility(thisMethod) }
 	setOscInputConstraints { this.subclassResponsibility(thisMethod) }
 	getOscInputConstraints { this.subclassResponsibility(thisMethod) }
+	setOscCmdName { this.subclassResponsibility(thisMethod) }
+	getOscCmdName { this.subclassResponsibility(thisMethod) }
+	setOscMsgIndex { this.subclassResponsibility(thisMethod) }
+	getOscMsgIndex { this.subclassResponsibility(thisMethod) }
 	setOscMatching { this.subclassResponsibility(thisMethod) }
 	getOscMatching { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }

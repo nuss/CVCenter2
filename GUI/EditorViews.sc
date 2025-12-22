@@ -15,12 +15,16 @@ OscConnectorsEditorView : CompositeView {
 	init { |wdgt, index, parentView|
 		var o;
 
+		if (wdgt.oscConnectors.isEmpty) {
+			OscConnector(wdgt)
+		};
+
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = widget.wmc.oscConnectors.m.value.detect { |c| c.name == index }
+			index = wdgt.wmc.oscConnectors.m.value.detect { |c| c.name == index }
 		};
 		if (index.class == OscConnector) {
-			index = widget.wmc.oscConnectors.m.value.indexOf(index)
+			index = wdgt.wmc.oscConnectors.m.value.indexOf(index)
 		};
 
 		e = ();
@@ -47,7 +51,7 @@ OscConnectorsEditorView : CompositeView {
 		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
 		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
 		e.oscCmdIndexNumBox = OscCmdIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
-		e.oscPatternMatchingCheckBox = CheckBox(parent);
+		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, connectorID: index);
 		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
 		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
 		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 0);

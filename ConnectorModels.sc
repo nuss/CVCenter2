@@ -81,7 +81,7 @@ OscConnector {
 
 	initControllers { |wmc|
 		#[
-			prInitOscConnection,
+			prInitOscConnections,
 			prInitOscDisplay,
 			prInitOscConnectors,
 			prInitOscOptions,
@@ -100,12 +100,12 @@ OscConnector {
 		})
 	}
 
-	prInitOscConnection { |mc, cv|
+	prInitOscConnections { |mc, cv|
 		mc.oscConnections.c ?? {
 			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
 		};
 		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
-			// do something with changer.value
+
 		})
 	}
 
@@ -260,6 +260,32 @@ OscConnector {
 		var mc = widget.wmc;
 		var index = mc.oscConnectors.m.value.indexOf(this);
 		^mc.oscOptions.m.value[index].oscInputMapping;
+	}
+
+	setOscCmdName { |cmdPath|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscDisplay.m.value[index].nameField = cmdPath.asSymbol;
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscCmdName {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscDisplay.m.value[index].nameField;
+	}
+
+	setOscMsgIndex { |msgIndex|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscDisplay.m.value[index].index = msgIndex.asInteger;
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index)
+	}
+
+	getOscMsgIndex {
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		^mc.oscDisplay.m.value[index].index;
 	}
 
 	setOscMatching { |boolMatching|

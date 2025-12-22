@@ -30,14 +30,16 @@
 		if (play) {
 			if (collecting == false) {
 				thisProcess.addOSCRecvFunc(oscFunc);
-				CmdPeriod.add({ this.collect(false) });
+				CmdPeriod.add({ this.collectSync(false) });
+				CVWidget.wmc.isScanningOsc.m.value_(true).changedPerformKeys(CVWidget.syncKeys);
 				collecting = true;
 				"collecting OSC commands started".inform;
 			}
 		} {
 			thisProcess.removeOSCRecvFunc(oscFunc);
-			CmdPeriod.remove({ this.collect(false) });
+			CmdPeriod.remove({ this.collectSync(false) });
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			CVWidget.wmc.isScanningOsc.m.value_(false).changedPerformKeys(CVWidget.syncKeys);
 			collecting = false;
 			"collecting OSC commands stopped".inform;
 		}
@@ -63,3 +65,23 @@
 	}
 
 }
+
++OSCFunc {
+
+	*cvWidgetlearn { |matching=false, slot=1, port|
+		var funcType;
+		var learnFunc = { |msg, time, addr, recvPort|
+			if (matching) {
+				OSCFunc.newMatching({ |m, t, a, rp| /* do something */}, msg[0], addr, port ? recvPort)
+			} {
+				OSCFunc({ |m, t, a, rp| /* do something */}, msg[0], addr, port ? recvPort)
+			};
+			thisProcess.removeOSCRecvFunc(thisFunction)
+		};
+		// either collect or learn - we've decided to learn'
+		OSCCommands.collectSync(false);
+		^thisProcess.addOSCRecvFunc(learnFunc)
+	}
+
+}
+

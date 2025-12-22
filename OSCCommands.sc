@@ -1,6 +1,6 @@
 OSCCommands {
 	classvar <window, collectFunc;
-	classvar <ipsAndCmds, oscFunc, <collecting = false;
+	classvar <ipsAndCmds, <oscFunc, <collecting = false;
 
 	*initClass {
 		var localOscFunc;

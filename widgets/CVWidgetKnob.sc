@@ -600,6 +600,54 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
+	setOscCmdName { |cmdPath, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscCmdName(cmdPath))
+		} {
+			connector.setOscCmdName(cmdPath)
+		}
+	}
+
+	getOscCmdName { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscCmdName);
+		} {
+			^connector.getOscCmdName;
+		}
+	}
+
+	setOscMsgIndex { |msgIndex, connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			wmc.oscConnectors.m.value.do(_.setOscMsgIndex(msgIndex))
+		} {
+			connector.setOscMsgIndex(msgIndex)
+		}
+	}
+
+	getOscMsgIndex { |connector|
+		if (connector.isInteger) {
+			connector = wmc.oscConnectors.m.value[connector]
+		};
+
+		if (connector.isNil) {
+			^wmc.oscConnectors.m.value.collect(_.getOscMsgIndex);
+		} {
+			^connector.getOscMsgIndex;
+		}
+	}
+
 	oscConnect {}
 	oscDisconnect {}
 
