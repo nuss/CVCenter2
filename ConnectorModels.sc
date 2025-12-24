@@ -2,6 +2,7 @@ OscConnector {
 	classvar cAnons = 0;
 	classvar <onConnectorRemove;
 	var <widget;
+	var <alwaysPositive = 0.1;
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -101,10 +102,84 @@ OscConnector {
 	}
 
 	prInitOscConnections { |mc, cv|
+		var index, self;
+		var responderAction, input;
+		var constraints, inputMapping, valueArgs;
+		var constraintsRange, snapDistance;
+
 		mc.oscConnections.c ?? {
 			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
 		};
 		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
+			index = moreArgs[0];
+			// make sure we're always using the right connector
+			self = mc.oscConnectors.m.value[index];
+
+			responderAction = { |msg, time, addr, port|
+				input = msg[changer.value[index][3]];
+				if (changer.value[index].size == 4) {
+					if (input <= 0 and: { input.abs > alwaysPositive }) {
+						alwaysPositive = msg[changer.value[index][3]].abs + 0.1
+					}
+				};
+
+				// FIXME: should input consider alwaysPositive correction??
+				constraints = self.getOscInputConstraints;
+				if (self.getOscCalibration) {
+					// input constraints low
+					if (input < constraints[0]) {
+						self.setOscInputConstraints([input, constraints[1]])
+					};
+					// input constraints hi
+					if (input > constraints[1]) {
+						self.setOscInputConstraints([constraints[0], input])
+					}
+				};
+
+				inputMapping = self.getOscInputMapping;
+				valueArgs = [
+					inputMapping.mapping,
+					constraints[0] + alwaysPositive,
+					constraints[1] + alwaysPositive,
+					self.widget.getSpec.minval,
+					self.widget.getSpec.maxval,
+				];
+
+				case
+				{ inputMapping.mapping === \lincurve or: {
+					inputMapping.mapping === \linbicurve
+				}} {
+					valueArgs = valueArgs.add(inputMapping.curve)
+				}
+				{ inputMapping.mapping === \linenv } {
+					valueArgs = valueArgs.add(inputMapping.env)
+				};
+
+				valueArgs = valueArgs.add(\minmax);
+
+				if (self.getOscEndless.not) {
+					snapDistance = self.getOscSnapDistance;
+					// unlike MIDI OSC values come in within a dynamic range
+					// hence, we need to normalize based on this dynamic range
+					// input must be positive, ranging from 0-1
+					constraintsRange = (constraints[1] - constraints[0]).abs;
+					input = msg[changer.value[index][3]].abs / constraintsRange;
+					if ((snapDistance <= 0).or(
+						input < (cv.input + (snapDistance/2)) and: {
+							input > (cv.value - (snapDistance/2))
+						}
+					)) {
+						case
+						{ inputMapping.mapping === \lincurve } {
+							if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+								self.setOscSnapDistance(0)
+							};
+						};
+						cv.value_((input + alwaysPositive).perform(*valueArgs))
+					}
+				}
+			};
+
 
 		})
 	}
@@ -301,8 +376,13 @@ OscConnector {
 		^mc.oscOptions.m.value[index].oscMatching;
 	}
 
-	oscConnect {}
-	oscDisconnect {}
+	oscConnect {
+
+	}
+
+	oscDisconnect {
+
+	}
 
 	remove { |forceAll = false|
 		var mc = widget.wmc;
@@ -452,6 +532,8 @@ MidiConnector {
 	prInitMidiConnection { |mc, cv|
 		var ccAction, makeCCconnection;
 		var slotChanger;
+		var index, self, inputMapping, input;
+		var snapDistance;
 		var updateModelsFunc = { |num, chan, src, index|
 			mc.midiConnections.m.value[index] = (num: num, chan: chan, src: src);
 			mc.midiDisplay.m.value[index] = (
@@ -468,10 +550,9 @@ MidiConnector {
 			mc.midiConnections.c = SimpleController(mc.midiConnections.m);
 		};
 		mc.midiConnections.c.put(\default, { |changer, what ... moreArgs|
-			var index = moreArgs[0];
+			index = moreArgs[0];
 			// brute force fix - why is 'this' not considered correctly?
-			var self = mc.midiConnectors.m.value[index];
-			var inputMapping, input;
+			self = mc.midiConnectors.m.value[index];
 			// for endless mode we're going to perate on a linearly in-/decremented value,
 			// starting at the CV's current input (value normalized from 0 to 1)
 
@@ -490,31 +571,32 @@ MidiConnector {
 						//  0-127
 						0, {
 							input = val/127;
-							if ((self.getMidiSnapDistance <= 0).or(
-								input < (cv.input + (self.getMidiSnapDistance/2)) and: {
-									input > (cv.input - (self.getMidiSnapDistance/2))
+							snapDistance = self.getMidiSnapDistance;
+							if ((snapDistance <= 0).or(
+								input < (cv.input + (snapDistance/2)) and: {
+									input > (cv.input - (snapDistance/2))
 							})) {
 								case
 								{ inputMapping.mapping === \lincurve } {
-									if (inputMapping.curve != 0 and: { self.getMidiSnapDistance > 0 }) {
+									if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
 										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linbicurve } {
-									if (inputMapping.curve != 0 and: { self.getMidiSnapDistance > 0 }) {
+									if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
 										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 								}
 								{ inputMapping.mapping === \linenv } {
-									if (self.getMidiSnapDistance > 0) {
+									if (snapDistance > 0) {
 										self.setMidiSnapDistance(0)
 									};
 									cv.input_(input.linenv(env: inputMapping.env))
 								}
 								{ inputMapping.mapping === \explin } {
-									if (self.getMidiSnapDistance > 0) {
+									if (snapDistance > 0) {
 										self.setMidiSnapDistance(0)
 									};
 									cv.input_((input+1).explin(1, 2, 0, 1))
@@ -524,7 +606,7 @@ MidiConnector {
 										self.setMidiInputMapping(\linlin);
 										cv.input_(input.linlin(0, 1, 0, 1))
 									} {
-										if (self.getMidiSnapDistance > 0) {
+										if (snapDistance > 0) {
 											self.setMidiSnapDistance(0)
 										};
 										cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
