@@ -85,3 +85,38 @@
 
 }
 
++MIDIFunc {
+
+	learnSync { |widget, index, learnVal=false|
+		var learnFunc;
+		/*this.remove(func);*/
+		learnFunc = this.learnFuncSync(widget, index, learnVal);
+		this.disable;
+		this.init(learnFunc); // keep old args if specified, so we can learn from particular channels, srcs, etc.
+	}
+
+	// cc only for now
+	learnFuncSync { |widget, index, learnVal|
+		var oldFunc, learnFunc;
+
+		oldFunc = func;
+		if (msgType === \control) {
+			^{ |val, num, chan, srcID|
+				"MIDIFunc learned: type: %\tnum: %\tval: %\tchan: %\tsrcID: %\t\n".postf(msgType, num, val, chan, srcID);
+				this.disable;
+				this.remove(learnFunc);
+				oldFunc.value(val, num, chan, srcID);// do first action
+				this.init(oldFunc, num, chan, msgType, srcID, if(learnVal, val, nil));
+				widget.wmc.midiDisplay.m.value[index].src = srcID;
+				widget.wmc.midiDisplay.m.value[index].chan = chan;
+				widget.wmc.midiDisplay.m.value[index].ctrl = num;
+				if (learnVal) {
+					widget.wmc.midiDisplay.m.value[index].templ = val
+				} {
+					widget.wmc.midiDisplay.m.value[index].templ = nil
+				};
+				widget.wmc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			}
+		}
+	}
+}

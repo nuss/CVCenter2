@@ -103,84 +103,85 @@ OscConnector {
 
 	prInitOscConnections { |mc, cv|
 		var index, self;
-		var responderAction, input;
-		var constraints, inputMapping, valueArgs;
+		var oscFuncAction, input;
+		var constraints, inputMapping, argValues;
 		var constraintsRange, snapDistance;
 
 		mc.oscConnections.c ?? {
 			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
 		};
 		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
+			"changer: %".format(changer).postln;
 			index = moreArgs[0];
 			// make sure we're always using the right connector
 			self = mc.oscConnectors.m.value[index];
 
-			responderAction = { |msg, time, addr, port|
-				input = msg[changer.value[index][3]];
+			oscFuncAction = { |msg, time, addr, port|
 				if (changer.value[index].size == 4) {
+					input = msg[changer.value[index][3]];
 					if (input <= 0 and: { input.abs > alwaysPositive }) {
 						alwaysPositive = msg[changer.value[index][3]].abs + 0.1
-					}
-				};
-
-				// FIXME: should input consider alwaysPositive correction??
-				constraints = self.getOscInputConstraints;
-				if (self.getOscCalibration) {
-					// input constraints low
-					if (input < constraints[0]) {
-						self.setOscInputConstraints([input, constraints[1]])
 					};
-					// input constraints hi
-					if (input > constraints[1]) {
-						self.setOscInputConstraints([constraints[0], input])
-					}
-				};
 
-				inputMapping = self.getOscInputMapping;
-				valueArgs = [
-					inputMapping.mapping,
-					constraints[0] + alwaysPositive,
-					constraints[1] + alwaysPositive,
-					self.widget.getSpec.minval,
-					self.widget.getSpec.maxval,
-				];
-
-				case
-				{ inputMapping.mapping === \lincurve or: {
-					inputMapping.mapping === \linbicurve
-				}} {
-					valueArgs = valueArgs.add(inputMapping.curve)
-				}
-				{ inputMapping.mapping === \linenv } {
-					valueArgs = valueArgs.add(inputMapping.env)
-				};
-
-				valueArgs = valueArgs.add(\minmax);
-
-				if (self.getOscEndless.not) {
-					snapDistance = self.getOscSnapDistance;
-					// unlike MIDI OSC values come in within a dynamic range
-					// hence, we need to normalize based on this dynamic range
-					// input must be positive, ranging from 0-1
-					constraintsRange = (constraints[1] - constraints[0]).abs;
-					input = msg[changer.value[index][3]].abs / constraintsRange;
-					if ((snapDistance <= 0).or(
-						input < (cv.input + (snapDistance/2)) and: {
-							input > (cv.value - (snapDistance/2))
-						}
-					)) {
-						case
-						{ inputMapping.mapping === \lincurve } {
-							if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-								self.setOscSnapDistance(0)
-							};
+					// FIXME: should input consider alwaysPositive correction??
+					constraints = self.getOscInputConstraints;
+					if (self.getOscCalibration) {
+						// input constraints low
+						if (input < constraints[0]) {
+							self.setOscInputConstraints([input, constraints[1]])
 						};
-						cv.value_((input + alwaysPositive).perform(*valueArgs))
+						// input constraints hi
+						if (input > constraints[1]) {
+							self.setOscInputConstraints([constraints[0], input])
+						}
+					};
+
+					inputMapping = self.getOscInputMapping;
+					argValues = [
+						inputMapping.mapping,
+						constraints[0] + alwaysPositive,
+						constraints[1] + alwaysPositive,
+						self.widget.getSpec.minval,
+						self.widget.getSpec.maxval
+					];
+
+					case
+					{ inputMapping.mapping === \lincurve or: {
+						inputMapping.mapping === \linbicurve
+					}} {
+						argValues = argValues.add(inputMapping.curve)
+					}
+					{ inputMapping.mapping === \linenv } {
+						argValues = argValues.add(inputMapping.env)
+					};
+
+					argValues = argValues.add(\minmax);
+
+					if (self.getOscEndless.not) {
+						snapDistance = self.getOscSnapDistance;
+						// unlike MIDI OSC values come in within a dynamic range
+						// hence, we need to normalize based on this dynamic range
+						// input must be positive, ranging from 0-1
+						constraintsRange = (constraints[1] - constraints[0]).abs;
+						input = alwaysPositive / constraintsRange;
+						if ((snapDistance <= 0).or(
+							input < (cv.input + (snapDistance/2)) and: {
+								input > (cv.value - (snapDistance/2))
+							}
+						)) {
+							case
+							{ inputMapping.mapping === \lincurve } {
+								if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+									self.setOscSnapDistance(0)
+								};
+							};
+							cv.value_((input + alwaysPositive).perform(*argValues))
+						}
 					}
 				}
 			};
 
-
+			mc.oscConnections.m.value[index] = OSCdef(this.name, oscFuncAction, changer.value[2].symbol/*, recvPort, template, dispatcher*/);
 		})
 	}
 
@@ -450,11 +451,6 @@ MidiConnector {
 		widget.wmc.midiConnectors.m.value_(
 			widget.wmc.midiConnectors.m.value.add(this)
 		).changedPerformKeys(widget.syncKeys);
-
-		allMidiFuncs[widget] ?? {
-			allMidiFuncs.put(widget, List[])
-		};
-		allMidiFuncs[widget].add(nil);
 	}
 
 	initModels { |wmc, name|
@@ -530,171 +526,11 @@ MidiConnector {
 	}
 
 	prInitMidiConnection { |mc, cv|
-		var ccAction, makeCCconnection;
-		var slotChanger;
-		var index, self, inputMapping, input;
-		var snapDistance;
-		var updateModelsFunc = { |num, chan, src, index|
-			mc.midiConnections.m.value[index] = (num: num, chan: chan, src: src);
-			mc.midiDisplay.m.value[index] = (
-				learn: "X",
-				src: src ? 'source...',
-				chan: chan ? "chan",
-				ctrl: num ? "ctrl",
-				toolTip: "Click to disconnect"
-			);
-			mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
-		};
-
 		mc.midiConnections.c ?? {
 			mc.midiConnections.c = SimpleController(mc.midiConnections.m);
 		};
 		mc.midiConnections.c.put(\default, { |changer, what ... moreArgs|
-			index = moreArgs[0];
-			// brute force fix - why is 'this' not considered correctly?
-			self = mc.midiConnectors.m.value[index];
-			// for endless mode we're going to perate on a linearly in-/decremented value,
-			// starting at the CV's current input (value normalized from 0 to 1)
-
-			accum[widget] ?? { accum[widget] = cv.input };
-
-			if (changer[index].value.class == Event) {
-				slotChanger = changer[index].value;
-				// midiConnect
-				updateModelsFunc.(slotChanger.num, slotChanger.chan, slotChanger.src, index);
-				ccAction = { |val, num, chan, src|
-					// MIDI learn
-					// we must infer the connections parameters here
-					if (mc.midiConnections.m.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
-					inputMapping = self.getMidiInputMapping;
-					self.getMidiMode.switch(
-						//  0-127
-						0, {
-							input = val/127;
-							snapDistance = self.getMidiSnapDistance;
-							if ((snapDistance <= 0).or(
-								input < (cv.input + (snapDistance/2)) and: {
-									input > (cv.input - (snapDistance/2))
-							})) {
-								case
-								{ inputMapping.mapping === \lincurve } {
-									if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-										self.setMidiSnapDistance(0)
-									};
-									cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
-								}
-								{ inputMapping.mapping === \linbicurve } {
-									if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-										self.setMidiSnapDistance(0)
-									};
-									cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
-								}
-								{ inputMapping.mapping === \linenv } {
-									if (snapDistance > 0) {
-										self.setMidiSnapDistance(0)
-									};
-									cv.input_(input.linenv(env: inputMapping.env))
-								}
-								{ inputMapping.mapping === \explin } {
-									if (snapDistance > 0) {
-										self.setMidiSnapDistance(0)
-									};
-									cv.input_((input+1).explin(1, 2, 0, 1))
-								}
-								{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
-									if (widget.getSpec.hasZeroCrossing and: { self.getMidiInputMapping !== \linlin}) {
-										self.setMidiInputMapping(\linlin);
-										cv.input_(input.linlin(0, 1, 0, 1))
-									} {
-										if (snapDistance > 0) {
-											self.setMidiSnapDistance(0)
-										};
-										cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
-									}
-								}
-								{
-									cv.input_(input);
-								}
-							};
-							// avoid jumps if another endless connection exists
-							accum[widget] = cv.input;
-						},
-						// endless mode
-						1, {
-							// "midiMode is endless".postln;
-							// we can't use cv.input (range: 0-1) in curved ramps or enveloped ramps
-							// accumulation must happen within a linear ramp
-							accum[widget] = accum[widget] + (val-self.getMidiZero/127*self.getMidiResolution);
-
-							// accumulation is by default not limited like cv.input
-							case
-							{ accum[widget] < 0 } { accum[widget] = 0 }
-							{ accum[widget] > 1 } { accum[widget] = 1 };
-
-							case
-							{ inputMapping.mapping === \lincurve } {
-								cv.input_(accum[widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
-							}
-							{ inputMapping.mapping === \linbicurve } {
-								cv.input_(accum[widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
-							}
-							{ inputMapping.mapping === \linenv } {
-								cv.input_(accum[widget].linenv(env: inputMapping.env))
-							}
-							{ inputMapping.mapping === \explin } {
-								cv.input_((accum[widget]+1).explin(1, 2, 0, 1))
-							}
-							{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
-								if (widget.getSpec.hasZeroCrossing) {
-									self.setMidiInputMapping(\linlin);
-									cv.input_(accum[widget])
-								} {
-									cv.value_((accum[widget]+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
-								}
-							}
-							{ cv.input_(accum[widget]) };
-						}
-					);
-					// [val/127, cv.input, cv.value].postln;
-				};
-				makeCCconnection = { |argSrc, argChan, argNum|
-					if (allMidiFuncs[widget][index].isNil or: {
-						allMidiFuncs[widget][index].func.isNil
-					}) {
-						allMidiFuncs[widget][index] = MIDIFunc.cc(
-							ccAction,
-							ccNum: argNum !? { argNum.asInteger },
-							chan: argChan !? { argChan.asInteger },
-							srcID: argSrc !? { argSrc.asInteger }
-						);
-					};
-					allMidiFuncs[widget][index];
-				};
-
-				if (slotChanger.isEmpty) {
-					"allMidiFuncs[widget], connector %, should learn".format(index).inform;
-					makeCCconnection.().learn;
-				} {
-					"allMidiFuncs[widget], connector %, was set to src: %, channel: %, number: %".format(
-						index, slotChanger.src, slotChanger.chan, slotChanger.num
-					).inform;
-					makeCCconnection.(slotChanger.src, slotChanger.chan, slotChanger.num);
-				};
-			} {
-				mc.midiDisplay.m.value[index] = (
-					learn: "L",
-					src: 'source...',
-					chan: "chan",
-					ctrl: "ctrl",
-					toolTip: "Click and move hardware slider/knob to connect to"
-				);
-				mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
-				allMidiFuncs[widget][index].clear;
-				if (mc.midiConnections.m.value.select(_.notNil).isEmpty) {
-					// no conections for widget, uninitialize accum[widget]
-					accum[widget] !? { accum[widget] = nil };
-				}
-			};
+			// do something...
 		})
 	}
 
@@ -838,24 +674,159 @@ MidiConnector {
 		^widget.wmc.midiOptions.m.value[index].midiInputMapping;
 	}
 
-	midiConnect { |src, chan, num|
+	midiConnect { |num, chan, srcID, argTemplate, dispatcher|
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
-		mc.midiConnections.m.value[index] = (src: src, chan: chan, num: num);
+		mc.midiConnections.m.value[index] = this.prMIDIFunc(index, num, chan, srcID, argTemplate, dispatcher);
 		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
-			this.widget !? {
-				allMidiFuncs[widget][index].permanent_(this.widget.class.removeResponders)
-			}
+			this.widget !? { this.midiDisconnect }
 		})
 	}
 
 	midiDisconnect {
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
+		mc.midiConnections.m.value[index].clear;
 		mc.midiConnections.m.value[index] = nil;
 		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
+		mc.midiDisplay.m.value[index].src = 'source...';
+		mc.midiDisplay.m.value[index].chan = "chan";
+		mc.midiDisplay.m.value[index].ctrl = "ctrl";
+		mc.midiDisplay.m.value[index].templ = nil;
+		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
+		CmdPeriod.remove({
+			this.widget !? { this.midiDisconnect }
+		})
+	}
+
+	prMIDIFunc { |index, cc, ch, src, t, d|
+		var snapDistance, inputMapping, input;
+		var cv = widget.cv, learn;
+		var makeFunc = { |argSrc, argChan, argNum, argTempl, argDispatcher|
+			if (widget.wmc.midiConnections.m.value[index].isNil or: {
+				widget.wmc.midiConnections.m.value[index].func.isNil
+			}) {
+				widget.wmc.midiConnections.m.value[index] = MIDIFunc.cc(
+					ccAction,
+					ccNum: argNum !? { argNum.asInteger },
+					chan: argChan !? { argChan.asInteger },
+					srcID: argSrc !? { argSrc.asInteger },
+					argTemplate: argTempl,
+					dispatcher: argDispatcher
+				)
+			};
+			widget.wmc.midiConnections.m.value[index]
+		};
+
+		var ccAction = { |val, num, chan, src|
+			// MIDI learn
+			// we must infer the connections parameters here
+			// if (mc.midiConnections.m.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
+			inputMapping = this.getMidiInputMapping;
+			this.getMidiMode.switch(
+				//  0-127
+				0, {
+					input = val/127;
+					snapDistance = this.getMidiSnapDistance;
+					if ((snapDistance <= 0).or(
+						input < (cv.input + (snapDistance/2)) and: {
+							input > (cv.input - (snapDistance/2))
+					})) {
+						case
+						{ inputMapping.mapping === \lincurve } {
+							if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+								this.setMidiSnapDistance(0)
+							};
+							cv.input_(input.lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+						}
+						{ inputMapping.mapping === \linbicurve } {
+							if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+								this.setMidiSnapDistance(0)
+							};
+							cv.input_(input.linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+						}
+						{ inputMapping.mapping === \linenv } {
+							if (snapDistance > 0) {
+								this.setMidiSnapDistance(0)
+							};
+							cv.input_(input.linenv(env: inputMapping.env))
+						}
+						{ inputMapping.mapping === \explin } {
+							if (snapDistance > 0) {
+								this.setMidiSnapDistance(0)
+							};
+							cv.input_((input+1).explin(1, 2, 0, 1))
+						}
+						{ inputMapping.mapping === \expexp or: {inputMapping.mapping === \linexp }} {
+							if (widget.getSpec.hasZeroCrossing and: { this.getMidiInputMapping !== \linlin}) {
+								this.setMidiInputMapping(\linlin);
+								cv.input_(input.linlin(0, 1, 0, 1))
+							} {
+								if (snapDistance > 0) {
+									this.setMidiSnapDistance(0)
+								};
+								cv.value_((input+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+							}
+						}
+						{
+							cv.input_(input);
+						}
+					};
+					// avoid jumps if another endless connection exists
+					accum[widget] = cv.input;
+				},
+				// endless mode
+				1, {
+					// "midiMode is endless".postln;
+					// we can't use cv.input (range: 0-1) in curved ramps or enveloped ramps
+					// accumulation must happen within a linear ramp
+					accum[widget] = accum[widget] + (val-this.getMidiZero/127*this.getMidiResolution);
+
+					// accumulation is by default not limited like cv.input
+					case
+					{ accum[widget] < 0 } { accum[widget] = 0 }
+					{ accum[widget] > 1 } { accum[widget] = 1 };
+
+					case
+					{ inputMapping.mapping === \lincurve } {
+						cv.input_(accum[widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+					}
+					{ inputMapping.mapping === \linbicurve } {
+						cv.input_(accum[widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+					}
+					{ inputMapping.mapping === \linenv } {
+						cv.input_(accum[widget].linenv(env: inputMapping.env))
+					}
+					{ inputMapping.mapping === \explin } {
+						cv.input_((accum[widget]+1).explin(1, 2, 0, 1))
+					}
+					{ inputMapping.mapping === \expexp or: { inputMapping.mapping === \linexp }} {
+						if (widget.getSpec.hasZeroCrossing) {
+							this.setMidiInputMapping(\linlin);
+							cv.input_(accum[widget])
+						} {
+							cv.value_((accum[widget]+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+						}
+					}
+					{ cv.input_(accum[widget]) };
+				}
+			);
+		};
+
+		learn = cc.isNil and: { ch.isNil  and: {src.isNil }};
+		if (learn) {
+			"MIDIFunc at widget.wmc.midiConnections.m.value[%] should learn".format(index).inform;
+			makeFunc.().learnSync(widget, index);
+		} {
+			"MIDIFunc at widget.wmc.midiConnections.m.value[%] was set to src: %, channel: %, number: %".format(
+				index, src, ch, cc
+			).inform;
+			makeFunc.(src, ch, cc, t, d);
+		};
+		accum[widget] = cv.input;
+		^widget.wmc.midiConnections.m.value[index]
 	}
 
 	remove { |forceAll = false|
