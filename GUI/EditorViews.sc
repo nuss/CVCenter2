@@ -130,7 +130,7 @@ OscConnectorsEditorView : CompositeView {
 				// enable or disable elements based on current conection status
 				// TODO
 				// [e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
-				// elem.view.enabled_(widget.wmc.midiConnections.m[sel.value].value.isNil)
+				// elem.view.enabled_(widget.wmc.midiConnections.m.value[sel.value].isNil)
 			// }
 			}
 		})
@@ -259,7 +259,7 @@ MidiConnectorsEditorView : CompositeView {
 				e.do(_.index_(sel.value));
 				// enable or disable selects for MIDI source, channel and ctrl number based on connection status
 				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
-					elem.view.enabled_(widget.wmc.midiConnections.m[sel.value].value.isNil)
+					elem.view.enabled_(widget.wmc.midiConnections.m.value[sel.value].isNil)
 				}
 			}
 		})
