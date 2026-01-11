@@ -19,18 +19,18 @@
 		envVals = env.asMultichannelSignal(resolution, Array).unbubble.normalize(outMin, outMax);
 		switch(clip,
 			\minmax, {
-				if(this <= inMin) { ^envVals.first * (outMax - outMin) + outMin };
-				if(this >= inMax) { ^envVals.last * (outMax - outMin) + outMin };
+				if(this <= inMin) { ^envVals.first };
+				if(this >= inMax) { ^envVals.last };
 			},
 			\min, {
-				if(this <= inMin) { ^envVals.first * (outMax - outMin) + outMin };
+				if(this <= inMin) { ^envVals.first };
 			},
 			\max, {
-				if(this >= inMax) { ^envVals.last * (outMax - outMin) + outMin };
+				if(this >= inMax) { ^envVals.last };
 			}
 		);
 
-		^envVals.blendAt(this / (inMax - inMin) * resolution) * (outMax - outMin) + outMin
+		^envVals.blendAt(this / (inMax - inMin) * resolution - 1)
 	}
 
 }

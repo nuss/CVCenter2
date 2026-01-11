@@ -40,8 +40,6 @@ OscConnector {
 			wmc.oscDisplay.m = Ref(List[]);
 		};
 		wmc.oscDisplay.m.value.add((
-			ipField: nil,
-			portField: nil,
 			nameField: '/my/cmd/name',
 			index: 1,
 			connectorButVal: 0,
@@ -102,86 +100,83 @@ OscConnector {
 	}
 
 	prInitOscConnections { |mc, cv|
-		var index, self;
-		var oscFuncAction, input;
-		var constraints, inputMapping, argValues;
-		var constraintsRange, snapDistance;
-
 		mc.oscConnections.c ?? {
 			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
 		};
 		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
-			"changer: %".format(changer).postln;
-			index = moreArgs[0];
+			// do something...
+
+			// "changer: %".format(changer).postln;
+			// index = moreArgs[0];
 			// make sure we're always using the right connector
-			self = mc.oscConnectors.m.value[index];
+			// self = mc.oscConnectors.m.value[index];
 
-			oscFuncAction = { |msg, time, addr, port|
-				if (changer.value[index].size == 4) {
-					input = msg[changer.value[index][3]];
-					if (input <= 0 and: { input.abs > alwaysPositive }) {
-						alwaysPositive = msg[changer.value[index][3]].abs + 0.1
-					};
-
-					// FIXME: should input consider alwaysPositive correction??
-					constraints = self.getOscInputConstraints;
-					if (self.getOscCalibration) {
-						// input constraints low
-						if (input < constraints[0]) {
-							self.setOscInputConstraints([input, constraints[1]])
-						};
-						// input constraints hi
-						if (input > constraints[1]) {
-							self.setOscInputConstraints([constraints[0], input])
-						}
-					};
-
-					inputMapping = self.getOscInputMapping;
-					argValues = [
-						inputMapping.mapping,
-						constraints[0] + alwaysPositive,
-						constraints[1] + alwaysPositive,
-						self.widget.getSpec.minval,
-						self.widget.getSpec.maxval
-					];
-
-					case
-					{ inputMapping.mapping === \lincurve or: {
-						inputMapping.mapping === \linbicurve
-					}} {
-						argValues = argValues.add(inputMapping.curve)
-					}
-					{ inputMapping.mapping === \linenv } {
-						argValues = argValues.add(inputMapping.env)
-					};
-
-					argValues = argValues.add(\minmax);
-
-					if (self.getOscEndless.not) {
-						snapDistance = self.getOscSnapDistance;
-						// unlike MIDI OSC values come in within a dynamic range
-						// hence, we need to normalize based on this dynamic range
-						// input must be positive, ranging from 0-1
-						constraintsRange = (constraints[1] - constraints[0]).abs;
-						input = alwaysPositive / constraintsRange;
-						if ((snapDistance <= 0).or(
-							input < (cv.input + (snapDistance/2)) and: {
-								input > (cv.value - (snapDistance/2))
-							}
-						)) {
-							case
-							{ inputMapping.mapping === \lincurve } {
-								if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-									self.setOscSnapDistance(0)
-								};
-							};
-							cv.value_((input + alwaysPositive).perform(*argValues))
-						}
-					}
-				}
-			};
-
-			mc.oscConnections.m.value[index] = OSCdef(this.name, oscFuncAction, changer.value[2].symbol/*, recvPort, template, dispatcher*/);
+			// oscFuncAction = { |msg, time, addr, port|
+			// 	if (changer.value[index].size == 4) {
+			// 		input = msg[changer.value[index][3]];
+			// 		if (input <= 0 and: { input.abs > alwaysPositive }) {
+			// 			alwaysPositive = msg[changer.value[index][3]].abs + 0.1
+			// 		};
+			//
+			// 		// FIXME: should input consider alwaysPositive correction??
+			// 		constraints = self.getOscInputConstraints;
+			// 		if (self.getOscCalibration) {
+			// 			// input constraints low
+			// 			if (input < constraints[0]) {
+			// 				self.setOscInputConstraints([input, constraints[1]])
+			// 			};
+			// 			// input constraints hi
+			// 			if (input > constraints[1]) {
+			// 				self.setOscInputConstraints([constraints[0], input])
+			// 			}
+			// 		};
+			//
+			// 		inputMapping = self.getOscInputMapping;
+			// 		argValues = [
+			// 			inputMapping.mapping,
+			// 			constraints[0] + alwaysPositive,
+			// 			constraints[1] + alwaysPositive,
+			// 			self.widget.getSpec.minval,
+			// 			self.widget.getSpec.maxval
+			// 		];
+			//
+			// 		case
+			// 		{ inputMapping.mapping === \lincurve or: {
+			// 			inputMapping.mapping === \linbicurve
+			// 		}} {
+			// 			argValues = argValues.add(inputMapping.curve)
+			// 		}
+			// 		{ inputMapping.mapping === \linenv } {
+			// 			argValues = argValues.add(inputMapping.env)
+			// 		};
+			//
+			// 		argValues = argValues.add(\minmax);
+			//
+			// 		if (self.getOscEndless.not) {
+			// 			snapDistance = self.getOscSnapDistance;
+			// 			// unlike MIDI OSC values come in within a dynamic range
+			// 			// hence, we need to normalize based on this dynamic range
+			// 			// input must be positive, ranging from 0-1
+			// 			constraintsRange = (constraints[1] - constraints[0]).abs;
+			// 			input = alwaysPositive / constraintsRange;
+			// 			if ((snapDistance <= 0).or(
+			// 				input < (cv.input + (snapDistance/2)) and: {
+			// 					input > (cv.value - (snapDistance/2))
+			// 				}
+			// 			)) {
+			// 				case
+			// 				{ inputMapping.mapping === \lincurve } {
+			// 					if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+			// 						self.setOscSnapDistance(0)
+			// 					};
+			// 				};
+			// 				cv.value_((input + alwaysPositive).perform(*argValues))
+			// 			}
+			// 		}
+			// 	}
+			// };
+			//
+			// mc.oscConnections.m.value[index] = OSCdef(this.name, oscFuncAction, changer.value[2].symbol/*, recvPort, template, dispatcher*/);
 		})
 	}
 
@@ -377,12 +372,113 @@ OscConnector {
 		^mc.oscOptions.m.value[index].oscMatching;
 	}
 
-	oscConnect {
-
+	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher|
+		var mc = widget.wmc;
+		var index = mc.oscConnectors.m.value.indexOf(this);
+		mc.oscConnections.m.value[index] = this.prOSCFunc(index, addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher);
+		"mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
+		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
+		// TODO - check settings system
+		CmdPeriod.add({
+			this.widget !? { this.oscDisconnect }
+		})
 	}
 
 	oscDisconnect {
+		var mc = widget.wmc;
+		var index = mc.oscConnections.m.value.indexOf(this);
+		mc.oscConnections.m.value[index].clear;
+		mc.oscConnections.m.value[index] = nil;
+		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
+		mc.oscDisplay.m.value[index].ipField = nil;
+		mc.oscDisplay.m.value[index].portField = nil;
+		mc.oscDisplay.m.value[index].nameField = '/my/cmd/name';
+		mc.oscDisplay.m.value[index].templ = nil;
+		mc.oscDisplay.m.value[index].connectorButVal = 0;
+		mc.oscDisplay.m.value[index].connect = "learn";
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+		CmdPeriod.remove({
+			this.widget !? { this.oscDisconnect }
+		})
+	}
 
+	prOSCFunc { |index, a, c, mid, r, t, d|
+		var input, cv = widget.cv, constraints, inputMapping, argValues;
+		var snapDistance, constraintsRange;
+
+		var oscFuncAction = { |msg, time, addr, port|
+			input = msg[mid];
+			if (input <= 0 and: { input.abs > alwaysPositive }) {
+				alwaysPositive = input.abs + 0.1
+			};
+
+			// FIXME: should input consider alwaysPositive correction??
+			constraints = this.getOscInputConstraints;
+			if (this.getOscCalibration) {
+				// input constraints low
+				if (input < constraints[0]) {
+					this.setOscInputConstraints([input, constraints[1]])
+				};
+				// input constraints hi
+				if (input > constraints[1]) {
+					this.setOscInputConstraints([constraints[0], input])
+				}
+			};
+
+			"constraints: %".format(this.getOscInputConstraints).postln;
+
+			inputMapping = this.getOscInputMapping;
+			argValues = [
+				inputMapping.mapping,
+				constraints[0] + alwaysPositive,
+				constraints[1] + alwaysPositive,
+				this.widget.getSpec.minval,
+				this.widget.getSpec.maxval
+			];
+
+			case
+			{ inputMapping.mapping === \lincurve or: {
+				inputMapping.mapping === \linbicurve
+			}} {
+				argValues = argValues.add(inputMapping.curve)
+			}
+			{ inputMapping.mapping === \linenv } {
+				argValues = argValues.add(inputMapping.env)
+			};
+
+			argValues = argValues.add(\minmax);
+
+			"argValues: %".format(argValues).postln;
+
+			if (this.getOscEndless.not) {
+				snapDistance = this.getOscSnapDistance;
+				// unlike MIDI OSC values come in within a dynamic range
+				// hence, we need to normalize based on this dynamic range
+				// input must be positive, ranging from 0-1
+				constraintsRange = (constraints[1] - constraints[0]).abs;
+				[input, input+alwaysPositive, input/constraintsRange, (input+alwaysPositive)/constraintsRange].postln;
+				if (constraintsRange == 0) { input = 0 } {
+					input = input+alwaysPositive
+				};
+				"input: %".format(input).postln;
+				if ((snapDistance <= 0).or(
+					input < (cv.input + (snapDistance/2)) and: {
+						input > (cv.value - (snapDistance/2))
+					}
+				)) {
+					case
+					{ inputMapping.mapping === \lincurve } {
+						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+							this.setOscSnapDistance(0)
+						};
+					};
+					cv.value_(input.perform(*argValues));
+					"cv.value: %\n".format(cv.value).postln;
+				}
+			}
+		};
+
+		^OSCFunc(oscFuncAction, c, a, r, t, d);
 	}
 
 	remove { |forceAll = false|

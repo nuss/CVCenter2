@@ -87,9 +87,9 @@
 
 +MIDIFunc {
 
+	// will only work in a CVWidget context
 	learnSync { |widget, index, learnVal=false|
 		var learnFunc;
-		/*this.remove(func);*/
 		learnFunc = this.learnFuncSync(widget, index, learnVal);
 		this.disable;
 		this.init(learnFunc); // keep old args if specified, so we can learn from particular channels, srcs, etc.
