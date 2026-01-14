@@ -13,24 +13,32 @@
 
 	linenv { |inMin = 0, inMax = 1, outMin = 0, outMax = 1, env, clip = \minmax, resolution = 400|
 		var envVals;
+		// input indexing must start at index 0 of the env array
+		// if inMin is smaller than 0 we add inMin.neg
+		// to garantee indexing starts at index 0
+		// in contarary, if in inMin is bigger than 0 we substract inMin
+		var posCorr = inMin.neg;
+
 		if (env.isNil or: { env.respondsTo(\asMultichannelSignal).not }) {
 			Error("No valid envelope given for method 'linenv': %".format(env)).throw;
 		};
+
+
 		envVals = env.asMultichannelSignal(resolution, Array).unbubble.normalize(outMin, outMax);
 		switch(clip,
 			\minmax, {
-				if(this <= inMin) { ^envVals.first };
-				if(this >= inMax) { ^envVals.last };
+				if (this <= inMin) { ^envVals.first };
+				if (this >= inMax) { ^envVals.last };
 			},
 			\min, {
-				if(this <= inMin) { ^envVals.first };
+				if (this <= inMin) { ^envVals.first };
 			},
 			\max, {
-				if(this >= inMax) { ^envVals.last };
+				if (this >= inMax) { ^envVals.last };
 			}
 		);
 
-		^envVals.blendAt(this / (inMax - inMin) * resolution - 1)
+		^envVals.blendAt(this + posCorr / (inMax - inMin) * resolution)
 	}
 
 }
