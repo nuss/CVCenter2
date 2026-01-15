@@ -17,7 +17,7 @@
 		// if inMin is smaller than 0 we add inMin.neg
 		// to garantee indexing starts at index 0
 		// in contarary, if in inMin is bigger than 0 we substract inMin
-		var posCorr = inMin.neg;
+		var indexCorr = inMin.neg;
 
 		if (env.isNil or: { env.respondsTo(\asMultichannelSignal).not }) {
 			Error("No valid envelope given for method 'linenv': %".format(env)).throw;
@@ -32,13 +32,15 @@
 			},
 			\min, {
 				if (this <= inMin) { ^envVals.first };
+				if (this > inMax) { ^this };
 			},
 			\max, {
+				if (this < inMin) { ^this };
 				if (this >= inMax) { ^envVals.last };
 			}
 		);
 
-		^envVals.blendAt(this + posCorr / (inMax - inMin) * resolution)
+		^envVals.blendAt(this + indexCorr / (inMax - inMin) * resolution)
 	}
 
 }
