@@ -550,7 +550,7 @@ OscZeroCrossingText : ConnectorElementView {
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
 
-		this.view = StaticText(parentView, rect).string_("0.0");
+		this.view = StaticText(parentView, rect).string_("0.0").minWidth_(30);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		connectorRemovedFuncAdded ?? {

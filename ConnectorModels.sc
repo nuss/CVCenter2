@@ -1,8 +1,12 @@
 OscConnector {
-	classvar cAnons = 0;
+	classvar cAnons = 0, accum;
 	classvar <onConnectorRemove;
 	var <widget;
 	var <alwaysPositive = 0.1;
+
+	*initClass {
+		accum = ();
+	}
 
 	*new { |widget, name|
 		if (widget.isNil or: {
@@ -425,7 +429,7 @@ OscConnector {
 				}
 			};
 
-			"constraints: %".format(this.getOscInputConstraints).postln;
+			// "constraints: %".format(this.getOscInputConstraints).postln;
 
 			inputMapping = this.getOscInputMapping;
 			argValues = [
@@ -447,20 +451,19 @@ OscConnector {
 			};
 
 			argValues = argValues.add(\minmax);
+			// "argValues: %".format(argValues).postln;
 
-			"argValues: %".format(argValues).postln;
-
+			constraintsRange = (constraints[1] - constraints[0]).abs;
 			if (this.getOscEndless.not) {
 				snapDistance = this.getOscSnapDistance;
 				// unlike MIDI OSC values come in within a dynamic range
 				// hence, we need to normalize based on this dynamic range
 				// input must be positive, ranging from 0-1
-				constraintsRange = (constraints[1] - constraints[0]).abs;
 				[input, input+alwaysPositive, input/constraintsRange, (input+alwaysPositive)/constraintsRange].postln;
 				if (constraintsRange == 0) { input = 0 } {
 					input = input+alwaysPositive
 				};
-				"input: %".format(input).postln;
+				// "input: %".format(input).postln;
 				if ((snapDistance <= 0).or(
 					input < (cv.input + (snapDistance/2)) and: {
 						input > (cv.value - (snapDistance/2))
@@ -473,11 +476,44 @@ OscConnector {
 						};
 					};
 					cv.value_(input.perform(*argValues));
-					"cv.value: %\n".format(cv.value).postln;
+					// "cv.value: %\n".format(cv.value).postln;
+				};
+				accum[widget] = cv.input;
+			} {
+				// "input: %\nconstraintsRange: %\naccum: %\n".format(input, constraintsRange, accum[widget]).postln;
+				accum[widget] = accum[widget] + (input / constraintsRange / 32 * this.getOscResolution);
+				// "accum: %\n".format(accum[widget]).postln;
+				// "spec: %\ninput mapping: %\n".format(widget.getSpec, this.getOscInputMapping).postln;
+
+				case
+				{ accum[widget] < 0 } { accum[widget] = 0 }
+				{ accum[widget] > 1 } { accum[widget] = 1 };
+
+				case
+				{ inputMapping.mapping === \lincurve } {
+					cv.input_(accum[widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
 				}
+				{ inputMapping.mapping === \linbicurve } {
+					cv.input_(accum[widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+				}
+				{ inputMapping.mapping === \linenv } {
+					cv.input_(accum[widget].linenv(env: inputMapping.env))
+				}
+				{ inputMapping.mapping === \explin } {
+					cv.input_((accum[widget]+1).explin(1, 2, 0, 1))
+				}
+				{ inputMapping.mapping === \expexp or: { inputMapping.mapping === \linexp }} {
+					if (widget.getSpec.hasZeroCrossing) {
+						this.setOscInputMapping(\linlin);
+						cv.input_(accum[widget])
+					} {
+						cv.value_((accum[widget]+1).perform(inputMapping.mapping, 1, 2, widget.getSpec.minval, widget.getSpec.maxval))
+					}
+				}
+				{ cv.input_(accum[widget]) };
 			}
 		};
-
+		accum[widget] = cv.input;
 		^OSCFunc(oscFuncAction, c, a, r, t, d);
 	}
 
@@ -517,9 +553,8 @@ MidiConnector {
 	classvar <onConnectorRemove;
 	var <widget;
 
-
 	*initClass {
-		allMidiFuncs = ();
+		// allMidiFuncs = ();
 		// input accumulation of input in a linear range in 'endless' mode
 		// see ccAction in prInitMidiConnection
 		accum = ();
@@ -819,7 +854,6 @@ MidiConnector {
 		var ccAction = { |val, num, chan, src|
 			// MIDI learn
 			// we must infer the connections parameters here
-			// if (mc.midiConnections.m.value[index].isEmpty) { updateModelsFunc.(num, chan, src, index) };
 			inputMapping = this.getMidiInputMapping;
 			this.getMidiMode.switch(
 				//  0-127
@@ -931,8 +965,8 @@ MidiConnector {
 
 		if (mc.midiConnectors.m.value.size > 1 or: { forceAll }) {
 			this.midiDisconnect;
-			allMidiFuncs[widget][index].free;
-			allMidiFuncs[widget].removeAt(index);
+			// allMidiFuncs[widget][index].free;
+			// allMidiFuncs[widget].removeAt(index);
 			[
 				mc.midiOptions.m.value,
 				mc.midiConnections.m.value,
