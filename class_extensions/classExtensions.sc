@@ -68,19 +68,21 @@
 
 +OSCFunc {
 
-	*cvWidgetlearn { |matching=false, slot=1, port|
-		var funcType;
+	*cvWidgetLearn { |widget, index, matching=false, port|
+		var o;
 		var learnFunc = { |msg, time, addr, recvPort|
 			if (matching) {
-				OSCFunc.newMatching({ |m, t, a, rp| /* do something */}, msg[0], addr, port ? recvPort)
+				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching({ |m, t, a, rp| [m, t, a, rp].postln }, msg[0], addr, port ? recvPort);
+				"New matching OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			} {
-				OSCFunc({ |m, t, a, rp| /* do something */}, msg[0], addr, port ? recvPort)
+				widget.wmc.oscConnections.m.value[index] = OSCFunc({ |m, t, a, rp| [m, t, a, rp].postln }, msg[0], addr, port ? recvPort);
+				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			};
-			thisProcess.removeOSCRecvFunc(thisFunction)
+			thisProcess.removeOSCRecvFunc(learnFunc)
 		};
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
-		^thisProcess.addOSCRecvFunc(learnFunc)
+		thisProcess.addOSCRecvFunc(learnFunc);
 	}
 
 }
