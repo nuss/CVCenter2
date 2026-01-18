@@ -1,5 +1,5 @@
 OscConnector {
-	classvar cAnons = 0, accum;
+	classvar cAnons = 0, <accum;
 	classvar <onConnectorRemove;
 	var <widget;
 	var <alwaysPositive = 0.1;
@@ -109,78 +109,6 @@ OscConnector {
 		};
 		mc.oscConnections.c.put(\default, { |changer, what, moreArgs|
 			// do something...
-
-			// "changer: %".format(changer).postln;
-			// index = moreArgs[0];
-			// make sure we're always using the right connector
-			// self = mc.oscConnectors.m.value[index];
-
-			// oscFuncAction = { |msg, time, addr, port|
-			// 	if (changer.value[index].size == 4) {
-			// 		input = msg[changer.value[index][3]];
-			// 		if (input <= 0 and: { input.abs > alwaysPositive }) {
-			// 			alwaysPositive = msg[changer.value[index][3]].abs + 0.1
-			// 		};
-			//
-			// 		// FIXME: should input consider alwaysPositive correction??
-			// 		constraints = self.getOscInputConstraints;
-			// 		if (self.getOscCalibration) {
-			// 			// input constraints low
-			// 			if (input < constraints[0]) {
-			// 				self.setOscInputConstraints([input, constraints[1]])
-			// 			};
-			// 			// input constraints hi
-			// 			if (input > constraints[1]) {
-			// 				self.setOscInputConstraints([constraints[0], input])
-			// 			}
-			// 		};
-			//
-			// 		inputMapping = self.getOscInputMapping;
-			// 		argValues = [
-			// 			inputMapping.mapping,
-			// 			constraints[0] + alwaysPositive,
-			// 			constraints[1] + alwaysPositive,
-			// 			self.widget.getSpec.minval,
-			// 			self.widget.getSpec.maxval
-			// 		];
-			//
-			// 		case
-			// 		{ inputMapping.mapping === \lincurve or: {
-			// 			inputMapping.mapping === \linbicurve
-			// 		}} {
-			// 			argValues = argValues.add(inputMapping.curve)
-			// 		}
-			// 		{ inputMapping.mapping === \linenv } {
-			// 			argValues = argValues.add(inputMapping.env)
-			// 		};
-			//
-			// 		argValues = argValues.add(\minmax);
-			//
-			// 		if (self.getOscEndless.not) {
-			// 			snapDistance = self.getOscSnapDistance;
-			// 			// unlike MIDI OSC values come in within a dynamic range
-			// 			// hence, we need to normalize based on this dynamic range
-			// 			// input must be positive, ranging from 0-1
-			// 			constraintsRange = (constraints[1] - constraints[0]).abs;
-			// 			input = alwaysPositive / constraintsRange;
-			// 			if ((snapDistance <= 0).or(
-			// 				input < (cv.input + (snapDistance/2)) and: {
-			// 					input > (cv.value - (snapDistance/2))
-			// 				}
-			// 			)) {
-			// 				case
-			// 				{ inputMapping.mapping === \lincurve } {
-			// 					if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-			// 						self.setOscSnapDistance(0)
-			// 					};
-			// 				};
-			// 				cv.value_((input + alwaysPositive).perform(*argValues))
-			// 			}
-			// 		}
-			// 	}
-			// };
-			//
-			// mc.oscConnections.m.value[index] = OSCdef(this.name, oscFuncAction, changer.value[2].symbol/*, recvPort, template, dispatcher*/);
 		})
 	}
 
@@ -211,83 +139,75 @@ OscConnector {
 		})
 	}
 
+	index {
+		^widget.oscConnectors.indexOf(this);
+	}
+
 	name {
-		var conID = widget.wmc.oscConnectors.m.value.indexOf(this);
-		if (conID.notNil) {
-			^widget.wmc.oscConnectorNames.m.value[conID]
-		} { ^nil };
+		^widget.wmc.oscConnectorNames.m.value[this.index];
 	}
 
 	name_ { |name|
-		var conID = widget.wmc.oscConnectors.m.value.indexOf(this);
-		conID !? {
-			widget.wmc.oscConnectorNames.m.value[conID] = name.asSymbol;
-			widget.wmc.oscConnectorNames.m.changedPerformKeys(widget.syncKeys, conID);
-		}
+		var index = this.index;
+		var mc = widget.wmc;
+		mc.oscConnectorNames.m.value[index] = name.asSymbol;
+		mc.oscConnectorNames.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	setOscEndless { |boolEndless|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscEndless = boolEndless;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscEndless {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscEndless;
+		^widget.wmc.oscOptions.m.value[this.index].oscEndless;
 	}
 
 	setOscResolution { |resolution|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscResolution = resolution;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscResolution {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscResolution;
+		^widget.wmc.oscOptions.m.value[this.index].oscResolution;
 	}
 
 	setOscSnapDistance { |distance|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscSnapDistance = distance;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscSnapDistance {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscSnapDistance;
+		^widget.wmc.oscOptions.m.value[this.index].oscSnapDistance;
 	}
 
 	setOscCalibration { |boolCalibration|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscCalibration = boolCalibration;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscCalibration {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscCalibration;
+		^widget.wmc.oscOptions.m.value[this.index].oscCalibration;
 	}
 
 	resetOscCalibration {
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscInputRange = CVWidget.oscInputRange;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	setOscInputConstraints { |constraintsPair|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		var lo, hi;
 
 		if (constraintsPair.class === Point) {
@@ -304,14 +224,12 @@ OscConnector {
 	}
 
 	getOscInputConstraints {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscInputRange;
+		^widget.wmc.oscOptions.m.value[this.index].oscInputRange;
 	}
 
 	setOscInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
@@ -332,55 +250,69 @@ OscConnector {
 	}
 
 	getOscInputMapping {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscInputMapping;
+		^widget.wmc.oscOptions.m.value[this.index].oscInputMapping;
 	}
 
 	setOscCmdName { |cmdPath|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscDisplay.m.value[index].nameField = cmdPath.asSymbol;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscCmdName {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscDisplay.m.value[index].nameField;
+		^widget.wmc.oscDisplay.m.value[this.index].nameField;
 	}
 
 	setOscMsgIndex { |msgIndex|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscDisplay.m.value[index].index = msgIndex.asInteger;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index)
 	}
 
 	getOscMsgIndex {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscDisplay.m.value[index].index;
+		^widget.wmc.oscDisplay.m.value[this.index].index;
 	}
 
 	setOscMatching { |boolMatching|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
 		mc.oscOptions.m.value[index].oscMatching = boolMatching;
 		mc.oscOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscMatching {
-		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		^mc.oscOptions.m.value[index].oscMatching;
+		^widget.wmc.oscOptions.m.value[this.index].oscMatching;
 	}
 
-	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher|
+	setOscTemplate { |argTemplate|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
-		mc.oscConnections.m.value[index] = this.prOSCFunc(index, addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher);
-		"mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
+		mc.oscDisplay.m.value[index].oscTemplate = argTemplate;
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscTemplate {
+		^widget.wmc.oscDisplay.m.value[this.index].oscTemplate;
+	}
+
+	setOscDispatcher { |dispatcher|
+		var index = this.index;
+		var mc = widget.wmc;
+		mc.oscDisplay.m.value[index].dispatcher = dispatcher;
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscDispatcher {
+		^widget.wmc.oscDisplay.m.value[this.index].dispatcher;
+	}
+
+	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
+		var index = this.index;
+		var mc = widget.wmc;
+		mc.oscConnections.m.value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
+		// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
@@ -389,8 +321,8 @@ OscConnector {
 	}
 
 	oscDisconnect {
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.oscConnections.m.value.indexOf(this);
 		mc.oscConnections.m.value[index].clear;
 		mc.oscConnections.m.value[index] = nil;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
@@ -406,12 +338,12 @@ OscConnector {
 		})
 	}
 
-	prOSCFunc { |index, a, c, mid, r, t, d|
+	prOSCFuncAction { |mid|
 		var input, cv = widget.cv, constraints, inputMapping, argValues;
 		var snapDistance, constraintsRange;
 
-		var oscFuncAction = { |msg, time, addr, port|
-			input = msg[mid];
+		^{ |msg, time, addr, port|
+			input = msg[mid ?? { this.getOscMsgIndex }];
 			if (input <= 0 and: { input.abs > alwaysPositive }) {
 				alwaysPositive = input.abs + 0.1
 			};
@@ -512,15 +444,23 @@ OscConnector {
 				}
 				{ cv.input_(accum[widget]) };
 			}
-		};
-		accum[widget] = cv.input;
-		^OSCFunc(oscFuncAction, c, a, r, t, d);
+		}
+	}
+
+	prOSCFunc { |a, c, mid, r, t, d, m|
+		// [a, c, mid, r, t, d].postln;
+		accum[widget] = widget.cv.input;
+		^if (m) {
+			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, r, t)
+		} {
+			^OSCFunc(this.prOSCFuncAction(mid), c, r, t, d)
+		}
 	}
 
 	remove { |forceAll = false|
 		var mc = widget.wmc;
 		// var wmc = CVWidget.wmc;
-		var index = mc.oscConnectors.m.value.indexOf(this);
+		var index = this.index;
 
 		if (mc.oscConnectors.m.value.size > 1 or: { forceAll }) {
 			this.oscDisconnect;
@@ -686,26 +626,24 @@ MidiConnector {
 		})
 	}
 
+	index {
+		^widget.midiConnectors.indexOf(this);
+	}
+
 	name {
-		var mc = widget.wmc;
-		var conID = mc.midiConnectors.m.value.indexOf(this);
-		if (conID.notNil) {
-			^widget.wmc.midiConnectorNames.m.value[conID]
-		} { ^nil }
+		^widget.wmc.midiConnectorNames.m.value[this.index]
 	}
 
 	name_ { |name|
+		var index = this.index;
 		var mc = widget.wmc;
-		var conID = mc.midiConnectors.m.value.indexOf(this);
-		conID !? {
-			widget.wmc.midiConnectorNames.m.value[conID] = name.asSymbol;
-			widget.wmc.midiConnectorNames.m.changedPerformKeys(widget.syncKeys, conID);
-		}
+		mc.midiConnectorNames.m.value[index] = name.asSymbol;
+		mc.midiConnectorNames.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	setMidiMode { |mode|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		// 14-bit MIDI mode?
 		if (mode.asInteger != 0 and:{ mode.asInteger != 1 }) {
 			Error("setMidiMode: 'mode' must either be 0 or 1!").throw;
@@ -715,42 +653,36 @@ MidiConnector {
 	}
 
 	getMidiMode {
-		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^mc.midiOptions.m.value[index].midiMode;
+		^widget.wmc.midiOptions.m.value[this.index].midiMode;
 	}
 
 	setMidiZero { |zeroval|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		zeroval = zeroval.asInteger;
 		mc.midiOptions.m.value[index].midiZero = zeroval;
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiZero {
-		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^mc.midiOptions.m.value[index].midiZero;
+		^widget.wmc.midiOptions.m.value[this.index].midiZero;
 	}
 
 	setMidiSnapDistance { |snapDistance|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		snapDistance = snapDistance.asFloat;
 		mc.midiOptions.m.value[index].snapDistance = snapDistance;
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiSnapDistance {
-		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^mc.midiOptions.m.value[index].snapDistance;
+		^widget.wmc.midiOptions.m.value[this.index].snapDistance;
 	}
 
 	setMidiCtrlButtonGroup { |numButtons|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		if (numButtons.notNil and:{ numButtons.isInteger.not }) {
 			Error("setMidiCtrlButtonGroup: 'numButtons' must either be an Integer or nil!").throw;
 		};
@@ -759,27 +691,23 @@ MidiConnector {
 	}
 
 	getMidiCtrlButtonGroup {
-		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^mc.midiOptions.m.value[index].ctrlButtonGroup;
+		^widget.wmc.midiOptions.m.value[this.index].ctrlButtonGroup;
 	}
 
 	setMidiResolution { |resolution|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		mc.midiOptions.m.value[index].midiResolution = resolution;
 		mc.midiOptions.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiResolution {
-		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^widget.wmc.midiOptions.m.value[index].midiResolution;
+		^widget.wmc.midiOptions.m.value[this.index].midiResolution;
 	}
 
 	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		mapping = mapping.asSymbol;
 		[\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv].indexOf(mapping) ?? {
 			"arg 'mapping' must be one of \\linlin, \\linexp, \\explin, \\expexp, \\lincurve, \\linbicurve or \\linenv".error;
@@ -800,14 +728,34 @@ MidiConnector {
 	}
 
 	getMidiInputMapping {
+		^widget.wmc.midiOptions.m.value[this.index].midiInputMapping;
+	}
+
+	setMidiTemplate { |argTemplate|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
-		^widget.wmc.midiOptions.m.value[index].midiInputMapping;
+		mc.midiDisplay.m.value[index].template = argTemplate;
+		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getMidiTemplate {
+		^widget.wmc.oscDisplay.m.value[this.index].template;
+	}
+
+	setMidiDispatcher { |dispatcher|
+		var index = this.index;
+		var mc = widget.wmc;
+		mc.midiDisplay.m.value[index].dispatcher = dispatcher;
+		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getMidiDispatcher {
+		^widget.wmc.midiDisplay.m.value[this.index].dispatcher;
 	}
 
 	midiConnect { |num, chan, srcID, argTemplate, dispatcher|
+		var index = this.index;
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
 		mc.midiConnections.m.value[index] = this.prMIDIFunc(index, num, chan, srcID, argTemplate, dispatcher);
 		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system

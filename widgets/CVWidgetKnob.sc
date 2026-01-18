@@ -244,412 +244,421 @@ CVWidgetKnob : CVWidget {
 	}
 
 	// MIDI
-	setMidiMode { |mode, connector|
+	getMidiConnector { |connector|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
+			^this.midiConnectors[connector]
 		};
+		^connector
+	}
 
+	setMidiMode { |mode, connector|
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiMode(mode))
+			this.midiConnectors.do(_.setMidiMode(mode))
 		} {
 			connector.setMidiMode(mode)
 		}
 	}
 
 	getMidiMode { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiMode);
+			^this.midiConnectors.collect(_.getMidiMode);
 		} {
 			^connector.getMidiMode;
 		}
 	}
 
 	setMidiZero { |zeroval, connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiZero(zeroval))
+			this.midiConnectors.do(_.setMidiZero(zeroval))
 		} {
 			connector.setMidiZero(zeroval)
 		}
 	}
 
 	getMidiZero { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiZero)
+			^this.midiConnectors.collect(_.getMidiZero)
 		} {
 			^connector.getMidiZero;
 		}
 	}
 
 	setMidiSnapDistance { |snapDistance, connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiSnapDistance(snapDistance));
+			this.midiConnectors.do(_.setMidiSnapDistance(snapDistance));
 		} {
 			connector.setMidiSnapDistance(snapDistance);
 		}
 	}
 
 	getMidiSnapDistance { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiSnapDistance);
+			^this.midiConnectors.collect(_.getMidiSnapDistance);
 		} {
 			^connector.getMidiSnapDistance;
 		}
 	}
 
 	setMidiCtrlButtonGroup { |numButtons, connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiCtrlButtonGroup(numButtons));
+			this.midiConnectors.do(_.setMidiCtrlButtonGroup(numButtons));
 		} {
 			connector.setMidiCtrlButtonGroup(numButtons);
 		}
 	}
 
 	getMidiCtrlButtonGroup { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiCtrlButtonGroup);
+			^this.midiConnectors.collect(_.getMidiCtrlButtonGroup);
 		} {
 			^connector.getMidiCtrlButtonGroup;
 		}
 	}
 
 	setMidiResolution { |resolution, connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiResolution(resolution));
+			this.midiConnectors.do(_.setMidiResolution(resolution));
 		} {
 			connector.setMidiResolution(resolution);
 		}
 	}
 
 	getMidiResolution { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiResolution)
+			^this.midiConnectors.collect(_.getMidiResolution)
 		} {
 			^connector.getMidiResolution
 		}
 	}
 
 	setMidiInputMapping { |mapping, curve, env, connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			wmc.midiConnectors.m.value.do(_.setMidiInputMapping(mapping, curve, env))
+			this.midiConnectors.do(_.setMidiInputMapping(mapping, curve, env))
 		} {
 			connector.setMidiInputMapping(mapping, curve, env)
 		}
 	}
 
 	getMidiInputMapping { |connector|
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		if (connector.isNil) {
-			^wmc.midiConnectors.m.value.collect(_.getMidiInputMapping)
+			^this.midiConnectors.collect(_.getMidiInputMapping)
 		} {
 			^connector.getMidiInputMapping
 		}
 	}
 
-	midiConnect { |connector, src, chan, num|
+	setMiditemplate { |argTemplate, connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			this.midiConnectors.do(_.setMidiTemplate(argTemplate))
+		} {
+			connector.setMidiTemplate(argTemplate)
+		}
+	}
+
+	getMidiTemplate { |connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			^this.midiConnectors.collect(_.getMidiTemplate)
+		} {
+			^connector.getMidiTemplate
+		}
+	}
+
+	setMidiDispatcher { |dispatcher, connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			this.midiConnectors.do(_.setMidiDispatcher(dispatcher))
+		} {
+			connector.setMidiDispatcher(dispatcher)
+		}
+	}
+
+	getMidiDispatcher { |connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			^this.midiConnectors.collect(_.getMidiDispatcher)
+		} {
+			^connector.getMidiDispatcher
+		}
+	}
+
+	midiConnect { |connector, src, chan, num, argTemplate, dispatcher|
 		// create new annonymous connector if none is given
 		connector ?? {
-			if (wmc.midiConnectors.m.value.size == 1 and: {
+			if (this.midiConnectors.size == 1 and: {
 				wmc.midiConnections.m.value[0].isNil
 			}) {
-				connector = wmc.midiConnectors.m.value[0]
+				connector = this.midiConnectors[0]
 			} {
 				connector = MidiConnector(this)
 			}
 		};
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		// pass execution to connector
-		connector.midiConnect(src, chan, num);
+		connector.midiConnect(src, chan, num, argTemplate, dispatcher);
 	}
 
 	midiDisconnect { |connector|
 		connector ?? {
 			Error("No connector given. Don't know which connector to disconnect.").throw;
 		};
-		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
-		};
-
+		connector = this.getMidiConnector(connector);
 		// pass execution to connector
 		connector.midiDisconnect
 	}
 
 	// OSC
-	setOscEndless { |boolEndless, connector|
+	getOscConnector { |connector|
 		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
+			^this.oscConnectors[connector]
 		};
+		^connector
+	}
 
+	setOscEndless { |boolEndless, connector|
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscEndless(boolEndless))
+			this.oscConnectors.do(_.setOscEndless(boolEndless))
 		} {
 			connector.setOscEndless(boolEndless)
 		}
 	}
 
 	getOscEndless { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscEndless);
+			^this.oscConnectors.collect(_.getOscEndless);
 		} {
 			^connector.getOscEndless;
 		}
 	}
 
 	setOscResolution { |resolution, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscResolution(resolution))
+			this.oscConnectors.do(_.setOscResolution(resolution))
 		} {
 			connector.setOscResolution(resolution)
 		}
 	}
 
 	getOscResolution { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscResolution);
+			^this.oscConnectors.collect(_.getOscResolution);
 		} {
 			^connector.getOscResolution;
 		}
 	}
 
 	setOscSnapDistance { |distance, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscSnapDistance(distance))
+			this.oscConnectors.do(_.setOscSnapDistance(distance))
 		} {
 			connector.setOscSnapDistance(distance)
 		}
 	}
 
 	getOscSnapDistance { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscSnapDistance);
+			^this.oscConnectors.collect(_.getOscSnapDistance);
 		} {
 			^connector.getOscSnapDistance;
 		}
 	}
 
 	setOscCalibration { |boolCalibration, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscCalibration(boolCalibration))
+			this.oscConnectors.do(_.setOscCalibration(boolCalibration))
 		} {
 			connector.setOscCalibration(boolCalibration)
 		}
 	}
 
 	getOscCalibration { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscCalibration)
+			^this.oscConnectors.collect(_.getOscCalibration)
 		} {
 			^connector.getOscCalibration;
 		}
 	}
 
 	resetOscCalibration { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.resetOscCalibration)
+			this.oscConnectors.do(_.resetOscCalibration)
 		} {
 			connector.resetOscCalibration
 		}
 	}
 
 	setOscInputMapping { |mapping, curve, env, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscInputMapping(mapping, curve, env))
+			this.oscConnectors.do(_.setOscInputMapping(mapping, curve, env))
 		} {
 			connector.setOscInputMapping(mapping, curve, env)
 		}
 	}
 
 	getOscInputMapping { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscInputMapping);
+			^this.oscConnectors.collect(_.getOscInputMapping);
 		} {
 			^connector.getOscInputMapping;
 		}
 	}
 
 	setOscInputConstraints { |constraintsPair, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscInputConstraints(constraintsPair))
+			this.oscConnectors.do(_.setOscInputConstraints(constraintsPair))
 		} {
 			connector.setOscInputConstraints(constraintsPair)
 		}
 	}
 
 	getOscInputConstraints { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscInputConstraints);
+			^this.oscConnectors.collect(_.getOscInputConstraints);
 		} {
 			^connector.getOscInputConstraints;
 		}
 	}
 
 	setOscMatching { |boolMatching, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscMatching(boolMatching))
+			this.oscConnectors.do(_.setOscMatching(boolMatching))
 		} {
 			connector.setOscMatching(boolMatching)
 		}
 	}
 
 	getOscMatching { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscMatching);
+			^this.oscConnectors.collect(_.getOscMatching);
 		} {
 			^connector.getOscMatching;
 		}
 	}
 
 	setOscCmdName { |cmdPath, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscCmdName(cmdPath))
+			this.oscConnectors.do(_.setOscCmdName(cmdPath))
 		} {
 			connector.setOscCmdName(cmdPath)
 		}
 	}
 
 	getOscCmdName { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscCmdName);
+			^this.oscConnectors.collect(_.getOscCmdName);
 		} {
 			^connector.getOscCmdName;
 		}
 	}
 
 	setOscMsgIndex { |msgIndex, connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			wmc.oscConnectors.m.value.do(_.setOscMsgIndex(msgIndex))
+			this.oscConnectors.do(_.setOscMsgIndex(msgIndex))
 		} {
 			connector.setOscMsgIndex(msgIndex)
 		}
 	}
 
 	getOscMsgIndex { |connector|
-		if (connector.isInteger) {
-			connector = wmc.oscConnectors.m.value[connector]
-		};
-
+		connector = this.getOscConnector(connector);
 		if (connector.isNil) {
-			^wmc.oscConnectors.m.value.collect(_.getOscMsgIndex);
+			^this.oscConnectors.collect(_.getOscMsgIndex);
 		} {
 			^connector.getOscMsgIndex;
 		}
 	}
 
-	oscConnect {}
-	oscDisconnect {}
+	setOscTemplate { |argTemplate, connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			this.oscConnectors.do(_.setOscTemplate(argTemplate))
+		} {
+			connector.setOscTemplate(argTemplate)
+		}
+	}
+
+	getOscTemplate { |connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			^this.oscConnectors.collect(_.getOscTemplate)
+		} {
+			^connector.getOscTemplate
+		}
+	}
+
+	setOscDispatcher { |dispatcher, connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			this.oscConnectors.do(_.setOscDispatcher(dispatcher))
+		} {
+			connector.setOscDispatcher(dispatcher)
+		}
+	}
+
+	getOscDispatcher { |connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			^this.oscConnectors.collect(_.getOscDispatcher)
+		} {
+			^connector.getOscDispatcher
+		}
+	}
+
+	oscConnect { |connector, addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
+		// create new annonymous connector if none is given
+		connector ?? {
+			if (this.oscConnectors.size == 1 and: {
+				wmc.oscConnections.m.value[0].isNil
+			}) {
+				connector = this.oscConnectors[0]
+			} {
+				connector = OscConnector(this)
+			}
+		};
+		connector = this.getOscConnector(connector);
+		// pass execution to connector
+		connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
+	}
+
+	oscDisconnect { |connector|
+		connector ?? {
+			Error("No connector given. Don't know which connector to disconnect.").throw;
+		};
+		connector = this.getOscConnector(connector);
+		// pass execution to connector
+		connector.oscDisconnect
+	}
 
 	// connections handling
 	addOscConnector { |name|
@@ -659,7 +668,7 @@ CVWidgetKnob : CVWidget {
 
 	removeOscConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
+			connector = this.midiConnectors[connector]
 		};
 		connector.remove(forceAll);
 	}
@@ -671,7 +680,7 @@ CVWidgetKnob : CVWidget {
 
 	removeMidiConnector { |connector, forceAll = false|
 		if (connector.isInteger) {
-			connector = wmc.midiConnectors.m.value[connector]
+			connector = this.midiConnectors[connector]
 		};
 		connector.remove(forceAll);
 	}

@@ -108,6 +108,10 @@ CVWidget {
 	getMidiResolution { this.subclassResponsibility(thisMethod) }
 	setMidiInputMapping { this.subclassResponsibility(thisMethod) }
 	getMidiInputMapping { this.subclassResponsibility(thisMethod) }
+	setMidiTemplate { this.subclassResponsibility(thisMethod) }
+	getMidiTemplate { this.subclassResponsibility(thisMethod) }
+	setMidiDispatcher { this.subclassResponibility(thisMethod) }
+	getMidiDispatcher { this.subclassResponsibility(thisMethod) }
 	midiConnect { this.subclassResponsibility(thisMethod) }
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 	// OSC
@@ -133,6 +137,10 @@ CVWidget {
 	getOscMsgIndex { this.subclassResponsibility(thisMethod) }
 	setOscMatching { this.subclassResponsibility(thisMethod) }
 	getOscMatching { this.subclassResponsibility(thisMethod) }
+	setOscTemplate { this.subclassResponsibility(thisMethod) }
+	getOscTemplate { this.subclassResponsibility(thisMethod) }
+	setOscDispatcher { this.subclassResponibility(thisMethod) }
+	getOscDispatcher { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
 	// remove (invalidate) widget

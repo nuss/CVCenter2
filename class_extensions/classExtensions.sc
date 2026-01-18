@@ -67,15 +67,17 @@
 }
 
 +OSCFunc {
+	// usage in a CVWidget context only!
+	*cvWidgetLearn { |widget, index, matching=false, port, argTemplate, dispatcher|
+		var learnFunc;
 
-	*cvWidgetLearn { |widget, index, matching=false, port|
-		var o;
-		var learnFunc = { |msg, time, addr, recvPort|
+		OscConnector.accum[widget] = widget.cv.input;
+		learnFunc = { |msg, time, addr, recvPort|
 			if (matching) {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching({ |m, t, a, rp| [m, t, a, rp].postln }, msg[0], addr, port ? recvPort);
+				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(widget.oscConnectors[index].prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
 				"New matching OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			} {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc({ |m, t, a, rp| [m, t, a, rp].postln }, msg[0], addr, port ? recvPort);
+				widget.wmc.oscConnections.m.value[index] = OSCFunc(widget.oscConnectors[index].prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
 				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			};
 			thisProcess.removeOSCRecvFunc(learnFunc)
@@ -84,11 +86,9 @@
 		OSCCommands.collectSync(false);
 		thisProcess.addOSCRecvFunc(learnFunc);
 	}
-
 }
 
 +MIDIFunc {
-
 	// will only work in a CVWidget context
 	learnSync { |widget, index, learnVal=false|
 		var learnFunc;
