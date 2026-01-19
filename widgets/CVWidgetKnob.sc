@@ -693,7 +693,12 @@ CVWidgetKnob : CVWidget {
 			asoc.key.remove;
 		};
 		// remove the widget's controllers from Object.dependantsDictionary
-		this.wmc.do { |val| val.c.remove };
+		this.wmc.do { |val|
+			if (val.class === Event) { val.c.remove };
+			if (val.class === List) { val.do { |it|
+				it.pairsDo { |k, v| v.release };
+			}}
+		};
 		all.removeAt(name);
 	}
 

@@ -67,9 +67,14 @@
 }
 
 +OSCFunc {
-	// usage in a CVWidget context only!
-	*cvWidgetLearn { |widget, index, matching=false, port, argTemplate, dispatcher|
+	// usage in a CVWidget context only
+	*cvWidgetLearn { |widget, index=0, matching=false, port, argTemplate, dispatcher|
 		var learnFunc;
+
+		if (widget.isNil or: { widget.isKindOf(CVWidget).not}) {
+			"Cannot connect non-existing or invalid widget".error;
+			^nil
+		};
 
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
@@ -80,6 +85,7 @@
 				widget.wmc.oscConnections.m.value[index] = OSCFunc(widget.oscConnectors[index].prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
 				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			};
+			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
 			thisProcess.removeOSCRecvFunc(learnFunc)
 		};
 		// either collect or learn - we've decided to learn'

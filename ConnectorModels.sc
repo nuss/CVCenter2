@@ -314,6 +314,14 @@ OscConnector {
 		mc.oscConnections.m.value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
 		// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
+		mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip;
+		mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+		mc.oscDisplay.m.value[index].nameField = mc.oscConnections.m.value[index].path;
+		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate;
+		mc.oscDisplay.m.value[index].dispatcher = mc.oscConnections.m.value[index].dispatcher;
+		mc.oscDisplay.m.value[index].connectorButVal = 1;
+		mc.oscDisplay.m.value[index].connect = "disconnect";
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? { this.oscDisconnect }
@@ -329,7 +337,8 @@ OscConnector {
 		mc.oscDisplay.m.value[index].ipField = nil;
 		mc.oscDisplay.m.value[index].portField = nil;
 		mc.oscDisplay.m.value[index].nameField = '/my/cmd/name';
-		mc.oscDisplay.m.value[index].templ = nil;
+		mc.oscDisplay.m.value[index].template = nil;
+		mc.oscDisplay.m.value[index].dispatcher = nil;
 		mc.oscDisplay.m.value[index].connectorButVal = 0;
 		mc.oscDisplay.m.value[index].connect = "learn";
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
@@ -391,7 +400,7 @@ OscConnector {
 				// unlike MIDI OSC values come in within a dynamic range
 				// hence, we need to normalize based on this dynamic range
 				// input must be positive, ranging from 0-1
-				[input, input+alwaysPositive, input/constraintsRange, (input+alwaysPositive)/constraintsRange].postln;
+				// [input, input+alwaysPositive, input/constraintsRange, (input+alwaysPositive)/constraintsRange].postln;
 				if (constraintsRange == 0) { input = 0 } {
 					input = input+alwaysPositive
 				};
@@ -412,14 +421,13 @@ OscConnector {
 				};
 				accum[widget] = cv.input;
 			} {
-				// "input: %\nconstraintsRange: %\naccum: %\n".format(input, constraintsRange, accum[widget]).postln;
 				accum[widget] = accum[widget] + (input / constraintsRange / 32 * this.getOscResolution);
-				// "accum: %\n".format(accum[widget]).postln;
-				// "spec: %\ninput mapping: %\n".format(widget.getSpec, this.getOscInputMapping).postln;
 
 				case
 				{ accum[widget] < 0 } { accum[widget] = 0 }
 				{ accum[widget] > 1 } { accum[widget] = 1 };
+
+				// [input, accum[widget], inputMapping, this.getOscResolution].postln;
 
 				case
 				{ inputMapping.mapping === \lincurve } {
@@ -451,9 +459,9 @@ OscConnector {
 		// [a, c, mid, r, t, d].postln;
 		accum[widget] = widget.cv.input;
 		^if (m) {
-			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, r, t)
+			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)
 		} {
-			^OSCFunc(this.prOSCFuncAction(mid), c, r, t, d)
+			^OSCFunc(this.prOSCFuncAction(mid), c, a, r, t, d)
 		}
 	}
 
@@ -758,6 +766,22 @@ MidiConnector {
 		var mc = widget.wmc;
 		mc.midiConnections.m.value[index] = this.prMIDIFunc(index, num, chan, srcID, argTemplate, dispatcher);
 		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
+		mc.midiDisplay.m.value[index].learn = "X";
+		mc.midiDisplay.m.value[index].toolTip = "Click to disconnect";
+		mc.midiConnections.m.value[index].srcID !? {
+			mc.midiDisplay.m.value[index].src = mc.midiConnections.m.value[index].srcID
+		};
+		mc.midiConnections.m.value[index].chan !? {
+			mc.midiDisplay.m.value[index].chan = mc.midiConnections.m.value[index].chan
+		};
+		mc.midiConnections.m.value[index].msgNum !? {
+			mc.midiDisplay.m.value[index].ctrl = mc.midiConnections.m.value[index].msgNum
+		};
+		mc.midiConnections.m.value[index].argTemplate !? {
+			mc.midiDisplay.m.value[index].template = mc.midiConnections.m.value[index].argTemplate
+		};
+		mc.midiDisplay.m.value[index].dispatcher = mc.midiConnections.m.value[index].dispatcher;
+		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? { this.midiDisconnect }
@@ -773,7 +797,10 @@ MidiConnector {
 		mc.midiDisplay.m.value[index].src = 'source...';
 		mc.midiDisplay.m.value[index].chan = "chan";
 		mc.midiDisplay.m.value[index].ctrl = "ctrl";
-		mc.midiDisplay.m.value[index].templ = nil;
+		mc.midiDisplay.m.value[index].template = nil;
+		mc.midiDisplay.m.value[index].dispatcher = nil;
+		mc.midiDisplay.m.value[index].toolTip = "Click and move hardware slider/knob to connect to";
+		mc.midiDisplay.m.value[index].learn = "L";
 		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		CmdPeriod.remove({
 			this.widget !? { this.midiDisconnect }

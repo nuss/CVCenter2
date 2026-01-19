@@ -1,4 +1,4 @@
-TestCVCenter {
+TestCVCenter : UnitTest {
 	*runAll {
 		[
 			TestCVWidget,
