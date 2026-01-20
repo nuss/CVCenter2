@@ -181,5 +181,18 @@ TestOscConnector : UnitTest {
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].path, '/test1', "widget.wmc.oscConnections.m.value[0].path should return '/test1'.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].recvPort, nil, "widget.wmc.oscConnections.m.value[0].recvPort should return nil.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].argTemplate, [0, 1, 2, 3], "widget.wmc.oscConnections.m.value[0].argTemplate should return [0, 1, 2, 3].");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].ipField, "127.0.0.1", "widget.wmc.oscDisplay.m.value[0].ipField should equal \"127.0.0.1\".");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].portField, 57120, "widget.wmc.oscDisplay.m.value[0].portField should equal 57120.");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].nameField, '/test1', "widget.wmc.oscDisplay.m.value[0].nameField should equal '/test1'.");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].template, [0, 1, 2, 3], "widget.wmc.oscDisplay.m.value[0].template should equal [0, 1, 2, 3]");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].dispatcher.class, OSCMessageDispatcher, "widget.wmc.oscDisplay.m.value[0].dispatcher.class should return OSCMessageDispatcher");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].connectorButVal, 1, "widget.wmc.oscDisplay.m.value[0].connectorButVal should equal 1");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].connect, "disconnect", "widget.wmc.oscDisplay.m.value[0].connect should equal \"disconnect\".");
+		connector1.oscDisconnect;
+		this.assertEquals(widget.wmc.oscConnections.m.value[0], nil, "After disconnecting a widget's default MidiConnector instance widget.wmc.oscConnections.m.value[0] should hold nil");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0], (index: 1, nameField: '/test1', ipField: "127.0.0.1", portField: 57120, template: [0, 1, 2, 3], connectorButVal: 0, connect: "connect"));
+		connector1.remove;
+		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "After removing connector1 widget.wmc.oscConnectors.m.value should hold one OscConnector.");
+		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling connection2.oscConnect and calling connection1.remove widget.wmc.oscConnections.m.value[0] should hold an OSCFunc");
 	}
 }

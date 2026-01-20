@@ -68,21 +68,37 @@
 
 +OSCFunc {
 	// usage in a CVWidget context only
-	*cvWidgetLearn { |widget, index=0, matching=false, port, argTemplate, dispatcher|
-		var learnFunc;
+	*cvWidgetLearn { |widget, index, matching=false, port, argTemplate, dispatcher|
+		var learnFunc, connector;
 
 		if (widget.isNil or: { widget.isKindOf(CVWidget).not}) {
 			"Cannot connect non-existing or invalid widget".error;
 			^nil
 		};
 
+		if (index.isNil or: {
+			widget.oscConnectors[index].isNil or: {
+				widget.wmc.oscConnections.m.value[index].notNil
+			}
+		}) {
+			connector = widget.addOscConnector/*.postln*/;
+			index = connector.index/*.postln*/;
+			// widget.wmc.oscConnections.m.value.postln;
+		} {
+			connector = widget.oscConnectors[index];
+		};
+
+		// "connector: %, index: %".format(connector, index).postln;
+
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
+			// "connector: %".format(connector).postln;
 			if (matching) {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(widget.oscConnectors[index].prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
+				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
 				"New matching OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			} {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc(widget.oscConnectors[index].prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
+				// widget.wmc.oscConnections.m.value.postln;
+				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
 				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			};
 			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);

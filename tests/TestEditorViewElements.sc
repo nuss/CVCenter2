@@ -703,8 +703,8 @@ TestMidiConnectorRemoveButton : UnitTest {
 
 	setUp {
 		widget1 = CVWidgetKnob(\test1);
-		button1 = MidiConnectorRemoveButton.new(widget: widget1);
-		button2 = MidiConnectorRemoveButton.new(widget: widget1);
+		button1 = ConnectorRemoveButton(widget: widget1, connectorKind: \midi);
+		button2 = ConnectorRemoveButton(widget: widget1, connectorKind: \midi);
 	}
 
 	tearDown {

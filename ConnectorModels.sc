@@ -37,7 +37,7 @@ OscConnector {
 		wmc.oscConnections.m ?? {
 			wmc.oscConnections.m = Ref(List[]);
 		};
-		wmc.oscConnections.m.value.add(false);
+		wmc.oscConnections.m.value.add(nil);
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
 		wmc.oscDisplay.m ?? {
@@ -334,13 +334,12 @@ OscConnector {
 		mc.oscConnections.m.value[index].clear;
 		mc.oscConnections.m.value[index] = nil;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-		mc.oscDisplay.m.value[index].ipField = nil;
-		mc.oscDisplay.m.value[index].portField = nil;
-		mc.oscDisplay.m.value[index].nameField = '/my/cmd/name';
-		mc.oscDisplay.m.value[index].template = nil;
+		// mc.oscDisplay.m.value[index].ipField = nil;
+		// mc.oscDisplay.m.value[index].portField = nil;
+		// mc.oscDisplay.m.value[index].template = nil;
 		mc.oscDisplay.m.value[index].dispatcher = nil;
 		mc.oscDisplay.m.value[index].connectorButVal = 0;
-		mc.oscDisplay.m.value[index].connect = "learn";
+		mc.oscDisplay.m.value[index].connect = "connect";
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		CmdPeriod.remove({
 			this.widget !? { this.oscDisconnect }

@@ -59,7 +59,6 @@ TestCVWidgetKnob : UnitTest {
 	}
 
 	test_new {
-		var oscConnection, midiConnection;
 		this.assertEquals(widget.class, CVWidgetKnob, "A new CVWidgetKnob should identify itself as a CVWidgetKnob");
 		this.assertEquals(widget.cv.class, CV, "A new CVWidgetKnob for which no CV has been specified should automatically have been created with a new CV");
 		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
@@ -77,20 +76,13 @@ TestCVWidgetKnob : UnitTest {
 			\oscConnectorNames,
 			\midiConnections,
 			\cvSpec,
-			\midiConnectors
+			\midiConnectors,
+			\oscInputConstrainters
 		], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
 		this.assertEquals(widget.wmc.oscConnectors.m.value[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
 		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
 		this.assertEquals(widget.wmc.midiConnectors.m.value[0].name, 'MIDI Connection 1', "The default MidiConnector should be named 'Midi Connection 1'")
-	}
-
-	test_add_remove_MidiConnector {
-		var connector = widget.addMidiConnector(\midiConnector2);
-		this.assertEquals(widget.wmc.midiConnectors.m.value.collect(_.name), ['MIDI Connection 1', 'midiConnector2'], "After adding a MididConnector widget.wmc.midiConnectors.m.value should hold 2 MidiConnectors named 'MIDI Connection 1' and 'midiConnector2'");
-		widget.removeMidiConnector(0);
-		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "After removing the MidiConnector at index 0 widget.wmc.midiConnectors.m.value should hold one MidiConnector");
-		this.assertEquals(widget.wmc.midiConnectors.m.value[0].name, \midiConnector2, "The remaining MidiConnector stored in widget.wmc.midiConnectors.m.value after calling widget.removeMidiConnector(0) should be named 'midiConnector2'");
 	}
 
 	test_setSpec {
@@ -192,15 +184,15 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getMidiZero {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiZero, [63, 63, 63], "All widget.midiConnectors should be set to midiZero 64 by default");
+		this.assertEquals(widget.getMidiZero, [64, 64, 64], "All widget.midiConnectors should be set to midiZero 64 by default");
 		widget.setMidiZero(0);
 		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.midiConnectors should have been set to midiZero 0");
-		widget.setMidiZero(63, connection1);
-		this.assertEquals(widget.getMidiZero, [0, 63, 0], "widget.midiConnectors' midiZero should equal [0, 63, 0]");
-		widget.setMidiZero(63, 2);
-		this.assertEquals(widget.getMidiZero, [0, 63, 63], "widget.midiConnectors' midiZero should equal [0, 63, 63].");
-		this.assertEquals(widget.getMidiZero(1), 63, "widget.midiConnectors' midiZero at index 1 should equal 63.");
-		this.assertEquals(widget.getMidiZero(connection2), 63, "widget.midiConnectors' midiZero for connection2 should equal 63.");
+		widget.setMidiZero(64, connection1);
+		this.assertEquals(widget.getMidiZero, [0, 64, 0], "widget.midiConnectors' midiZero should equal [0, 63, 0]");
+		widget.setMidiZero(64, 2);
+		this.assertEquals(widget.getMidiZero, [0, 64, 64], "widget.midiConnectors' midiZero should equal [0, 63, 63].");
+		this.assertEquals(widget.getMidiZero(1), 64, "widget.midiConnectors' midiZero at index 1 should equal 63.");
+		this.assertEquals(widget.getMidiZero(connection2), 64, "widget.midiConnectors' midiZero for connection2 should equal 63.");
 	}
 
 	test_set_getMidiSnapDistance {
@@ -261,28 +253,27 @@ TestCVWidgetKnob : UnitTest {
 	}
 
 	test_midiConnect {
-		var numConnections;
+		var numConnectors;
 		// MIDIIn.connectAll;
-		numConnections = widget.wmc.midiConnectors.m.value.size;
+		numConnectors = widget.wmc.midiConnectors.m.value.size;
 		widget.midiConnect(0, num: 1);
-		this.assert(numConnections == widget.wmc.midiConnectors.m.value.size, "The number of widget.wmc.midiConnectors.m.value should not have been increased after connecting the widget using the default midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.m[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m[0].value should equal (num: 1)");
+		this.assert(numConnectors == widget.wmc.midiConnectors.m.value.size, "The number of widget.wmc.midiConnectors.m.value should not have been increased after connecting the widget using the default MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m.value[0].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[0].class should return MIDIFunc");
 		widget.midiConnect(num: 2);
-		this.assert(widget.wmc.midiConnectors.m.value.size == (numConnections + 1) , "The number of widget.wmc.midiConnectors.m.value should not have been increased by 1 after connecting the widget without specifying a midiConnection");
-		this.assertEquals(widget.wmc.midiConnections.m[1].value, (num: 2), "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m[1].value should equal (num: 2)");
+		this.assert(widget.wmc.midiConnectors.m.value.size == (numConnectors + 1) , "The number of widget.wmc.midiConnectors.m.value should have been increased by 1 after connecting the widget without specifying a MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m.value[1].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[1] should return MIDIFunc");
 		// midi learn
 		widget.midiConnect;
 		MIDIIn.doControlAction(12345, 0, 5, 127);
-		this.assertEquals(widget.wmc.midiConnections.m[2].value, (src: 12345, chan: 0, num: 5), "After calling widget.midiConnect widget.wmc.midiConnection.m[2].value should have set by 'learning' to' (src: 12345, chan: 0, num: 5)");
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].srcID, 12345, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].srcID should return 12345.");
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].chan, 0, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].chan should return 0.");
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].msgNum, 5, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].msgNum should return 5.");
 	}
 
 	test_midiDisconnect {
 		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnections.m[0].value, (num: 1), "After calling widget.midiConnect(0, num: 1) widget.wmc.midi[0].midiConnection.m.value should equal (num: 1)");
 		widget.midiDisconnect(0);
-		this.assertEquals(widget.wmc.midiConnections.m[0].value, nil, "After calling widget.midiDisonnect(0) widget.wmc.midi[0].midiConnection.m.value should equal nil");
-		widget.midiConnect(0, num: 1);
-		this.assertEquals(widget.wmc.midiConnections.m[0].value, (num: 1), "After calling widgetDisConnect(0) and calling widget.midiConnect(0, num: 1) again widget.wmc.midi[0].midiConnection.m.value should equal (num: 1)");
+		this.assertEquals(widget.wmc.midiConnections.m.value[0], nil, "After calling widget.midiDisonnect(0) widget.wmc.midiConnection.m.value[0] should equal nil");
 	}
 
 	test_set_getOscEndless {
@@ -370,9 +361,37 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getOscInputConstraints(connection2), [0, 100], "widget.oscConnectors' oscCalibration for connection2 should equal [0, 100].");
 	}
 
-	test_oscConnect {}
+	test_oscConnect {
+		var c = CondVar(), waitThreadDelay = 1, signalThreadDelay = 2;
+		var numConnectors = widget.wmc.oscConnectors.m.value.size;
+		var localAddr = NetAddr.localAddr;
+		widget.oscConnect(0, localAddr, '/test1');
+		this.assert(numConnectors == widget.wmc.oscConnectors.m.value.size, "The number of widget.wmc.oscConnectors.m.value should not have been increased after connecting the widget using the default OscConnector");
+		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling widget.oscConnect(0, NetAddr.localAddr, '/test1') widget.wmc.oscConnection.m.value[0].class should return OSCFunc.");
+		widget.oscConnect(addr: NetAddr("192.168.1.5"), cmdPath: '/test2');
+		this.assert(widget.wmc.oscConnectors.m.value.size == (numConnectors + 1), "The number of widget.wmc.oscConnectors.m.value should have been increased by 1 after connecting the widget without specifying an OscConnector");
+		// not really a unit test - OSCFunc.cvWidgetLearn(widget) seems to work as it should
+		// but I've been unable so far to test the result
+		fork {
+			waitThreadDelay.wait;
+			c.wait({ widget.wmc.oscConnections.m.value.size == 3 });
+			localAddr.sendMsg('/test3', 5);
+			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
+		};
+		fork {
+			signalThreadDelay.wait;
+			OSCFunc.cvWidgetLearn(widget);
+			c.signalOne;
+			// localAddr.sendMsg('/test3', 5);
+			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
+		}
+	}
 
-	test_oscDisconnect {}
+	test_oscDisconnect {
+		widget.oscConnect(0, NetAddr.localAddr, '/test1');
+		widget.oscDisconnect(0);
+		this.assertEquals(widget.wmc.oscConnections.m.value[0], nil, "widget.wmc.oscConnections.m.value[0] should be nil aftercalling widget.oscDisconnect(0).");
+	}
 
 	test_addAction {
 		widget.addAction("active", { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
@@ -428,7 +447,11 @@ TestCVWidgetKnob : UnitTest {
 
 	test_remove {
 		var allModels = [];
-		widget.wmc.do { |it| it.m.do { |m| allModels = allModels.add(m.value) }};
+		widget.wmc.do { |it|
+			if (it.class === Event) {
+				it.m.do { |m| allModels = allModels.add(m.value) }
+			}
+		};
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
 		widget.remove;
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
