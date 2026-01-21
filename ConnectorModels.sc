@@ -314,7 +314,7 @@ OscConnector {
 		mc.oscConnections.m.value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
 		// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-		mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip;
+		mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
 		mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
 		mc.oscDisplay.m.value[index].nameField = mc.oscConnections.m.value[index].path;
 		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate;

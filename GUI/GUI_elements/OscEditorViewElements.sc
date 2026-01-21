@@ -23,7 +23,7 @@ OscCmdNameField : ConnectorElementView {
 
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		isConnected = widget.wmc.oscConnections.m.value[index];
+		isConnected = widget.wmc.oscConnections.m.value[index].notNil;
 
 		this.view = TextField(parentView, rect)
 		.enabled_(isConnected.not);
@@ -59,7 +59,7 @@ OscCmdNameField : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		this.view.enabled_(widget.wmc.oscConnections.m.value[0].not);
+		this.view.enabled_(widget.wmc.oscConnections.m.value[0].notNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -80,7 +80,7 @@ OscCmdNameField : ConnectorElementView {
 				if (tf.connector === conModel[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].nameField);
-						tf.view.enabled_(widget.wmc.oscConnections.m.value[conID].not)
+						tf.view.enabled_(widget.wmc.oscConnections.m.value[conID].notNil)
 					}
 				}
 			}
@@ -112,7 +112,7 @@ OscCmdIndexBox : ConnectorElementView {
 
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		isConnected = widget.wmc.oscConnections.m.value[index];
+		isConnected = widget.wmc.oscConnections.m.value[index].notNil;
 
 		this.view = NumberBox(parentView, rect)
 		.clipLo_(1).step_(1).scroll_step_(1)

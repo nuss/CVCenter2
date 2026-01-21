@@ -34,7 +34,7 @@ OscConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 300))
+			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 550))
 		} { parent = parentView };
 
 		if (widget.wmc.oscConnectors.m.value.isEmpty) {

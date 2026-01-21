@@ -194,11 +194,6 @@ OscSelectsComboView : CompositeView {
 	}
 
 	prAddController {
-		var conID;
-		var ips, ports, cmds;
-		var ipsvals, portsvals, cmdsvals;
-		var ip, cmdIndex, port, val;
-
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
@@ -206,101 +201,133 @@ OscSelectsComboView : CompositeView {
 		CVWidget.syncKeys.indexOf(syncKey) ?? {
 			CVWidget.prAddSyncKey(syncKey, true)
 		};
+		this.prAddIsScanningOscController(syncKey);
+		this.prAddOscAddrAndCmdsController(syncKey);
+		this.prAddOscDisplayController(syncKey);
+	}
+
+	prAddIsScanningOscController { |syncKey|
 		wmc.isScanningOsc.c ?? {
 			wmc.isScanningOsc.c = SimpleController(wmc.isScanningOsc.m)
 		};
 		wmc.isScanningOsc.c.put(syncKey, { |changer, what ... moreArgs|
 			all.do { |comboList|
 				comboList.do { |combo|
-					combo.e.scanbut.value_(changer.value.asInteger)
+					defer {
+						combo.e.scanbut.value_(changer.value.asInteger)
+					}
 				}
 			}
-		});
+		})
+	}
+
+	prAddOscAddrAndCmdsController { |syncKey|
+		var ips, cmds;
+
 		osc.c ?? { osc.c = SimpleController(osc.m) };
 		osc.c.put(syncKey, { |changer, what ... moreArgs|
 			if (changer.value.isEmpty) {
 				all.do { |comboList|
 					comboList.do { |combo|
-						combo.e.ipselect.items_([e.ipselect.items[0]]);
-						combo.e.portselect.items_([e.portselect.items[0]]);
-						combo.e.cmdselect.items_([e.cmdselect.items[0]]);
+						defer {
+							combo.e.ipselect.items_([e.ipselect.items[0]]);
+							combo.e.portselect.items_([e.portselect.items[0]]);
+							combo.e.cmdselect.items_([e.cmdselect.items[0]]);
+						}
 					}
 				}
 			} {
 				ips = changer.value.keys.asArray.sort;
 				all.do { |comboList|
 					comboList.do { |combo|
-						combo.e.ipselect.items_([e.ipselect.items[0]] ++ ips);
-						// [combo.widget, combo.connector].postln;
-						case
-						{ combo.e.ipselect.value == 0 } {
-							// "ipselect.value == 0".warn;
-							combo.e.portselect.value_(0);
-							cmds = [];
-							osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
-							combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort)
-						}
-						// TODO: test me...
-						// e = (a: (aa: (aa1: 1, aa2: 1), ab: (ab1: 1, ab2: 1)), b: (bb: (b1: 1, b2: 1)))
-						{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value == 0 }} {
-							// "ipselect.value > 0 and portselect.value == 0".warn;
-							cmds = osc.m.value[combo.e.ipselect.item].values.collect { |k| k.keys.asArray }.flat;
-							combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort)
-						}
-						// TODO: test me...
-						{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value > 0 }} {
-							// "ipselect and portselect value > 0".warn;
-							cmds = osc.m.value[combo.e.ipselect.item][combo.e.portselect.item].keys.asArray.sort;
-							combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds)
+						defer {
+							combo.e.ipselect.items_([e.ipselect.items[0]] ++ ips);
+							case
+							{ combo.e.ipselect.value == 0 } {
+								combo.e.portselect.value_(0);
+								cmds = [];
+								osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
+								combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort)
+							}
+							// TODO: test me...
+							// e = (a: (aa: (aa1: 1, aa2: 1), ab: (ab1: 1, ab2: 1)), b: (bb: (b1: 1, b2: 1)))
+							{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value == 0 }} {
+								cmds = osc.m.value[combo.e.ipselect.item].values.collect { |k| k.keys.asArray }.flat;
+								combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort)
+							}
+							// TODO: test me...
+							{ combo.e.ipselect.value > 0 and: { combo.e.portselect.value > 0 }} {
+								// "ipselect and portselect value > 0".warn;
+								cmds = osc.m.value[combo.e.ipselect.item][combo.e.portselect.item].keys.asArray.sort;
+								combo.e.cmdselect.items_([combo.e.cmdselect.items[0]] ++ cmds)
+							}
 						}
 					}
 				}
 			}
-		});
+		})
+	}
+
+	prAddOscDisplayController { |syncKey|
+		var conID, cmds, ip, cmdIndex, port;
+
 		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
 		oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
+			// "changer: %".format(changer.value[conID]).postln;
 			all[widget].do { |selCombo|
 				if (selCombo.connector === connectors[conID]) {
 					case
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						selCombo.e.rreset.toolTip_("Reset all IP addresses, ports and command names");
-						selCombo.e.ipselect.value_(0);
-						selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
-						cmds = [];
-						osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
-						selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort);
+						defer {
+							selCombo.e.rreset.toolTip_("Reset all IP addresses, ports and command names");
+							selCombo.e.ipselect.value_(0);
+							selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
+							cmds = [];
+							osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
+							selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort);
+						}
 					}
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.isNil
 					}} {
-						ip = changer.value[conID].ipField;
-						selCombo.e.rreset.toolTip_("Reset all ports and command names under IP %".format(ip));
-						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
-						selCombo.e.portselect.items_(
-							[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.collect(_.asInteger).sort
-						).value_(0);
-						selCombo.e.cmdselect.items_(
-							[selCombo.e.cmdselect.items[0]] ++ osc.m.value[ip].values.collect(_.keys).collect(_.asArray).flat.sort
-						)
+						defer {
+							ip = changer.value[conID].ipField;
+							selCombo.e.rreset.toolTip_("Reset all ports and command names under IP %".format(ip));
+							selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
+							selCombo.e.portselect.items_(
+								[selCombo.e.portselect.items[0]] ++ osc.m.value[ip].keys.asArray.collect(_.asInteger).sort
+							).value_(0);
+							selCombo.e.cmdselect.items_(
+								[selCombo.e.cmdselect.items[0]] ++ osc.m.value[ip].values.collect(_.keys).collect(_.asArray).flat.sort
+							)
+						}
 					}
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.notNil
 					}} {
 						ip = changer.value[conID].ipField;
 						port = changer.value[conID].portField;
-						selCombo.e.rreset.toolTip_("Reset all command names under IP:port %:%".format(ip, port));
-						selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
-						selCombo.e.portselect.value_(selCombo.e.portselect.items.indexOf(port));
 						cmds = osc.m.value[changer.value[conID].ipField][changer.value[conID].portField.asSymbol].keys.asArray.sort;
-						selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds)
+						defer {
+							selCombo.e.rreset.toolTip_("Reset all command names under IP:port %:%".format(ip, port));
+							selCombo.e.ipselect.value_(selCombo.e.ipselect.items.indexOf(ip));
+							// needed if value was 'learned'
+							selCombo.e.portselect.items.indexOf(changer.value[conID].portField) ?? {
+								selCombo.e.portselect.items_(selCombo.e.portselect.items ++ changer.value[conID].portField)
+							};
+							selCombo.e.portselect.value_(selCombo.e.portselect.items.indexOf(port));
+							selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds);
+						}
 					};
-					if (changer.value[conID].nameField !== '/my/cmd/name' and: {
-						(cmdIndex = selCombo.e.cmdselect.items.indexOf(changer.value[conID].nameField)).notNil
-					}) {
-						selCombo.e.cmdselect.value_(cmdIndex)
+					defer {
+						if (changer.value[conID].nameField !== '/my/cmd/name' and: {
+							(cmdIndex = selCombo.e.cmdselect.items.indexOf(changer.value[conID].nameField)).notNil
+						}) {
+							selCombo.e.cmdselect.value_(cmdIndex)
+						}
 					}
 				}
 			}

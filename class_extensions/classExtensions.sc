@@ -92,6 +92,7 @@
 
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
+			thisProcess.removeOSCRecvFunc(learnFunc);
 			// "connector: %".format(connector).postln;
 			if (matching) {
 				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
@@ -102,7 +103,29 @@
 				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
 			};
 			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-			thisProcess.removeOSCRecvFunc(learnFunc)
+			widget.wmc.oscDisplay.m.value[index].nameField = msg[0];
+			widget.wmc.oscDisplay.m.value[index].connectorButVal = 1;
+			widget.wmc.oscDisplay.m.value[index].connect = "disconnect";
+			widget.wmc.oscDisplay.m.value[index].ipField = addr.ip.asSymbol;
+			widget.wmc.oscDisplay.m.value[index].portField = addr.port;
+			widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate;
+			widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher;
+			CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol] ?? {
+				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ())
+			};
+			if (CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].isNil) {
+				CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].put(addr.port.asSymbol, (msg[0] : msg[1..].size))
+			} {
+				CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].put(msg[0], msg[1..].size)
+			};
+			// tricky...
+			// oscAddrAndCmds holds all IP addresses, ports and command paths - unordered.
+			// later, oscDisplay.m.changedPerformKeys is supposed to pick the right values and set selects in
+			// the oscDisplay controller in OscSelectsComboView:-prAddController
+			// Or should select items get ammended in the oscDisplay controller and hence the
+			// oscAddrAndCmds controller should be signaled *after* the oscDisplay controller?
+			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		};
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
