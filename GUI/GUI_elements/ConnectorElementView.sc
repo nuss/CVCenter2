@@ -11,13 +11,22 @@ ConnectorElementView : SCViewHolder {
 	prCleanup {
 		this.class.all[this.widget].remove(this);
 		if (this.class.all[this.widget].isEmpty) {
-			mc.c.removeAt(syncKey);
+			if (mc.size > 2) {
+				mc.do { |v|
+					switch (v.class)
+					{ Event } { v.c.removeAt(syncKey) }
+					// special case: oscInputConstrainters holds to CVs, \lo and \hi
+					{ List } { v.do(_.disconnect) }
+				}
+			} {
+				mc.c.removeAt(syncKey);
+			};
 			this.widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
 
 	// suitable for all instances, hence widget must
-	// be passed in explicitly within MidiConnector:-remove
+	// be passed in explicitly within Osc/MidiConnector:-remove
 	prOnRemoveConnector { |widget, index|
 		if (index > 0) {
 			this.class.all[widget].do(_.index_(index - 1))

@@ -1,16 +1,13 @@
 +Object {
-
 	// execute .changed for the given array of keys, each denoting a function to be executed
 	changedPerformKeys { |keys ... moreArgs|
 		keys.do({ |key|
 			this.changed(key, *moreArgs);
 		})
 	}
-
 }
 
 +Font {
-
         *available { |...names|
                 var match;
                 names.do { |name|
@@ -21,11 +18,9 @@
                 }
                 ^nil;
         }
-
 }
 
 +OSCCommands {
-
 	*collectSync { |play = true|
 		if (play) {
 			if (collecting == false) {
@@ -44,7 +39,6 @@
 			"collecting OSC commands stopped".inform;
 		}
 	}
-
 }
 
 +Collection {
@@ -81,14 +75,11 @@
 				widget.wmc.oscConnections.m.value[index].notNil
 			}
 		}) {
-			connector = widget.addOscConnector/*.postln*/;
-			index = connector.index/*.postln*/;
-			// widget.wmc.oscConnections.m.value.postln;
+			connector = widget.addOscConnector;
+			index = connector.index;
 		} {
 			connector = widget.oscConnectors[index];
 		};
-
-		// "connector: %, index: %".format(connector, index).postln;
 
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
@@ -118,12 +109,6 @@
 			} {
 				CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].put(msg[0], msg[1..].size)
 			};
-			// tricky...
-			// oscAddrAndCmds holds all IP addresses, ports and command paths - unordered.
-			// later, oscDisplay.m.changedPerformKeys is supposed to pick the right values and set selects in
-			// the oscDisplay controller in OscSelectsComboView:-prAddController
-			// Or should select items get ammended in the oscDisplay controller and hence the
-			// oscAddrAndCmds controller should be signaled *after* the oscDisplay controller?
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
 			widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		};
