@@ -133,13 +133,13 @@ TestOscConnector : UnitTest {
 			v == (
 				ipField: nil,
 				portField: nil,
-				nameField: '/my/cmd/name',
+				nameField: '/path/to/cmd',
 				index: 1,
 				connectorButVal: 0,
 				connect: "learn"
 			)
 		};
-		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/my/cmd/name', index: 1, connectorButVal: 0, connect: \"Learn\")");
+		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/path/to/cmd', index: 1, connectorButVal: 0, connect: \"Learn\")");
 	}
 
 	test_name {

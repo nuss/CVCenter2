@@ -1,6 +1,6 @@
 OscSelectsComboView : CompositeView {
 	classvar <all, connectorRemovedFuncAdded;
-	var wmc, osc, oscDisplay, states, connectors, syncKey;
+	var wmc, osc, oscDisplay, states, connectors, connections, syncKey;
 	var <e, <connector, <widget, i;
 
 	*initClass {
@@ -25,6 +25,7 @@ OscSelectsComboView : CompositeView {
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
 		connectors = widget.oscConnectors;
+		connections = widget.wmc.oscConnections;
 
 		if (parentView.isNil) {
 			parent = Window("%: OSC addresses and commands".format(widget.name), Rect(0, 0, 300, 65));
@@ -193,6 +194,14 @@ OscSelectsComboView : CompositeView {
 		this.prAddController;
 	}
 
+	enabled_ { |boolEnabled|
+		[e.ipselect, e.portselect, e.cmdselect].do(_.enabled_(boolEnabled));
+	}
+
+	enabled {
+		^e.ipselect.enabled && e.portselect.enabled && e.cmdselect.enabled
+	}
+
 	prAddController {
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -204,6 +213,7 @@ OscSelectsComboView : CompositeView {
 		this.prAddIsScanningOscController(syncKey);
 		this.prAddOscAddrAndCmdsController(syncKey);
 		this.prAddOscDisplayController(syncKey);
+		this.prAddOscConnectionsController(syncKey);
 	}
 
 	prAddIsScanningOscController { |syncKey|
@@ -323,12 +333,28 @@ OscSelectsComboView : CompositeView {
 						}
 					};
 					defer {
-						if (changer.value[conID].nameField !== '/my/cmd/name' and: {
+						if (changer.value[conID].nameField !== '/path/to/cmd' and: {
 							(cmdIndex = selCombo.e.cmdselect.items.indexOf(changer.value[conID].nameField)).notNil
 						}) {
 							selCombo.e.cmdselect.value_(cmdIndex)
 						}
 					}
+				}
+			}
+		})
+	}
+
+	prAddOscConnectionsController { |syncKey|
+		var conID;
+
+		connections.c ?? {
+			connections.c = SimpleController(connections.m);
+		};
+		connections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |selCombo|
+				if (selCombo.connector === connectors[conID]) {
+					defer { selCombo.enabled_(changer.value[conID].isNil) }
 				}
 			}
 		})

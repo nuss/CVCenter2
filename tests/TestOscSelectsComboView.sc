@@ -25,11 +25,11 @@ TestOscSelectsComboView : UnitTest {
 		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 			ipField: nil,
 			portField: nil,
-			nameField: '/my/cmd/name',
+			nameField: '/path/to/cmd',
 			index: 1,
 			connectorButVal: 0,
 			connect: "Learn"
-		), "widget1.wmc.oscDisplay.m.value[0] should initially be ('nameField': /my/cmd/name, 'index': 1, 'connectorButVal': 0, 'connect': \"Learn\")");
+		), "widget1.wmc.oscDisplay.m.value[0] should initially be ('nameField': /path/to/cmd, 'index': 1, 'connectorButVal': 0, 'connect': \"Learn\")");
 		OSCCommands.collectSync(false);
 		this.assert(oscv1.e.ipselect.items.size == 3, "The PopUpMenu for selecting an IP address should hold three values after syncing addresses and commands through calling OSCCommands.collectSync(false)");
 		this.assertEquals(oscv1.e.ipselect.items, ['IP address...', '192.168.1.2', '192.168.1.3'], "The PopUpMenu for selecting an IP address should hold 'IP address...', '192.168.1.2' and '192.168.1.3'");
@@ -40,11 +40,11 @@ TestOscSelectsComboView : UnitTest {
 		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 			ipField: '192.168.1.2',
 			portField: nil,
-			nameField: '/my/cmd/name',
+			nameField: '/path/to/cmd',
 			index: 1,
 			connectorButVal: 0,
 			connect: "Learn"
-		), "After setting oscv1.e.ipselect to '192.168.1.2' widget1.wmc.oscDisplay.m.value[0] should be ('ipField': '192.168.1.2', 'editEnabled': true, 'nameField': /my/cmd/name, 'index': 1, 'connectorButVal': 0)");
+		), "After setting oscv1.e.ipselect to '192.168.1.2' widget1.wmc.oscDisplay.m.value[0] should be ('ipField': '192.168.1.2', 'editEnabled': true, 'nameField': /path/to/cmd, 'index': 1, 'connectorButVal': 0)");
 		this.assertEquals(oscv1.e.portselect.items, ['port...', 3214, 42560], "After calling oscv1.e.ipselect.valueAction_(oscv1.e.ipselect.items.indexOf('192.168.1.2')) oscv1.e.portselect.items should be ['port...', 3214, 42560]");
 		this.assertEquals(oscv1.e.cmdselect.items, ['cmd name...', '/3214/1', '/3214/2', '/42560/1', '/42560/2'], "After calling oscv1.e.ipselect.valueAction_(oscv1.e.ipselect.items.indexOf('192.168.1.2')) oscv1.e.cmdselect.items should be ['cmd name...', '/3214/1', '/3214/2', '/42560/1', '/42560/2']");
 		oscv1.e.portselect.valueAction_(1);
@@ -52,11 +52,11 @@ TestOscSelectsComboView : UnitTest {
 		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 			ipField: '192.168.1.2',
 			portField: 3214,
-			nameField: '/my/cmd/name',
+			nameField: '/path/to/cmd',
 			index: 1,
 			connectorButVal: 0,
 			connect: "Learn"
-		), "After setting oscv1.e.portselect to 3214 widget1.wmc.oscDisplay.m.value[0] should be ('ipField': '192.168.1.2', portField: 3214, 'editEnabled': true, 'nameField': /my/cmd/name, 'index': 1, 'connectorButVal': 0)");
+		), "After setting oscv1.e.portselect to 3214 widget1.wmc.oscDisplay.m.value[0] should be ('ipField': '192.168.1.2', portField: 3214, 'editEnabled': true, 'nameField': /path/to/cmd, 'index': 1, 'connectorButVal': 0)");
 		oscv2 = OscSelectsComboView(widget: widget1);
 		this.assertEquals(oscv2.e.ipselect.items, ['IP address...', '192.168.1.2', '192.168.1.3'], "After creating another OscSelectsComboView instance for widget1 its IP select items should hold ['IP address...', '192.168.1.2', '192.168.1.3'].");
 		this.assertEquals(oscv2.e.ipselect.value, 1, "After creating another OscSelectsComboView instance for widget1 its IP select's value should be 1.");

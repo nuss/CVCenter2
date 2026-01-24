@@ -44,7 +44,7 @@ OscConnector {
 			wmc.oscDisplay.m = Ref(List[]);
 		};
 		wmc.oscDisplay.m.value.add((
-			nameField: '/my/cmd/name',
+			nameField: '/path/to/cmd',
 			index: 1,
 			connectorButVal: 0,
 			// editEnabled: true,

@@ -84,14 +84,16 @@
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
 			thisProcess.removeOSCRecvFunc(learnFunc);
-			// "connector: %".format(connector).postln;
 			if (matching) {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
-				"New matching OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
+				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
+				"New matching OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
+					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
+				).inform
 			} {
-				// widget.wmc.oscConnections.m.value.postln;
-				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction, msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
-				"New OSCFunc created for OscConnector[%], listening to '%' from NetAddr('%', %) on port %".format(index, msg[0], addr.ip, addr.port, port ? recvPort).inform;
+				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
+				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
+					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
+				).inform
 			};
 			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
 			widget.wmc.oscDisplay.m.value[index].nameField = msg[0];

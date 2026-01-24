@@ -149,7 +149,7 @@ OscCmdIndexBox : ConnectorElementView {
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
 		this.index_(0);
-		// midiConnector at index 0 should always exist (who knows...)
+		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
 	}
 
@@ -231,7 +231,7 @@ OscModeSelect : ConnectorElementView {
 		mc = widget.wmc.oscOptions;
 		conModel = widget.oscConnectors;
 		this.index_(0);
-		// midiConnector at index 0 should always exist (who knows...)
+		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
 	}
 
@@ -765,6 +765,7 @@ OscCalibrationResetButton : ConnectorElementView {
 OscConnectButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
+	var validOsc = "^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$";
 
 	*initClass {
 		all = ();
@@ -778,7 +779,7 @@ OscConnectButton : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
-		var defaultState;
+		var defaultState, validOsc;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -787,14 +788,15 @@ OscConnectButton : ConnectorElementView {
 		mc = widget.wmc;
 		conModel = widget.oscConnectors;
 
+
 		case
-		{ mc.oscDisplay.m.value[index].nameField === '/my/cmd/name' or: {
-			"^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$".matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
+		{ mc.oscDisplay.m.value[index].nameField === '/path/to/cmd' or: {
+			validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
 		}} {
 			defaultState = ["learn", Color.white, Color.blue]
 		}
 		// check https://www.boost.org/doc/libs/1_69_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html
-		{ "^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$".matchRegexp(mc.oscDisplay.m.value[index].nameField.asString) } {
+		{ validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString) } {
 			defaultState = ["connect", Color.black, Color.green]
 		};
 
@@ -806,31 +808,30 @@ OscConnectButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			var i = conModel.indexOf(this.connector);
-			var ip, port, cmd, cmdIndex, matching;
-			mc.oscDisplay.m.value[i].connect = bt.states[bt.value][0];
-			mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
-			if (mc.oscDisplay.m.value[i].connect == "disconnect") {
-				mc.oscDisplay.m.value[i].ipField !? { ip = mc.oscDisplay.m.value[i].ipField };
-				mc.oscDisplay.m.value[i].portField !? { port = mc.oscDisplay.m.value[i].portField };
-				if (mc.oscDisplay.m.value[i].nameField != '/my/cmd/name' and: {
-					mc.oscDisplay.m.value[i].asString.size > 0
+			var ip, port, cmd, cmdIndex, matching, argTemplate, dispatcher;
+			mc.oscDisplay.m.value[index].connect = bt.states[bt.value][0];
+			mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			if (bt.value.asBoolean) {
+				mc.oscDisplay.m.value[index].ipField !? { ip = mc.oscDisplay.m.value[index].ipField };
+				mc.oscDisplay.m.value[index].portField !? { port = mc.oscDisplay.m.value[index].portField };
+				if (mc.oscDisplay.m.value[index].nameField != '/path/to/cmd' and: {
+					mc.oscDisplay.m.value[index].nameField.asString.size > 0
 				}) {
-					cmd = mc.oscDisplay.m.value[i].nameField
+					cmd = mc.oscDisplay.m.value[index].nameField
 				};
-				cmdIndex = mc.oscDisplay.m.value[i].index;
-				matching = mc.oscOptions.m.value[i].matching;
-				this.connector.oscConnect(ip, port, cmd, cmdIndex, matching);
-				if (ip.notNil or: { port.notNil or: { cmd.notNil }}) {
-					all[widget].do { |b|
-						if (conModel.indexOf(b.connector) == i) {
-							b.view.states_([
-								["learn", Color.white, Color.blue],
-								["disconnect", Color.white, Color.red]
-							])
-						}
-					}
+				cmdIndex = mc.oscDisplay.m.value[index].index;
+				matching = mc.oscOptions.m.value[index].oscMatching;
+				argTemplate = mc.oscDisplay.m.value[index].template;
+				dispatcher = mc.oscDisplay.m.value[index].dispatcher;
+				if (mc.oscDisplay.m.value[index].nameField === '/path/to/cmd' or: {
+					validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
+				}) {
+					OSCFunc.cvWidgetLearn(widget, index, matching, NetAddr.langPort, argTemplate, dispatcher)
+				} {
+					this.connector.oscConnect(ip, port, cmd, cmdIndex, matching, NetAddr.langPort, argTemplate, dispatcher)
 				}
+			} {
+				this.connector.oscDisconnect
 			}
 		});
 		connectorRemovedFuncAdded ?? {
@@ -866,7 +867,7 @@ OscConnectButton : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		mc = widget.wmc;
-		conModel = widget.midiConnectors;
+		conModel = widget.oscConnectors;
 		if (mc.oscDisplay.m.value[0].learn == "connect") {
 			defaultState = ["connect", Color.black, Color.green];
 		} {
@@ -884,23 +885,34 @@ OscConnectButton : ConnectorElementView {
 		mc.oscDisplay.c ?? {
 			mc.oscDisplay.c = SimpleController(mc.oscDisplay.m)
 		};
+		mc.oscConnections.c ?? {
+			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
+		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.oscOptions.c.put(\syncKey, { |changer, what ... moreArgs|
+		mc.oscOptions.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
 				if (bt.connector === conModel[conID]) {
-					"oscOptions controller: % (connector ID: %)".format(changer.value[conID], conID).postln
+					// "oscOptions controller: % (connector ID: %)".format(changer.value[conID], conID).postln
 				}
 			}
 		});
-		mc.oscDisplay.c.put(\syncKey, { |changer, what ... moreArgs|
+		mc.oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
 				if (bt.connector === conModel[conID]) {
-					"oscDisplay controller: % (connector ID: %)".format(changer.value[conID], conID).postln
+					// "oscDisplay controller: % (connector ID: %)".format(changer.value[conID], conID).postln
+				}
+			}
+		});
+		mc.oscConnections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |bt, i|
+				if (bt.connector === conModel[conID]) {
+					defer { bt.value_(changer.value[conID].notNil.asInteger) }
 				}
 			}
 		})
