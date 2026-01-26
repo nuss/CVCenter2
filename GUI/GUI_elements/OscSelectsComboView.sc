@@ -77,31 +77,30 @@ OscSelectsComboView : CompositeView {
 			OSCCommands.collectSync(bt.value.asBoolean);
 		});
 		e.ipselect.action_({ |sel|
-			i = connectors.indexOf(this.connector);
 			if (sel.value == 0) {
-				oscDisplay.m.value[i].ipField = nil;
+				oscDisplay.m.value[index].ipField = nil;
 			} {
-				oscDisplay.m.value[i].ipField = sel.items[sel.value];
+				oscDisplay.m.value[index].ipField = sel.items[sel.value];
 			};
 			// important! Otherwise port will not be found under given IP
 			oscDisplay.m.value[i].portField = nil;
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.portselect.action_({ |sel|
-			i = connectors.indexOf(this.connector);
 			if (sel.value == 0) {
-				oscDisplay.m.value[i].portField = nil;
+				oscDisplay.m.value[index].portField = nil;
 			} {
-				oscDisplay.m.value[i].portField = sel.items[sel.value];
+				oscDisplay.m.value[index].portField = sel.items[sel.value];
 			};
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.cmdselect.action_({ |sel|
-			i = connectors.indexOf(this.connector);
 			if (sel.value > 0) {
-				oscDisplay.m.value[i].nameField = sel.items[sel.value]
+				oscDisplay.m.value[index].nameField = sel.items[sel.value]
+				// TODO: detect number of OSC message slots
+				// oscDisplay.m.value[index].numOscSlots = osc.m.value
 			};
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, i);
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.rreset.action_({ |bt|
 			case
@@ -177,6 +176,7 @@ OscSelectsComboView : CompositeView {
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
 		connectors = widget.oscConnectors;
+		connections = widget.wmc.oscConnections;
 
 		if (oscDisplay.m.value[0].ipField.isNil) {
 			e.ipselect.value_(0)
@@ -189,7 +189,7 @@ OscSelectsComboView : CompositeView {
 			}
 		};
 		e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[0].nameField));
-
+		this.enabled_(connections.m.value[0].isNil);
 		this.index_(0);
 		this.prAddController;
 	}

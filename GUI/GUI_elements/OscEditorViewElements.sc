@@ -3,7 +3,7 @@
 OscCmdNameField : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
-	var isConnected;
+	var connections;
 
 	*initClass {
 		all = ();
@@ -23,12 +23,12 @@ OscCmdNameField : ConnectorElementView {
 
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		isConnected = widget.wmc.oscConnections.m.value[index].notNil;
+		connections = widget.wmc.oscConnections;
 
-		this.view = TextField(parentView, rect)
-		.enabled_(isConnected.not);
+		this.view = TextField(parentView, rect);
 		this.view.onClose_({ this.close });
 		this.index_(index);
+		this.view.enabled_(connections.m.value[index].isNil);
 		this.view.action_( { |tf|
 			this.connector.setOscCmdName(tf.string)
 		});
@@ -59,7 +59,8 @@ OscCmdNameField : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		this.view.enabled_(widget.wmc.oscConnections.m.value[0].notNil);
+		connections = widget.wmc.oscConnections;
+		this.view.enabled_(connections.m.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -69,6 +70,9 @@ OscCmdNameField : ConnectorElementView {
 		var conID;
 		mc.c ?? {
 			mc.c = SimpleController(mc.m)
+		};
+		connections.c ?? {
+			connections.c = SimpleController(connections.m)
 		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
@@ -80,8 +84,15 @@ OscCmdNameField : ConnectorElementView {
 				if (tf.connector === conModel[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].nameField);
-						tf.view.enabled_(widget.wmc.oscConnections.m.value[conID].notNil)
 					}
+				}
+			}
+		});
+		connections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |tf|
+				if (tf.connector === conModel[conID]) {
+					defer { tf.view.enabled_(changer.value[conID].isNil) }
 				}
 			}
 		})
@@ -92,7 +103,7 @@ OscCmdNameField : ConnectorElementView {
 OscCmdIndexBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
-	var isConnected;
+	var connections;
 
 	*initClass {
 		all = ();
@@ -112,13 +123,14 @@ OscCmdIndexBox : ConnectorElementView {
 
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
-		isConnected = widget.wmc.oscConnections.m.value[index].notNil;
+		connections = widget.wmc.oscConnections;
 
 		this.view = NumberBox(parentView, rect)
 		.clipLo_(1).step_(1).scroll_step_(1)
-		.enabled_(isConnected.not);
+		.toolTip_("If OSC message conatains more than one value select message slot that shall be read");
 		this.view.onClose_({ this.close });
 		this.index_(index);
+		this.view.enabled_(connections.m.value[index].isNil);
 		this.view.action_({ |nb|
 			this.connector.setOscMsgIndex(nb.value)
 		});
@@ -148,6 +160,8 @@ OscCmdIndexBox : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
+		connections = widget.wmc.oscConnections;
+		this.view.enabled_(connections.m.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -158,6 +172,9 @@ OscCmdIndexBox : ConnectorElementView {
 		mc.c ?? {
 			mc.c = SimpleController(mc.m)
 		};
+		connections.c ?? {
+			connections.c = SimpleController(connections.c)
+		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
@@ -167,6 +184,14 @@ OscCmdIndexBox : ConnectorElementView {
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
 					defer { nb.view.value_(changer.value[conID].index) }
+				}
+			}
+		});
+		connections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === conModel[conID]) {
+					defer { nb.view.enabled_(changer.value[conID].isNil )}
 				}
 			}
 		})
@@ -258,6 +283,7 @@ OscModeSelect : ConnectorElementView {
 OscMatchingCheckBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
+	var connections;
 
 	*initClass {
 		all = ();
@@ -277,10 +303,13 @@ OscMatchingCheckBox : ConnectorElementView {
 
 		mc = widget.wmc.oscOptions;
 		conModel = widget.oscConnectors;
+		connections = widget.wmc.oscConnections;
 
-		this.view = CheckBox(parentView, rect);
+		this.view = CheckBox(parentView, rect)
+		.toolTip_("Create \"matching\" OSCFunc");
 		this.view.onClose_({ this.close });
 		this.index_(index);
+		this.view.enabled_(connections.m.value[index].isNil);
 		this.view.action_({ |cb|
 			this.connector.setOscMatching(cb.value)
 		});
@@ -313,6 +342,8 @@ OscMatchingCheckBox : ConnectorElementView {
 		widget = otherWidget;
 		mc = widget.wmc.oscOptions;
 		conModel = widget.oscConnectors;
+		connections = widget.wmc.oscConnections;
+		this.view.enabled_(connections.m.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -323,6 +354,9 @@ OscMatchingCheckBox : ConnectorElementView {
 		mc.c ?? {
 			mc.c = SimpleController(mc.m)
 		};
+		connections.c ?? {
+			connections.c = SimpleController(connections.m)
+		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
@@ -332,6 +366,14 @@ OscMatchingCheckBox : ConnectorElementView {
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscMatching) }
+				}
+			}
+		});
+		connections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |cb|
+				if (cb.connector === conModel[conID]) {
+					defer { cb.view.enabled_(changer.value[conID].isNil )}
 				}
 			}
 		})
@@ -779,7 +821,7 @@ OscConnectButton : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
-		var defaultState, validOsc;
+		var defaultState;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -811,9 +853,12 @@ OscConnectButton : ConnectorElementView {
 			var ip, port, cmd, cmdIndex, matching, argTemplate, dispatcher;
 			mc.oscDisplay.m.value[index].connect = bt.states[bt.value][0];
 			mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
-			if (bt.value.asBoolean) {
-				mc.oscDisplay.m.value[index].ipField !? { ip = mc.oscDisplay.m.value[index].ipField };
+			if (bt.value.asBoolean and: {
+				mc.oscConnections.m.value[index].isNil
+			}) {
+				mc.oscDisplay.m.value[index].ipField !? { ip = mc.oscDisplay.m.value[index].ipField.asString };
 				mc.oscDisplay.m.value[index].portField !? { port = mc.oscDisplay.m.value[index].portField };
+
 				if (mc.oscDisplay.m.value[index].nameField != '/path/to/cmd' and: {
 					mc.oscDisplay.m.value[index].nameField.asString.size > 0
 				}) {
@@ -828,7 +873,7 @@ OscConnectButton : ConnectorElementView {
 				}) {
 					OSCFunc.cvWidgetLearn(widget, index, matching, NetAddr.langPort, argTemplate, dispatcher)
 				} {
-					this.connector.oscConnect(ip, port, cmd, cmdIndex, matching, NetAddr.langPort, argTemplate, dispatcher)
+					this.connector.oscConnect(NetAddr(ip, port), cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching)
 				}
 			} {
 				this.connector.oscDisconnect
@@ -878,7 +923,8 @@ OscConnectButton : ConnectorElementView {
 	}
 
 	prAddController {
-		var pos, conID;
+		var pos, conID, state0;
+
 		mc.oscOptions.c ?? {
 			mc.oscOptions.c = SimpleController(mc.oscOptions.m)
 		};
@@ -904,6 +950,19 @@ OscConnectButton : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
 				if (bt.connector === conModel[conID]) {
+					if (bt.value == 0) {
+						state0 = switch (changer.value[conID].connect)
+						{ "learn" } {
+							[changer.value[conID].connect, Color.white, Color.blue]
+						}
+						{ "connect" } {
+							[changer.value[conID].connect, Color.black, Color.green]
+						};
+						bt.states_([
+							state0,
+							bt.states[0][1]
+						])
+					}
 					// "oscDisplay controller: % (connector ID: %)".format(changer.value[conID], conID).postln
 				}
 			}

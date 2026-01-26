@@ -48,7 +48,8 @@ OscConnector {
 			index: 1,
 			connectorButVal: 0,
 			// editEnabled: true,
-			connect: "learn"
+			connect: "learn",
+			numOscSlots: 1
 		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
@@ -455,7 +456,7 @@ OscConnector {
 	}
 
 	prOSCFunc { |a, c, mid, r, t, d, m|
-		// [a, c, mid, r, t, d].postln;
+		// [a, c, mid, r, t, d, m].postln;
 		accum[widget] = widget.cv.input;
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)

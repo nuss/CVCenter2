@@ -101,6 +101,7 @@
 			widget.wmc.oscDisplay.m.value[index].connect = "disconnect";
 			widget.wmc.oscDisplay.m.value[index].ipField = addr.ip.asSymbol;
 			widget.wmc.oscDisplay.m.value[index].portField = addr.port;
+			widget.wmc.oscDisplay.m.value[index].oscMatching = matching;
 			widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate;
 			widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher;
 			CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol] ?? {
