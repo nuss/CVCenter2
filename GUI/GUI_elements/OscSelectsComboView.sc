@@ -16,6 +16,7 @@ OscSelectsComboView : CompositeView {
 
 	init { |parentView, wdgt, rect, index, layout|
 		var parent, row, i;
+		var numMsgSlots, n;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -83,7 +84,7 @@ OscSelectsComboView : CompositeView {
 				oscDisplay.m.value[index].ipField = sel.items[sel.value];
 			};
 			// important! Otherwise port will not be found under given IP
-			oscDisplay.m.value[i].portField = nil;
+			oscDisplay.m.value[index].portField = nil;
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.portselect.action_({ |sel|
@@ -96,9 +97,33 @@ OscSelectsComboView : CompositeView {
 		});
 		e.cmdselect.action_({ |sel|
 			if (sel.value > 0) {
-				oscDisplay.m.value[index].nameField = sel.items[sel.value]
-				// TODO: detect number of OSC message slots
-				// oscDisplay.m.value[index].numOscSlots = osc.m.value
+				oscDisplay.m.value[index].nameField = sel.items[sel.value];
+				// clip message indices to number of messages in incoming OSC
+				numMsgSlots = [];
+				case
+				{ e.ipselect.value == 0 } {
+					osc.m.value.pairsDo { |k, v|
+						numMsgSlots = numMsgSlots.addAll(
+							v.collect { |it|
+								it.detect { |kk, vv|
+									vv === sel.items[sel.value]
+								}
+							}
+						)
+					};
+				}
+				{ e.ipselect.value > 0 and: { e.portselect.value == 0 }} {
+					osc.m.value[e.ipselect.item].do { |it|
+						n = it.detect { |k, v| v === sel.items[sel.value] };
+						numMsgSlots = numMsgSlots.add(n);
+					}
+				}
+				{ e.ipselect.value > 0 and: { e.portselect.value > 0 }} {
+					n = osc.m.value[e.ipselect.item][e.portselect.item.asSymbol].detect { |k, v| v === sel.items[sel.value] };
+					numMsgSlots = numMsgSlots.add(n);
+				};
+				oscDisplay.m.value[index].numMsgSlots = numMsgSlots.maxValue({ |n| n });
+				oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 			};
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});

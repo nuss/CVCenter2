@@ -50,7 +50,7 @@ OscConnectorsEditorView : CompositeView {
 		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \osc);
 		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
 		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
-		e.oscCmdIndexNumBox = OscCmdIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
+		e.oscMsgIndexNumBox = OscMsgIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
 		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, connectorID: index);
 		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
 		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
@@ -85,7 +85,7 @@ OscConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[e.oscCmdTextField],
-					[e.oscCmdIndexNumBox],
+					[e.oscMsgIndexNumBox],
 					[e.oscPatternMatchingCheckBox]
 				),
 				HLayout(

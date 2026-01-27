@@ -7,6 +7,18 @@
 	}
 }
 
++Dictionary {
+	detect { |function|
+		this.pairsDo { |key, val| if (function.value(val, key)) { ^val } };
+		^nil;
+	}
+
+	detectKey { |function|
+		this.pairsDo { |key, val| if (function.value(val, key)) { ^key } };
+		^nil;
+	}
+}
+
 +Font {
         *available { |...names|
                 var match;
@@ -42,7 +54,6 @@
 }
 
 +Collection {
-
 	includesAllEqual { |aCollection|
 		aCollection.do { |item| if (this.includesEqual(item).not) { ^false }};
 		^true
@@ -58,6 +69,20 @@
 		^true
 	}
 
+	depth {
+		var depth = 0;
+		var func = { |col|
+			var cols = col.select { |it| it.isCollection };
+			if (cols.size > 0) {
+				depth = depth + 1;
+				cols.do { |it|
+					func.(it)
+				}
+			} { depth }
+		};
+		func.(this);
+		^depth
+	}
 }
 
 +OSCFunc {

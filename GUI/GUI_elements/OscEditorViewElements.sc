@@ -100,7 +100,7 @@ OscCmdNameField : ConnectorElementView {
 }
 
 // TODO: rename to OscMasgIndexBox
-OscCmdIndexBox : ConnectorElementView {
+OscMsgIndexBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget;
 	var connections;
@@ -183,7 +183,10 @@ OscCmdIndexBox : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
-					defer { nb.view.value_(changer.value[conID].index) }
+					defer {
+						nb.view.clipHi_(changer.value[conID].numMsgSlots)
+						.value_(changer.value[conID].index)
+					}
 				}
 			}
 		});
