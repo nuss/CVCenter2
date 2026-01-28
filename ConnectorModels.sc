@@ -48,7 +48,10 @@ OscConnector {
 			index: 1,
 			connectorButVal: 0,
 			// editEnabled: true,
-			connect: "learn",
+			connect0: ["learn", Color.yellow, Color.green(0.5)],
+			connect1: ["disconnect", Color.white, Color.red],
+			connectEnabled: true, // default, if no command is given
+			learn: true, // default, no command given
 			numOscSlots: 1
 		));
 
@@ -315,8 +318,10 @@ OscConnector {
 		mc.oscConnections.m.value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
 		// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-		mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
-		mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+		mc.oscConnections.m.value[index].srcID !? {
+			mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
+			mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+		};
 		mc.oscDisplay.m.value[index].nameField = mc.oscConnections.m.value[index].path;
 		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate;
 		mc.oscDisplay.m.value[index].dispatcher = mc.oscConnections.m.value[index].dispatcher;

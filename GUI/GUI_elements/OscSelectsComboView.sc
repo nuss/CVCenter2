@@ -316,18 +316,22 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
 					}} {
+						("ipField and portField are nil").warn;
 						defer {
 							selCombo.e.rreset.toolTip_("Reset all IP addresses, ports and command names");
 							selCombo.e.ipselect.value_(0);
 							selCombo.e.portselect.items_([selCombo.e.portselect.items[0]]).value_(0);
 							cmds = [];
+							// "cmds 1: %".format(cmds).warn;
 							osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
+							// "cmds 2: %".format(cmds).warn;
 							selCombo.e.cmdselect.items_([selCombo.e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort);
 						}
 					}
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.isNil
 					}} {
+						"ipField is: %, portField is nil".format(changer.value[conID].ipField).warn;
 						defer {
 							ip = changer.value[conID].ipField;
 							selCombo.e.rreset.toolTip_("Reset all ports and command names under IP %".format(ip));
@@ -343,6 +347,7 @@ OscSelectsComboView : CompositeView {
 					{ changer.value[conID].ipField.notNil and: {
 						changer.value[conID].portField.notNil
 					}} {
+						("ipField and portField are nil").warn;
 						ip = changer.value[conID].ipField;
 						port = changer.value[conID].portField;
 						cmds = osc.m.value[changer.value[conID].ipField][changer.value[conID].portField.asSymbol].keys.asArray.sort;
