@@ -877,7 +877,6 @@ OscConnectButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 			if (bt.value.asBoolean and: {
 				mc.oscConnections.m.value[index].isNil
 			}) {
@@ -890,7 +889,9 @@ OscConnectButton : ConnectorElementView {
 				dispatcher = mc.oscDisplay.m.value[index].dispatcher;
 				ip !? { addr = NetAddr(ip, port) };
 				if (mc.oscDisplay.m.value[index].learn) {
-					OSCFunc.cvWidgetLearn(widget, index, matching, NetAddr.langPort, argTemplate, dispatcher)
+					mc.oscDisplay.m.value[index].learn = false;
+					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+					OSCFunc.cvWidgetLearn(widget, index, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching)
 				}
@@ -910,12 +911,7 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.oscDisplay.m.value[connectorID] !? {
-			mc.oscDisplay.m.value[connectorID].learn.switch(
-				"disconnect", { this.view.value_(1) },
-				"learn", { this.view.value_(0) }
-			)
-		}
+		this.view.value_(mc.oscDisplay.m.value[connectorID].learn.postln.not.asInteger)
 	}
 
 	widget_ { |otherWidget|
@@ -966,9 +962,11 @@ OscConnectButton : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
 				if (bt.connector === conModel[conID]) {
-					// "changer for oscDisplay in OscConnectButton (value: %): %".format(bt.view.value, changer.value).postln;
 					defer {
 						if (bt.view.value == 0) {
+							"connect button [%] value before: %".format(i, bt.view.value).postln;
+							bt.view.value_(1);
+							"connect button [%] value after: %".format(i, bt.view.value).postln;
 							bt.view.enabled_(changer.value[conID].connectEnabled);
 							bt.view.states_([
 								changer.value[conID].connect0,

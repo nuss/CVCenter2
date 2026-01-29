@@ -337,7 +337,8 @@ OscConnector {
 	oscDisconnect {
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.oscConnections.m.value[index].clear;
+		"free % at index %".format(mc.oscConnections.m.value[index], index).postln;
+		mc.oscConnections.m.value[index].free;
 		mc.oscConnections.m.value[index] = nil;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
 		// mc.oscDisplay.m.value[index].ipField = nil;
@@ -461,7 +462,7 @@ OscConnector {
 	}
 
 	prOSCFunc { |a, c, mid, r, t, d, m|
-		// [a, c, mid, r, t, d, m].postln;
+		[a, c, mid, r, t, d, m].postln;
 		accum[widget] = widget.cv.input;
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)

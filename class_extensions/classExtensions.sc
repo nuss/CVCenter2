@@ -108,7 +108,6 @@
 
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
-			thisProcess.removeOSCRecvFunc(learnFunc);
 			if (matching) {
 				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
 				"New matching OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
@@ -129,6 +128,7 @@
 			widget.wmc.oscDisplay.m.value[index].oscMatching = matching;
 			widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate;
 			widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher;
+			widget.wmc.oscDisplay.m.value[index].learn = false;
 			CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol] ?? {
 				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ())
 			};
@@ -139,11 +139,13 @@
 			};
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
 			widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			thisProcess.removeOSCRecvFunc(learnFunc);
 		};
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
 		thisProcess.addOSCRecvFunc(learnFunc);
 	}
+
 }
 
 +MIDIFunc {
