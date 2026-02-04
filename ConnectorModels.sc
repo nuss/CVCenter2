@@ -48,8 +48,8 @@ OscConnector {
 			index: 1,
 			connectorButVal: 0,
 			// editEnabled: true,
-			connect0: ["learn", Color.yellow, Color.green(0.5)],
-			connect1: ["disconnect", Color.white, Color.red],
+			connectState: ["learn", Color.yellow, Color.green(0.5)],
+			// connect1: ["disconnect", Color.white, Color.red],
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
 			numOscSlots: 1
@@ -337,7 +337,7 @@ OscConnector {
 	oscDisconnect {
 		var index = this.index;
 		var mc = widget.wmc;
-		"free % at index %".format(mc.oscConnections.m.value[index], index).postln;
+		// "free % at index %".format(mc.oscConnections.m.value[index], index).postln;
 		mc.oscConnections.m.value[index].free;
 		mc.oscConnections.m.value[index] = nil;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
@@ -462,7 +462,7 @@ OscConnector {
 	}
 
 	prOSCFunc { |a, c, mid, r, t, d, m|
-		[a, c, mid, r, t, d, m].postln;
+		// [a, c, mid, r, t, d, m].postln;
 		accum[widget] = widget.cv.input;
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)

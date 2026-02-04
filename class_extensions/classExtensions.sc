@@ -129,6 +129,8 @@
 			widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate;
 			widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher;
 			widget.wmc.oscDisplay.m.value[index].learn = false;
+			widget.wmc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
+			widget.wmc.oscDisplay.m.value[index].connectEnabled = true;
 			CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol] ?? {
 				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ())
 			};
@@ -144,6 +146,9 @@
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
 		thisProcess.addOSCRecvFunc(learnFunc);
+		widget.wmc.oscDisplay.m.value[index].connectState = ["waiting...", Color.white, Color.gray];
+		widget.wmc.oscDisplay.m.value[index].connectEnabled = false;
+		widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 }

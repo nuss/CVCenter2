@@ -98,6 +98,8 @@ OscSelectsComboView : CompositeView {
 		e.cmdselect.action_({ |sel|
 			if (sel.value > 0) {
 				oscDisplay.m.value[index].nameField = sel.items[sel.value];
+				oscDisplay.m.value[index].connectState = ["connect", Color.white, Color.blue];
+				oscDisplay.m.value[index].learn = false;
 				// clip message indices to number of messages in incoming OSC
 				numMsgSlots = [];
 				case
@@ -125,7 +127,7 @@ OscSelectsComboView : CompositeView {
 				oscDisplay.m.value[index].numMsgSlots = numMsgSlots.maxValue({ |n| n });
 				oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 			};
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			// oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.rreset.action_({ |bt|
 			case
