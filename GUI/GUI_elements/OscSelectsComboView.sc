@@ -183,7 +183,8 @@ OscSelectsComboView : CompositeView {
 			};
 			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds);
 			e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[connectorID].nameField))
-		}
+		};
+		this.enabled_(connections.m.value[connectorID].isNil)
 	}
 
 	widget_ { |otherWidget|

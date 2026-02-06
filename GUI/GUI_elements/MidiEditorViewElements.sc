@@ -698,7 +698,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 	index_ { |connectorID|
 		connector = conModel[connectorID];
 		mc.m.value[connectorID] !? {
-			this.view.value_(mc.m.value[connectorID].snapDistance)
+			this.view.value_(connector.getMidiSnapDistance)
 		}
 	}
 

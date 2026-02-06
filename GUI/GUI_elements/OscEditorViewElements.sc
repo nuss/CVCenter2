@@ -70,7 +70,8 @@ OscCmdNameField : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		this.view.string_(mc.m.value[connectorID].nameField);
+		this.view.string_(mc.m.value[connectorID].nameField)
+		.enabled_(connections.m.value[connectorID].isNil);
 	}
 
 	widget_ { |otherWidget|
@@ -174,7 +175,8 @@ OscMsgIndexBox : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		this.view.value_(mc.m.value[connectorID].index);
+		this.view.value_(mc.m.value[connectorID].index)
+		.enabled_(connections.m.value[connectorID].isNil);
 	}
 
 	widget_ { |otherWidget|
@@ -358,7 +360,8 @@ OscMatchingCheckBox : ConnectorElementView {
 		connector = conModel[connectorID];
 		mc.m.value[connectorID] !? {
 			this.view.value_(connector.getOscMatching)
-		}
+		};
+		this.view.enabled_(connections.m.value[connectorID].isNil);
 	}
 
 	widget_ { |otherWidget|
@@ -489,6 +492,90 @@ OscResolutionBox : ConnectorElementView {
 			all[widget].do { |nb|
 				if (nb.connector === conModel[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscResolution) }
+				}
+			}
+		})
+	}
+}
+
+OscSnapDistanceNumBox : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var <connector, <widget;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect, connectorID=0|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect, connectorID);
+	}
+
+	init { |parentView, wdgt, rect, index|
+		widget = wdgt;
+		all[widget] ?? { all[widget] = List[] };
+		all[widget].add(this);
+
+		mc = widget.wmc.oscOptions;
+		conModel = widget.oscConnectors;
+
+		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
+		this.view.onClose_({ this.close });
+		this.index_(index);
+		this.view.action_({ |nb|
+			this.connector.setOscSnapDistance(nb.value);
+		});
+		connectorRemovedFuncAdded ?? {
+			OscConnector.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id)
+			});
+			connectorRemovedFuncAdded = true
+		};
+		this.prAddController;
+	}
+
+	// set the view to the specified connector's model value
+	index_ { |connectorID|
+		connector = conModel[connectorID];
+		mc.m.value[connectorID] !? {
+			this.view.value_(connector.getOscSnapDistance)
+		}
+	}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = List[] };
+		all[otherWidget].add(this);
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		mc = widget.wmc.oscOptions;
+		conModel = widget.oscConnectors;
+		this.index_(0);
+		// midiConnector at index 0 should always exist (who knows...)
+		this.prAddController;
+	}
+
+	prAddController {
+		var conID;
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = this.class.asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget].do { |nb|
+				if (nb.connector === conModel[conID]) {
+					defer { nb.view.value_(changer.value[conID].oscSnapDistance) }
 				}
 			}
 		})
@@ -906,7 +993,7 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		this.view.value_(mc.oscDisplay.m.value[connectorID].learn.not.asInteger)
+		this.view.states_([mc.oscDisplay.m.value[connectorID].connectState])
 	}
 
 	widget_ { |otherWidget|

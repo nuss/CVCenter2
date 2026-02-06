@@ -34,7 +34,7 @@ OscConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 550))
+			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 600))
 		} { parent = parentView };
 
 		if (widget.wmc.oscConnectors.m.value.isEmpty) {
@@ -54,6 +54,7 @@ OscConnectorsEditorView : CompositeView {
 		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, connectorID: index);
 		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
 		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
+		e.oscSnapDistanceNumBox = OscSnapDistanceNumBox(parent, widget, connectorID: index);
 		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 0);
 		e.inputConstraintsHiNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 1);
 		e.zeroCrossCorrectStaticText = OscZeroCrossingText(parent, widget, connectorID: index);
@@ -95,6 +96,10 @@ OscConnectorsEditorView : CompositeView {
 				HLayout(
 					[StaticText(parent).string_("OSC resolution ('endless' mode only)"), stretch: 7],
 					[e.oscResolutionNumBox, stretch: 3]
+				),
+				HLayout(
+					[StaticText(parent).string_("snap distance for slider ('absolute' mode only)"), stretch: 7],
+					[e.oscSnapDistanceNumBox, stretch: 3]
 				),
 				HLayout(
 					StaticText(parent).string_("OSC input constraints, zero-crossing correction")
