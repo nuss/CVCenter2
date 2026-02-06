@@ -19,6 +19,7 @@ MappingSelect : CompositeView {
 	init { |parentView, wdgt, rect, index, kind, layout|
 		var parent, row, i;
 		var ramp, env;
+		var mappingMethod;
 
 		if (kind.isNil) {
 			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
@@ -44,12 +45,14 @@ MappingSelect : CompositeView {
 			connectors = widget.midiConnectors;
 			bgColor = Color(0.8, alpha: 0.3);
 			mappingType = \midiInputMapping;
+			mappingMethod = \setMidiInputMapping;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscOptions;
 			connectors = widget.wmc.oscConnectors.m.value;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 			mappingType = \oscInputMapping;
+			mappingMethod = \setOscInputMapping;
 		};
 
 		// the kind of connector must be known by now, so, index_ should already know
@@ -117,21 +120,12 @@ MappingSelect : CompositeView {
 
 			case
 			{ sel.value == 4 or: { sel.value == 5 }} {
-				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
-				mc.m.value[i][mappingType].curve = e.mcurve.value;
-				mc.m.value[i][mappingType].env = nil;
+				this.connector.perform(mappingMethod, sel.items[sel.value], e.mcurve.value, nil)
 			}
 			{ sel.value == 6 } {
-				mc.m.value[i][mappingType].env = env;
-				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
-				mc.m.value[i][mappingType].curve = nil;
+				this.connector.perform(mappingMethod, sel.items[sel.value], nil, env)
 			}
-			{
-				mc.m.value[i][mappingType].mapping = sel.items[sel.value];
-				mc.m.value[i][mappingType].env = nil;
-				mc.m.value[i][mappingType].curve = nil;
-			};
-			mc.m.changedPerformKeys(widget.syncKeys, i);
+			{ this.connector.perform(mappingMethod, sel.items[sel.value], nil, nil) }
 		});
 		e.mcurve.action_({ |nb|
 			i = connectors.indexOf(this.connector);
@@ -163,6 +157,7 @@ MappingSelect : CompositeView {
 	index_ { |connectorID|
 		// "connectorID: %".format(connectorID).postln;
 		connector = connectors[connectorID];
+		// "mc.m.value[%][%]: %".format(connectorID, mappingType, mc.m.value[connectorID][mappingType]).postln;
 		mc.m.value[connectorID] !? {
 			e.mselect.value_(e.mselect.items.indexOf(mc.m.value[connectorID][mappingType].mapping));
 			e.mcurve.value_(mc.m.value[connectorID][mappingType].curve ? 0);

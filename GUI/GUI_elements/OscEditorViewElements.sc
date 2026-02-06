@@ -906,7 +906,7 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		this.view.value_(mc.oscDisplay.m.value[connectorID].learn.postln.not.asInteger)
+		this.view.value_(mc.oscDisplay.m.value[connectorID].learn.not.asInteger)
 	}
 
 	widget_ { |otherWidget|
