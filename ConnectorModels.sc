@@ -354,11 +354,11 @@ OscConnector {
 	}
 
 	prOSCFuncAction { |mid|
-		var input, cv = widget.cv, constraints, inputMapping, argValues;
+		var input, inputRaw, corrDiff, cv = widget.cv, constraints, inputMapping, argValues;
 		var snapDistance, constraintsRange;
 
 		^{ |msg, time, addr, port|
-			input = msg[mid ?? { this.getOscMsgIndex }];
+			input = inputRaw = msg[mid ?? { this.getOscMsgIndex }];
 			if (input <= 0 and: { input.abs > alwaysPositive }) {
 				alwaysPositive = input.abs + 0.1
 			};
@@ -398,7 +398,7 @@ OscConnector {
 			};
 
 			argValues = argValues.add(\minmax);
-			// "argValues: %".format(argValues).postln;
+			"argValues: %".format(argValues).postln;
 
 			constraintsRange = (constraints[1] - constraints[0]).abs;
 			if (this.getOscEndless.not) {
@@ -410,10 +410,10 @@ OscConnector {
 				if (constraintsRange == 0) { input = 0 } {
 					input = input+alwaysPositive
 				};
-				// "input: %".format(input).postln;
+				"input: %, inputRaw: %, cv.input: %".format(input, inputRaw, cv.value).postln;
 				if ((snapDistance <= 0).or(
-					input < (cv.input + (snapDistance/2)) and: {
-						input > (cv.value - (snapDistance/2))
+					inputRaw < (cv.input + (snapDistance)) and: {
+						inputRaw > (cv.input - (snapDistance))
 					}
 				)) {
 					case
@@ -421,9 +421,25 @@ OscConnector {
 						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
 							this.setOscSnapDistance(0)
 						};
+					}
+					{ inputMapping.mapping === \linbicurve } {
+						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+							this.setMidiSnapDistance(0)
+						};
+					}
+					{ inputMapping.mapping === \linenv } {
+						if (snapDistance > 0) {
+							this.setMidiSnapDistance(0)
+						};
+					}
+					{ inputMapping.mapping === \explin } {
+						if (snapDistance > 0) {
+							this.setMidiSnapDistance(0)
+						};
+						cv.input_((input+1).explin(1, 2, 0, 1))
 					};
-					cv.value_(input.perform(*argValues));
-					// "cv.value: %\n".format(cv.value).postln;
+					cv.value_(input.perform(*argValues).postln);
+					"cv.value: %\n".format(cv.value).postln;
 				};
 				accum[widget] = cv.input;
 			} {
@@ -842,8 +858,8 @@ MidiConnector {
 					input = val/127;
 					snapDistance = this.getMidiSnapDistance;
 					if ((snapDistance <= 0).or(
-						input < (cv.input + (snapDistance/2)) and: {
-							input > (cv.input - (snapDistance/2))
+						input < (cv.input + (snapDistance)) and: {
+							input > (cv.input - (snapDistance))
 					})) {
 						case
 						{ inputMapping.mapping === \lincurve } {
