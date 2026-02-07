@@ -156,7 +156,7 @@ OscMsgIndexBox : ConnectorElementView {
 		connections = widget.wmc.oscConnections;
 
 		this.view = NumberBox(parentView, rect)
-		.clipLo_(1).step_(1).scroll_step_(1)
+		.clipLo_(1).clipHi_(inf).step_(1).scroll_step_(1)
 		.toolTip_("If OSC message conatains more than one value select message slot that shall be read");
 		this.view.onClose_({ this.close });
 		this.index_(index);

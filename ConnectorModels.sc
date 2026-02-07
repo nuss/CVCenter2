@@ -383,9 +383,20 @@ OscConnector {
 				inputMapping.mapping,
 				constraints[0] + alwaysPositive,
 				constraints[1] + alwaysPositive,
+			];
+
+			if (inputMapping.mapping === \linbicurve) {
+				argValues = argValues.add(nil) // inCenter, internally computed
+			};
+
+			argValues = argValues.addAll([
 				this.widget.getSpec.minval,
 				this.widget.getSpec.maxval
-			];
+			]);
+
+			if (inputMapping.mapping === \linbicurve) {
+				argValues = argValues.add(nil) // outCenter, internally computed
+			};
 
 			case
 			{ inputMapping.mapping === \lincurve or: {
@@ -410,34 +421,41 @@ OscConnector {
 				if (constraintsRange == 0) { input = 0 } {
 					input = input+alwaysPositive
 				};
-				"input: %, inputRaw: %, cv.input: %".format(input, inputRaw, cv.value).postln;
+				// "input: %\ninputRaw: %\ncv.input: %\ncv.spec.minval: %\n".format(input, inputRaw, cv.value, cv.spec.minval).postln;
 				if ((snapDistance <= 0).or(
 					inputRaw < (cv.input + (snapDistance)) and: {
 						inputRaw > (cv.input - (snapDistance))
 					}
 				)) {
 					case
-					{ inputMapping.mapping === \lincurve } {
+					{ inputMapping.mapping === \lincurve or: { inputMapping.mapping === \linbicurve }} {
 						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
 							this.setOscSnapDistance(0)
-						};
-					}
-					{ inputMapping.mapping === \linbicurve } {
-						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
-							this.setMidiSnapDistance(0)
-						};
+						}
 					}
 					{ inputMapping.mapping === \linenv } {
-						if (snapDistance > 0) {
-							this.setMidiSnapDistance(0)
-						};
+						if (inputMapping.env != Env([0, 1], [1]) and: { snapDistance > 0 }) {
+							this.setOscSnapDistance(0)
+						}
+					}
+					{ inputMapping.mapping === \linexp } {
+						// "mapping is \\linexp".warn;
+						if (cv.spec.minval <= 0 or: { cv.spec.maxval <= 0 }) {
+							this.setOscInputMapping(\linlin);
+							// "cv.spec.minval: %, mapping set to '%'".format(cv.spec.minval, this.getOscInputMapping).warn
+						} {
+							if (snapDistance > 0) {
+								this.setOscSnapDistance(0)
+							}
+						}
 					}
 					{ inputMapping.mapping === \explin } {
 						if (snapDistance > 0) {
-							this.setMidiSnapDistance(0)
+							this.setOscSnapDistance(0)
 						};
 						cv.input_((input+1).explin(1, 2, 0, 1))
 					};
+					"input: %".format(input).warn;
 					cv.value_(input.perform(*argValues).postln);
 					"cv.value: %\n".format(cv.value).postln;
 				};
