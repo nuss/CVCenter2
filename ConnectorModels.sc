@@ -409,7 +409,7 @@ OscConnector {
 			};
 
 			argValues = argValues.add(\minmax);
-			"argValues: %".format(argValues).postln;
+			// "argValues: %".format(argValues).postln;
 
 			constraintsRange = (constraints[1] - constraints[0]).abs;
 			if (this.getOscEndless.not) {
@@ -455,9 +455,9 @@ OscConnector {
 						};
 						cv.input_((input+1).explin(1, 2, 0, 1))
 					};
-					"input: %".format(input).warn;
-					cv.value_(input.perform(*argValues).postln);
-					"cv.value: %\n".format(cv.value).postln;
+					// "input: %".format(input).warn;
+					cv.value_(input.perform(*argValues));
+					// "cv.value: %\n".format(cv.value).postln;
 				};
 				accum[widget] = cv.input;
 			} {

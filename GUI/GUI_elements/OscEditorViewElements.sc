@@ -36,23 +36,23 @@ OscCmdNameField : ConnectorElementView {
 			this.connector.setOscCmdName(tf.string);
 			if (tf.string.asSymbol !== '/path/to/cmd') {
 				if (tf.string.size > 0) {
-					mc.m.value[index].learn = false;
+					mc.m.value[connector.index].learn = false;
 					if (validOsc.matchRegexp(tf.string)) {
 						// "textfield string matching".postln;
-						mc.m.value[index].connectState = ["connect", Color.white, Color.blue];
-						mc.m.value[index].connectEnabled = true;
-						mc.m.value[index].connectWarning = nil;
+						mc.m.value[connector.index].connectState = ["connect", Color.white, Color.blue];
+						mc.m.value[connector.index].connectEnabled = true;
+						mc.m.value[connector.index].connectWarning = nil;
 					} {
 						// "textfield string not matching".postln;
-						mc.m.value[index].connectState = ["connect", Color.white, Color.gray];
-						mc.m.value[index].connectEnabled = false;
-						mc.m.value[index].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
+						mc.m.value[connector.index].connectState = ["connect", Color.white, Color.gray];
+						mc.m.value[connector.index].connectEnabled = false;
+						mc.m.value[connector.index].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
 					}
 				} {
-					mc.m.value[index].learn = true;
-					mc.m.value[index].connectState = ["learn", Color.yellow, Color.green(0.5)];
-					mc.m.value[index].connectEnabled = true;
-					mc.m.value[index].connectWarning = nil;
+					mc.m.value[connector.index].learn = true;
+					mc.m.value[connector.index].connectState = ["learn", Color.yellow, Color.green(0.5)];
+					mc.m.value[connector.index].connectEnabled = true;
+					mc.m.value[connector.index].connectWarning = nil;
 				};
 				mc.m.changedPerformKeys(widget.syncKeys, index);
 			};
@@ -156,7 +156,7 @@ OscMsgIndexBox : ConnectorElementView {
 		connections = widget.wmc.oscConnections;
 
 		this.view = NumberBox(parentView, rect)
-		.clipLo_(1).clipHi_(inf).step_(1).scroll_step_(1)
+		.clipLo_(1).step_(1).scroll_step_(1)
 		.toolTip_("If OSC message conatains more than one value select message slot that shall be read");
 		this.view.onClose_({ this.close });
 		this.index_(index);
@@ -956,29 +956,32 @@ OscConnectButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			if (mc.oscConnections.m.value[index].isNil) {
-				if (mc.oscDisplay.m.value[index].ipField.notNil) {
-					ip = mc.oscDisplay.m.value[index].ipField.asString
+			// "mc.oscConnections.m.value[%].isNil? %".format(connector.index, mc.oscConnections.m.value[connector.index].isNil).postln;
+			if (mc.oscConnections.m.value[connector.index].isNil) {
+				if (mc.oscDisplay.m.value[connector.index].ipField.notNil) {
+					ip = mc.oscDisplay.m.value[connector.index].ipField.asString
 				} { ip = nil };
-				mc.oscDisplay.m.value[index].portField !? { port = mc.oscDisplay.m.value[index].portField };
-				cmd = mc.oscDisplay.m.value[index].nameField;
-				cmdIndex = mc.oscDisplay.m.value[index].index;
-				matching = mc.oscOptions.m.value[index].oscMatching;
-				argTemplate = mc.oscDisplay.m.value[index].template;
-				dispatcher = mc.oscDisplay.m.value[index].dispatcher;
-				if (mc.oscDisplay.m.value[index].learn) {
-					mc.oscDisplay.m.value[index].learn = false;
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
-					OSCFunc.cvWidgetLearn(widget, index, matching, NetAddr.langPort, argTemplate, dispatcher);
+				mc.oscDisplay.m.value[connector.index].portField !? { port = mc.oscDisplay.m.value[connector.index].portField };
+				cmd = mc.oscDisplay.m.value[connector.index].nameField;
+				cmdIndex = mc.oscDisplay.m.value[connector.index].index;
+				matching = mc.oscOptions.m.value[connector.index].oscMatching;
+				argTemplate = mc.oscDisplay.m.value[connector.index].template;
+				dispatcher = mc.oscDisplay.m.value[connector.index].dispatcher;
+				if (mc.oscDisplay.m.value[connector.index].learn) {
+					// "\n% (%): should learn".format(connector.index, widget.oscConnectors.indexOf(this.connector)).postln;
+					mc.oscDisplay.m.value[connector.index].learn = false;
+					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
+					OSCFunc.cvWidgetLearn(widget, connector.index, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
+					// "\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
-					mc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+					mc.oscDisplay.m.value[connector.index].connectState = ["disconnect", Color.white, Color.red];
+					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
 				}
 			} {
 				this.connector.oscDisconnect;
-				mc.oscDisplay.m.value[index].connectState = ["connect", Color.white, Color.blue];
-				mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+				mc.oscDisplay.m.value[connector.index].connectState = ["connect", Color.white, Color.blue];
+				mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
 			}
 		});
 
@@ -993,6 +996,15 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
+		// mc.oscDisplay.m.value.do { |v, i|
+		// 	"\n%:".format(i).warn;
+		// 	v.pairsDo { |n, m|
+		// 		"%: %".format(n, m).postln;
+		// 	}
+		// };
+		// mc.oscConnections.m.value.do { |v, i|
+		// 	"%: %".format(i, v).warn;
+		// };
 		this.view.states_([mc.oscDisplay.m.value[connectorID].connectState])
 	}
 
