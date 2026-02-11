@@ -23,6 +23,8 @@ MidiLearnButton : ConnectorElementView {
 
 	init { |parentView, wdgt, rect, index|
 		var defaultState;
+		var src, chan, ctrl, argTemplate, dispatcher;
+		var conID;
 
 		widget = wdgt;
 		all[widget] ?? { all.put(widget, List[]) };
@@ -44,30 +46,31 @@ MidiLearnButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			var i = conModel.indexOf(this.connector);
-			var src, chan, ctrl;
-			mc.m.value[i].learn = bt.states[bt.value][0];
-			mc.m.changedPerformKeys(widget.syncKeys, i);
-			if (mc.m.value[i].learn == "X") {
-				if (mc.m.value[i].src != 'source...') { src = mc.m.value[i].src };
-				if (mc.m.value[i].chan != "chan") { chan = mc.m.value[i].chan };
-				if (mc.m.value[i].ctrl != "ctrl") { ctrl = mc.m.value[i].ctrl };
-				this.connector.midiConnect(src, chan, ctrl);
+			conID = connector.index;
+			mc.m.value[conID].learn = bt.states[bt.value][0];
+			mc.m.changedPerformKeys(widget.syncKeys, conID);
+			if (mc.m.value[conID].learn == "X") {
+				if (mc.m.value[conID].src != 'source...') { src = mc.m.value[conID].src };
+				if (mc.m.value[conID].chan != "chan") { chan = mc.m.value[conID].chan };
+				if (mc.m.value[conID].ctrl != "ctrl") { ctrl = mc.m.value[conID].ctrl };
+				argTemplate = this.connector.getMidiTemplate;
+				dispatcher = this.connector.getMidiDispatcher;
+				this.connector.midiConnect(src, chan, ctrl, argTemplate, dispatcher);
 				if (src.notNil or: { chan.notNil or: { ctrl.notNil }}) {
 					all[widget].do { |b|
-						if (conModel.indexOf(b.connector) == i) {
+						if (conModel.indexOf(b.connector) == conID) {
 							b.view.states_([
 								["L", Color.white, Color.blue],
 								["X", Color.white, Color.red]
-							]).value_(1).toolTip_(mc.m.value[i].toolTip)
+							]).value_(1).toolTip_(mc.m.value[conID].toolTip)
 						}
 					}
 				}
 			} {
 				this.connector.midiDisconnect;
 				all[widget].do { |b|
-					if (conModel.indexOf(b.connector) == i) {
-						b.view.toolTip_(mc.m.value[i].toolTip);
+					if (conModel.indexOf(b.connector) == conID) {
+						b.view.toolTip_(mc.m.value[conID].toolTip);
 					}
 				}
 			}
@@ -141,7 +144,7 @@ MidiLearnButton : ConnectorElementView {
 			all[widget].do { |but, i|
 				if (but.connector === conModel[conID]) {
 					if (changer.value[conID].learn == "C") {
-						// mc.m.value[i].toolTip = "Connect using selected parameters";
+						// mc.m.value[conID].toolTip = "Connect using selected parameters";
 						but.view.states_([
 							["C", Color.black, Color.green],
 							["X", Color.white, Color.red]
@@ -175,6 +178,8 @@ MidiSrcSelect : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
+		var conID;
+
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
@@ -189,11 +194,11 @@ MidiSrcSelect : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
-			var i = conModel.indexOf(this.connector);
-			mc.m.value[i].src = wmc.m.value[sel.item];
-			mc.m.value[i].learn = "C";
-			mc.m.value[i].toolTip = "Connect using selected parameters";
-			mc.m.changedPerformKeys(widget.syncKeys, i);
+			conID = connector.index;
+			mc.m.value[conID].src = wmc.m.value[sel.item];
+			mc.m.value[conID].learn = "C";
+			mc.m.value[conID].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, conID);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -317,6 +322,8 @@ MidiChanField : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
+		var conID;
+
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
@@ -329,11 +336,11 @@ MidiChanField : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
-			var i = conModel.indexOf(this.connector);
-			mc.m.value[i].chan = tf.string;
-			mc.m.value[i].learn = "C";
-			mc.m.value[i].toolTip = "Connect using selected parameters";
-			mc.m.changedPerformKeys(widget.syncKeys, i);
+			conID = connector.index;
+			mc.m.value[conID].chan = tf.string;
+			mc.m.value[conID].learn = "C";
+			mc.m.value[conID].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, conID);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -410,6 +417,8 @@ MidiCtrlField : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
+		var conID;
+
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
@@ -422,11 +431,11 @@ MidiCtrlField : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |tf|
-			var i = conModel.indexOf(this.connector);
-			mc.m.value[i].ctrl = tf.string;
-			mc.m.value[i].learn = "C";
-			mc.m.value[i].toolTip = "Connect using selected parameters";
-			mc.m.changedPerformKeys(widget.syncKeys, i);
+			conID = connector.index;
+			mc.m.value[conID].ctrl = tf.string;
+			mc.m.value[conID].learn = "C";
+			mc.m.value[conID].toolTip = "Connect using selected parameters";
+			mc.m.changedPerformKeys(widget.syncKeys, conID);
 		});
 		connectorRemovedFuncAdded ?? {
 			MidiConnector.onConnectorRemove_({ |widget, id|
@@ -514,7 +523,6 @@ MidiModeSelect : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |sel|
-			var i = conModel.indexOf(this.connector);
 			this.connector.setMidiMode(sel.value);
 		});
 		connectorRemovedFuncAdded ?? {

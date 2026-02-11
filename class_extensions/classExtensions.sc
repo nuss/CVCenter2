@@ -126,8 +126,12 @@
 			widget.wmc.oscDisplay.m.value[index].ipField = addr.ip.asSymbol;
 			widget.wmc.oscDisplay.m.value[index].portField = addr.port;
 			widget.wmc.oscDisplay.m.value[index].oscMatching = matching;
-			widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate;
-			widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher;
+			widget.wmc.oscConnections.m.value[index].argTemplate !? {
+				widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate.cs
+			};
+			widget.wmc.oscConnections.m.value[index].dispatcher !? {
+				widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher.cs
+			};
 			widget.wmc.oscDisplay.m.value[index].learn = false;
 			widget.wmc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
 			widget.wmc.oscDisplay.m.value[index].connectEnabled = true;
@@ -169,7 +173,7 @@
 		oldFunc = func;
 		if (msgType === \control) {
 			^{ |val, num, chan, srcID|
-				"MIDIFunc learned: type: %\tnum: %\tval: %\tchan: %\tsrcID: %\t\n".postf(msgType, num, val, chan, srcID);
+				"MIDIFunc learned: type: %\tnum: %\tval: %\tchan: %\tsrcID: %\t\n".postf(msgType, num, val.postln, chan, srcID);
 				this.disable;
 				this.remove(learnFunc);
 				oldFunc.value(val, num, chan, srcID);// do first action
@@ -178,9 +182,9 @@
 				widget.wmc.midiDisplay.m.value[index].chan = chan;
 				widget.wmc.midiDisplay.m.value[index].ctrl = num;
 				if (learnVal) {
-					widget.wmc.midiDisplay.m.value[index].templ = val
+					widget.wmc.midiDisplay.m.value[index].template = val
 				} {
-					widget.wmc.midiDisplay.m.value[index].templ = nil
+					widget.wmc.midiDisplay.m.value[index].template = nil
 				};
 				widget.wmc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 			}

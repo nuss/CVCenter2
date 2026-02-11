@@ -293,23 +293,23 @@ OscConnector {
 	setOscTemplate { |argTemplate|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.oscDisplay.m.value[index].oscTemplate = argTemplate;
+		mc.oscDisplay.m.value[index].oscTemplate = argTemplate.cs;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscTemplate {
-		^widget.wmc.oscDisplay.m.value[this.index].oscTemplate;
+		^widget.wmc.oscDisplay.m.value[this.index].oscTemplate.interpret;
 	}
 
 	setOscDispatcher { |dispatcher|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.oscDisplay.m.value[index].dispatcher = dispatcher;
+		mc.oscDisplay.m.value[index].dispatcher = dispatcher.cs;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscDispatcher {
-		^widget.wmc.oscDisplay.m.value[this.index].dispatcher;
+		^widget.wmc.oscDisplay.m.value[this.index].dispatcher.interpret;
 	}
 
 	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
@@ -782,23 +782,23 @@ MidiConnector {
 	setMidiTemplate { |argTemplate|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.midiDisplay.m.value[index].template = argTemplate;
+		mc.midiDisplay.m.value[index].template = argTemplate.cs;
 		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiTemplate {
-		^widget.wmc.oscDisplay.m.value[this.index].template;
+		^widget.wmc.oscDisplay.m.value[this.index].template.interpret;
 	}
 
 	setMidiDispatcher { |dispatcher|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.midiDisplay.m.value[index].dispatcher = dispatcher;
+		mc.midiDisplay.m.value[index].dispatcher = dispatcher.cs;
 		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getMidiDispatcher {
-		^widget.wmc.midiDisplay.m.value[this.index].dispatcher;
+		^widget.wmc.midiDisplay.m.value[this.index].dispatcher.interpret;
 	}
 
 	midiConnect { |num, chan, srcID, argTemplate, dispatcher|
@@ -818,9 +818,11 @@ MidiConnector {
 			mc.midiDisplay.m.value[index].ctrl = mc.midiConnections.m.value[index].msgNum
 		};
 		mc.midiConnections.m.value[index].argTemplate !? {
-			mc.midiDisplay.m.value[index].template = mc.midiConnections.m.value[index].argTemplate
+			mc.midiDisplay.m.value[index].template = mc.midiConnections.m.value[index].argTemplate.cs
 		};
-		mc.midiDisplay.m.value[index].dispatcher = mc.midiConnections.m.value[index].dispatcher;
+		mc.midiConnections.m.value[index].dispatcher !? {
+			mc.midiDisplay.m.value[index].dispatcher = mc.midiConnections.m.value[index].dispatcher.cs
+		};
 		mc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({

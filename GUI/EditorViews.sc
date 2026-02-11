@@ -191,7 +191,7 @@ MidiConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 375))
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 400))
 		} { parent = parentView };
 
 		parent.onClose_({ this.close });

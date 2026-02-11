@@ -53,7 +53,7 @@ ConnectorNameField : ConnectorElementView {
 
 	init { |parentView, wdgt, rect, index, kind|
 		if (kind.isNil) {
-			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
+			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
 		} {
 			connectorKind = kind.asSymbol;
 			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
@@ -195,7 +195,7 @@ ConnectorSelect : ConnectorElementView {
 
 	init { |parentView, wdgt, rect, index, kind|
 		if (kind.isNil) {
-			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
+			Error("arg 'connectorKind' in ConnectorSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
 		} {
 			connectorKind = kind.asSymbol;
 			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
@@ -408,11 +408,11 @@ ConnectorRemoveButton : ConnectorElementView {
 		this.index_(0);
 	}
 
-	close {
-		this.remove;
-		this.viewDidClose;
-		this.prCleanup;
-	}
+	// close {
+	// 	this.remove;
+	// 	this.viewDidClose;
+	// 	this.prCleanup;
+	// }
 
 	prCleanup {
 		all[widget][connectorKind].remove(this);
@@ -494,5 +494,170 @@ ControlSpecText : ConnectorElementView {
 				defer { txt.string_("Current ControlSpec:\n%".format(changer.value)) }
 			}
 		})
+	}
+}
+
+TemplateTextField : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var <connector, <widget, connectorKind;
+	var cclass, connections;
+
+	*initClass {
+		all = ();
+	}
+
+	*new { |parent, widget, rect, connectorID=0, connectorKind|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect, connectorID, connectorKind);
+	}
+
+	init { |parentView, wdgt, rect, index, kind|
+		var conID, action;
+
+		if (kind.isNil) {
+			Error("arg 'connectorKind' in TemplateTextField.new must not be nil - must either be 'midi' or 'osc'.").throw
+		} {
+			connectorKind = kind.asSymbol;
+			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
+			}
+		};
+
+		widget = wdgt;
+		all[widget] ?? { all[widget] = () };
+		all[widget][connectorKind] ?? {
+			all[widget][connectorKind] = List[]
+		};
+		all[widget][connectorKind].add(this);
+
+		case
+		{ connectorKind === \midi } {
+			mc = widget.wmc.midiDisplay;
+			conModel = widget.midiConnectors;
+			connections = widget.wmc.midiConnections;
+		}
+		{ connectorKind === \osc } {
+			mc = widget.wmc.oscDisplay;
+			conModel = widget.oscConnectors;
+			connections = widget.wmc.oscConnections;
+		};
+
+		this.view = TextView(parentView)
+		.string_(mc.m.value[index].template.cs)
+		.syntaxColorize
+		.font_(Font.monospace);
+		this.view.onClose_({ this.close });
+		this.index_(index);
+		action = { |tv|
+			conID = connector.index;
+			if (tv.string.size > 0) {
+				mc.m.value[conID].template = tv.string.interpret;
+			} {
+				mc.m.value[conID].template = nil;
+			};
+			mc.m.changedPerformKeys(widget.syncKeys, conID);
+		};
+		this.view.action_(action);
+		this.view.focusLostAction_(action);
+		connectorRemovedFuncAdded ?? {
+			case
+			{ connectorKind === \midi } { cclass = MidiConnector }
+			{ connectorKind === \osc } { cclass = OscConnector };
+			cclass.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, connectorKind)
+			});
+			connectorRemovedFuncAdded = true
+		};
+		this.prAddController;
+	}
+
+	index_ { |connectorID|
+		connector = conModel[connectorID];
+		this.view.string_(mc.m.value[connectorID].template)
+		.editable_(connections.m.value[connectorID].isNil);
+	}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget][connectorKind] ?? {
+			all[otherWidget][connectorKind] = List[]
+		};
+		all[otherWidget][connectorKind].add(this);
+
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		case
+		{ connectorKind === \midi } {
+			mc = widget.wmc.midiDisplay;
+			conModel = widget.midiConnectors;
+			connections = widget.wmc.midiConnections;
+		}
+		{ connectorKind === \osc } {
+			mc = widget.wmc.oscDisplay;
+			conModel = widget.oscConnectors;
+			connections = widget.wmc.oscConnections;
+		};
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
+	}
+
+	prAddController {
+		var conID;
+
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		connections.c ?? {
+			connections.c = SimpleController(connections.m)
+		};
+		syncKey = (connectorKind ++ this.class.asString).asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget][connectorKind].do { |tv|
+				if (tv.connector === conModel[conID]) {
+					defer { tv.view.string_(mc.m.value[conID].template) }
+				}
+			}
+		});
+		connections.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget][connectorKind].do { |tv|
+				if (tv.connector === conModel[conID]) {
+					defer { tv.view.enabled_(connections.m.value[conID].isNil) }
+				}
+			}
+		})
+	}
+
+	prCleanup {
+		all[widget][connectorKind].remove(this);
+		try {
+			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
+				all[widget].removeAt(connectorKind);
+			}
+		}
+	}
+
+	prOnRemoveConnector { |widget, index, connectorKind|
+		// if widget has already been removed let it fail
+		try {
+			if (index > 0) {
+				all[widget][connectorKind].do(_.index_(index - 1))
+			} {
+				all[widget][connectorKind].do(_.index_(index))
+			}
+		}
 	}
 }

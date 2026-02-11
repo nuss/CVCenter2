@@ -18,7 +18,7 @@ OscCmdNameField : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index|
-		var action;
+		var action, conID;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -33,28 +33,29 @@ OscCmdNameField : ConnectorElementView {
 		this.index_(index);
 		this.view.enabled_(connections.m.value[index].isNil);
 		action = { |tf|
+			conID = connector.index;
 			this.connector.setOscCmdName(tf.string);
 			if (tf.string.asSymbol !== '/path/to/cmd') {
 				if (tf.string.size > 0) {
-					mc.m.value[connector.index].learn = false;
+					mc.m.value[conID].learn = false;
 					if (validOsc.matchRegexp(tf.string)) {
 						// "textfield string matching".postln;
-						mc.m.value[connector.index].connectState = ["connect", Color.white, Color.blue];
-						mc.m.value[connector.index].connectEnabled = true;
-						mc.m.value[connector.index].connectWarning = nil;
+						mc.m.value[conID].connectState = ["connect", Color.white, Color.blue];
+						mc.m.value[conID].connectEnabled = true;
+						mc.m.value[conID].connectWarning = nil;
 					} {
 						// "textfield string not matching".postln;
-						mc.m.value[connector.index].connectState = ["connect", Color.white, Color.gray];
-						mc.m.value[connector.index].connectEnabled = false;
-						mc.m.value[connector.index].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
+						mc.m.value[conID].connectState = ["connect", Color.white, Color.gray];
+						mc.m.value[conID].connectEnabled = false;
+						mc.m.value[conID].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
 					}
 				} {
-					mc.m.value[connector.index].learn = true;
-					mc.m.value[connector.index].connectState = ["learn", Color.yellow, Color.green(0.5)];
-					mc.m.value[connector.index].connectEnabled = true;
-					mc.m.value[connector.index].connectWarning = nil;
+					mc.m.value[conID].learn = true;
+					mc.m.value[conID].connectState = ["learn", Color.yellow, Color.green(0.5)];
+					mc.m.value[conID].connectEnabled = true;
+					mc.m.value[conID].connectWarning = nil;
 				};
-				mc.m.changedPerformKeys(widget.syncKeys, index);
+				mc.m.changedPerformKeys(widget.syncKeys, conID);
 			};
 		};
 		this.view.focusLostAction_(action);
@@ -943,6 +944,7 @@ OscConnectButton : ConnectorElementView {
 	init { |parentView, wdgt, rect, index|
 		var defaultState;
 		var ip, port, addr, cmd, cmdIndex, matching, argTemplate, dispatcher;
+		var conID;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -956,32 +958,33 @@ OscConnectButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			// "mc.oscConnections.m.value[%].isNil? %".format(connector.index, mc.oscConnections.m.value[connector.index].isNil).postln;
-			if (mc.oscConnections.m.value[connector.index].isNil) {
-				if (mc.oscDisplay.m.value[connector.index].ipField.notNil) {
-					ip = mc.oscDisplay.m.value[connector.index].ipField.asString
+			conID = connector.index;
+			// "mc.oscConnections.m.value[%].isNil? %".format(conID, mc.oscConnections.m.value[conID].isNil).postln;
+			if (mc.oscConnections.m.value[conID].isNil) {
+				if (mc.oscDisplay.m.value[conID].ipField.notNil) {
+					ip = mc.oscDisplay.m.value[conID].ipField.asString
 				} { ip = nil };
-				mc.oscDisplay.m.value[connector.index].portField !? { port = mc.oscDisplay.m.value[connector.index].portField };
-				cmd = mc.oscDisplay.m.value[connector.index].nameField;
-				cmdIndex = mc.oscDisplay.m.value[connector.index].index;
-				matching = mc.oscOptions.m.value[connector.index].oscMatching;
-				argTemplate = mc.oscDisplay.m.value[connector.index].template;
-				dispatcher = mc.oscDisplay.m.value[connector.index].dispatcher;
-				if (mc.oscDisplay.m.value[connector.index].learn) {
-					// "\n% (%): should learn".format(connector.index, widget.oscConnectors.indexOf(this.connector)).postln;
-					mc.oscDisplay.m.value[connector.index].learn = false;
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
-					OSCFunc.cvWidgetLearn(widget, connector.index, matching, NetAddr.langPort, argTemplate, dispatcher);
+				mc.oscDisplay.m.value[conID].portField !? { port = mc.oscDisplay.m.value[conID].portField };
+				cmd = this.connector.getOscCmdName;
+				cmdIndex = this.connector.getOscMsgIndex;
+				matching = this.connector.getOscMatching;
+				argTemplate = this.connector.getOscTemplate;
+				dispatcher = this.connector.getOscDispatcher;
+				if (mc.oscDisplay.m.value[conID].learn) {
+					// "\n% (%): should learn".format(conID, widget.oscConnectors.indexOf(this.connector)).postln;
+					mc.oscDisplay.m.value[conID].learn = false;
+					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+					OSCFunc.cvWidgetLearn(widget, conID, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
 					// "\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
-					mc.oscDisplay.m.value[connector.index].connectState = ["disconnect", Color.white, Color.red];
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
+					mc.oscDisplay.m.value[conID].connectState = ["disconnect", Color.white, Color.red];
+					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 				}
 			} {
 				this.connector.oscDisconnect;
-				mc.oscDisplay.m.value[connector.index].connectState = ["connect", Color.white, Color.blue];
-				mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, connector.index);
+				mc.oscDisplay.m.value[conID].connectState = ["connect", Color.white, Color.blue];
+				mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 			}
 		});
 

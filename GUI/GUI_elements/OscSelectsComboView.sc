@@ -1,7 +1,7 @@
 OscSelectsComboView : CompositeView {
 	classvar <all, connectorRemovedFuncAdded;
 	var wmc, osc, oscDisplay, states, connectors, connections, syncKey;
-	var <e, <connector, <widget, i;
+	var <e, <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -15,8 +15,9 @@ OscSelectsComboView : CompositeView {
 	}
 
 	init { |parentView, wdgt, rect, index, layout|
-		var parent, row, i;
+		var parent, row;
 		var numMsgSlots, n;
+		var conID;
 
 		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
@@ -34,7 +35,7 @@ OscSelectsComboView : CompositeView {
 			parent = parentView;
 		};
 
-		this.background_(Color(red: 0.5, green: 0.5, alpha: 0.5)).minHeight_(80);
+		this.background_(Color.gray(0.7)).minHeight_(80);
 
 		e = ();
 		e.ipselect = PopUpMenu(parent).items_(['IP address...'] ++ osc.m.value.keys.asArray.sort)
@@ -78,28 +79,31 @@ OscSelectsComboView : CompositeView {
 			OSCCommands.collectSync(bt.value.asBoolean);
 		});
 		e.ipselect.action_({ |sel|
+			conID = connector.index;
 			if (sel.value == 0) {
-				oscDisplay.m.value[index].ipField = nil;
+				oscDisplay.m.value[conID].ipField = nil;
 			} {
-				oscDisplay.m.value[index].ipField = sel.items[sel.value];
+				oscDisplay.m.value[conID].ipField = sel.items[sel.value];
 			};
 			// important! Otherwise port will not be found under given IP
-			oscDisplay.m.value[index].portField = nil;
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			oscDisplay.m.value[conID].portField = nil;
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 		});
 		e.portselect.action_({ |sel|
+			conID = connector.index;
 			if (sel.value == 0) {
-				oscDisplay.m.value[index].portField = nil;
+				oscDisplay.m.value[conID].portField = nil;
 			} {
-				oscDisplay.m.value[index].portField = sel.items[sel.value];
+				oscDisplay.m.value[conID].portField = sel.items[sel.value];
 			};
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 		});
 		e.cmdselect.action_({ |sel|
+			conID = connector.index;
 			if (sel.value > 0) {
-				oscDisplay.m.value[index].nameField = sel.items[sel.value];
-				oscDisplay.m.value[index].connectState = ["connect", Color.white, Color.blue];
-				oscDisplay.m.value[index].learn = false;
+				oscDisplay.m.value[conID].nameField = sel.items[sel.value];
+				oscDisplay.m.value[conID].connectState = ["connect", Color.white, Color.blue];
+				oscDisplay.m.value[conID].learn = false;
 				// clip message indices to number of messages in incoming OSC
 				numMsgSlots = [];
 				case
@@ -124,8 +128,8 @@ OscSelectsComboView : CompositeView {
 					n = osc.m.value[e.ipselect.item][e.portselect.item.asSymbol].detect { |k, v| v === sel.items[sel.value] };
 					numMsgSlots = numMsgSlots.add(n);
 				};
-				oscDisplay.m.value[index].numMsgSlots = numMsgSlots.maxValue({ |n| n });
-				oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+				oscDisplay.m.value[conID].numMsgSlots = numMsgSlots.maxValue({ |n| n });
+				oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 			};
 			// oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		});
