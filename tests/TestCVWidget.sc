@@ -14,9 +14,9 @@ TestCVWidget : UnitTest {
 		this.assertEquals(setup.inputMapping, (mapping: \linlin), "CVWidget.inputMapping, should be (mapping: 'linlin') by default");
 		this.assertEquals(setup.midiMode, 0, "CVWidget.midiMode should be 0 by default.");
 		this.assertEquals(setup.resolution, 1, "CVWidget.resolution should be 1 by default.");
-		this.assertEquals(setup.midiZero, 63, "CVWidget.midiZero should be 63 by default.");
+		this.assertEquals(setup.midiZero, 64, "CVWidget.midiZero should be 64 by default.");
 		this.assertEquals(setup.midiCtrlButtonGroup, 1, "CVWidget.midiCtrlButtonGroup should be 1 by default.");
-		this.assertEquals(setup.snapDistance, 0.1, "CVWidget.snapDistance should be 0.1 by default");
+		this.assertEquals(setup.snapDistance, 0, "CVWidget.snapDistance should be 0 by default");
 		this.assertEquals(setup.oscEndless, false, "CVWidget.oscEndless should be false by default");
 		this.assertEquals(setup.oscCalibration, true, "CVWidget.oscCalibration should be true by default")
 	}
@@ -198,7 +198,7 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getMidiSnapDistance {
 		connection1 = widget.addMidiConnector;
 		connection2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiSnapDistance, [0.1, 0.1, 0.1], "All widget.midiConnectors should be set to snapDistance 0.1 by default");
+		this.assertEquals(widget.getMidiSnapDistance, [0, 0, 0], "All widget.midiConnectors should be set to snapDistance 0.1 by default");
 		widget.setMidiSnapDistance(0.5);
 		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to snapDistance 0.5");
 		widget.setMidiSnapDistance(0.1, connection1);
@@ -307,7 +307,7 @@ TestCVWidgetKnob : UnitTest {
 	test_set_getOscSnapDistance {
 		connection1 = widget.addOscConnector;
 		connection2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscSnapDistance, [0.1, 0.1, 0.1], "All widget.oscConnectors should have been set to snapDistances equaling 1.");
+		this.assertEquals(widget.getOscSnapDistance, [0, 0, 0], "All widget.oscConnectors should have been set to snapDistances equaling 0.");
 		widget.setOscSnapDistance(0.5);
 		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.5], "All widget.oscCommecters should have been set to snapDistances equaling 0.5.");
 		widget.setOscSnapDistance(0.1, 2);

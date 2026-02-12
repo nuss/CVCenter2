@@ -47,9 +47,7 @@ OscConnector {
 			nameField: '/path/to/cmd',
 			index: 1,
 			connectorButVal: 0,
-			// editEnabled: true,
 			connectState: ["learn", Color.yellow, Color.green(0.5)],
-			// connect1: ["disconnect", Color.white, Color.red],
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
 			numOscSlots: 1

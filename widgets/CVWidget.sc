@@ -256,9 +256,7 @@ CVWidget {
 			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
 				// recursion.(wmc)
 				wmc.pairsDo { |k, v|
-					if (k != \mapConstrainterHi and: {
-						k != \mapConstrainterLo
-					}) {
+					if (k !== \oscInputConstrainters) {
 						v.c !? { v.c.removeAt(thisKey) }
 					}
 				}
