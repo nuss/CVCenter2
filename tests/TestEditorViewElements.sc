@@ -485,7 +485,7 @@ TestMidiZeroNumberBox : UnitTest {
 		element1.valueAction_(60);
 		element1.widget_(widget2);
 		this.assert(element1.widget === widget2, "After calling widget_ on the MidiZeroNumberBox with arg 'widget' set to widget2 the MidiZeroNumberBox's 'widget' getter should return widget2");
-		this.assertEquals(element1.view.value, 63, "After setting element1.valueAction_(60) should leave element1's value at 63 after calling element1.widget_(widget2).");
+		this.assertEquals(element1.view.value, 64, "After setting element1.valueAction_(60) should leave element1's value at 64 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
 
@@ -538,7 +538,7 @@ TestSnapDistanceNumberBox : UnitTest {
 		element1.valueAction_(1);
 		element1.widget_(widget2);
 		this.assert(element1.widget === widget2, "After calling widget_ on the SnapDistanceNumberBox with arg 'widget' set to widget2 the SnapDistanceNumberBox's 'widget' getter should return widget2");
-		this.assertEquals(element1.view.value, 0.1, "After setting element1.valueAction_(1) should leave element1's value at 0.1 after calling element1.widget_(widget2).");
+		this.assertEquals(element1.view.value, 0, "After setting element1.valueAction_(1) should leave element1's value at 0 after calling element1.widget_(widget2).");
 		widget2.remove;
 	}
 
@@ -698,7 +698,7 @@ TestMidiInitButton : UnitTest {
 	}
 }
 
-TestMidiConnectorRemoveButton : UnitTest {
+TestConnectorRemoveButton : UnitTest {
 	var widget1, widget2, button1, button2;
 
 	setUp {
@@ -714,7 +714,7 @@ TestMidiConnectorRemoveButton : UnitTest {
 	}
 
 	test_new {
-		this.assertEquals(MidiConnectorRemoveButton.all[widget1].size, 2, "After creating 2 MidiConnectorRemoveButton instances MidiInitButton.all[widget1] should have a size of 2");
+		this.assertEquals(ConnectorRemoveButton.all[widget1][\midi].size, 2, "After creating 2 ConnectorRemoveButton instances MidiInitButton.all[widget1] should have a size of 2");
 	}
 
 	test_index_ {
@@ -728,7 +728,7 @@ TestMidiConnectorRemoveButton : UnitTest {
 	test_widget_ {
 		widget2 = CVWidgetKnob(\test2);
 		button1.widget_(widget2);
-		this.assert(button1.widget === widget2, "After calling widget_ on the MidiConnectorRemoveButton with arg 'widget' set to widget2 the MidiConnectorRemoveButton's 'widget' getter should return widget2");
+		this.assert(button1.widget === widget2, "After calling widget_ on the ConnectorRemoveButton with arg 'widget' set to widget2 the ConnectorRemoveButton's 'widget' getter should return widget2");
 		widget2.remove;
 	}
 
@@ -742,8 +742,8 @@ TestMidiConnectorRemoveButton : UnitTest {
 
 	test_close {
 		button1.close;
-		this.assertEquals(button1.class.all[widget1], List[button2], "After closing button1 the 'all' variable at key widget1 should hold a list with a single value: button2");
+		this.assertEquals(button1.class.all[widget1][\midi], List[button2], "After closing button1 the 'all' variable at key widget1 should hold a list with a single value: button2");
 		button2.close;
-		this.assertEquals(button2.class.all[widget1], List[], "After closing button2 the 'all' variable should hold an empty list");
+		this.assertEquals(button2.class.all[widget1][\midi], nil, "After closing button2 ConnectorRemoveButton.all[widget][connectorKind] should be nil.");
 	}
 }

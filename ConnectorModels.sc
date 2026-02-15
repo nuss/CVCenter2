@@ -785,7 +785,7 @@ MidiConnector {
 	}
 
 	getMidiTemplate {
-		^widget.wmc.oscDisplay.m.value[this.index].template.interpret;
+		^widget.wmc.midiDisplay.m.value[this.index].template.interpret;
 	}
 
 	setMidiDispatcher { |dispatcher|

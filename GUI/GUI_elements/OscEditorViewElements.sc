@@ -962,9 +962,10 @@ OscConnectButton : ConnectorElementView {
 			// "mc.oscConnections.m.value[%].isNil? %".format(conID, mc.oscConnections.m.value[conID].isNil).postln;
 			if (mc.oscConnections.m.value[conID].isNil) {
 				if (mc.oscDisplay.m.value[conID].ipField.notNil) {
-					ip = mc.oscDisplay.m.value[conID].ipField.asString
-				} { ip = nil };
-				mc.oscDisplay.m.value[conID].portField !? { port = mc.oscDisplay.m.value[conID].portField };
+					ip = mc.oscDisplay.m.value[conID].ipField.asString;
+					port = mc.oscDisplay.m.value[conID].portField;
+					addr = NetAddr(ip, port);
+				};
 				cmd = this.connector.getOscCmdName;
 				cmdIndex = this.connector.getOscMsgIndex;
 				matching = this.connector.getOscMatching;
@@ -976,7 +977,7 @@ OscConnectButton : ConnectorElementView {
 					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 					OSCFunc.cvWidgetLearn(widget, conID, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
-					// "\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
+					"\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
 					mc.oscDisplay.m.value[conID].connectState = ["disconnect", Color.white, Color.red];
 					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);

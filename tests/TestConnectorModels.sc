@@ -25,12 +25,12 @@ TestMidiConnector : UnitTest {
 				midiMode: 0,
 				midiZero: 64,
 				midiResolution: 1,
-				snapDistance: 0.1,
+				snapDistance: 0,
 				ctrlButtonGroup: 1,
 				midiInputMapping: (mapping: \linlin)
 			);
 		};
-		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 63, midiResolution: 1, snapDistance: 0.1, ctrlButtonGroup: 1, midiInputMapping: (mapping: 'linlin'))");
+		this.assertEquals(vals, [true, true, true], "The values of midiOptions model declared within the MidiConnectors should default to an Event (midiMode: 0, midiZero: 64, midiResolution: 1, snapDistance: 0, ctrlButtonGroup: 1, midiInputMapping: (mapping: 'linlin'))");
 		vals = widget.wmc.midiDisplay.m.value.collect { |v|
 			v == (
 				src: 'source...',
@@ -86,8 +86,8 @@ TestMidiConnector : UnitTest {
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].src, 12345, "widget.wmc.midiDisplay.m.value[0].src should equal 12345");
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].chan, 0, "widget.wmc.midiDisplay.m.value[0].chan should equal 0");
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].ctrl, 2, "widget.wmc.midiDisplay.m.value[0].ctrl should equal 2");
-		this.assertEquals(widget.wmc.midiDisplay.m.value[0].template, 3, "widget.wmc.midiDisplay.m.value[0].template should equal 3");
-		this.assertEquals(widget.wmc.midiDisplay.m.value[0].dispatcher.class, MIDIMessageDispatcher, "widget.wmc.midiDisplay.m.value[0].dispatcher.class should equal MIDIMessageDispatcher");
+		this.assertEquals(widget.wmc.midiDisplay.m.value[0].template, "3", "widget.wmc.midiDisplay.m.value[0].template should equal 3");
+		this.assertEquals(widget.wmc.midiDisplay.m.value[0].dispatcher.interpret.class, MIDIMessageDispatcher, "widget.wmc.midiDisplay.m.value[0].dispatcher.class should equal MIDIMessageDispatcher");
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].toolTip, "Click to disconnect", "widget.wmc.midiDisplay.m.value[0].template should equal \"Click to disconnect\"");
 		connector1.midiDisconnect;
 		this.assertEquals(widget.wmc.midiConnections.m.value[0], nil, "After disconnecting a widget's default MidiConnector instance widget.wmc.midiConnections.m.value[0] should hold nil");
@@ -122,7 +122,7 @@ TestOscConnector : UnitTest {
 				oscEndless: false,
 				oscResolution: 1,
 				oscCalibration: true,
-				oscSnapDistance: 0.1,
+				oscSnapDistance: 0,
 				oscInputRange: [0.0001, 0.0001],
 				oscInputMapping: (mapping: \linlin),
 				oscMatching: false
@@ -131,12 +131,13 @@ TestOscConnector : UnitTest {
 		this.assertEquals(vals, [true, true, true], "The values of oscOptions model declared within the OscConnectors should default to an Event (oscEndless: false, oscResolution: 1, oscCalibration: true, oscSnapDistance: 0.1, oscInputRange: [0.0001, 0.0001], oscInputMapping: (mapping: 'linlin'))");
 		vals = widget.wmc.oscDisplay.m.value.collect { |v|
 			v == (
-				ipField: nil,
-				portField: nil,
 				nameField: '/path/to/cmd',
 				index: 1,
 				connectorButVal: 0,
-				connect: "learn"
+				connectState: ["learn", Color.yellow, Color.green(0.5)],
+				connectEnabled: true, // default, if no command is given
+				numOscSlots: 1,
+				learn: true
 			)
 		};
 		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/path/to/cmd', index: 1, connectorButVal: 0, connect: \"Learn\")");
@@ -181,7 +182,7 @@ TestOscConnector : UnitTest {
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].path, '/test1', "widget.wmc.oscConnections.m.value[0].path should return '/test1'.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].recvPort, nil, "widget.wmc.oscConnections.m.value[0].recvPort should return nil.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].argTemplate, [0, 1, 2, 3], "widget.wmc.oscConnections.m.value[0].argTemplate should return [0, 1, 2, 3].");
-		this.assertEquals(widget.wmc.oscDisplay.m.value[0].ipField, "127.0.0.1", "widget.wmc.oscDisplay.m.value[0].ipField should equal \"127.0.0.1\".");
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0].ipField, '127.0.0.1', "widget.wmc.oscDisplay.m.value[0].ipField should equal \"127.0.0.1\".");
 		this.assertEquals(widget.wmc.oscDisplay.m.value[0].portField, 57120, "widget.wmc.oscDisplay.m.value[0].portField should equal 57120.");
 		this.assertEquals(widget.wmc.oscDisplay.m.value[0].nameField, '/test1', "widget.wmc.oscDisplay.m.value[0].nameField should equal '/test1'.");
 		this.assertEquals(widget.wmc.oscDisplay.m.value[0].template, [0, 1, 2, 3], "widget.wmc.oscDisplay.m.value[0].template should equal [0, 1, 2, 3]");
@@ -190,7 +191,19 @@ TestOscConnector : UnitTest {
 		this.assertEquals(widget.wmc.oscDisplay.m.value[0].connect, "disconnect", "widget.wmc.oscDisplay.m.value[0].connect should equal \"disconnect\".");
 		connector1.oscDisconnect;
 		this.assertEquals(widget.wmc.oscConnections.m.value[0], nil, "After disconnecting a widget's default MidiConnector instance widget.wmc.oscConnections.m.value[0] should hold nil");
-		this.assertEquals(widget.wmc.oscDisplay.m.value[0], (index: 1, nameField: '/test1', ipField: "127.0.0.1", portField: 57120, template: [0, 1, 2, 3], connectorButVal: 0, connect: "connect"));
+		this.assertEquals(widget.wmc.oscDisplay.m.value[0], (
+			numOscSlots: 1,
+			index: 1,
+			nameField: '/test1',
+			ipField: '127.0.0.1',
+			portField: 57120,
+			template: [0, 1, 2, 3],
+			connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],
+			connectEnabled: true,
+			connectorButVal: 0,
+			connect: "connect",
+			learn: true
+		), "After disconnectiong connector1 widget.wmc.oscDisplay.m.value[0] should hold an Event (index: 1, nameField: '/test1', ipField: \"127.0.0.1\", portField: 57120, template: [0, 1, 2, 3], connectorButVal: 0, connect: \"connect\")");
 		connector1.remove;
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "After removing connector1 widget.wmc.oscConnectors.m.value should hold one OscConnector.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling connection2.oscConnect and calling connection1.remove widget.wmc.oscConnections.m.value[0] should hold an OSCFunc");

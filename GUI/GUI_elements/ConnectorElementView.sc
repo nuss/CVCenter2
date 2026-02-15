@@ -405,6 +405,15 @@ ConnectorRemoveButton : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
+
+		case
+		{ connectorKind === \midi } {
+			conModel = widget.midiConnectors;
+		}
+		{ connectorKind === \osc } {
+			conModel = widget.oscConnectors;
+		};
+
 		this.index_(0);
 	}
 

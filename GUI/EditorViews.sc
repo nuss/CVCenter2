@@ -223,7 +223,7 @@ MidiConnectorsEditorView : CompositeView {
 					[e.midiModeSelect, stretch: 3]
 				),
 				HLayout(
-					[StaticText(parent).string_("MIDI mean ('endless' mode only): "), stretch: 7],
+					[StaticText(parent).string_("MIDI neutral ('endless' mode only): "), stretch: 7],
 					[e.midiZeroBox, stretch: 3]
 				),
 				HLayout(

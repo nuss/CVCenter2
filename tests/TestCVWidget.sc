@@ -449,11 +449,11 @@ TestCVWidgetKnob : UnitTest {
 		var allModels = [];
 		widget.wmc.do { |it|
 			if (it.class === Event) {
-				it.m.do { |m| allModels = allModels.add(m.value) }
+				it.m.do { |m| /*m.value.postln; */allModels = allModels.add(m.value) }
 			}
 		};
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
 		widget.remove;
-		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
+		this.assert(Object.dependantsDictionary.keys.collect(_.value)./*postln.*/includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
 	}
 }
