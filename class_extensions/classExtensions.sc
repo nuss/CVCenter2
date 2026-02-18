@@ -1,9 +1,9 @@
 +Object {
 	// execute .changed for the given array of keys, each denoting a function to be executed
 	changedPerformKeys { |keys ... moreArgs|
-		keys.do({ |key|
+		keys.do { |key|
 			this.changed(key, *moreArgs);
-		})
+		}
 	}
 }
 
@@ -115,23 +115,24 @@
 				).inform
 			} {
 				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
+				"widget.wmc.oscConnections.m.value[%]: %".format(index, widget.wmc.oscConnections.m.value[index]).postln;
 				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
 					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
 				).inform
 			};
 			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
 			widget.wmc.oscDisplay.m.value[index].nameField = msg[0];
-			widget.wmc.oscDisplay.m.value[index].connectorButVal = 1;
-			widget.wmc.oscDisplay.m.value[index].connect = "disconnect";
+			// widget.wmc.oscDisplay.m.value[index].connectorButVal = 1;
+			// widget.wmc.oscDisplay.m.value[index].connect = "disconnect";
 			widget.wmc.oscDisplay.m.value[index].ipField = addr.ip.asSymbol;
 			widget.wmc.oscDisplay.m.value[index].portField = addr.port;
 			widget.wmc.oscDisplay.m.value[index].oscMatching = matching;
 			widget.wmc.oscConnections.m.value[index].argTemplate !? {
 				widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate.cs
 			};
-			widget.wmc.oscConnections.m.value[index].dispatcher !? {
-				widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher.cs
-			};
+			// widget.wmc.oscConnections.m.value[index].dispatcher !? {
+			// 	widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher
+			// };
 			widget.wmc.oscDisplay.m.value[index].learn = false;
 			widget.wmc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
 			widget.wmc.oscDisplay.m.value[index].connectEnabled = true;

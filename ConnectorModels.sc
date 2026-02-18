@@ -46,7 +46,6 @@ OscConnector {
 		wmc.oscDisplay.m.value.add((
 			nameField: '/path/to/cmd',
 			index: 1,
-			connectorButVal: 0,
 			connectState: ["learn", Color.yellow, Color.green(0.5)],
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
@@ -321,10 +320,11 @@ OscConnector {
 			mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
 		};
 		mc.oscDisplay.m.value[index].nameField = mc.oscConnections.m.value[index].path;
-		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate;
+		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate.cs;
 		mc.oscDisplay.m.value[index].dispatcher = mc.oscConnections.m.value[index].dispatcher;
-		mc.oscDisplay.m.value[index].connectorButVal = 1;
-		mc.oscDisplay.m.value[index].connect = "disconnect";
+		mc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
+		// mc.oscDisplay.m.value[index].connectorButVal = 1;
+		// mc.oscDisplay.m.value[index].connect = "disconnect";
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
@@ -343,8 +343,9 @@ OscConnector {
 		// mc.oscDisplay.m.value[index].portField = nil;
 		// mc.oscDisplay.m.value[index].template = nil;
 		mc.oscDisplay.m.value[index].dispatcher = nil;
-		mc.oscDisplay.m.value[index].connectorButVal = 0;
-		mc.oscDisplay.m.value[index].connect = "connect";
+		// mc.oscDisplay.m.value[index].connectorButVal = 0;
+		// mc.oscDisplay.m.value[index].connect = "connect";
+		mc.oscDisplay.m.value[index].connectState = ["connect", Color.white, Color.blue];
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 		CmdPeriod.remove({
 			this.widget !? { this.oscDisconnect }

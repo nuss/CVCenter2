@@ -417,12 +417,6 @@ ConnectorRemoveButton : ConnectorElementView {
 		this.index_(0);
 	}
 
-	// close {
-	// 	this.remove;
-	// 	this.viewDidClose;
-	// 	this.prCleanup;
-	// }
-
 	prCleanup {
 		all[widget][connectorKind].remove(this);
 		try {

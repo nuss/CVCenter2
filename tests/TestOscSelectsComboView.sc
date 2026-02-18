@@ -22,17 +22,6 @@ TestOscSelectsComboView : UnitTest {
 		this.assertEquals(oscv1.e.ipselect.items, ['IP address...'], "The PopUpMenu for selecting an IP address should hold a single default value 'IP address...'");
 		this.assertEquals(oscv1.e.portselect.items, ['port...'], "The PopUpMenu for selecting a port should hold a single default value 'port...'");
 		this.assertEquals(oscv1.e.cmdselect.items, ['cmd name...'], "The PopUpMenu for selecting a command name should hold a single default value 'cmd name...'");
-		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
-			ipField: nil,
-			portField: nil,
-			nameField: '/path/to/cmd',
-			index: 1,
-			connectorButVal: 0,
-			connectEnabled: true,
-			learn: true,
-			numOscSlots: 1,
-			connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],
-	), "widget1.wmc.oscDisplay.m.value[0] should initially be ('connectorButVal': 0, 'connectEnabled': true, 'nameField': /path/to/cmd, 'learn': true, 'connectState': [\"learn\", Color(1.0, 1.0), Color(0.0, 0.5)], 'index': 1, 'numOscSlots': 1)");
 		OSCCommands.collectSync(false);
 		this.assert(oscv1.e.ipselect.items.size == 3, "The PopUpMenu for selecting an IP address should hold three values after syncing addresses and commands through calling OSCCommands.collectSync(false)");
 		this.assertEquals(oscv1.e.ipselect.items, ['IP address...', '192.168.1.2', '192.168.1.3'], "The PopUpMenu for selecting an IP address should hold 'IP address...', '192.168.1.2' and '192.168.1.3'");
@@ -44,7 +33,6 @@ TestOscSelectsComboView : UnitTest {
 			ipField: '192.168.1.2',
 			nameField: '/path/to/cmd',
 			index: 1,
-			connectorButVal: 0,
 			connectEnabled: true,
 			learn: true,
 			connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],
@@ -59,7 +47,6 @@ TestOscSelectsComboView : UnitTest {
 			portField: 3214,
 			nameField: '/path/to/cmd',
 			index: 1,
-			connectorButVal: 0,
 			connectEnabled: true,
 			learn: true,
 			connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],

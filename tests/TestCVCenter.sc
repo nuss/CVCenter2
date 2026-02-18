@@ -1,6 +1,10 @@
 TestCVCenter : UnitTest {
 	*runAll {
 		[
+			TestExtCollection,
+			TestExtMIDIFunc,
+			TestExtFont,
+			TestExtOSCCommends,
 			TestCVWidget,
 			TestMidiConnector,
 			TestOscConnector,
@@ -23,6 +27,7 @@ TestCVCenter : UnitTest {
 			TestMidiConnectorsEditorView,
 			TestOscSelectsComboView,
 			TestCVWidgetKnob,
+			TestExtOSCFunc,
 		].do(_.run)
 	}
 }

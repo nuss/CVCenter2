@@ -973,19 +973,19 @@ OscConnectButton : ConnectorElementView {
 				dispatcher = this.connector.getOscDispatcher;
 				if (mc.oscDisplay.m.value[conID].learn) {
 					// "\n% (%): should learn".format(conID, widget.oscConnectors.indexOf(this.connector)).postln;
-					mc.oscDisplay.m.value[conID].learn = false;
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+					// mc.oscDisplay.m.value[conID].learn = false;
+					// mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 					OSCFunc.cvWidgetLearn(widget, conID, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
-					"\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
+					// "\n%: connecting, addr: %, cmd: %, cmdIndex: %".format(widget.oscConnectors.indexOf(this.connector), addr, cmd, cmdIndex).postln;
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
-					mc.oscDisplay.m.value[conID].connectState = ["disconnect", Color.white, Color.red];
-					mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+					// mc.oscDisplay.m.value[conID].connectState = ["disconnect", Color.white, Color.red];
+					// mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 				}
 			} {
 				this.connector.oscDisconnect;
-				mc.oscDisplay.m.value[conID].connectState = ["connect", Color.white, Color.blue];
-				mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+				// mc.oscDisplay.m.value[conID].connectState = ["connect", Color.white, Color.blue];
+				// mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
 			}
 		});
 
