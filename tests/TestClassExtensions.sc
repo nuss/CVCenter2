@@ -57,15 +57,16 @@ TestExtCollection : UnitTest {
 }
 
 TestExtOSCFunc : UnitTest {
-	var widget, sendAddr;
+	var widget1, widget2, sendAddr;
 
 	setUp {
-		widget = CVWidgetKnob(\test);
+		widget1 = CVWidgetKnob(\test1);
+		widget2 = CVWidgetKnob(\test2);
 		sendAddr = NetAddr.localAddr;
 	}
 
 	tearDown {
-		// widget.remove
+		// widget1.remove
 	}
 
 	test_cvWidgetLearn {
@@ -73,8 +74,9 @@ TestExtOSCFunc : UnitTest {
 		var waitDelay = 0.0001;
 		var sigDelay = 0.1;
 
-		OSCFunc.cvWidgetLearn(widget, 0);
-		this.assertEquals(widget.wmc.oscDisplay.m.value[0], (
+		OSCFunc.cvWidgetLearn(widget1, 0);
+		OSCFunc.cvWidgetLearn(widget2, 0, true);
+		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 			// connectorButVal: 0,
 			connectEnabled: false,
 			nameField: '/path/to/cmd',
@@ -82,14 +84,16 @@ TestExtOSCFunc : UnitTest {
 			connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
 			index: 1,
 			numOscSlots: 1
-		), "After calling OSCFunc.cvWidgetLearn widget.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
-		this.assertEquals(widget.wmc.oscConnections.m.value, List[nil], "widget.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget, 0).");
+		), "After calling OSCFunc.cvWidgetLearn widget1.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
+		this.assertEquals(widget1.wmc.oscConnections.m.value, List[nil], "widget1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget1, 0).");
+		this.assertEquals(widget2.wmc.oscConnections.m.value, List[nil], "widget2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget2, 0, true).");
 		// NetAddr.localAddr.sendMsg('/test', 6);
 		fork {
 			waitDelay.wait;
-			c.wait({ widget.wmc.oscConnections.m.value[0].notNil });
-			this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
-			this.assertEquals(widget.wmc.oscDisplay.m.value[0], (
+			c.wait({ widget1.wmc.oscConnections.m.value[0].notNil && widget2.wmc.oscConnections.m.value[0].notNil });
+			this.assertEquals(widget1.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+			this.assertEquals(widget2.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+			this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
 				connectEnabled: true,
 				portField: 57120,
@@ -99,9 +103,22 @@ TestExtOSCFunc : UnitTest {
 				ipField: '127.0.0.1',
 				nameField: '/test',
 				learn: false
-			), "After creating a new OSCFunc widget.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false,
-  numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
-			widget.remove;
+				), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false,
+			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
+			this.assertEquals(widget2.wmc.oscDisplay.m.value[0], (
+				connectState: ["disconnect", Color.white, Color.red],
+				connectEnabled: true,
+				portField: 57120,
+				oscMatching: true,
+				numOscSlots: 1,
+				index: 1,
+				ipField: '127.0.0.1',
+				nameField: '/test',
+				learn: false
+				), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true,
+			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
+			widget1.remove;
+			widget2.remove;
 		};
 		fork {
 			NetAddr.localAddr.sendMsg('/test', 6);
