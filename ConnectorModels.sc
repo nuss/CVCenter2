@@ -832,7 +832,7 @@ MidiConnector {
 	midiDisconnect {
 		var mc = widget.wmc;
 		var index = mc.midiConnectors.m.value.indexOf(this);
-		mc.midiConnections.m.value[index].clear;
+		mc.midiConnections.m.value[index].free;
 		mc.midiConnections.m.value[index] = nil;
 		mc.midiConnections.m.changedPerformKeys(widget.syncKeys, index);
 		mc.midiDisplay.m.value[index].src = 'source...';

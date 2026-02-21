@@ -4,7 +4,6 @@ TestCVCenter : UnitTest {
 			TestExtCollection,
 			TestExtMIDIFunc,
 			TestExtFont,
-			TestExtOSCCommends,
 			TestCVWidget,
 			TestMidiConnector,
 			TestOscConnector,
@@ -27,7 +26,11 @@ TestCVCenter : UnitTest {
 			TestMidiConnectorsEditorView,
 			TestOscSelectsComboView,
 			TestCVWidgetKnob,
+			TestExtMIDIFunc,
+			TestExtFont,
+			// Tests with asynchronous logic
 			TestExtOSCFunc,
+			TestExtOSCCommands
 		].do(_.run)
 	}
 }

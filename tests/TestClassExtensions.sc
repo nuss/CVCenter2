@@ -57,12 +57,11 @@ TestExtCollection : UnitTest {
 }
 
 TestExtOSCFunc : UnitTest {
-	var widget1, widget2, sendAddr;
+	var widget1, widget2;
 
 	setUp {
 		widget1 = CVWidgetKnob(\test1);
 		widget2 = CVWidgetKnob(\test2);
-		sendAddr = NetAddr.localAddr;
 	}
 
 	tearDown {
@@ -129,13 +128,69 @@ TestExtOSCFunc : UnitTest {
 }
 
 TestExtMIDIFunc : UnitTest {
+	var widget;
 
+	setUp {
+		widget = CVWidgetKnob(\test);
+		if (MIDIClient.initialized.not) { MIDIClient.init };
+	}
+
+	tearDown {
+		widget.remove
+	}
+
+	test_learnSync {
+		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, 0);
+		MIDIIn.doControlAction(12345, 1, 1, 64);
+		this.assertEquals([
+			widget.wmc.midiConnections.m.value[0].srcID,
+			widget.wmc.midiConnections.m.value[0].chan,
+			widget.wmc.midiConnections.m.value[0].msgNum,
+			widget.wmc.midiConnections.m.value[0].argTemplate
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction widget.wmc.midiConnections.m.value[0] should return 12345 for srcID, 1 for its chan, 1 for msgNum and nil for argTemplate.");
+		this.assertEquals([
+			widget.wmc.midiDisplay.m.value[0].src,
+			widget.wmc.midiDisplay.m.value[0].chan,
+			widget.wmc.midiDisplay.m.value[0].ctrl,
+			widget.wmc.midiDisplay.m.value[0].template
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction widget.wmc.midiDisplay.m.value[0] should return 12345 for src, 1 for its chan, 1 for ctrl and nil for template.");
+		widget.midiDisconnect(0);
+		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, 0, true);
+		MIDIIn.doControlAction(12345, 1, 1, 64);
+		this.assertEquals(widget.wmc.midiConnections.m.value[0].argTemplate, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true the resulting MIDIFunc should return the control value that was sent when learning as its argTemplate.");
+		this.assertEquals(widget.wmc.midiDisplay.m.value[0].template, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true widget.wmc.midiDisplay.m.value[0] should return the control value that was sent when learning as its template slot.");
+	}
 }
 
 TestExtFont : UnitTest {
-
+	test_available {
+		var font = Font.available("KrixiKraxixxxx", "Bluuuuuuuuuuuub", Font.defaultSansFace);
+		this.assertEquals(font, Font.defaultSansFace, "Font.available should return the name of the first available font in the list of given font names.");
+	}
 }
 
-TestExtOSCCommends : UnitTest {
+TestExtOSCCommands : UnitTest {
+	test_collectSync {
+		var c = CondVar.new;
+		var waitDelay = 0.0001;
+		var sigDelay = 0.1;
 
+		OSCCommands.collectSync;
+		this.assertEquals(CVWidget.wmc.isScanningOsc.m.value, true, "After calling OSCCommands.collectSync(true) CVWidget.wmc.isScanningOsc.m.value should return true.");
+		NetAddr.localAddr.sendMsg('/test1', 1, 0.5);
+		NetAddr.localAddr.sendMsg('/test2', 34);
+
+		fork {
+			waitDelay.wait;
+			c.wait({ CVWidget.wmc.oscAddrAndCmds.m.value.isEmpty.not });
+			this.assertEquals(CVWidget.wmc.oscAddrAndCmds.m.value, ('127.0.0.1': ('57120': ('/test1': 2, '/test2': 1))), "After sending a message ['/test1', 1, 0.5] and another Message ['/test2', 34] from NetAddr.localAddr CVWidget.wmc.oscAddrAndCmds.m.value should equal ('127.0.0.1': ('57120': ('/test1': 2, '/test2': 1))");
+		};
+
+		fork {
+			NetAddr.localAddr.sendMsg('/test1', 1, 0.5);
+			NetAddr.localAddr.sendMsg('/test2', 34);
+			sigDelay.wait;
+			c.signalOne;
+		}
+	}
 }
