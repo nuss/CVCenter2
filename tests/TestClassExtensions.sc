@@ -194,3 +194,28 @@ TestExtOSCCommands : UnitTest {
 		}
 	}
 }
+
+TestExtObject : UnitTest {
+	var keys = #[one, two, three];
+	var model, controller, res;
+
+	setUp {
+		model = Ref(\foo);
+		controller = SimpleController(model);
+		res = ();
+		keys.do { |k|
+			controller.put(k, { |changer, what ... moreArgs|
+				res[k] = [changer.value, moreArgs[0]];
+			})
+		}
+	}
+
+	tearDown {
+		keys.do(controller.removeAt(_))
+	}
+
+	test_changedPerformKeys {
+		model.changedPerformKeys(keys, \more);
+		this.assertEquals(res, (one: [\foo, \more], two: [\foo, \more], three: [\foo, \more]), "Executing changedPerformKeys on a model should trigger all actions added under given keys.")
+	}
+}
