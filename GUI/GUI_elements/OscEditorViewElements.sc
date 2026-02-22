@@ -128,6 +128,15 @@ OscCmdNameField : ConnectorElementView {
 			}
 		})
 	}
+
+	prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.c.removeAt(syncKey);
+			connections.c.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
+	}
 }
 
 // TODO: rename to OscMasgIndexBox
@@ -230,6 +239,15 @@ OscMsgIndexBox : ConnectorElementView {
 				}
 			}
 		})
+	}
+
+	prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.c.removeAt(syncKey);
+			connections.c.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
 	}
 }
 
@@ -413,6 +431,15 @@ OscMatchingCheckBox : ConnectorElementView {
 				}
 			}
 		})
+	}
+
+	prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.c.removeAt(syncKey);
+			connections.c.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
 	}
 }
 
@@ -666,27 +693,7 @@ OscConstrainterNumBox : ConnectorElementView {
 		{ 0 } { widget.wmc.oscInputConstrainters[0].lo }
 		{ 1 } { widget.wmc.oscInputConstrainters[0].hi };
 		cv.connect(this.view);
-		// this.prAddController;
 	}
-
-	/* prAddController {
-		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		syncKey = this.class.asSymbol;
-		widget.syncKeys.indexOf(syncKey) ?? {
-			widget.prAddSyncKey(syncKey, true)
-		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
-			conID = moreArgs[0];
-			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
-					defer { nb.view.value_(changer.value[conID].oscResolution) }
-				}
-			}
-		})
-	} */
 }
 
 OscZeroCrossingText : ConnectorElementView {
@@ -722,7 +729,7 @@ OscZeroCrossingText : ConnectorElementView {
 			});
 			connectorRemovedFuncAdded = true
 		};
-		this.prAddController;
+		// this.prAddController;
 	}
 
 	index_ { |connectorID|
@@ -747,9 +754,9 @@ OscZeroCrossingText : ConnectorElementView {
 		this.prAddController;
 	}
 
-	prAddController {
-		// TODO
-	}
+	// prAddController {
+	// 	// TODO
+	// }
 }
 
 OscCalibrationButton : ConnectorElementView {
@@ -1077,4 +1084,15 @@ OscConnectButton : ConnectorElementView {
 			}
 		})
 	}
+
+		prCleanup {
+		all[widget].remove(this);
+		if (all[widget].isEmpty) {
+			mc.oscOptions.c.removeAt(syncKey);
+			mc.oscDisplay.c.removeAt(syncKey);
+			mc.oscConnections.c.removeAt(syncKey);
+			widget.prRemoveSyncKey(syncKey, true);
+		}
+	}
+
 }

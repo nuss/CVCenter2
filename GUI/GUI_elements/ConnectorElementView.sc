@@ -648,6 +648,9 @@ TemplateTextField : ConnectorElementView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
+				mc.c.removeAt(syncKey);
+				connections.c.removeAt(syncKey);
+				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
 			}
 		}

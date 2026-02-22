@@ -28,6 +28,7 @@ TestCVCenter : UnitTest {
 			TestCVWidgetKnob,
 			TestExtMIDIFunc,
 			TestExtFont,
+			TestExtObject,
 			// Tests with asynchronous logic
 			TestExtOSCFunc,
 			TestExtOSCCommands
