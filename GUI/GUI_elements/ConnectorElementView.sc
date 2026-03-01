@@ -667,3 +667,92 @@ TemplateTextField : ConnectorElementView {
 		}
 	}
 }
+
+PlayPauseButton : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var <connector, <widget, connectorKind;
+	var cclass, buttonLayout;
+
+	*initClass {
+		all = ()
+	}
+
+	*new { |parent, widget, rect, connectorID=0, connectorKind|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("arg 'widget' must be a kind of CVWidget").throw
+		};
+		^super.new.init(parent, widget, rect, connectorID, connectorKind);
+	}
+
+	init { |parentView, wdgt, rect, index, kind|
+		var conID, action;
+
+		if (kind.isNil) {
+			Error("arg 'connectorKind' in TemplateTextField.new must not be nil - must either be 'midi' or 'osc'.").throw
+		} {
+			connectorKind = kind.asSymbol;
+			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
+			}
+		};
+
+		widget = wdgt;
+		all[widget] ?? { all[widget] = () };
+		all[widget][connectorKind] ?? {
+			all[widget][connectorKind] = List[]
+		};
+		all[widget][connectorKind].add(this);
+
+		case
+		{ connectorKind === \midi } {
+			mc = widget.wmc.oscConnections;
+		}
+		{ connectorKind === \osc } {
+			mc = widget.wmc.oscConnections;
+		};
+
+		this.view = Button(parentView)
+		.states_([
+			["", Color.clear, Color.clear],
+			["", Color.clear, Color.clear]
+		])
+		.canFocus_(false)
+		.layout_(
+			HLayout(
+				buttonLayout = UserView()
+				.background_(Color.gray(0.6))
+				.drawFunc_({ |v|
+					Pen
+					.fillColor_(Color.black)
+					.addRect(Rect(
+						this.view.bounds.width/4,
+						this.view.bounds.height/4,
+						this.view.bounds.width/6,
+						this.view.bounds.height/2
+					))
+					.addRect(Rect(
+						this.view.bounds.width/4 + this.view.bounds.width/2,
+						this.view.bounds.height/4,
+						this.view.bounds.width/6,
+						this.view.bounds.height/2
+					))
+					.fill
+				})
+			)
+			.margins_(0)
+			.spacing_(0)
+		)
+	}
+
+	index_ { |connectorID|
+
+	}
+
+	widget_ { |otherWidget|
+
+	}
+
+	prAddController {
+
+	}
+}
