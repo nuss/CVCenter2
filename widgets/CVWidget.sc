@@ -112,8 +112,11 @@ CVWidget {
 	getMidiTemplate { this.subclassResponsibility(thisMethod) }
 	setMidiDispatcher { this.subclassResponibility(thisMethod) }
 	getMidiDispatcher { this.subclassResponsibility(thisMethod) }
+	setMIDIFuncEnabled { this.subclassResponsibility(thisMethod) }
+	getMIDIFuncEnabled { this.subclassResponsibility(thisMethod) }
 	midiConnect { this.subclassResponsibility(thisMethod) }
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
+
 	// OSC
 	addOscConnector { this.subclassResponsibility(thisMethod) }
 	oscDialog { this.subclassResponsibility(thisMethod) }
@@ -141,6 +144,8 @@ CVWidget {
 	getOscTemplate { this.subclassResponsibility(thisMethod) }
 	setOscDispatcher { this.subclassResponibility(thisMethod) }
 	getOscDispatcher { this.subclassResponsibility(thisMethod) }
+	setOSCFuncEnabled { this.subclassResponsibility(thisMethod) }
+	getOSCFuncEnabled { this.subclassResponsibility(thisMethod) }
 	oscConnect { this.subclassResponsibility(thisMethod) }
 	oscDisconnect { this.subclassResponsibility(thisMethod) }
 	// remove (invalidate) widget

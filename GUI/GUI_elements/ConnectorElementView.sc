@@ -669,9 +669,14 @@ TemplateTextField : ConnectorElementView {
 }
 
 PlayPauseButton : ConnectorElementView {
+	// inspired by https://scsynth.org/t/is-it-possible-to-make-a-round-button/7082/3
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget, connectorKind;
 	var cclass, buttonLayout;
+	var disabledBgColor, disabledFgColor;
+	var enabledFgColor;
+	var enabledPlayBgColor;
+	var enabledPauseBgColor;
 
 	*initClass {
 		all = ()
@@ -703,6 +708,12 @@ PlayPauseButton : ConnectorElementView {
 		};
 		all[widget][connectorKind].add(this);
 
+		disabledBgColor = Color.gray(0.6);
+		disabledFgColor = Color.gray(0.9);
+		enabledPlayBgColor = Color.green;
+		enabledPauseBgColor = Color.red;
+		enabledFgColor = Color.black;
+
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.oscConnections;
@@ -711,8 +722,8 @@ PlayPauseButton : ConnectorElementView {
 			mc = widget.wmc.oscConnections;
 		};
 
-		this.view = Button(parentView)
-		.states_([
+		this.view = Button(parentView);
+		this.view.states_([
 			["", Color.clear, Color.clear],
 			["", Color.clear, Color.clear]
 		])
@@ -721,27 +732,83 @@ PlayPauseButton : ConnectorElementView {
 			HLayout(
 				buttonLayout = UserView()
 				.background_(Color.gray(0.6))
-				.drawFunc_({ |v|
-					Pen
-					.fillColor_(Color.black)
-					.addRect(Rect(
-						this.view.bounds.width/4,
-						this.view.bounds.height/4,
-						this.view.bounds.width/6,
-						this.view.bounds.height/2
-					))
-					.addRect(Rect(
-						this.view.bounds.width/4 + this.view.bounds.width/2,
-						this.view.bounds.height/4,
-						this.view.bounds.width/6,
-						this.view.bounds.height/2
-					))
-					.fill
-				})
+				.drawFunc_(this.prMakeLabelDrawFunc(mc.m.value[index].notNil, mc.m.value[index] !? { mc.m.value[index].enabled }))
 			)
 			.margins_(0)
 			.spacing_(0)
 		)
+		.enabled_(mc.m.value[index].notNil)
+		.action_({ |bt|
+
+		});
+		connectorRemovedFuncAdded ?? {
+			case
+			{ connectorKind === \midi } { cclass = MidiConnector }
+			{ connectorKind === \osc } { cclass = OscConnector };
+			cclass.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, connectorKind)
+			});
+			connectorRemovedFuncAdded = true
+		};
+		this.prAddController;
+	}
+
+	prMakeLabelDrawFunc { |funcExists, enabled|
+		var fgColor, bgColor;
+		var iconSize;
+
+		enabled ?? { enabled = false };
+
+		if (this.view.bounds.width > this.view.bounds.height) {
+			iconSize = this.view.bounds.height/2
+		} {
+			iconSize = this.view.bounds.width/2
+		};
+
+		if (funcExists) {
+			if (enabled) {
+				fgColor = enabledFgColor;
+				bgColor = enabledPlayBgColor;
+			} {
+				fgColor = enabledFgColor;
+				bgColor = enabledPauseBgColor;
+			}
+		} {
+			fgColor = disabledFgColor;
+			bgColor = disabledBgColor;
+		};
+
+		case
+		{ funcExists and: { enabled.not }} {
+			^{ |v|
+				Pen
+				.fillColor_(fgColor)
+				.moveTo(Point(this.view.bounds.width/2-(iconSize/2), this.view.bounds.height/2-(iconSize/2)))
+				.lineTo(Point(this.view.bounds.width/2+(iconSize/2), this.view.bounds.height/2))
+				.lineTo(Point(this.view.bounds.width/2-(iconSize/2), this.view.bounds.height/2+(iconSize/2)))
+				.fill
+			}
+		}
+		{ funcExists.not or: { enabled }} {
+			^{ |v|
+				Pen
+				.fillColor_(fgColor)
+				.addRect(Rect(
+					this.view.bounds.width/2-(iconSize/2),
+					this.view.bounds.height/2-(iconSize/2),
+					iconSize/5*2,
+					iconSize
+				))
+				.addRect(Rect(
+					this.view.bounds.width/2-(iconSize/2)+(iconSize/5*3),
+					this.view.bounds.height/2-(iconSize/2),
+					iconSize/5*2,
+					iconSize
+				))
+				.fill
+			}
+		};
+
 	}
 
 	index_ { |connectorID|

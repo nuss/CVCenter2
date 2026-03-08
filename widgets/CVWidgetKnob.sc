@@ -395,6 +395,26 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
+	setMIDIFuncEnabled { |boolEnabled, connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			this.midiConnectors.do(_.setMIDIFuncEnabled(boolEnabled))
+		} {
+			connector.setMIDIFuncEnabled(boolEnabled)
+		}
+	}
+
+	getMIDIFuncEnabled { |connector|
+		connector = this.getMidiConnector(connector);
+		if (connector.isNil) {
+			^this.midiConnectors.collect(_.getMIDIFuncEnabled)
+		} {
+			^connector.getMIDIFuncEnabled
+		}
+	}
+
+
+
 	midiConnect { |connector, src, chan, num, argTemplate, dispatcher|
 		// create new annonymous connector if none is given
 		connector ?? {
@@ -632,6 +652,24 @@ CVWidgetKnob : CVWidget {
 			^this.oscConnectors.collect(_.getOscDispatcher)
 		} {
 			^connector.getOscDispatcher
+		}
+	}
+
+	setOSCFuncEnabled { |boolEnabled, connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			this.oscConnectors.do(_.setOSCFuncEnabled(boolEnabled))
+		} {
+			connector.setOSCFuncEnabled(boolEnabled)
+		}
+	}
+
+	getOSCFuncEnabled { |connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			^this.oscConnectors.collect(_.getOSCFuncEnabled)
+		} {
+			^connector.getOSCFuncEnabled
 		}
 	}
 

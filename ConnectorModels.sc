@@ -309,6 +309,21 @@ OscConnector {
 		^widget.wmc.oscDisplay.m.value[this.index].dispatcher.interpret;
 	}
 
+	setOSCFuncEnabled { |boolEnabled|
+		var index = this.index;
+		var m = widget.wmc.oscConnections.m;
+		if (m.value[index].isNil) {
+			"connector at index % is currently not connected.".format(index).inform
+		} {
+			if (boolEnabled) { m.value[index].enable } { m.value[index].disable };
+			m.changedPerformKeys(widget.syncKeys, index);
+		}
+	}
+
+	getOSCFuncEnabled {
+		^widget.wmc.oscConnections.m.value[this.index].enabled
+	}
+
 	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
 		var index = this.index;
 		var mc = widget.wmc;
@@ -799,6 +814,22 @@ MidiConnector {
 	getMidiDispatcher {
 		^widget.wmc.midiDisplay.m.value[this.index].dispatcher.interpret;
 	}
+
+	setMIDIFuncEnabled { |boolEnabled|
+		var index = this.index;
+		var m = widget.wmc.midiConnections.m;
+		if (m.value[index].isNil) {
+			"connector at index % is currently not connected.".format(index).inform
+		} {
+			if (boolEnabled) { m.value[index].enable } { m.value[index].disable };
+			m.changedPerformKeys(widget.syncKeys, index);
+		}
+	}
+
+	getMIDIFuncEnabled {
+		^widget.wmc.midiConnections.m.value[this.index].enabled
+	}
+
 
 	midiConnect { |num, chan, srcID, argTemplate, dispatcher|
 		var index = this.index;
