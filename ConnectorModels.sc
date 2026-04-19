@@ -301,12 +301,12 @@ OscConnector {
 	setOscDispatcher { |dispatcher|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.oscDisplay.m.value[index].dispatcher = dispatcher.cs;
+		mc.oscDisplay.m.value[index].dispatcher = dispatcher;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
 	getOscDispatcher {
-		^widget.wmc.oscDisplay.m.value[this.index].dispatcher.interpret;
+		^widget.wmc.oscDisplay.m.value[this.index].dispatcher;
 	}
 
 	setOSCFuncEnabled { |boolEnabled|
@@ -321,7 +321,9 @@ OscConnector {
 	}
 
 	getOSCFuncEnabled {
-		^widget.wmc.oscConnections.m.value[this.index].enabled
+		if (widget.wmc.oscConnections.m.value[this.index].notNil) {
+			^widget.wmc.oscConnections.m.value[this.index].enabled
+		} { ^true }
 	}
 
 	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
@@ -827,7 +829,9 @@ MidiConnector {
 	}
 
 	getMIDIFuncEnabled {
-		^widget.wmc.midiConnections.m.value[this.index].enabled
+		if (widget.wmc.midiConnections.m.value[this.index].notNil) {
+			^widget.wmc.midiConnections.m.value[this.index].enabled
+		} { ^true }
 	}
 
 

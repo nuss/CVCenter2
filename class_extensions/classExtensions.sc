@@ -115,7 +115,6 @@
 				).inform
 			} {
 				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
-				"widget.wmc.oscConnections.m.value[%]: %".format(index, widget.wmc.oscConnections.m.value[index]).postln;
 				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
 					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
 				).inform

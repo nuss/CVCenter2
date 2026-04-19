@@ -675,8 +675,8 @@ PlayPauseButton : ConnectorElementView {
 	var cclass, buttonLayout;
 	var disabledBgColor, disabledFgColor;
 	var enabledFgColor;
-	var enabledPlayBgColor;
-	var enabledPauseBgColor;
+	var enabledBgColor; // array [0 = paused, 1 = playing]
+	// var enabledPauseBgColor;
 
 	*initClass {
 		all = ()
@@ -690,7 +690,7 @@ PlayPauseButton : ConnectorElementView {
 	}
 
 	init { |parentView, wdgt, rect, index, kind|
-		var conID, action;
+		var conID, action, buttonBgColor ;
 
 		if (kind.isNil) {
 			Error("arg 'connectorKind' in TemplateTextField.new must not be nil - must either be 'midi' or 'osc'.").throw
@@ -710,17 +710,24 @@ PlayPauseButton : ConnectorElementView {
 
 		disabledBgColor = Color.gray(0.6);
 		disabledFgColor = Color.gray(0.9);
-		enabledPlayBgColor = Color.green;
-		enabledPauseBgColor = Color.red;
+		enabledBgColor = [Color.green, Color.red];
 		enabledFgColor = Color.black;
 
 		case
 		{ connectorKind === \midi } {
-			mc = widget.wmc.oscConnections;
+			mc = widget.wmc.midiConnections;
+			conModel = widget.midiConnectors;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscConnections;
+			conModel = widget.oscConnectors;
 		};
+
+		buttonBgColor = if (mc.m.value[index].notNil) {
+			enabledBgColor[mc.m.value[index].enabled.asInteger]
+		} { Color.gray(0.6) };
+
+		"buttonBgColor: %".format(buttonBgColor).postln;
 
 		this.view = Button(parentView);
 		this.view.states_([
@@ -731,16 +738,25 @@ PlayPauseButton : ConnectorElementView {
 		.layout_(
 			HLayout(
 				buttonLayout = UserView()
-				.background_(Color.gray(0.6))
-				.drawFunc_(this.prMakeLabelDrawFunc(mc.m.value[index].notNil, mc.m.value[index] !? { mc.m.value[index].enabled }))
+				.acceptsMouse_(false)
+				.background_(buttonBgColor)
+				.drawFunc_(this.prMakeLabelDrawFunc(
+					mc.m.value[index].notNil,
+					mc.m.value[index] !? { mc.m.value[index].enabled }
+				))
 			)
 			.margins_(0)
 			.spacing_(0)
 		)
 		.enabled_(mc.m.value[index].notNil)
 		.action_({ |bt|
-
-		});
+			if (connectorKind === \midi) {
+				connector.setMIDIFuncEnabled(bt.value.asBoolean.not)
+			} {
+				connector.setOSCFuncEnabled(bt.value.asBoolean.not)
+			}
+		})
+		.maxWidth_(25);
 		connectorRemovedFuncAdded ?? {
 			case
 			{ connectorKind === \midi } { cclass = MidiConnector }
@@ -750,14 +766,13 @@ PlayPauseButton : ConnectorElementView {
 			});
 			connectorRemovedFuncAdded = true
 		};
+		this.index_(index);
 		this.prAddController;
 	}
 
-	prMakeLabelDrawFunc { |funcExists, enabled|
-		var fgColor, bgColor;
+	prMakeLabelDrawFunc { |funcExists, enabled = false|
+		var fgColor, bgColor, funcEnabled;
 		var iconSize;
-
-		enabled ?? { enabled = false };
 
 		if (this.view.bounds.width > this.view.bounds.height) {
 			iconSize = this.view.bounds.height/2
@@ -766,13 +781,8 @@ PlayPauseButton : ConnectorElementView {
 		};
 
 		if (funcExists) {
-			if (enabled) {
-				fgColor = enabledFgColor;
-				bgColor = enabledPlayBgColor;
-			} {
-				fgColor = enabledFgColor;
-				bgColor = enabledPauseBgColor;
-			}
+			fgColor = enabledFgColor;
+			bgColor = enabledBgColor[enabled.asInteger]
 		} {
 			fgColor = disabledFgColor;
 			bgColor = disabledBgColor;
@@ -789,7 +799,7 @@ PlayPauseButton : ConnectorElementView {
 				.fill
 			}
 		}
-		{ funcExists.not or: { enabled }} {
+		{ (funcExists.not).or(funcExists and: { enabled }) } {
 			^{ |v|
 				Pen
 				.fillColor_(fgColor)
@@ -804,22 +814,106 @@ PlayPauseButton : ConnectorElementView {
 					this.view.bounds.height/2-(iconSize/2),
 					iconSize/5*2,
 					iconSize
-				))
-				.fill
+				)).fill
 			}
-		};
-
+		}
 	}
 
 	index_ { |connectorID|
-
+		connector = conModel[connectorID];
+		if (mc.m.value[connectorID].notNil) {
+			buttonLayout.background_(enabledBgColor[mc.m.value[connectorID].enabled.asInteger])
+			.drawFunc_(this.prMakeLabelDrawFunc(true, mc.m.value[connectorID].enabled)).refresh
+		} {
+			buttonLayout.background_(Color.gray(0.6))
+			.drawFunc_(this.prMakeLabelDrawFunc(false)).refresh
+		}
 	}
 
 	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
 
+		all[otherWidget] ?? { all[otherWidget] = () };
+		all[otherWidget][connectorKind] ?? {
+			all[otherWidget][connectorKind] = List[]
+		};
+		all[otherWidget][connectorKind].add(this);
+
+		this.prCleanup;
+		// switch after cleanup has finished
+		widget = otherWidget;
+		case
+		{ connectorKind === \midi } {
+			mc = widget.wmc.midiConnections;
+			conModel = widget.midiConnectors;
+		}
+		{ connectorKind === \osc } {
+			mc = widget.wmc.oscConnections;
+			conModel = widget.oscConnectors;
+		};
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.prAddController;
 	}
 
 	prAddController {
+		var conID;
+		var funcEnabled;
 
+		mc.c ?? {
+			mc.c = SimpleController(mc.m)
+		};
+		syncKey = (connectorKind ++ this.class.asString).asSymbol;
+		widget.syncKeys.indexOf(syncKey) ?? {
+			widget.prAddSyncKey(syncKey, true)
+		};
+		mc.c.put(syncKey, { |changer, what ... moreArgs|
+			conID = moreArgs[0];
+			all[widget][connectorKind].do { |bt|
+				if (bt.connector === conModel[conID]) {
+					switch (connectorKind)
+					{ \midi } { funcEnabled = conModel[conID].getMIDIFuncEnabled }
+					{ \osc } { funcEnabled = conModel[conID].getOSCFuncEnabled };
+					defer {
+						if (mc.m.value[conID].notNil) {
+							buttonLayout
+							.background_(enabledBgColor[funcEnabled.asInteger])
+							.drawFunc_(this.prMakeLabelDrawFunc(true, funcEnabled)).refresh;
+							bt.enabled_(true)
+						} {
+							buttonLayout
+							.background_(disabledBgColor)
+							.drawFunc_(this.prMakeLabelDrawFunc(false)).refresh;
+							bt.enabled_(false)
+						}
+					}
+				}
+			}
+		})
+	}
+
+	prCleanup {
+		all[widget][connectorKind].remove(this);
+		try {
+			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
+				mc.c.removeAt(syncKey);
+				widget.prRemoveSyncKey(syncKey, true);
+				all[widget].removeAt(connectorKind);
+			}
+		}
+	}
+
+	prOnRemoveConnector { |widget, index, connectorKind|
+		// if widget has already been removed let it fail
+		try {
+			if (index > 0) {
+				all[widget][connectorKind].do(_.index_(index - 1))
+			} {
+				all[widget][connectorKind].do(_.index_(index))
+			}
+		}
 	}
 }

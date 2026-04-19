@@ -63,6 +63,7 @@ OscConnectorsEditorView : CompositeView {
 		e.specStaticText = ControlSpecText(parent, widget);
 		e.inOutMappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \osc);
 		e.connectorButton = OscConnectButton(parent, widget, connectorID: index);
+		e.oscPlayPauseButton = PlayPauseButton(parent, widget, connectorID: index, connectorKind: \osc);
 		e.removeConnectorButton = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \osc);
 
 		parent.layout_(
@@ -118,8 +119,9 @@ OscConnectorsEditorView : CompositeView {
 					[e.specStaticText]
 				),
 				HLayout(
-					[e.connectorButton],
-					[e.removeConnectorButton]
+					[e.connectorButton, stretch: 5],
+					[e.oscPlayPauseButton, stretch: 1],
+					[e.removeConnectorButton, stretch: 5]
 				)
 			)
 		);
@@ -205,6 +207,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
 		e.slidersPerGroupNB = SlidersPerGroupNumberBox(parent, widget, connectorID: index);
 		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
+		e.midiPlayPauseButton = PlayPauseButton(parent, widget, connectorID: index, connectorKind: \midi);
 		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID: index);
 		e.midiChanTF = MidiChanField(parent, widget, connectorID: index);
 		e.midiNumTF = MidiCtrlField(parent, widget, connectorID: index);
@@ -243,9 +246,10 @@ MidiConnectorsEditorView : CompositeView {
 				),
 				HLayout(
 					[e.midiLearnButton, stretch: 1],
-					[e.midiSrcSelect, stretch: 4],
-					[e.midiChanTF, stretch: 4],
-					[e.midiNumTF, stretch: 4]
+					[e.midiPlayPauseButton, stretch: 1],
+					[e.midiSrcSelect, stretch: 6],
+					[e.midiChanTF, stretch: 2],
+					[e.midiNumTF, stretch: 2]
 				),
 				HLayout(
 					[e.midiInit],

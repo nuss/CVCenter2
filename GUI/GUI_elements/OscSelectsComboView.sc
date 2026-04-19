@@ -88,7 +88,6 @@ OscSelectsComboView : CompositeView {
 			// important! Otherwise port will not be found under given IP
 			oscDisplay.m.value[conID].portField = nil;
 			oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
-			"oscDisplay.m.value[%]: %".format(conID, oscDisplay.m.value[conID]).postln;
 		});
 		e.portselect.action_({ |sel|
 			conID = connector.index;
