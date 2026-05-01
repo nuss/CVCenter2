@@ -193,7 +193,7 @@ MidiConnectorsEditorView : CompositeView {
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 400))
+			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 440))
 		} { parent = parentView };
 
 		parent.onClose_({ this.close });
@@ -212,6 +212,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.midiChanTF = MidiChanField(parent, widget, connectorID: index);
 		e.midiNumTF = MidiCtrlField(parent, widget, connectorID: index);
 		e.mappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \midi);
+		e.specStaticText = ControlSpecText(parent, widget);
 		e.midiInit = MidiInitButton(parent);
 		e.midiConnectorRemove = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \midi);
 
@@ -250,6 +251,9 @@ MidiConnectorsEditorView : CompositeView {
 					[e.midiSrcSelect, stretch: 6],
 					[e.midiChanTF, stretch: 2],
 					[e.midiNumTF, stretch: 2]
+				),
+				HLayout(
+					[e.specStaticText]
 				),
 				HLayout(
 					[e.midiInit],
@@ -311,14 +315,14 @@ MidiConnectorsEditorView : CompositeView {
 
 	*closeAll {
 		all.pairsDo { |key, eds|
-			// VERY IMPORTANT
+			// IMPORTANT
 			// with each call to 'close' the index into the list of editors
 			// advances by 1. However, as the first call will already have
 			// removed the editor at index 0 the next call will not remove
 			// the editor at index 1 but the editor at index 2 which has meanwhile
 			// become index 1. Hence, every second editor will be omitted if
 			// the list of editors isn't reversed before invoking the loop by
-			// calling 'do'!!!
+			// calling 'do'!
 			eds.reverse.do(_.close)
 		}
 	}
