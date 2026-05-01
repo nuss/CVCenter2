@@ -672,11 +672,11 @@ PlayPauseButton : ConnectorElementView {
 	// inspired by https://scsynth.org/t/is-it-possible-to-make-a-round-button/7082/3
 	classvar <all, connectorRemovedFuncAdded;
 	var <connector, <widget, connectorKind;
-	var cclass, buttonLayout;
+	var cclass, <buttonLayout;
 	var disabledBgColor, disabledFgColor;
 	var enabledFgColor;
 	var enabledBgColor; // array [0 = paused, 1 = playing]
-	// var enabledPauseBgColor;
+	var funcClassName, enabledMethod, toolTips;
 
 	*initClass {
 		all = ()
@@ -717,17 +717,24 @@ PlayPauseButton : ConnectorElementView {
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiConnections;
 			conModel = widget.midiConnectors;
+			funcClassName = "MIDIFunc";
+			enabledMethod = \getMIDIFuncEnabled
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscConnections;
 			conModel = widget.oscConnectors;
+			funcClassName = "OSCFunc";
+			enabledMethod = \getOSCFuncEnabled
 		};
+
+		toolTips = [
+			"Click to disable %".format(funcClassName),
+			"Click to enable %".format(funcClassName)
+		];
 
 		buttonBgColor = if (mc.m.value[index].notNil) {
 			enabledBgColor[mc.m.value[index].enabled.asInteger]
 		} { Color.gray(0.6) };
-
-		"buttonBgColor: %".format(buttonBgColor).postln;
 
 		this.view = Button(parentView);
 		this.view.states_([
@@ -751,10 +758,11 @@ PlayPauseButton : ConnectorElementView {
 		.enabled_(mc.m.value[index].notNil)
 		.action_({ |bt|
 			if (connectorKind === \midi) {
-				connector.setMIDIFuncEnabled(bt.value.asBoolean.not)
+				connector.setMIDIFuncEnabled(bt.value.asBoolean.not);
 			} {
 				connector.setOSCFuncEnabled(bt.value.asBoolean.not)
-			}
+			};
+			bt.toolTip_(toolTips[bt.value])
 		})
 		.maxWidth_(25);
 		connectorRemovedFuncAdded ?? {
@@ -767,6 +775,11 @@ PlayPauseButton : ConnectorElementView {
 			connectorRemovedFuncAdded = true
 		};
 		this.index_(index);
+		if (mc.m.value[index].notNil) {
+			this.view.toolTip_(toolTips[connector.perform(enabledMethod).not.asInteger])
+		} {
+			this.view.toolTip_("No % currently present".format(funcClassName))
+		};
 		this.prAddController;
 	}
 
@@ -877,17 +890,19 @@ PlayPauseButton : ConnectorElementView {
 					switch (connectorKind)
 					{ \midi } { funcEnabled = conModel[conID].getMIDIFuncEnabled }
 					{ \osc } { funcEnabled = conModel[conID].getOSCFuncEnabled };
-					defer {
-						if (mc.m.value[conID].notNil) {
-							buttonLayout
+					if (mc.m.value[conID].notNil) {
+						defer {
+							bt.buttonLayout
 							.background_(enabledBgColor[funcEnabled.asInteger])
-							.drawFunc_(this.prMakeLabelDrawFunc(true, funcEnabled)).refresh;
-							bt.enabled_(true)
-						} {
-							buttonLayout
+							.drawFunc_(bt.prMakeLabelDrawFunc(true, funcEnabled)).refresh;
+							bt.enabled_(true).toolTip_(toolTips[bt.connector.perform(enabledMethod).not.asInteger])
+						}
+					} {
+						defer {
+							bt.buttonLayout
 							.background_(disabledBgColor)
-							.drawFunc_(this.prMakeLabelDrawFunc(false)).refresh;
-							bt.enabled_(false)
+							.drawFunc_(bt.prMakeLabelDrawFunc(false)).refresh;
+							bt.enabled_(false).toolTip_("No % currently present".format(funcClassName))
 						}
 					}
 				}
