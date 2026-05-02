@@ -747,3 +747,92 @@ TestConnectorRemoveButton : UnitTest {
 		this.assertEquals(button2.class.all[widget1][\midi], nil, "After closing button2 ConnectorRemoveButton.all[widget][connectorKind] should be nil.");
 	}
 }
+
+TestPlayPauseButton : UnitTest {
+	var widget1, widget2, midibutton1, oscbutton1;
+	var midibutton2, oscbutton2;
+
+	setUp {
+		widget1 = CVWidgetKnob(\test1);
+		midibutton1 = PlayPauseButton(widget: widget1, connectorKind: \midi);
+		oscbutton1 = PlayPauseButton(widget: widget1, connectorKind: \osc);
+	}
+
+	tearDown {
+		midibutton1.close;
+		oscbutton1.close;
+		widget1.remove;
+	}
+
+	test_new {
+		this.assertEquals(PlayPauseButton.all[widget1][\midi][0], midibutton1, "PlayPauseButton's all variable at the key which is the widget itself should hold a List with one elements under the key 'midi' of which midibutton1 is held at index 0.");
+		this.assertEquals(PlayPauseButton.all[widget1][\osc][0], oscbutton1, "PlayPauseButton's all variable at the key which is the widget itself should hold a List with one elements under the key 'osc' of which oscbutton1 is held at index 0.");
+		this.assertEquals(widget1.syncKeys, [\default, (\midi ++ PlayPauseButton.asString).asSymbol, (\osc ++ PlayPauseButton.asString).asSymbol], "The widget's 'syncKeys' should contain three Symbols, 'default', 'midiPlayPauseButton' and 'oscPlayPauseButton' after creating a PlayPauseButton with 'connectorKind' 'midi' and a PlayPauseButton with 'connectorKind' 'osc'");
+		this.assert(midibutton1.connector.class == MidiConnector, "A PlayPauseButton created with 'connectorKind' 'midi' should hold a connector of class 'MidiConnector' after creation.");
+		this.assert(oscbutton1.connector.class == OscConnector, "A PlayPauseButton created with 'connectorKind' 'osc' should hold a connector of class 'OscConnector' after creation.");
+		this.assert(midibutton1.connector === widget1.wmc.midiConnectors.m.value[0], "The elements connector should be identical with the connector at the widget's midiConnectors List at index 0");
+		this.assert(oscbutton1.connector === widget1.wmc.oscConnectors.m.value[0], "The elements connector should be identical with the connector at the widget's oscConnectors List at index 0");
+		midibutton2 = PlayPauseButton(widget: widget1, connectorKind: \midi);
+		oscbutton2 = PlayPauseButton(widget: widget1, connectorKind: \osc);
+		this.assert(PlayPauseButton.all[widget1][\midi].size == 2, "After creating another PlayPauseButton with connectorKind set to 'midi' PlayPauseButton.all[widget1]['midi'] should hold 2 elements.");
+		this.assert(PlayPauseButton.all[widget1][\osc].size == 2, "After creating another PlayPauseButton with connectorKind set to 'osc' PlayPauseButton.all[widget1]['osc'] should hold 2 elements.");
+		midibutton2.close;
+		oscbutton2.close;
+	}
+
+	test_index_ {
+		widget1.addMidiConnector;
+		widget1.addOscConnector;
+		this.assertEquals(midibutton1.connector, widget1.midiConnectors[0], "On instantiation the new PlayPauseButton's (connectorKind: 'midi') connector should be widget1.midiConnectors[0].");
+		this.assertEquals(oscbutton1.connector, widget1.oscConnectors[0], "On instantiation the new PlayPauseButton's (connectorKind: 'osc') connector should be widget1.oscConnectors[0].");
+		widget1.midiConnect(widget1.midiConnectors[1], num: 0);
+		this.assertEquals(midibutton1.view.enabled, false, "After creating a MIDIFunc for widget1.midiConnectors[1] midibutton1.view.enabled should return false");
+		midibutton1.index_(1);
+		this.assertEquals(midibutton1.view.enabled, true, "After calling midibutton1.index_(1) midibutton1.view.enabled should return true");
+		widget1.oscConnect(widget1.oscConnectors[1], NetAddr("127.0.0.1", 57120), '/test');
+		this.assertEquals(oscbutton1.view.enabled, false,  "After creating a OSCFunc for widget1.oscConnectors[1] oscbutton1.view.enabled should return false");
+		oscbutton1.index_(1);
+		this.assertEquals(oscbutton1.view.enabled, true, "After calling oscbutton1.index_(1) oscbutton1.view.enabled should return true");
+	}
+
+	test_widget_ {
+		widget2 = CVWidgetKnob(\test2);
+		widget2.midiConnect(widget2.midiConnectors[0], num: 0); // midibutton1 should be enabled after switching widget
+		this.assert(midibutton1.view.enabled == false, "midibutton1 should be disabled before switching the widget.");
+		midibutton1.widget_(widget2);
+		this.assert(midibutton1.view.enabled == true, "midibutton1 should be enabled after switching the widget");
+		this.assert(midibutton1.widget == widget2, "midibutton1's 'widget' variable should hold widget2 after switching the widget.");
+		widget2.oscConnect(widget2.oscConnectors[0], NetAddr("127.0.0.1", 57120), '/test'); // oscbutton1 should be enabled after switching widget
+		this.assert(oscbutton1.view.enabled == false, "midibutton1 should be disabled before switching the widget.");
+		oscbutton1.widget_(widget2);
+		this.assert(oscbutton1.view.enabled == true, "midibutton1 should be enabled after switching the widget");
+		this.assert(oscbutton1.widget == widget2, "midibutton1's 'widget' variable should hold widget2 after switching the widget.");
+		widget2.remove;
+	}
+
+	test_click {
+		widget1.midiConnect(widget1.midiConnectors[0], num: 0);
+		midibutton1.view.valueAction_(1);
+		this.assertEquals(widget1.getMIDIFuncEnabled(0), false, "widget1.getMIDIFuncEnabled should return false upon clicking midibutton1 if a MIDIFunc is present.");
+		midibutton1.view.valueAction_(0);
+		this.assertEquals(widget1.getMIDIFuncEnabled(0), true, "widget1.getMIDIFuncEnabled should return true upon clicking midibutton1 if a MIDIFunc is present and has been disabled before.");
+		widget1.oscConnect(widget1.oscConnectors[0], NetAddr.localAddr, '/test');
+		oscbutton1.view.valueAction_(1);
+		this.assertEquals(widget1.getOSCFuncEnabled(0), false, "widget1.getOSCFuncEnabled should return false upon clicking oscbutton1 if an OSCFunc is present.");
+		oscbutton1.view.valueAction_(0);
+		this.assertEquals(widget1.getOSCFuncEnabled(0), true, "widget1.getOSCFuncEnabled should return true upon clicking oscbutton1 if a OSCFunc is present and has been disabled before.");
+	}
+
+	test_close {
+		midibutton2 = PlayPauseButton(widget: widget1, connectorKind: \midi);
+		oscbutton2 = PlayPauseButton(widget: widget1, connectorKind: \osc);
+		midibutton1.close;
+		this.assertEquals(PlayPauseButton.all[widget1][\midi], List[midibutton2], "After closing midibutton1 PlayPauseButton.all[widget1]['midi'] should hold List['midibutton2'].");
+		midibutton2.close;
+		this.assertEquals(PlayPauseButton.all[widget1][\midi], nil, "After closing midibutton2 PlayPauseButton.all[widget1]['midi'] should be nil.");
+		oscbutton1.close;
+		this.assertEquals(PlayPauseButton.all[widget1][\osc], List[oscbutton2], "After closing oscbutton1 PlayPauseButton.all[widget1]['osc'] should hold List['oscbutton2'].");
+		oscbutton2.close;
+		this.assertEquals(PlayPauseButton.all[widget1][\osc], nil, "After closing oscbutton2 PlayPauseButton.all[widget1]['osc'] should be nil.");
+	}
+}

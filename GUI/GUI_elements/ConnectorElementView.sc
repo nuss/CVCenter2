@@ -836,10 +836,12 @@ PlayPauseButton : ConnectorElementView {
 		connector = conModel[connectorID];
 		if (mc.m.value[connectorID].notNil) {
 			buttonLayout.background_(enabledBgColor[mc.m.value[connectorID].enabled.asInteger])
-			.drawFunc_(this.prMakeLabelDrawFunc(true, mc.m.value[connectorID].enabled)).refresh
+			.drawFunc_(this.prMakeLabelDrawFunc(true, mc.m.value[connectorID].enabled)).refresh;
+			this.view.enabled_(true);
 		} {
 			buttonLayout.background_(Color.gray(0.6))
-			.drawFunc_(this.prMakeLabelDrawFunc(false)).refresh
+			.drawFunc_(this.prMakeLabelDrawFunc(false)).refresh;
+			this.view.enabled_(false);
 		}
 	}
 
