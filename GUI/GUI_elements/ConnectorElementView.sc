@@ -15,7 +15,7 @@ ConnectorElementView : SCViewHolder {
 				mc.do { |v|
 					switch (v.class)
 					{ Event } { v.c.removeAt(syncKey) }
-					// special case: oscInputConstrainters holds to CVs, \lo and \hi
+					// special case: oscInputConstrainters holds two CVs, \lo and \hi
 					{ List } { v.do(_.disconnect) }
 				}
 			} {

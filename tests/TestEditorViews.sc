@@ -25,7 +25,7 @@ TestMidiConnectorsEditorView : UnitTest {
 		widget.removeMidiConnector(0, true);
 		editor = MidiConnectorsEditorView(widget);
 		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "After creating a new MidiConnectorsEditorView for a widget with an empty 'midiConnectors' array a new MidiConnector should have been added to widget.wmc.midiConnectors.m.value automatically.");
-		connectorsSet = editor.e.reject({ |v, k| k === \midiInit }).collectAs(_.connector, Set);
+		connectorsSet = editor.e.reject({ |v, k| k === \midiInit or: { k === \specStaticText }}).collectAs(_.connector, Set);
 		this.assertEquals(connectorsSet, Set[widget.wmc.midiConnectors.m.value[0]], "All GUI elements in editor should have been set to widget.wmc.midiConnectors.m.value[0] (except for the MIDI init button which doesn't depend on the connector).");
 	}
 
@@ -34,10 +34,10 @@ TestMidiConnectorsEditorView : UnitTest {
 
 		widget.addMidiConnector;
 		editor.set(1);
-		connectorsSet = editor.e.reject({ |v, k| k === \midiInit }).collectAs(_.connector, Set);
+		connectorsSet = editor.e.reject({ |v, k| k === \midiInit or: { k === \specStaticText }}).collectAs(_.connector, Set);
 		this.assertEquals(connectorsSet, Set[widget.wmc.midiConnectors.m.value[1]], "All GUI elements in editor should have been set to widget.wmc.midiConnectors.m.value[1] after calling editor.set(1) (except for the MIDI init button which doesn't depend on the connector).");
 		editor.set(widget.wmc.midiConnectors.m.value[0]);
-		connectorsSet = editor.e.reject({ |v, k| k === \midiInit }).collectAs(_.connector, Set);
+		connectorsSet = editor.e.reject({ |v, k| k === \midiInit or: { k === \specStaticText }}).collectAs(_.connector, Set);
 		this.assertEquals(connectorsSet, Set[widget.wmc.midiConnectors.m.value[0]], "All GUI elements in editor should have been set to widget.wmc.midiConnectors.m.value[0] after calling editor.set(widget.wmc.midiConnectors.m.value[0]) (except for the MIDI init button which doesn't depend on the connector).");
 	}
 
@@ -47,7 +47,7 @@ TestMidiConnectorsEditorView : UnitTest {
 
 		editor.widget_(otherWidget);
 		this.assertEquals(editor.connector, otherWidget.wmc.midiConnectors.m.value[0], "After calling editor.widget_(otherWidget) the editor's 'widget' variable should have been set to otherWidget.wmc.midiConnectors.m.value[0].");
-		connectorsSet = editor.e.reject({ |v, k| k === \midiInit }).collectAs(_.connector, Set);
+		connectorsSet = editor.e.reject({ |v, k| k === \midiInit or: { k === \specStaticText }}).collectAs(_.connector, Set);
 		this.assertEquals(connectorsSet, Set[otherWidget.wmc.midiConnectors.m.value[0]], "All GUI elements in editor should have been set to otherWidget.wmc.midiConnectors.m.value[0] after calling editor.widget_(otherWidget) (except for the MIDI init button which doesn't depend on the connector).");
 		otherWidget.remove;
 	}

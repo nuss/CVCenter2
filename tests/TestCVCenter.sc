@@ -20,6 +20,7 @@ TestCVCenter : UnitTest {
 			TestMidiResolutionNumberBox,
 			TestSlidersPerGroupNumberBox,
 			TestMidiInitButton,
+			TestPlayPauseButton,
 			TestConnectorRemoveButton,
 			TestMappings,
 			TestMappingSelect,
