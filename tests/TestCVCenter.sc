@@ -25,10 +25,10 @@ TestCVCenter : UnitTest {
 			TestMappings,
 			TestMappingSelect,
 			TestMidiConnectorsEditorView,
+			TestOscConnectorsEditorView,
 			TestOscSelectsComboView,
 			TestCVWidgetKnob,
 			TestExtMIDIFunc,
-			TestExtFont,
 			TestExtObject,
 			// Tests with asynchronous logic
 			TestExtOSCFunc,

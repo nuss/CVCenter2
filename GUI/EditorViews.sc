@@ -1,6 +1,7 @@
 OscConnectorsEditorView : CompositeView {
 	classvar <all;
 	var <widget, <parent, <cIndex;
+	var <connector;
 	// GUI elements
 	var <e;
 
@@ -21,10 +22,10 @@ OscConnectorsEditorView : CompositeView {
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = wdgt.wmc.oscConnectors.m.value.detect { |c| c.name == index }
+			index = wdgt.oscConnectors.detect { |c| c.name == index }
 		};
 		if (index.class == OscConnector) {
-			index = wdgt.wmc.oscConnectors.m.value.indexOf(index)
+			index = wdgt.oscConnectors.indexOf(index)
 		};
 
 		e = ();
@@ -42,9 +43,7 @@ OscConnectorsEditorView : CompositeView {
 		};
 
 		// fallback if index out of bounds
-		if (index >= widget.wmc.midiConnectors.m.value.size) {
-			index = widget.wmc.midiConnectors.m.value.size - 1;
-		};
+		if (index.isNil or: { index > wdgt.oscConnectors.lastIndex }) { index = 0 };
 
 		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \osc);
 		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \osc);
@@ -134,11 +133,6 @@ OscConnectorsEditorView : CompositeView {
 
 			if (sel.value < (sel.items.size - 1)) {
 				e.do(_.index_(sel.value));
-				// enable or disable elements based on current conection status
-				// TODO
-				// [e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
-				// elem.view.enabled_(widget.wmc.midiConnections.m.value[sel.value].isNil)
-			// }
 			}
 		})
 	}
@@ -153,6 +147,42 @@ OscConnectorsEditorView : CompositeView {
 
 	front {
 		parent.front;
+	}
+
+	widget_ { |otherWidget|
+		// FIXME: check for CVWidget2D slot (once it's implemented...)
+		if (otherWidget.class !== CVWidgetKnob) {
+			Error("Widget must be a CVWidgetKnob").throw
+		};
+
+		all[widget].remove(this);
+		widget = otherWidget;
+		connector = widget.oscConnectors[0];
+		all[widget] ?? { all[widget] = List[] };
+		if (all[widget].includes(this).not) { all[widget].add(this) };
+		e.do(_.widget_(widget));
+		if (parent.class === Window) {
+			parent.name_("%: OSC connections".format(widget.name))
+		}
+	}
+
+	close {
+		all[widget].remove(this);
+		e.do(_.close);
+	}
+
+	*closeAll {
+		all.pairsDo { |key, eds|
+			// IMPORTANT
+			// with each call to 'close' the index into the list of editors
+			// advances by 1. However, as the first call will already have
+			// removed the editor at index 0 the next call will not remove
+			// the editor at index 1 but the editor at index 2 which has meanwhile
+			// become index 1. Hence, every second editor will be omitted if
+			// the list of editors isn't reversed before invoking the loop by
+			// calling 'do'!
+			eds.reverse.do(_.close)
+		}
 	}
 }
 
@@ -265,7 +295,7 @@ MidiConnectorsEditorView : CompositeView {
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.size - 1)) {
 				m = widget.addMidiConnector;
-				e.connectorSelect.view.value_(widget.wmc.midiConnectors.m.value.indexOf(m));
+				e.connectorSelect.view.value_(widget.midiConnectors.indexOf(m));
 			};
 
 			if (sel.value < (sel.items.size - 1)) {
@@ -282,7 +312,7 @@ MidiConnectorsEditorView : CompositeView {
 		if (connector.isInteger) {
 			index = connector
 		} {
-			index = widget.wmc.midiConnectors.m.value.indexOf(connector)
+			index = widget.midiConnectors.indexOf(connector)
 		};
 		e.do(_.index_(index));
 	}
@@ -295,7 +325,7 @@ MidiConnectorsEditorView : CompositeView {
 
 		all[widget].remove(this);
 		widget = otherWidget;
-		connector = widget.wmc.midiConnectors.m.value[0];
+		connector = widget.midiConnectors[0];
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
 		e.do(_.widget_(widget));
