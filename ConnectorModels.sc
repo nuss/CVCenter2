@@ -2,7 +2,7 @@ OscConnector {
 	classvar cAnons = 0, <accum;
 	classvar <onConnectorRemove;
 	var <widget;
-	var <alwaysPositive = 0.1;
+	// var <alwaysPositive = 0.1;
 
 	*initClass {
 		accum = ();
@@ -49,7 +49,8 @@ OscConnector {
 			connectState: ["learn", Color.yellow, Color.green(0.5)],
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
-			numOscSlots: 1
+			numOscSlots: 1,
+			alwaysPositive: 0.1
 		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
@@ -265,6 +266,17 @@ OscConnector {
 		^widget.wmc.oscDisplay.m.value[this.index].nameField;
 	}
 
+	setOscInputAlwaysPositive { |value|
+		var index = this.index;
+		var mc = widget.wmc;
+		mc.oscDisplay.m.value[index].alwaysPostive = value;
+		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+	}
+
+	getOscInputAlwaysPositive {
+		^widget.wmc.oscDisplay.m.value[this.index].alwaysPositive;
+	}
+
 	setOscMsgIndex { |msgIndex|
 		var index = this.index;
 		var mc = widget.wmc;
@@ -375,8 +387,8 @@ OscConnector {
 
 		^{ |msg, time, addr, port|
 			input = inputRaw = msg[mid ?? { this.getOscMsgIndex }];
-			if (input <= 0 and: { input.abs > alwaysPositive }) {
-				alwaysPositive = input.abs + 0.1
+			if (input <= 0 and: { input.abs > this.getOscInputAlwaysPositive }) {
+				this.setOscInputAlwaysPositive(input.abs + 0.1)
 			};
 
 			// FIXME: should input consider alwaysPositive correction??
@@ -397,8 +409,8 @@ OscConnector {
 			inputMapping = this.getOscInputMapping;
 			argValues = [
 				inputMapping.mapping,
-				constraints[0] + alwaysPositive,
-				constraints[1] + alwaysPositive,
+				constraints[0] + this.getOscInputAlwaysPositive,
+				constraints[1] + this.getOscInputAlwaysPositive,
 			];
 
 			if (inputMapping.mapping === \linbicurve) {
@@ -433,9 +445,9 @@ OscConnector {
 				// unlike MIDI OSC values come in within a dynamic range
 				// hence, we need to normalize based on this dynamic range
 				// input must be positive, ranging from 0-1
-				// [input, input+alwaysPositive, input/constraintsRange, (input+alwaysPositive)/constraintsRange].postln;
+				// [input, input+this.getOscInputAlwaysPositive, input/constraintsRange, (input+this.getOscInputAlwaysPositive)/constraintsRange].postln;
 				if (constraintsRange == 0) { input = 0 } {
-					input = input+alwaysPositive
+					input = input+this.getOscInputAlwaysPositive
 				};
 				// "input: %\ninputRaw: %\ncv.input: %\ncv.spec.minval: %\n".format(input, inputRaw, cv.value, cv.spec.minval).postln;
 				if ((snapDistance <= 0).or(
@@ -1012,7 +1024,7 @@ MidiConnector {
 
 	remove { |forceAll = false|
 		var mc = widget.wmc;
-		var index = mc.midiConnectors.m.value.indexOf(this);
+		var index = this.index;
 
 		if (mc.midiConnectors.m.value.size > 1 or: { forceAll }) {
 			this.midiDisconnect;

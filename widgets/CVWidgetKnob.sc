@@ -583,6 +583,24 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
+	setOscInputAlwaysPositive { |value, connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			this.oscConnectors.do(_.setOscInputAlwaysPositive(value))
+		} {
+			connector.setOscInputAlwaysPositive(value)
+		}
+	}
+
+	getOscInputAlwaysPositive { |connector|
+		connector = this.getOscConnector(connector);
+		if (connector.isNil) {
+			^this.oscConnectors.collect(_.getOscInputAlwaysPositive);
+		} {
+			^connector.getOscInputAlwaysPositive;
+		}
+	}
+
 	setOscCmdName { |cmdPath, connector|
 		connector = this.getOscConnector(connector);
 		if (connector.isNil) {

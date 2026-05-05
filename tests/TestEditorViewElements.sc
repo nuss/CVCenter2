@@ -803,10 +803,10 @@ TestPlayPauseButton : UnitTest {
 		this.assert(midibutton1.view.enabled == true, "midibutton1 should be enabled after switching the widget");
 		this.assert(midibutton1.widget == widget2, "midibutton1's 'widget' variable should hold widget2 after switching the widget.");
 		widget2.oscConnect(widget2.oscConnectors[0], NetAddr("127.0.0.1", 57120), '/test'); // oscbutton1 should be enabled after switching widget
-		this.assert(oscbutton1.view.enabled == false, "midibutton1 should be disabled before switching the widget.");
+		this.assert(oscbutton1.view.enabled == false, "oscbutton1 should be disabled before switching the widget.");
 		oscbutton1.widget_(widget2);
-		this.assert(oscbutton1.view.enabled == true, "midibutton1 should be enabled after switching the widget");
-		this.assert(oscbutton1.widget == widget2, "midibutton1's 'widget' variable should hold widget2 after switching the widget.");
+		this.assert(oscbutton1.view.enabled == true, "oscbutton1 should be enabled after switching the widget");
+		this.assert(oscbutton1.widget == widget2, "oscbutton1's 'widget' variable should hold widget2 after switching the widget.");
 		widget2.remove;
 	}
 

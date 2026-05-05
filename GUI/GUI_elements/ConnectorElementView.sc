@@ -84,7 +84,6 @@ ConnectorNameField : ConnectorElementView {
 			this.connector.name_(tf.string.asSymbol)
 		});
 		this.view.onClose_({ this.close });
-		// FIXME: don't let funcs pile up in onRemove
 		connectorRemovedFuncAdded ?? {
 			case
 			{ connectorKind === \midi } { cclass = MidiConnector }

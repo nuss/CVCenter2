@@ -136,7 +136,8 @@ TestOscConnector : UnitTest {
 				connectState: ["learn", Color.yellow, Color.green(0.5)],
 				connectEnabled: true, // default, if no command is given
 				numOscSlots: 1,
-				learn: true
+				learn: true,
+				alwaysPositive: 0.1
 			)
 		};
 		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/path/to/cmd', index: 1, connectorButVal: 0, connect: \"Learn\")");
@@ -198,7 +199,8 @@ TestOscConnector : UnitTest {
 			template: "[0, 1, 2, 3]",
 			connectState: ["connect", Color.white, Color.blue],
 			connectEnabled: true,
-			learn: true
+			learn: true,
+			alwaysPositive: 0.1
 		), "After disconnectiong connector1 widget.wmc.oscDisplay.m.value[0] should hold an Event (index: 1, nameField: '/test1', ipField: \"127.0.0.1\", portField: 57120, template: \"[0, 1, 2, 3]\", connectState: [\"connect\", Color.white, Color.blue])");
 		connector1.remove;
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "After removing connector1 widget.wmc.oscConnectors.m.value should hold one OscConnector.");

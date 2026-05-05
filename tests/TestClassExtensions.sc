@@ -82,7 +82,8 @@ TestExtOSCFunc : UnitTest {
 			learn: true,
 			connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
 			index: 1,
-			numOscSlots: 1
+			numOscSlots: 1,
+			alwaysPositive: 0.1
 		), "After calling OSCFunc.cvWidgetLearn widget1.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
 		this.assertEquals(widget1.wmc.oscConnections.m.value, List[nil], "widget1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget1, 0).");
 		this.assertEquals(widget2.wmc.oscConnections.m.value, List[nil], "widget2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget2, 0, true).");

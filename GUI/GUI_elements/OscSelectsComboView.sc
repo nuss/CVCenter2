@@ -413,7 +413,6 @@ OscSelectsComboView : CompositeView {
 			if (all[widget].notNil and: { all[widget].isEmpty }) {
 				oscDisplay.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
-				all.removeAt(widget);
 			};
 			if (all.isEmpty) {
 				wmc.isScanningOsc.c.removeAt(syncKey);
