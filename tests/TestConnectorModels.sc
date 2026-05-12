@@ -172,7 +172,7 @@ TestOscConnector : UnitTest {
 	}
 
 	test_oscConnect_disconnect {
-		var connector1 = widget.wmc.oscConnectors.m.value[0];
+		var connector1 = widget.oscConnectors[0];
 		var connector2 = widget.addOscConnector;
 
 		connector1.oscConnect(NetAddr.localAddr, '/test1', 1, argTemplate: 4);
@@ -199,11 +199,28 @@ TestOscConnector : UnitTest {
 			template: "[0, 1, 2, 3]",
 			connectState: ["connect", Color.white, Color.blue],
 			connectEnabled: true,
-			learn: true,
+			learn: false,
 			alwaysPositive: 0.1
 		), "After disconnectiong connector1 widget.wmc.oscDisplay.m.value[0] should hold an Event (index: 1, nameField: '/test1', ipField: \"127.0.0.1\", portField: 57120, template: \"[0, 1, 2, 3]\", connectState: [\"connect\", Color.white, Color.blue])");
 		connector1.remove;
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "After removing connector1 widget.wmc.oscConnectors.m.value should hold one OscConnector.");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling connection2.oscConnect and calling connection1.remove widget.wmc.oscConnections.m.value[0] should hold an OSCFunc");
+	}
+
+	// FIXME: This test passes if run as the only test but fails when run calling TestCVCenter.runAll??
+	test_osc_input_zero_crossing {
+		var n;
+		var c = CondVar.new, sigDelay = 0.1;
+
+		fork {
+			c.wait({ widget.notNil });
+			n = NetAddr.localAddr;
+			widget.oscConnect(cmdPath: '/zero_crossing');
+			n.sendMsg('/zero_crossing', -0.5);
+			sigDelay.wait;
+			// c.signalOne;
+			// c.wait({ widget.getOscInputAlwaysPositive(0) > 0.1 });
+			this.assertFloatEquals(widget.getOscInputAlwaysPositive(0), 0.6, "If input to an OSCFunc is equal or less than equal to 0 input should be normalized to a positive value (adjusting low and high limit).");
+		}
 	}
 }

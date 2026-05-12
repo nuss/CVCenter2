@@ -361,6 +361,18 @@ TestCVWidgetKnob : UnitTest {
 		this.assertEquals(widget.getOscInputConstraints(connection2), [0, 100], "widget.oscConnectors' oscCalibration for connection2 should equal [0, 100].");
 	}
 
+	test_set_getOscInputAlwaysPositive {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputAlwaysPositive, [0.1, 0.1, 0.1], "All widget.oscCommecters should have been set to alwaysPositive equaling 0.1 after widget creation and adding two more OscConnectors.");
+		widget.setOscInputAlwaysPositive(1.0, 0);
+		this.assertEquals(widget.getOscInputAlwaysPositive(0), 1.0, "After calling widget.setOscInputAlwaysPositive(1.0, 0) widget.getOscInputAlwaysPositive(0) should return 1.0.");
+		widget.setOscInputAlwaysPositive(0.5, connection1);
+		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 0.5, 0.1], "After calling widget.setOscInputAlwaysPositive(0.5, connection1) widget.getOscInputAlwaysPositive should return [1.0, 0.5, 0.1].");
+		widget.setOscInputAlwaysPositive(1.0);
+		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 1.0, 1.0], "After calling widget.setOscInputAlwaysPositive(1.0) widget.getOscInputAlwaysPositive should return [1.0, 1.0, 1.0].");
+	}
+
 	test_oscConnect {
 		var c = CondVar(), waitThreadDelay = 1, signalThreadDelay = 2;
 		var numConnectors = widget.wmc.oscConnectors.m.value.size;
@@ -368,7 +380,7 @@ TestCVWidgetKnob : UnitTest {
 		widget.oscConnect(0, localAddr, '/test1');
 		this.assert(numConnectors == widget.wmc.oscConnectors.m.value.size, "The number of widget.wmc.oscConnectors.m.value should not have been increased after connecting the widget using the default OscConnector");
 		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling widget.oscConnect(0, NetAddr.localAddr, '/test1') widget.wmc.oscConnection.m.value[0].class should return OSCFunc.");
-		widget.oscConnect(addr: NetAddr("192.168.1.5"), cmdPath: '/test2');
+		widget.oscConnect(addr: NetAddr.localAddr, cmdPath: '/test2');
 		this.assert(widget.wmc.oscConnectors.m.value.size == (numConnectors + 1), "The number of widget.wmc.oscConnectors.m.value should have been increased by 1 after connecting the widget without specifying an OscConnector");
 		// not really a unit test - OSCFunc.cvWidgetLearn(widget) seems to work as it should
 		// but I've been unable so far to test the result

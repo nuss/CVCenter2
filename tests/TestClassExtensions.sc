@@ -175,21 +175,21 @@ TestExtOSCCommands : UnitTest {
 		var c = CondVar.new;
 		var waitDelay = 0.0001;
 		var sigDelay = 0.1;
+		var addr = NetAddr("127.0.0.1", 57120);
 
+		OSCCommands.ipsAndCmds.clear;
 		OSCCommands.collectSync;
 		this.assertEquals(CVWidget.wmc.isScanningOsc.m.value, true, "After calling OSCCommands.collectSync(true) CVWidget.wmc.isScanningOsc.m.value should return true.");
-		NetAddr.localAddr.sendMsg('/test1', 1, 0.5);
-		NetAddr.localAddr.sendMsg('/test2', 34);
-
 		fork {
 			waitDelay.wait;
 			c.wait({ CVWidget.wmc.oscAddrAndCmds.m.value.isEmpty.not });
 			this.assertEquals(CVWidget.wmc.oscAddrAndCmds.m.value, ('127.0.0.1': ('57120': ('/test1': 2, '/test2': 1))), "After sending a message ['/test1', 1, 0.5] and another Message ['/test2', 34] from NetAddr.localAddr CVWidget.wmc.oscAddrAndCmds.m.value should equal ('127.0.0.1': ('57120': ('/test1': 2, '/test2': 1))");
+			OSCCommands.ipsAndCmds.clear;
 		};
 
 		fork {
-			NetAddr.localAddr.sendMsg('/test1', 1, 0.5);
-			NetAddr.localAddr.sendMsg('/test2', 34);
+			addr.sendMsg('/test1', 1, 0.5);
+			addr.sendMsg('/test2', 34);
 			sigDelay.wait;
 			c.signalOne;
 		}

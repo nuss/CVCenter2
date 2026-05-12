@@ -836,3 +836,51 @@ TestPlayPauseButton : UnitTest {
 		this.assertEquals(PlayPauseButton.all[widget1][\osc], nil, "After closing oscbutton2 PlayPauseButton.all[widget1]['osc'] should be nil.");
 	}
 }
+
+TestOscZeroCrossingText : UnitTest {
+	var widget1, widget2, statictext1, statictext2;
+
+	setUp {
+		widget1 = CVWidgetKnob(\test1);
+		statictext1 = OscZeroCrossingText(widget: widget1);
+	}
+
+	tearDown {
+		statictext1.close;
+		widget1.remove;
+	}
+
+	test_new {
+		this.assertEquals(OscZeroCrossingText.all[widget1][0], statictext1, "OscZeroCrossingText's all variable at the key which is the widget itself should hold a List with statictext1 at index 0.");
+		this.assertEquals(widget1.syncKeys, [\default, OscZeroCrossingText.asSymbol], "The widget's 'syncKeys' should contain two Symbols, 'default' and 'OscZeroCrossingText' creating a OscZeroCrossingText.");
+		statictext2 = OscZeroCrossingText(widget: widget1);
+		this.assertEquals(OscZeroCrossingText.all[widget1], List[statictext1, statictext2], "OscZeroCrossingText's all variable at the key which is the widget itself should hold a List with 2 elements: [statictext1, statictext2].");
+		statictext2.close;
+	}
+
+	test_index_ {
+		widget1.addOscConnector;
+		widget1.setOscInputAlwaysPositive(1.0, 0);
+		this.assertEquals(statictext1.string, "1.0", "statictext1 should have been set to streing \"1.0\" after calling widget1.setOscInputAlwaysPositive(1.0, 0).");
+		statictext1.index_(1);
+		this.assertEquals(statictext1.string, "0.1", "After calling statictext1.index_(1) it's string should have been set to \"0.1\".")
+	}
+
+	test_widget_ {
+		widget2 = CVWidgetKnob(\other);
+		widget1.setOscInputAlwaysPositive(1.0, 0);
+		this.assertEquals(statictext1.string, "1.0", "statictext1 should have been set to streing \"1.0\" after calling widget1.setOscInputAlwaysPositive(1.0, 0).");
+		statictext1.widget_(widget2);
+		this.assertEquals(statictext1.string, "0.1", "After calling statictext1.widget_(widget2) it's string should have been set to \"0.1\".");
+		widget2.remove;
+	}
+
+	test_close {
+		statictext2 = OscZeroCrossingText(widget: widget1);
+		this.assertEquals(OscZeroCrossingText.all[widget1], List[statictext1, statictext2], "After creating another OscZeroCrossingText in 'statictext2' OscZeroCrossingText.all[widget1] should hold a List[statictext1, statictext2].");
+		statictext1.close;
+		this.assertEquals(OscZeroCrossingText.all[widget1], List[statictext2], "After closing statictext1 OscZeroCrossingText.all[widget1] should hold a List[statictext2].");
+		statictext2.close;
+		this.assertEquals(OscZeroCrossingText.all[widget1], List[], "After closing statictext2 OscZeroCrossingText.all[widget1] should hold an empty List.");
+	}
+}

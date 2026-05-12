@@ -3,6 +3,7 @@ TestOscSelectsComboView : UnitTest {
 
 	setUp {
 		widget1 = CVWidgetKnob(\t1);
+		OSCCommands.ipsAndCmds.clear;
 		oscv1 = OscSelectsComboView(widget: widget1);
 		OSCCommands.ipsAndCmds.putAll(('192.168.1.2': ('3214': ('/3214/1': 1, '/3214/2': 1), '42560': ('/42560/1': 1, '/42560/2': 1)), '192.168.1.3': ('31269': ('/31269/1': 1, '/31269/2': 1))));
 	}

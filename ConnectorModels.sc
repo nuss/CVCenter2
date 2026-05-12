@@ -269,7 +269,7 @@ OscConnector {
 	setOscInputAlwaysPositive { |value|
 		var index = this.index;
 		var mc = widget.wmc;
-		mc.oscDisplay.m.value[index].alwaysPostive = value;
+		mc.oscDisplay.m.value[index].alwaysPositive = value;
 		mc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
 	}
 
@@ -341,12 +341,29 @@ OscConnector {
 	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
 		var index = this.index;
 		var mc = widget.wmc;
+		if (addr.notNil and: { addr.class !== NetAddr }) {
+			"addr is not a valid NetAddr".error;
+			^nil
+		};
 		mc.oscConnections.m.value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
-		// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
 		mc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-		mc.oscConnections.m.value[index].srcID !? {
-			mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
-			mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+		addr !? {
+			if (addr.ip != "0.0.0.0" and: { CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].isNil }) {
+				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ());
+			};
+			if (CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].notNil and: { addr.port.notNil }) {
+				if (CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].isNil) {
+					CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].put(addr.port.asSymbol, (cmdPath.asSymbol : 1))
+				} {
+					CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].put(cmdPath.asSymbol, 1)
+				}
+			};
+			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
+			mc.oscConnections.m.value[index].srcID !? {
+				mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
+				mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+			};
 		};
 		mc.oscDisplay.m.value[index].nameField = mc.oscConnections.m.value[index].path;
 		mc.oscDisplay.m.value[index].template = mc.oscConnections.m.value[index].argTemplate.cs;
@@ -372,6 +389,7 @@ OscConnector {
 		// mc.oscDisplay.m.value[index].portField = nil;
 		// mc.oscDisplay.m.value[index].template = nil;
 		mc.oscDisplay.m.value[index].dispatcher = nil;
+		mc.oscDisplay.m.value[index].learn = false;
 		// mc.oscDisplay.m.value[index].connectorButVal = 0;
 		// mc.oscDisplay.m.value[index].connect = "connect";
 		mc.oscDisplay.m.value[index].connectState = ["connect", Color.white, Color.blue];
@@ -388,7 +406,7 @@ OscConnector {
 		^{ |msg, time, addr, port|
 			input = inputRaw = msg[mid ?? { this.getOscMsgIndex }];
 			if (input <= 0 and: { input.abs > this.getOscInputAlwaysPositive }) {
-				this.setOscInputAlwaysPositive(input.abs + 0.1)
+				this.setOscInputAlwaysPositive(input.abs + 0.1);
 			};
 
 			// FIXME: should input consider alwaysPositive correction??
@@ -403,8 +421,6 @@ OscConnector {
 					this.setOscInputConstraints([constraints[0], input])
 				}
 			};
-
-			// "constraints: %".format(this.getOscInputConstraints).postln;
 
 			inputMapping = this.getOscInputMapping;
 			argValues = [
@@ -467,10 +483,8 @@ OscConnector {
 						}
 					}
 					{ inputMapping.mapping === \linexp } {
-						// "mapping is \\linexp".warn;
 						if (cv.spec.minval <= 0 or: { cv.spec.maxval <= 0 }) {
 							this.setOscInputMapping(\linlin);
-							// "cv.spec.minval: %, mapping set to '%'".format(cv.spec.minval, this.getOscInputMapping).warn
 						} {
 							if (snapDistance > 0) {
 								this.setOscSnapDistance(0)

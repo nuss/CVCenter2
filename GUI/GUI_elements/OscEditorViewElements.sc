@@ -726,7 +726,9 @@ OscZeroCrossingText : ConnectorElementView {
 		mc = widget.wmc.oscDisplay;
 		conModel = widget.oscConnectors;
 
-		this.view = StaticText(parentView, rect).string_("0.0").minWidth_(30)
+		this.view = StaticText(parentView, rect)
+		.string_(widget.getOscInputAlwaysPositive(index))
+		.minWidth_(30)
 		.toolTip_("input zero-crossing correction");
 		this.view.onClose_({ this.close });
 		this.index_(index);
@@ -740,7 +742,10 @@ OscZeroCrossingText : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID]
+		connector = conModel[connectorID];
+		mc.m.value[connectorID] !? {
+			this.view.string_(connector.getOscInputAlwaysPositive)
+		}
 	}
 
 	widget_ { |otherWidget|
@@ -774,7 +779,7 @@ OscZeroCrossingText : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |st|
 				if (st.connector === conModel[conID]) {
-					defer { st.view.string_(changer.value[conID].alwaysPositive) }
+					defer { st.view.string_(changer.value[conID].alwaysPositive.round(0.01)) }
 				}
 			}
 		})
