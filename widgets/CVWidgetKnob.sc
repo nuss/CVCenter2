@@ -4,6 +4,10 @@ CVWidgetKnob : CVWidget {
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
 
 	*new { |name, cv, setup, action, modelsAndControllers|
+		if (cv.size > 0) {
+			"Cannot create new CVWidgetKnob from multichannel CV. Try CVWidgetMS.new instead.".error;
+			^nil;
+		};
 		^super.newCopyArgs(name, modelsAndControllers, cv: cv, setup: setup).init(action);
 	}
 
@@ -31,17 +35,15 @@ CVWidgetKnob : CVWidget {
 		// add a 'default' action, if given
 		action !? { this.addAction(\default, action) };
 
-		// if (modelsControllers.notNil) {
-		// 	wmc = modelsControllers
-		// } {
-			wmc ?? { wmc = () };
-	// };
-		this.initConnectors(wmc);
+		// this.initConnectors(wmc);
+		wmc = ();
+		wmc.midiConnectors = (m: Ref(List[]));
+		wmc.oscConnectors = (m: Ref(List[]));
 		this.initModels(wmc);
 
 		setup !? {
 			setup.isKindOf(Dictionary).not.if {
-				Error("a setup has to be provided as a Dictionary or an Event").throw
+				Error("A setup has to be provided as a Dictionary or an Event").throw
 			};
 			setup[\midiMode] !? { this.setMidiMode(setup[\midiMode]) };
 			setup[\midiResolution] !? { this.setMidiResolution(setup[\midiResolution]) };
@@ -59,16 +61,17 @@ CVWidgetKnob : CVWidget {
 		}
 	}
 
-	initConnectors { |modelsControllers|
-		wmc.midiConnectors ?? { wmc.midiConnectors = () };
-		wmc.midiConnectors.m ?? {
-			wmc.midiConnectors.m = Ref(List[])
-		};
-		wmc.oscConnectors ?? { wmc.oscConnectors = () };
-		wmc.oscConnectors.m ?? {
-			wmc.oscConnectors.m = Ref(List[])
-		}
-	}
+	// initConnectors {
+	// 	wmc.midiConnectors = (m: Ref(List[]))
+	// 	wmc.midiConnectors ?? { wmc.midiConnectors = () };
+	// 	wmc.midiConnectors.m ?? {
+	// 		wmc.midiConnectors.m = Ref(List[])
+	// 	};
+	// 	wmc.oscConnectors ?? { wmc.oscConnectors = () };
+	// 	wmc.oscConnectors.m ?? {
+	// 		wmc.oscConnectors.m = Ref(List[])
+	// 	}
+	// }
 
 	initModels { |modelsControllers|
 		// models, not tied to connectors, global to all
