@@ -362,12 +362,7 @@ RampPlot : SCViewHolder {
 			}
 		}
 		{ Env } {
-			if (ramp.respondsTo(\asMultichannelSignal).not) {
-				"No valid envelope given - defaulting to Env([0, 1], [1], \lin)".error;
-				^rampArray
-			} {
-				^rampArray.linenv(0, 1, 0, 1, ramp, \minmax, rampArray.size)
-			}
+			^rampArray.linenv(0, 1, 0, 1, ramp, \minmax, rampArray.size)
 		}
 		{ ^rampArray.perform(ramp.asSymbol, 0.02, 1, 0.02, 1) }
 	}
