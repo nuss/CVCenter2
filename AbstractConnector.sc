@@ -1,0 +1,3 @@
+AbstractConnector {
+	var <widget;
+}

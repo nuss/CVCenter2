@@ -9,7 +9,8 @@ CVWidget {
 
 	// widget models and controllers
 	// defined individually in subclasses
-	var <name, <wmc;
+	// one CV for each CVWidegt - CVWidgetKnob or CVWidgetMS
+	var <name, <cv, <wmc;
 	var syncKeysEvent;
 
 	// custom actions
@@ -86,12 +87,12 @@ CVWidget {
 
 	// the CV's ControlSpec
 	setSpec { this.subclassResponsibility(thisMethod) }
-	getSpec { this.subclassResponsibility(thisMethod) }
-	// CV actions
-	addAction { this.subclassResponsibility(thisMethod) }
-	removeAction { this.subclassResponsibility(thisMethod) }
-	activateAction { this.subclassResponsibility(thisMethod) }
-	updateAction { this.subclassResponsibility(thisMethod) }
+	// getSpec { this.subclassResponsibility(thisMethod) }
+	// // CV actions
+	// addAction { this.subclassResponsibility(thisMethod) }
+	// removeAction { this.subclassResponsibility(thisMethod) }
+	// activateAction { this.subclassResponsibility(thisMethod) }
+	// updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
 	addMidiConnector { this.subclassResponsibility(thisMethod) }
 	midiDialog { this.subclassResponsibility(thisMethod) }
@@ -152,7 +153,17 @@ CVWidget {
 	remove { this.subclassResponsibility(thisMethod) }
 	// Initializing models and controllers
 	initModels { this.subclassResponsibility(thisMethod) }
-	initControllers { this.subclassResponsibility(thisMethod) }
+	// initControllers { this.subclassResponsibility(thisMethod) }
+
+	initControllers { |wmc|
+		#[
+			prInitSpecControl,
+			prInitActionsControl
+		].do { |method|
+			this.perform(method, wmc, this.cv)
+		}
+	}
+
 
 	// global models and controllers
 	// private
@@ -270,4 +281,147 @@ CVWidget {
 		}
 	}
 
+	// same logic within CVWidgetKnob and CVWidgetMS
+	getSpec {
+		^this.cv.spec;
+	}
+
+	// CV actions
+	addAction { |name, action, active(true)|
+		var testAction;
+		name ?? { Error("Please provide a name under which the action will be added to the widget").throw };
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			Error("An action under the given name '%' already exists. Please choose a different name".format(name)).throw;
+		};
+		action ?? { Error("Please provide an action!").throw };
+		if (action.isFunction.not and:{
+			action.class !== FunctionList and:{
+				action.interpret.isFunction.not
+			}
+		}, {
+			Error("'action' must be a Function/FunctionList or a string that compiles to a Function or a FunctionList").throw;
+		});
+		if (action.class == String) { testAction = action.interpret } { testAction = action };
+		if (testAction.isClosed.not) {
+			"The function you have provided contains variables that have been declared outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
+		};
+
+		widgetActions.put(name, nil -> nil);
+		if (action.class == String) {
+			widgetActions[name].value = [action, active];
+		} {
+			widgetActions[name].value = [action.asCompileString, active];
+		};
+
+		if (active) {
+			widgetActions[name].key = cv.addController({ |cv|
+				widgetActions[name].value[0].interpret.value(cv, this)
+			})
+		};
+
+		wmc.actions.m.value_((
+			numActions: widgetActions.size,
+			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+		)).changedPerformKeys(this.syncKeys);
+
+		// TODO: Take care of editor views
+	}
+
+	removeAction { |name|
+		name ?? {
+			"Please provide a name of an existing action!".error;
+			^nil
+		};
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			if (widgetActions[name].key.class == SimpleController) {
+				widgetActions[name].key.remove
+			};
+			widgetActions.removeAt(name);
+			wmc.actions.m.value_((
+				numActions: widgetActions.size,
+				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+			)).changedPerformKeys(this.syncKeys);
+		};
+
+		// TODO: Take care of editor views
+	}
+
+	activateAction { |name, activate=true|
+		var action, containerFunc, controller;
+		name ?? {
+			"Please provide the action's name!".error;
+			^nil
+		};
+		name = name.asSymbol;
+		widgetActions[name] !? {
+			action = widgetActions[name].value[0];
+			if (activate) {
+				// avoid memory leak, only create new SimpleController if key is nil!
+				widgetActions[name].key ?? {
+					widgetActions[name].key = cv.addController({ |cv|
+						widgetActions[name].value[0].interpret.value(cv, this)
+					})
+				}
+			} {
+				if (widgetActions[name].key.class == SimpleController) {
+					widgetActions[name].key.remove;
+					widgetActions[name].key = nil;
+				}
+			};
+			widgetActions[name].value[1] = activate;
+			wmc.actions.m.value_((
+				numActions: widgetActions.size,
+				activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+			)).changedPerformKeys(this.syncKeys);
+		};
+
+		// TODO: Take care of editor views
+	}
+
+	updateAction { |name, action|
+		var testAction;
+		if (name.isNil or: { widgetActions[name].isNil }) {
+			Error("Please provide a name of an already existing action!").throw
+		};
+		name = name.asSymbol;
+		if (action.class == String) { testAction = action.interpret } { testAction = action };
+		if (testAction.isClosed.not) {
+			"The function you have provided contains variables that have been defined outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
+		};
+		widgetActions[name] !? {
+			if (action.class == String) {
+				widgetActions[name].value[0] = action
+			} {
+				widgetActions[name].value[0] = action.asCompileString
+			}
+		};
+		wmc.actions.m.value_((
+			numActions: widgetActions.size,
+			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
+		)).changedPerformKeys(this.syncKeys);
+
+		// TODO: Take care of editor views
+	}
+
+	// PRIVAT
+	// init controllers (private)
+	prInitSpecControl { |wmc, cv|
+		wmc.cvSpec.c ?? {
+			wmc.cvSpec.c = SimpleController(wmc.cvSpec.m);
+		};
+		wmc.cvSpec.c.put(\default, { |changer, what, moreArgs|
+			this.cv.spec_(changer.value);
+		})
+	}
+
+	prInitActionsControl { |wmc, cv|
+		wmc.actions.c ?? {
+			wmc.actions.c = SimpleController(wmc.actions.m);
+		};
+		wmc.actions.c.put(\default, { |changer, what, moreArgs|
+			// do something with changer.value
+		})
+	}
 }

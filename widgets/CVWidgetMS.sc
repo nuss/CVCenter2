@@ -1,15 +1,11 @@
 
 CVWidgetMS : CVWidget {
-	var <cv, setup;
+	var setup;
 	// only needed for naming a connector
 	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
 
-	*new { |name, cv, numSliders(5), setup, action, modelsAndControllers|
-		if (cv.size < 1) {
-			"Cannot create new CVWidgetMS from CV. Try CVWidgetKnob.new instead.".error;
-			^nil;
-		};
-		^super.newCopyArgs(name, modelsAndControllers, cv: cv, setup: setup).init(action, numSliders);
+	*new { |name, cv, numSliders(5), setup, action|
+		^super.newCopyArgs(name, cv: cv, setup: setup).init(action, numSliders);
 	}
 
 	init { |action, numSliders|
@@ -19,10 +15,10 @@ CVWidgetMS : CVWidget {
 
 		name = name.asSymbol;
 
-		cv ?? { cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
+		this.cv ?? { this.cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
 
 		syncKeysEvent ?? {
-			syncKeysEvent = (prto: List[\default], user: List[])
+			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
 		all[name] ?? { all.put[name, this] };
@@ -37,14 +33,6 @@ CVWidgetMS : CVWidget {
 		action !? { this.addAction(\default, action) };
 
 		wmc = ();
-		wmc.midiConnectors = (m: List[]);
-		wmc.oscConnectors = (m: List[]);
-		numSliders.do { |i|
-			wmc.midiConnectors.m.add(Ref(List[]));
-			wmc.oscConnectors.m.add(Ref(List[]));
-		};
-
-		// this.initConnectors(wmc);
 		this.initModels(wmc);
 
 		setup !? {
@@ -78,24 +66,53 @@ CVWidgetMS : CVWidget {
 		}
 	}
 
-	// initConnectors {
-	// 	wmc.midiConnectors ?? { wmc.midiConnectors = () };
-	// 	wmc.midiConnectors.m ?? {
-	// 		wmc.midiConnectors.m = List[];
-	// 		this.size.do {
-	// 			wmc.midiConnectors.m.add(Ref(List[]))
-	// 		}
-	// 	};
-	// 	wmc.oscConnectors ?? { wmc.oscConnectors = () };
-	// 	wmc.oscConnectors.m ?? {
-	// 		wmc.oscConnectors.m = List[];
-	// 		this.size.do {
-	// 			wmc.oscConnectors.m.add(Ref(List[]))
-	// 		}
-	// 	}
-	// }
+	initModels { |wmc|
+		// models, not tied to connectors, global to all
+		// MIDI and OSC connections
+		wmc.cvSpec = (m: Ref(this.getSpec));
+		wmc.actions = (m: Ref((numActions: 0, activeActions: 0)));
+		wmc.midiConnectors = (m: List[]);
+		wmc.oscConnectors = (m: List[]);
+		this.size.do { |i|
+			wmc.midiConnectors.m.add(Ref(List[]));
+			wmc.oscConnectors.m.add(Ref(List[]));
+		};
+
+		this.initControllers(wmc);
+
+		// every new CVWidget should
+		// immediately be amended by
+		// an empty OscConnector
+		// resp. an empty MidiConnector
+		// controllers for connectors
+		// are added within these classes
+		OscConnectorMS(this);
+		// MidiConnectorMS(this);
+	}
+
 
 	size {
 		^this.getSpec.size;
+	}
+
+		// the CV's ControlSpec
+	setSpec { |spec|
+		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
+			Error("No valid ControlSpec given for setSpec.").throw;
+		};
+		// expand spec if its size == 0. We're inside a CVWidgetMS.
+		// Even a spec with size 1 is a multichannel spec.
+		if (spec.size == 0) {
+			spec = ControlSpec(
+				spec.minval ! this.size,
+				spec.maxval ! this.size,
+				// SegWarp
+				spec.warp ! this.size,
+				spec.step ! this.size,
+				spec.default ! this.size,
+				spec.units, spec.grid
+			)
+		};
+		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 }
