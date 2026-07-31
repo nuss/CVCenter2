@@ -61,7 +61,7 @@ CVWidgetKnob : CVWidget {
 	initModels { |modelsControllers|
 		// models, not tied to connectors, global to all
 		// MIDI and OSC connections
-		wmc.cvSpec = (m: Ref(this.getSpec));
+		wmc.cvSpec = (m: Ref(this.cv.spec));
 		wmc.actions = (m: Ref((numActions: 0, activeActions: 0)));
 		wmc.midiConnectors = (m: Ref(List[]));
 		wmc.oscConnectors = (m: Ref(List[]));
@@ -76,6 +76,14 @@ CVWidgetKnob : CVWidget {
 		// are added within these classes
 		OscConnector(this);
 		MidiConnector(this);
+	}
+
+	midiConnectors {
+		^wmc.midiConnectors.m.value
+	}
+
+	oscConnectors {
+		^wmc.oscConnectors.m.value
 	}
 
 	// initControllers { |wmc|
@@ -95,130 +103,11 @@ CVWidgetKnob : CVWidget {
 		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
-	// // CV actions
-	// addAction { |name, action, active=true|
-	// 	var testAction;
-	// 	name ?? { Error("Please provide a name under which the action will be added to the widget").throw };
-	// 	name = name.asSymbol;
-	// 	widgetActions[name] !? {
-	// 		Error("An action under the given name '%' already exists. Please choose a different name".format(name)).throw;
-	// 	};
-	// 	action ?? { Error("Please provide an action!").throw };
-	// 	if (action.isFunction.not and:{
-	// 		action.class !== FunctionList and:{
-	// 			action.interpret.isFunction.not
-	// 		}
-	// 		}, {
-	// 			Error("'action' must be a Function/FunctionList or a string that compiles to a Function or a FunctionList").throw;
-	// 	});
-	// 	if (action.class == String) { testAction = action.interpret } { testAction = action };
-	// 	if (testAction.isClosed.not) {
-	// 		"The function you have provided contains variables that have been declared outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
-	// 	};
-	//
-	// 	widgetActions.put(name, nil -> nil);
-	// 	if (action.class == String) {
-	// 		widgetActions[name].value = [action, active];
-	// 	} {
-	// 		widgetActions[name].value = [action.asCompileString, active];
-	// 	};
-	//
-	// 	if (active) {
-	// 		widgetActions[name].key = cv.addController({ |cv|
-	// 			widgetActions[name].value[0].interpret.value(cv, this)
-	// 		})
-	// 	};
-	//
-	// 	wmc.actions.m.value_((
-	// 		numActions: widgetActions.size,
-	// 		activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-	// 	)).changedPerformKeys(this.syncKeys);
-	//
-	// 	// TODO: Take care of editor views
-	// }
-	//
-	// removeAction { |name|
-	// 	name ?? {
-	// 		"Please provide a name of an existing action!".error;
-	// 		^nil
-	// 	};
-	// 	name = name.asSymbol;
-	// 	widgetActions[name] !? {
-	// 		if (widgetActions[name].key.class == SimpleController) {
-	// 			widgetActions[name].key.remove
-	// 		};
-	// 		widgetActions.removeAt(name);
-	// 		wmc.actions.m.value_((
-	// 			numActions: widgetActions.size,
-	// 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-	// 		)).changedPerformKeys(this.syncKeys);
-	// 	};
-	//
-	// 	// TODO: Take care of editor views
-	// }
-	//
-	// activateAction { |name, activate=true|
-	// 	var action, containerFunc, controller;
-	// 	name ?? {
-	// 		"Please provide the action's name!".error;
-	// 		^nil
-	// 	};
-	// 	name = name.asSymbol;
-	// 	widgetActions[name] !? {
-	// 		action = widgetActions[name].value[0];
-	// 		if (activate) {
-	// 			// avoid memory leak, only create new SimpleController if key is nil!
-	// 			widgetActions[name].key ?? {
-	// 				widgetActions[name].key = cv.addController({ |cv|
-	// 					widgetActions[name].value[0].interpret.value(cv, this)
-	// 				})
-	// 			}
-	// 		} {
-	// 			if (widgetActions[name].key.class == SimpleController) {
-	// 				widgetActions[name].key.remove;
-	// 				widgetActions[name].key = nil;
-	// 			}
-	// 		};
-	// 		widgetActions[name].value[1] = activate;
-	// 		wmc.actions.m.value_((
-	// 			numActions: widgetActions.size,
-	// 			activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-	// 		)).changedPerformKeys(this.syncKeys);
-	// 	};
-	//
-	// 	// TODO: Take care of editor views
-	// }
-	//
-	// updateAction { |name, action|
-	// 	var testAction;
-	// 	if (name.isNil or: { widgetActions[name].isNil }) {
-	// 		Error("Please provide a name of an already existing action!").throw
-	// 	};
-	// 	name = name.asSymbol;
-	// 	if (action.class == String) { testAction = action.interpret } { testAction = action };
-	// 	if (testAction.isClosed.not) {
-	// 		"The function you have provided contains variables that have been defined outside the function (\"open Function\"). As such it cannot be stored with a setup!".warn;
-	// 	};
-	// 	widgetActions[name] !? {
-	// 		if (action.class == String) {
-	// 			widgetActions[name].value[0] = action
-	// 		} {
-	// 			widgetActions[name].value[0] = action.asCompileString
-	// 		}
-	// 	};
-	// 	wmc.actions.m.value_((
-	// 		numActions: widgetActions.size,
-	// 		activeActions: widgetActions.select { |asoc| asoc.value[1] == true }.size
-	// 	)).changedPerformKeys(this.syncKeys);
-	//
-	// 	// TODO: Take care of editor views
-	// }
-
-	midiDialog { |connector=0, parent|
+	midiDialog { |connector(0), parent|
 		^MidiConnectorsEditorView(this, connector, parent).front;
 	}
 
-	oscDialog { |connector=0, parent|
+	oscDialog { |connector(0), parent|
 		^OscConnectorsEditorView(this, connector, parent).front;
 	}
 

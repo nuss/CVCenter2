@@ -94,6 +94,7 @@ CVWidget {
 	// activateAction { this.subclassResponsibility(thisMethod) }
 	// updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
+	midiConnectors { this.subclassResponsibility(thisMethod) }
 	addMidiConnector { this.subclassResponsibility(thisMethod) }
 	midiDialog { this.subclassResponsibility(thisMethod) }
 	removeMidiConnector { this.subclassResponsibility(thisMethod) }
@@ -119,6 +120,7 @@ CVWidget {
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 
 	// OSC
+	oscConnectors { this.subclassResponsibility(thisMethod) }
 	addOscConnector { this.subclassResponsibility(thisMethod) }
 	oscDialog { this.subclassResponsibility(thisMethod) }
 	removeOscConnector { this.subclassResponsibility(thisMethod) }
@@ -219,14 +221,6 @@ CVWidget {
 		}
 	}
 
-	midiConnectors {
-		^wmc.midiConnectors.m.value
-	}
-
-	oscConnectors {
-		^wmc.oscConnectors.m.value
-	}
-
 	syncKeys {
 		^syncKeysEvent.proto ++ syncKeysEvent.user;
 	}
@@ -283,7 +277,8 @@ CVWidget {
 
 	// same logic within CVWidgetKnob and CVWidgetMS
 	getSpec {
-		^this.cv.spec;
+		^this.wmc.cvSpec.m.value
+		// ^this.cv.spec;
 	}
 
 	// CV actions

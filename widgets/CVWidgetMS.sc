@@ -15,7 +15,7 @@ CVWidgetMS : CVWidget {
 
 		name = name.asSymbol;
 
-		this.cv ?? { this.cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
+		this.cv ?? { cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
 
 		syncKeysEvent ?? {
 			syncKeysEvent = (proto: List[\default], user: List[])
@@ -69,7 +69,7 @@ CVWidgetMS : CVWidget {
 	initModels { |wmc|
 		// models, not tied to connectors, global to all
 		// MIDI and OSC connections
-		wmc.cvSpec = (m: Ref(this.getSpec));
+		wmc.cvSpec = (m: Ref(this.cv.spec));
 		wmc.actions = (m: Ref((numActions: 0, activeActions: 0)));
 		wmc.midiConnectors = (m: List[]);
 		wmc.oscConnectors = (m: List[]);
@@ -86,10 +86,19 @@ CVWidgetMS : CVWidget {
 		// resp. an empty MidiConnector
 		// controllers for connectors
 		// are added within these classes
-		OscConnectorMS(this);
-		// MidiConnectorMS(this);
+		this.size.do { |slot|
+			OscConnectorMS(this, slot: slot);
+			// MidiConnectorMS(this, slot: slot);
+		}
 	}
 
+	midiConnectors {
+		^wmc.midiConnectors.m.collect(_.value)
+	}
+
+	oscConnectors {
+		^wmc.oscConnectors.m.collect(_.value)
+	}
 
 	size {
 		^this.getSpec.size;
@@ -114,5 +123,13 @@ CVWidgetMS : CVWidget {
 			)
 		};
 		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
+	}
+
+	midiDialog { |connector(0), slot(0), parent|
+		^MidiConnectorsEditorView(this, connector, parent, slot).front;
+	}
+
+	oscDialog { |connector(0), slot(0), parent|
+		^OscConnectorsEditorView(this, connector, parent, slot).front;
 	}
 }

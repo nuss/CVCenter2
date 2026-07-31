@@ -2,18 +2,19 @@ OscConnectorMS : AbstractConnector {
 	classvar cAnons = 0, <accum;
 	classvar <onConnectorRemove;
 	// var <alwaysPositive = 0.1;
+	var <slot;
 
 	*initClass {
 		accum = ();
 	}
 
-	*new { |widget, name|
+	*new { |widget, name, slot|
 		if (widget.isNil or: {
 			widget.isKindOf(CVWidget).not
 		}) {
 			Error("An OscConnector can only be created for an existing CVWidget").throw;
 		};
-		^super.newCopyArgs(widget).init(name);
+		^super.newCopyArgs(widget, slot).init(name);
 	}
 
 	*onConnectorRemove_ { |func|
@@ -28,11 +29,9 @@ OscConnectorMS : AbstractConnector {
 
 		this.initModels(this.widget.wmc, name);
 
-		this.widget.size.do { |i|
-			this.widget.wmc.oscConnectors.m[i].value_(
-				this.widget.wmc.oscConnectors.m[i].value.add(this)
-			).changedPerformKeys(this.widget.syncKeys);
-		}
+		this.widget.wmc.oscConnectors.m[this.slot].value_(
+			this.widget.wmc.oscConnectors.m[this.slot].value.add(this)
+		).changedPerformKeys(this.widget.syncKeys);
 	}
 
 	initModels { |wmc, name|
@@ -41,76 +40,66 @@ OscConnectorMS : AbstractConnector {
 		// or should all slots be within one model?
 		wmc.oscConnections ?? { wmc.oscConnections = () };
 		wmc.oscConnections.m ?? {
-			wmc.oscConnections.m = List[];
+			wmc.oscConnections.m = List.newClear(size);
 		};
-		size.do { |i|
-			wmc.oscConnections.m[i] ?? {
-				wmc.oscConnections.m.add(Ref(List[]))
-			};
-			wmc.oscConnections.m[i].value.add(nil);
+		wmc.oscConnections.m[this.slot] ?? {
+			wmc.oscConnections.m[this.slot] = Ref(List[])
 		};
+		wmc.oscConnections.m[this.slot].value.add(nil);
 
 		wmc.oscDisplay ?? { wmc.oscDisplay = () };
 		wmc.oscDisplay.m ?? {
-			wmc.oscDisplay.m = List[];
+			wmc.oscDisplay.m = List.newClear(size);
 		};
-		size.do { |i|
-			wmc.oscDisplay.m[i] ?? {
-				wmc.oscDisplay.m.add(Ref(List[]))
-			};
-			wmc.oscDisplay.m[i].value.add((
-				nameField: '/path/to/cmd',
-				index: 1,
-				connectState: ["learn", Color.yellow, Color.green(0.5)],
-				connectEnabled: true, // default, if no command is given
-				learn: true, // default, no command given
-				numOscSlots: 1,
-				alwaysPositive: 0.1
-			))
+		wmc.oscDisplay.m[this.slot] ?? {
+			wmc.oscDisplay.m[this.slot] = Ref(List[])
 		};
+		wmc.oscDisplay.m[this.slot].value.add((
+			nameField: '/path/to/cmd',
+			index: 1,
+			connectState: ["learn", Color.yellow, Color.green(0.5)],
+			connectEnabled: true, // default, if no command is given
+			learn: true, // default, no command given
+			numOscSlots: 1,
+			alwaysPositive: 0.1
+		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
 		wmc.oscOptions.m ?? {
-			wmc.oscOptions.m = List[]
+			wmc.oscOptions.m = List.newClear(size)
 		};
-		size.do { |i|
-			wmc.oscOptions.m[i] ?? {
-				wmc.oscOptions.m.add(Ref(List[]))
-			};
-			wmc.oscOptions.m[i].value.add((
-				oscEndless: CVWidget.oscEndless,
-				oscResolution: CVWidget.resolution,
-				oscCalibration: CVWidget.oscCalibration,
-				oscSnapDistance: CVWidget.snapDistance,
-				oscInputMapping: CVWidget.inputMapping,
-				oscInputRange: CVWidget.oscInputRange,
-				oscMatching: CVWidget.oscMatching
-			))
+		wmc.oscOptions.m[this.slot] ?? {
+			wmc.oscOptions.m[this.slot] = Ref(List[])
 		};
+		wmc.oscOptions.m[this.slot].value.add((
+			oscEndless: CVWidget.oscEndless,
+			oscResolution: CVWidget.resolution,
+			oscCalibration: CVWidget.oscCalibration,
+			oscSnapDistance: CVWidget.snapDistance,
+			oscInputMapping: CVWidget.inputMapping,
+			oscInputRange: CVWidget.oscInputRange,
+			oscMatching: CVWidget.oscMatching
+		));
 
 		wmc.oscConnectorNames ?? { wmc.oscConnectorNames = () };
 		wmc.oscConnectorNames.m ?? {
-			wmc.oscConnectorNames.m = List[];
+			wmc.oscConnectorNames.m = List.newClear(size);
 		};
-		size.do { |i|
-			wmc.oscConnectorNames.m[i] ?? {
-				wmc.oscConnectorNames.m.add(Ref(List[]))
-			};
-			wmc.oscConnectorNames.m[i].value.add(name)
+		wmc.oscConnectorNames.m[this.slot] ?? {
+			wmc.oscConnectorNames.m[this.slot] = Ref(List[])
 		};
+		wmc.oscConnectorNames.m[this.slot].value.add(name);
 
 		wmc.oscInputConstrainters ?? {
-			wmc.oscInputConstrainters = List[];
+			wmc.oscInputConstrainters = List.newClear(size);
 		};
-		size.do { |i|
-			wmc.oscInputConstrainters[i] ?? {
-				wmc.oscInputConstrainters.add(List[])
-			};
-			wmc.oscInputConstrainters[i].add((
-				lo: CV([-inf, inf].asSpec, CVWidget.oscInputRange[0]),
-				hi: CV([-inf, inf].asSpec, CVWidget.oscInputRange[1])
-			));
+		wmc.oscInputConstrainters[this.slot] ?? {
+			wmc.oscInputConstrainters[this.slot] = List[]
 		};
+		wmc.oscInputConstrainters[this.slot].add((
+			lo: CV([-inf, inf].asSpec, CVWidget.oscInputRange[0]),
+			hi: CV([-inf, inf].asSpec, CVWidget.oscInputRange[1])
+		));
 
 		this.initControllers(wmc);
 	}
@@ -129,152 +118,83 @@ OscConnectorMS : AbstractConnector {
 
 	prInitOscConnectors { |mc, cv|
 		mc.oscConnectors.c ?? {
-			mc.oscConnectors.c = List[]
+			mc.oscConnectors.c = List.newClear(this.widget.size)
 		};
-		this.widget.size.do { |i|
-			mc.oscConnectors.c.add(SimpleController(mc.oscConnectors.m[i]));
-			mc.oscConnectors.c[i].put(\default, { |changer, what ... moreArgs|
-				// blablabla, do something...
-			})
-		}
+		mc.oscConnectors.c[this.slot] = SimpleController(mc.oscConnectors.m[this.slot]);
+		mc.oscConnectors.c[this.slot].put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
 	}
+
 
 	prInitOscConnections { |mc, cv|
 		mc.oscConnections.c ?? {
-			mc.oscConnections.c = List[]
+			mc.oscConnections.c = List.newClear(this.widget.size)
 		};
-		this.widget.size.do { |i|
-			mc.oscConnections.c.add(SimpleController(mc.oscConnections.m[i]));
-			mc.oscConnections.c[i].put(\default, { |changer, what ... moreArgs|
-				// blablabla, do something...
-			})
-		}
+		mc.oscConnections.c[this.slot] = SimpleController(mc.oscConnections.m[this.slot]);
+		mc.oscConnections.c[this.slot].put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
 	}
 
 	prInitOscDisplay { |mc, cv|
 		mc.oscDisplay.c ?? {
-			mc.oscDisplay.c = List[]
+			mc.oscDisplay.c = List.newClear(this.widget.size)
 		};
-		this.widget.size.do { |i|
-			mc.oscDisplay.c.add(SimpleController(mc.oscDisplay.m[i]));
-			mc.oscDisplay.c[i].put(\default, { |changer, what ... moreArgs|
-				// blablabla, do something...
-			})
-		}
+		mc.oscDisplay.c[this.slot] = SimpleController(mc.oscDisplay.m[this.slot]);
+		mc.oscDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
 	}
 
 	prInitOscOptions { |mc, cv|
 		mc.oscOptions.c ?? {
-			mc.oscOptions.c = List[]
+			mc.oscOptions.c = List.newClear(this.widget.size)
 		};
-		this.widget.size.do { |i|
-			mc.oscOptions.c.add(SimpleController(mc.oscOptions.m[i]));
-			mc.oscOptions.c[i].put(\default, { |changer, what ... moreArgs|
-				// blablabla, do something...
-			})
-		}
+		mc.oscOptions.c[this.slot] = SimpleController(mc.oscOptions.m[this.slot]);
+		mc.oscOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
 	}
 
 	prInitOscConnectorNames { |mc, cv|
 		mc.oscConnectorNames.c ?? {
-			mc.oscConnectorNames.c = List[]
+			mc.oscConnectorNames.c = List.newClear(this.widget.size)
 		};
-		this.widget.size.do { |i|
-			mc.oscConnectorNames.c.add(SimpleController(mc.oscConnectorNames.m[i]));
-			mc.oscConnectorNames.c[i].put(\default, { |changer, what ... moreArgs|
-				// blablabla, do something...
-			})
-		}
+		mc.oscConnectorNames.c[this.slot] = SimpleController(mc.oscConnectorNames.m[this.slot]);
+		mc.oscConnectorNames.c[this.slot].put(\default, { |changer, what ... moreArgs|
+			// blablabla, do something...
+		})
 	}
 
 	index {
-		^this.widget.oscConnectors.indexOf(this);
+		^this.widget.oscConnectors[this.slot].value.indexOf(this);
 	}
 
-	getName { |slot|
-		if (slot.notNil) {
-			^this.widget.wmc.oscConnectorNames.m[slot].value[this.index]
-		} {
-			// return array of names
-			^this.widget.wmc.oscConnectorNames.m.collect(_.value[this.index])
-		}
+	name {
+		^this.widget.wmc.oscConnectorNames.m[this.slot].value[this.index]
 	}
 
-	setName { |name, slot|
+	name_ { |name|
 		var index = this.index;
 		var mc = this.widget.wmc;
-		if (slot.notNil) {
-			mc.oscConnectorNames.m[slot].value[index] = name.asSymbol;
-			mc.oscConnectorNames.m[slot].changedPerformKeys(this.widget.syncKeys, index);
-		} {
-			// change name for all slots at once
-			mc.oscConnectorNames.m.do { |model|
-				model.value[index] = name.asSymbol;
-				model.changedPerformKeys(this.widget.syncKeys, index);
-			}
-		}
+		mc.oscConnectorNames.m[this.slot].value[index] = name.asSymbol;
+		mc.oscConnectorNames.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	setOscOption { |option, value, slot|
+	setOscOption { |option, value|
 		var index = this.index;
 		var mc = this.widget.wmc;
-		if (slot.notNil) {
-			mc.oscOptions.m[slot].value[index][option] = value;
-			mc.oscOptions.m[slot].changedPerformKeys(this.widget.syncKeys, index);
-		} {
-			mc.oscOptions.m.do { |model|
-				model.value[index][option] = value;
-				model.changedPerformKeys(this.widget, index);
-			}
-		}
+		mc.oscOptions.m[this.slot].value[index][option] = value;
+		mc.oscOptions.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	getOscOption { |option, slot|
+	getOscOption { |option|
 		var index = this.index;
-		if (slot.notNil) {
-			^this.widget.wmc.oscOptions.m[slot].value[index][option]
-		} {
-			^this.widget.wmc.oscOptions.m.collect { |model| model.value[index][option] }
-		}
+		^this.widget.wmc.oscOptions.m[this.slot].value[index][option]
 	}
 
-	setOscEndless { |boolEndless, slot|
-		this.setOscOption(\oscEndless, boolEndless, slot)
-	}
-
-	getOscEndless { |slot|
-		^this.getOscOption(\oscEndless, slot)
-	}
-
-	setOscResolution { |resolution, slot|
-		this.setOscOption(\oscResolution, resolution, slot)
-	}
-
-	getOscResolution { |slot|
-		^this.getOscOption(\oscResolution, slot)
-	}
-
-	setOscSnapDistance { |distance, slot|
-		this.setOscOption(\oscSnapDistance, distance, slot)
-	}
-
-	getOscSnapDistance { |slot|
-		^this.getOscOption(\oscSnapDistance, slot)
-	}
-
-	setOscCalibration { |boolCalibration, slot|
-		this.setOscOption(\oscCalibration, boolCalibration, slot)
-	}
-
-	getOscCalibration { |slot|
-		^this.getOscOption(\oscCalibration, slot)
-	}
-
-	resetOscCalibration { |slot|
-		this.setOscOption(\oscInputRange, CVWidget.oscInputRange, slot);
-	}
-
-	setOscInputConstraints { |constraintsPair, slot|
+	setOscInputConstraints { |constraintsPair|
 		var index = this.index;
 		var mc = this.widget.wmc;
 		var lo, hi;
@@ -285,8 +205,6 @@ OscConnectorMS : AbstractConnector {
 		} {
 			#lo, hi = constraintsPair;
 		};
-		// is this right?
-		// shouldn't it rather be mc.oscInputConstrainters[index][slot]?
 		if (slot.notNil) {
 			mc.oscInputConstrainters[slot][index].lo.value_(lo);
 			mc.oscInputConstrainters[slot][index].hi.value_(hi);
@@ -294,12 +212,7 @@ OscConnectorMS : AbstractConnector {
 
 		};
 
-		mc.oscOptions.m.value[index].oscInputRange = [lo, hi];
-		mc.oscOptions.m.changedPerformKeys(this.widget.syncKeys, index);
-	}
-
-	getOscInputConstraints {
-		^this.widget.wmc.oscOptions.m.value[this.index].oscInputRange;
+		this.setOscOption(\oscInputRange, [lo, hi])
 	}
 
 	setOscInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
@@ -313,90 +226,32 @@ OscConnectorMS : AbstractConnector {
 		// special care needs to be taken to NOT set CVWidget.inputMapping
 		// not working, would set CVWidget.inputMapping too:
 		// mc..oscOptions.m.value[index].oscInputMapping.mapping = mapping;
-		mc.oscOptions.m.value[index].oscInputMapping_((mapping: mapping));
+		mc.oscOptions.m[this.slot].value[index].oscInputMapping_((mapping: mapping));
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
-			mc.oscOptions.m.value[index].oscInputMapping.curve = curve;
+			mc.oscOptions.m[this.slot].value[index].oscInputMapping.curve = curve;
 		}
 		{ mapping === \linenv } {
-			mc.oscOptions.m.value[index].oscInputMapping.env = env;
+			mc.oscOptions.m[this.slot].value[index].oscInputMapping.env = env;
 		};
-		mc.oscOptions.m.changedPerformKeys(this.widget.syncKeys, index);
+		mc.oscOptions.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	getOscInputMapping {
-		^this.widget.wmc.oscOptions.m.value[this.index].oscInputMapping;
-	}
-
-	setOscCmdName { |cmdPath|
+	setOscDisplay { |displayValueName, value|
 		var index = this.index;
 		var mc = this.widget.wmc;
-		mc.oscDisplay.m.value[index].nameField = cmdPath.asSymbol;
-		mc.oscDisplay.m.changedPerformKeys(this.widget.syncKeys, index);
+		mc.oscDisplay.m[this.slot].value[index][displayValueName] = value;
+		mc.oscDisplay.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	getOscCmdName {
-		^this.widget.wmc.oscDisplay.m.value[this.index].nameField;
-	}
-
-	setOscInputAlwaysPositive { |value|
+	getOscDisplay { |displayValueName|
 		var index = this.index;
-		var mc = this.widget.wmc;
-		mc.oscDisplay.m.value[index].alwaysPositive = value;
-		mc.oscDisplay.m.changedPerformKeys(this.widget.syncKeys, index);
-	}
-
-	getOscInputAlwaysPositive {
-		^this.widget.wmc.oscDisplay.m.value[this.index].alwaysPositive;
-	}
-
-	setOscMsgIndex { |msgIndex|
-		var index = this.index;
-		var mc = this.widget.wmc;
-		mc.oscDisplay.m.value[index].index = msgIndex.asInteger;
-		mc.oscDisplay.m.changedPerformKeys(this.widget.syncKeys, index)
-	}
-
-	getOscMsgIndex {
-		^this.widget.wmc.oscDisplay.m.value[this.index].index;
-	}
-
-	setOscMatching { |boolMatching|
-		var index = this.index;
-		var mc = this.widget.wmc;
-		mc.oscOptions.m.value[index].oscMatching = boolMatching;
-		mc.oscOptions.m.changedPerformKeys(this.widget.syncKeys, index);
-	}
-
-	getOscMatching {
-		^this.widget.wmc.oscOptions.m.value[this.index].oscMatching;
-	}
-
-	setOscTemplate { |argTemplate|
-		var index = this.index;
-		var mc = this.widget.wmc;
-		mc.oscDisplay.m.value[index].oscTemplate = argTemplate.cs;
-		mc.oscDisplay.m.changedPerformKeys(this.widget.syncKeys, index);
-	}
-
-	getOscTemplate {
-		^this.widget.wmc.oscDisplay.m.value[this.index].oscTemplate.interpret;
-	}
-
-	setOscDispatcher { |dispatcher|
-		var index = this.index;
-		var mc = this.widget.wmc;
-		mc.oscDisplay.m.value[index].dispatcher = dispatcher;
-		mc.oscDisplay.m.changedPerformKeys(this.widget.syncKeys, index);
-	}
-
-	getOscDispatcher {
-		^this.widget.wmc.oscDisplay.m.value[this.index].dispatcher;
+		^this.widget.wmc.oscDisplay.m[this.slot].value[index][displayValueName]
 	}
 
 	setOSCFuncEnabled { |boolEnabled|
 		var index = this.index;
-		var m = this.widget.wmc.oscConnections.m;
+		var m = this.widget.wmc.oscConnections.m[this.slot];
 		if (m.value[index].isNil) {
 			"connector at index % is currently not connected.".format(index).inform
 		} {
@@ -406,9 +261,252 @@ OscConnectorMS : AbstractConnector {
 	}
 
 	getOSCFuncEnabled {
-		if (this.widget.wmc.oscConnections.m.value[this.index].notNil) {
-			^this.widget.wmc.oscConnections.m.value[this.index].enabled
+		if (this.widget.wmc.oscConnections.m[this.slot].value[this.index].notNil) {
+			^this.widget.wmc.oscConnections.m[this.slot].value[this.index].enabled
 		} { ^true }
 	}
 
+	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
+		var index = this.index;
+		var mc = this.widget.wmc;
+		if (addr.notNil and: { addr.class !== NetAddr }) {
+			"addr is not a valid NetAddr".error;
+			^nil
+		};
+		mc.oscConnections.m[this.slot].value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
+		mc.oscConnections.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
+		addr !? {
+			if (addr.ip != "0.0.0.0" and: { CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].isNil }) {
+				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ());
+			};
+			if (CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].notNil and: { addr.port.notNil }) {
+				if (CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].isNil) {
+					CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].put(addr.port.asSymbol, (cmdPath.asSymbol : 1))
+				} {
+					CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].put(cmdPath.asSymbol, 1)
+				}
+			};
+			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
+			// "mc.oscConnections.m[this.slot].value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
+			mc.oscConnections.m[this.slot].value[index].srcID !? {
+				mc.oscDisplay.m[this.slot].value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
+				mc.oscDisplay.m[this.slot].value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+			};
+		};
+		mc.oscDisplay.m[this.slot].value[index].nameField = mc.oscConnections.m.value[index].path;
+		mc.oscDisplay.m[this.slot].value[index].template = mc.oscConnections.m.value[index].argTemplate.cs;
+		mc.oscDisplay.m[this.slot].value[index].dispatcher = mc.oscConnections.m.value[index].dispatcher;
+		mc.oscDisplay.m[this.slot].value[index].connectState = ["disconnect", Color.white, Color.red];
+		// mc.oscDisplay.m[this.slot].value[index].connectorButVal = 1;
+		// mc.oscDisplay.m[this.slot].value[index].connect = "disconnect";
+		mc.oscDisplay.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
+		// TODO - check settings system
+		CmdPeriod.add({
+			this.widget !? { this.oscDisconnect }
+		})
+	}
+
+	oscDisconnect {
+		var index = this.index;
+		var mc = this.widget.wmc;
+		// "free % at index %".format(mc.oscConnections.m.value[index], index).postln;
+		mc.oscConnections.m[this.slot].value[index].free;
+		mc.oscConnections.m[this.slot].value[index] = nil;
+		mc.oscConnections.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
+		// mc.oscDisplay.m[this.slot].value[index].ipField = nil;
+		// mc.oscDisplay.m[this.slot].value[index].portField = nil;
+		// mc.oscDisplay.m[this.slot].value[index].template = nil;
+		mc.oscDisplay.m[this.slot].value[index].dispatcher = nil;
+		mc.oscDisplay.m[this.slot].value[index].learn = false;
+		// mc.oscDisplay.m.value[index].connectorButVal = 0;
+		// mc.oscDisplay.m.value[index].connect = "connect";
+		mc.oscDisplay.m[this.slot].value[index].connectState = ["connect", Color.white, Color.blue];
+		mc.oscDisplay.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
+		CmdPeriod.remove({
+			this.widget !? { this.oscDisconnect }
+		})
+	}
+
+	prOSCFuncAction { |mid|
+		var input, inputRaw, corrDiff, cv = this.widget.cv, constraints, inputMapping, argValues;
+		var snapDistance, constraintsRange;
+		// multichannel-specific: cv.value/cv.input will be arrays
+		var arrInput, arrValue;
+
+		^{ |msg, time, addr, port|
+			input = inputRaw = msg[mid ?? { this.getOscMsgIndex }];
+			if (input <= 0 and: { input.abs > this.getOscInputAlwaysPositive }) {
+				this.setOscInputAlwaysPositive(input.abs + 0.1);
+			};
+
+			// FIXME: should input consider alwaysPositive correction??
+			constraints = this.getOscInputConstraints;
+			if (this.getOscCalibration) {
+				// input constraints low
+				if (input < constraints[0]) {
+					this.setOscInputConstraints([input, constraints[1]])
+				};
+				// input constraints hi
+				if (input > constraints[1]) {
+					this.setOscInputConstraints([constraints[0], input])
+				}
+			};
+
+			inputMapping = this.getOscInputMapping;
+			argValues = [
+				inputMapping.mapping,
+				constraints[0] + this.getOscInputAlwaysPositive,
+				constraints[1] + this.getOscInputAlwaysPositive,
+			];
+
+			if (inputMapping.mapping === \linbicurve) {
+				argValues = argValues.add(nil) // inCenter, internally computed
+			};
+
+			argValues = argValues.addAll([
+				this.widget.getSpec.minval[this.slot],
+				this.widget.getSpec.maxval[this.slot]
+			]);
+
+			if (inputMapping.mapping === \linbicurve) {
+				argValues = argValues.add(nil) // outCenter, internally computed
+			};
+
+			case
+			{ inputMapping.mapping === \lincurve or: {
+				inputMapping.mapping === \linbicurve
+			}} {
+				argValues = argValues.add(inputMapping.curve)
+			}
+			{ inputMapping.mapping === \linenv } {
+				argValues = argValues.add(inputMapping.env)
+			};
+
+			argValues = argValues.add(\minmax);
+			// "argValues: %".format(argValues).postln;
+
+			constraintsRange = (constraints[1] - constraints[0]).abs;
+			if (this.getOscEndless.not) {
+				snapDistance = this.getOscSnapDistance;
+				// unlike MIDI OSC values come in within a dynamic range
+				// hence, we need to normalize based on this dynamic range
+				// input must be positive, ranging from 0-1
+				// [input, input+this.getOscInputAlwaysPositive, input/constraintsRange, (input+this.getOscInputAlwaysPositive)/constraintsRange].postln;
+				if (constraintsRange == 0) { input = 0 } {
+					input = input+this.getOscInputAlwaysPositive
+				};
+				// "input: %\ninputRaw: %\ncv.input: %\ncv.spec.minval: %\n".format(input, inputRaw, cv.value, cv.spec.minval).postln;
+				if ((snapDistance <= 0).or(
+					inputRaw < (cv.input[this.slot] + (snapDistance)) and: {
+						inputRaw > (cv.input[this.slot] - (snapDistance))
+					}
+				)) {
+					case
+					{ inputMapping.mapping === \lincurve or: { inputMapping.mapping === \linbicurve }} {
+						if (inputMapping.curve != 0 and: { snapDistance > 0 }) {
+							this.setOscSnapDistance(0)
+						}
+					}
+					{ inputMapping.mapping === \linenv } {
+						if (inputMapping.env != Env([0, 1], [1]) and: { snapDistance > 0 }) {
+							this.setOscSnapDistance(0)
+						}
+					}
+					{ inputMapping.mapping === \linexp } {
+						if (cv.spec.minval[this.slot] <= 0 or: { cv.spec.maxval[this.slot] <= 0 }) {
+							this.setOscInputMapping(\linlin);
+						} {
+							if (snapDistance > 0) {
+								this.setOscSnapDistance(0)
+							}
+						}
+					}
+					{ inputMapping.mapping === \explin } {
+						if (snapDistance > 0) {
+							this.setOscSnapDistance(0)
+						};
+						arrInput = cv.input;
+						arrInput[this.slot] = (input+1).explin(1, 2, 0, 1);
+						cv.input_(arrInput)
+					};
+					// "input: %".format(input).warn;
+					arrValue = cv.value;
+					arrValue[this.slot] = input.perform(*argValues);
+					cv.value_(arrValue);
+					// "cv.value: %\n".format(cv.value).postln;
+				};
+				// TODO: what is accum???
+				accum[this.widget] = cv.input;
+			} {
+				accum[this.widget] = accum[this.widget] + (input / constraintsRange / 32 * this.getOscResolution);
+
+				case
+				{ accum[this.widget] < 0 } { accum[this.widget] = 0 }
+				{ accum[this.widget] > 1 } { accum[this.widget] = 1 };
+
+				// [input, accum[this.widget], inputMapping, this.getOscResolution].postln;
+
+				case
+				{ inputMapping.mapping === \lincurve } {
+					cv.input_(accum[this.widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+				}
+				{ inputMapping.mapping === \linbicurve } {
+					cv.input_(accum[this.widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+				}
+				{ inputMapping.mapping === \linenv } {
+					cv.input_(accum[this.widget].linenv(env: inputMapping.env))
+				}
+				{ inputMapping.mapping === \explin } {
+					cv.input_((accum[this.widget]+1).explin(1, 2, 0, 1))
+				}
+				{ inputMapping.mapping === \expexp or: { inputMapping.mapping === \linexp }} {
+					if (this.widget.getSpec.hasZeroCrossing) {
+						this.setOscInputMapping(\linlin);
+						cv.input_(accum[this.widget])
+					} {
+						cv.value_((accum[this.widget]+1).perform(inputMapping.mapping, 1, 2, this.widget.getSpec.minval[this.slot], this.widget.getSpec.maxval[this.slot]))
+					}
+				}
+				{ cv.input_(accum[this.widget]) };
+			}
+		}
+	}
+
+	prOSCFunc { |a, c, mid, r, t, d, m|
+		// [a, c, mid, r, t, d, m].postln;
+		accum[this.widget] = this.widget.cv.input[this.slot];
+		^if (m) {
+			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)
+		} {
+			^OSCFunc(this.prOSCFuncAction(mid), c, a, r, t, d)
+		}
+	}
+
+	remove { |forceAll = false|
+		var mc = this.widget.wmc;
+		// var wmc = CVWidget.wmc;
+		var index = this.index;
+
+		if (mc.oscConnectors.m.value.size > 1 or: { forceAll }) {
+			this.oscDisconnect;
+			// allOscFuncs??
+			[
+				mc.oscDisplay.m.value,
+				mc.oscConnections.m.value,
+				mc.oscConnectorNames.m.value,
+				mc.oscOptions.m.value
+			].do(_.removeAt(index));
+			mc.oscConnectors.m.value.remove(this);
+			mc.oscConnectors.m.changedPerformKeys(this.widget.syncKeys, index);
+			onConnectorRemove.value(this.widget, index);
+		}
+	}
+
+	storeOn { |stream|
+		stream << this.class.name << "(" <<* [this.widget.name.cs, this.name] << ")"
+	}
+
+	printOn { |stream|
+		this.storeOn(stream)
+	}
 }
