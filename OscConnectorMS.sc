@@ -1,7 +1,7 @@
 OscConnectorMS : AbstractConnector {
-	classvar cAnons = 0, <accum;
+	classvar <accum;
 	classvar <onConnectorRemove;
-	// var <alwaysPositive = 0.1;
+
 	var <slot;
 
 	*initClass {
@@ -22,9 +22,9 @@ OscConnectorMS : AbstractConnector {
 	}
 
 	init { |name|
-		this.widget.numOscConnectors = this.widget.numOscConnectors + 1;
+		this.widget.numOscConnectors[this.slot] = this.widget.numOscConnectors[this.slot] + 1;
 		name ?? {
-			name = "OSC Connection %".format(this.widget.numOscConnectors).asSymbol;
+			name = "OSC Connection %".format(this.widget.numOscConnectors[this.slot]).asSymbol;
 		};
 
 		this.initModels(this.widget.wmc, name);
@@ -168,7 +168,7 @@ OscConnectorMS : AbstractConnector {
 	}
 
 	index {
-		^this.widget.oscConnectors[this.slot].value.indexOf(this);
+		^this.widget.oscConnectors[this.slot].value.indexOf(this)
 	}
 
 	name {
@@ -205,12 +205,8 @@ OscConnectorMS : AbstractConnector {
 		} {
 			#lo, hi = constraintsPair;
 		};
-		if (slot.notNil) {
-			mc.oscInputConstrainters[slot][index].lo.value_(lo);
-			mc.oscInputConstrainters[slot][index].hi.value_(hi);
-		} {
-
-		};
+		mc.oscInputConstrainters[this.slot][index].lo.value_(lo);
+		mc.oscInputConstrainters[this.slot][index].hi.value_(hi);
 
 		this.setOscOption(\oscInputRange, [lo, hi])
 	}
@@ -363,9 +359,11 @@ OscConnectorMS : AbstractConnector {
 				argValues = argValues.add(nil) // inCenter, internally computed
 			};
 
+			// minval, maxval can be aarays of diffent sizes (or one is an array and the other a number)
+			// hence we have to sanitize when using either
 			argValues = argValues.addAll([
-				this.widget.getSpec.minval[this.slot],
-				this.widget.getSpec.maxval[this.slot]
+				this.widget.getSpec.minval.asArray.wrapAt(this.slot),
+				this.widget.getSpec.maxval.asArray.wrapAt(this.slot)
 			]);
 
 			if (inputMapping.mapping === \linbicurve) {
@@ -413,7 +411,7 @@ OscConnectorMS : AbstractConnector {
 						}
 					}
 					{ inputMapping.mapping === \linexp } {
-						if (cv.spec.minval[this.slot] <= 0 or: { cv.spec.maxval[this.slot] <= 0 }) {
+						if (cv.spec.minval.asArray.wrapAt(this.slot) <= 0 or: { cv.spec.maxval.asArray.wrapAt(this.slot) <= 0 }) {
 							this.setOscInputMapping(\linlin);
 						} {
 							if (snapDistance > 0) {
@@ -438,43 +436,74 @@ OscConnectorMS : AbstractConnector {
 				// TODO: what is accum???
 				accum[this.widget] = cv.input;
 			} {
-				accum[this.widget] = accum[this.widget] + (input / constraintsRange / 32 * this.getOscResolution);
+				accum[this.widget][this.slot] = accum[this.widget][this.slot] + (input / constraintsRange / 32 * this.getOscResolution);
 
 				case
-				{ accum[this.widget] < 0 } { accum[this.widget] = 0 }
-				{ accum[this.widget] > 1 } { accum[this.widget] = 1 };
+				{ accum[this.widget][this.slot] < 0 } { accum[this.widget][this.slot] = 0 }
+				{ accum[this.widget][this.slot] > 1 } { accum[this.widget][this.slot] = 1 };
 
 				// [input, accum[this.widget], inputMapping, this.getOscResolution].postln;
 
 				case
 				{ inputMapping.mapping === \lincurve } {
-					cv.input_(accum[this.widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+					cv.input_(
+						cv.input[..this.slot-1] ++
+						accum[this.widget][this.slot].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
+						cv.input[this.slot+1..]
+					)
 				}
 				{ inputMapping.mapping === \linbicurve } {
-					cv.input_(accum[this.widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve))
+					cv.input_(
+						cv.input[..this.slot-1] ++
+						accum[this.widget][this.slot].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
+						cv.input[this.slot+1..]
+					)
 				}
 				{ inputMapping.mapping === \linenv } {
-					cv.input_(accum[this.widget].linenv(env: inputMapping.env))
+					cv.input_(
+						cv.input[..this.slot-1] ++
+						accum[this.widget][this.slot].linenv(env: inputMapping.env) ++
+						cv.input[this.slot+1..]
+					)
 				}
 				{ inputMapping.mapping === \explin } {
-					cv.input_((accum[this.widget]+1).explin(1, 2, 0, 1))
+					cv.input_(
+						cv.input[..this.slot-1] ++
+						(accum[this.widget][this.slot]+1).explin(1, 2, 0, 1) ++
+						cv.input[this.slot+1..]
+					)
 				}
 				{ inputMapping.mapping === \expexp or: { inputMapping.mapping === \linexp }} {
 					if (this.widget.getSpec.hasZeroCrossing) {
 						this.setOscInputMapping(\linlin);
-						cv.input_(accum[this.widget])
+						cv.input_(
+							cv.input[..this.slot-1] ++
+							accum[this.widget][this.slot] ++
+							cv.input[this.slot+1..]
+						)
 					} {
-						cv.value_((accum[this.widget]+1).perform(inputMapping.mapping, 1, 2, this.widget.getSpec.minval[this.slot], this.widget.getSpec.maxval[this.slot]))
+						cv.value_(
+							cv.input[..this.slot-1] ++
+							(accum[this.widget]+1).perform(
+								inputMapping.mapping, 1, 2,
+								this.widget.getSpec.minval.asArray.wrapAt(this.slot),
+								this.widget.getSpec.maxval.asArray.wrapAt(this.slot)
+							) ++
+							cv.input[this.slot+1..]
+						)
 					}
 				}
-				{ cv.input_(accum[this.widget]) };
+				{ cv.input_(accum[this.widget]) }
 			}
 		}
 	}
 
 	prOSCFunc { |a, c, mid, r, t, d, m|
 		// [a, c, mid, r, t, d, m].postln;
-		accum[this.widget] = this.widget.cv.input[this.slot];
+		accum[this.widget] ?? {
+			accum[this.widget] = nil ! this.widget.size
+		};
+		accum[this.widget][this.slot] = this.widget.cv.input[this.slot];
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)
 		} {
@@ -487,17 +516,17 @@ OscConnectorMS : AbstractConnector {
 		// var wmc = CVWidget.wmc;
 		var index = this.index;
 
-		if (mc.oscConnectors.m.value.size > 1 or: { forceAll }) {
+		if (mc.oscConnectors.m[this.slot].value.size > 1 or: { forceAll }) {
 			this.oscDisconnect;
 			// allOscFuncs??
 			[
-				mc.oscDisplay.m.value,
-				mc.oscConnections.m.value,
-				mc.oscConnectorNames.m.value,
-				mc.oscOptions.m.value
+				mc.oscDisplay.m[this.slot].value,
+				mc.oscConnections.m[this.slot].value,
+				mc.oscConnectorNames.m[this.slot].value,
+				mc.oscOptions.m[this.slot].value
 			].do(_.removeAt(index));
-			mc.oscConnectors.m.value.remove(this);
-			mc.oscConnectors.m.changedPerformKeys(this.widget.syncKeys, index);
+			mc.oscConnectors.m[this.slot].value.remove(this);
+			mc.oscConnectors.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 			onConnectorRemove.value(this.widget, index);
 		}
 	}

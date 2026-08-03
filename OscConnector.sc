@@ -1,5 +1,5 @@
 OscConnector : AbstractConnector {
-	classvar cAnons = 0, <accum;
+	classvar <accum;
 	classvar <onConnectorRemove;
 	// var <alwaysPositive = 0.1;
 
@@ -401,14 +401,14 @@ OscConnector : AbstractConnector {
 					// "cv.value: %\n".format(cv.value).postln;
 				};
 				accum[this.widget] = cv.input;
-				"accum (non-endless): %".format(accum).postln;
+				// "accum (non-endless): %".format(accum).postln;
 			} {
 				accum[this.widget] = accum[this.widget] + (input / constraintsRange / 32 * this.getOscResolution);
 
 				case
 				{ accum[this.widget] < 0 } { accum[this.widget] = 0 }
 				{ accum[this.widget] > 1 } { accum[this.widget] = 1 };
-				"accum (endless): %".format(accum).postln;
+				// "accum (endless): %".format(accum).postln;
 
 				// [input, accum[this.widget], inputMapping, this.getOscResolution].postln;
 
@@ -439,7 +439,7 @@ OscConnector : AbstractConnector {
 	}
 
 	prOSCFunc { |a, c, mid, r, t, d, m|
-		[a, c, mid, r, t, d, m].postln;
+		// [a, c, mid, r, t, d, m].postln;
 		accum[this.widget] = this.widget.cv.input;
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)

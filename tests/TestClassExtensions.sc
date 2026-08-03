@@ -73,8 +73,8 @@ TestExtOSCFunc : UnitTest {
 		var waitDelay = 0.0001;
 		var sigDelay = 0.1;
 
-		OSCFunc.cvWidgetLearn(widget1, 0);
-		OSCFunc.cvWidgetLearn(widget2, 0, true);
+		OSCFunc.cvWidgetLearn(widget1, index: 0);
+		OSCFunc.cvWidgetLearn(widget2, index: 0, matching: true);
 		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 			// connectorButVal: 0,
 			connectEnabled: false,
@@ -93,6 +93,7 @@ TestExtOSCFunc : UnitTest {
 			c.wait({ widget1.wmc.oscConnections.m.value[0].notNil && widget2.wmc.oscConnections.m.value[0].notNil });
 			this.assertEquals(widget1.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 			this.assertEquals(widget2.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+
 			this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
 				connectEnabled: true,
@@ -102,8 +103,9 @@ TestExtOSCFunc : UnitTest {
 				index: 1,
 				ipField: '127.0.0.1',
 				nameField: '/test',
-				learn: false
-				), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false,
+				learn: false,
+				alwaysPositive: 0.1
+			), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false,
 			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
 			this.assertEquals(widget2.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
@@ -114,8 +116,9 @@ TestExtOSCFunc : UnitTest {
 				index: 1,
 				ipField: '127.0.0.1',
 				nameField: '/test',
-				learn: false
-				), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true,
+				learn: false,
+				alwaysPositive: 0.1
+			), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true,
 			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
 			widget1.remove;
 			widget2.remove;

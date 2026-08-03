@@ -2,7 +2,7 @@
 CVWidgetMS : CVWidget {
 	var setup;
 	// only needed for naming a connector
-	var <>numOscConnectors = 0, <>numMidiConnectors = 0;
+	var <>numOscConnectors, <>numMidiConnectors;
 
 	*new { |name, cv, numSliders(5), setup, action|
 		^super.newCopyArgs(name, cv: cv, setup: setup).init(action, numSliders);
@@ -16,6 +16,8 @@ CVWidgetMS : CVWidget {
 		name = name.asSymbol;
 
 		this.cv ?? { cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
+
+		#numOscConnectors, numMidiConnectors = 0 ! this.cv.size ! 2;
 
 		syncKeysEvent ?? {
 			syncKeysEvent = (proto: List[\default], user: List[])

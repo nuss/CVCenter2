@@ -1006,7 +1006,7 @@ OscConnectButton : ConnectorElementView {
 				argTemplate = this.connector.getOscTemplate;
 				dispatcher = this.connector.getOscDispatcher;
 				if (mc.oscDisplay.m.value[conID].learn) {
-					OSCFunc.cvWidgetLearn(widget, conID, matching, NetAddr.langPort, argTemplate, dispatcher);
+					OSCFunc.cvWidgetLearn(widget, index: conID, matching: matching, port: NetAddr.langPort, argTemplate: argTemplate, dispatcher: dispatcher);
 				} {
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
 				}

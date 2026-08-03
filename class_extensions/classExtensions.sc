@@ -87,54 +87,67 @@
 
 +OSCFunc {
 	// usage in a CVWidget context only
-	*cvWidgetLearn { |widget, index, matching=false, port, argTemplate, dispatcher|
+	*cvWidgetLearn { |widget, slot, index, matching=false, port, argTemplate, dispatcher|
 		var learnFunc, connector;
+		var oscConnectors, connectionsModel, displayModel;
 
 		if (widget.isNil or: { widget.isKindOf(CVWidget).not}) {
 			"Cannot connect non-existing or invalid widget".error;
 			^nil
 		};
 
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			oscConnectors = widget.oscConnectors;
+			connectionsModel = widget.wmc.oscConnections.m;
+			displayModel = widget.wmc.oscDisplay.m;
+		}
+		{ CVWidgetMS } {
+			oscConnectors = widget.oscConnectors[slot];
+			connectionsModel = widget.wmc.oscConnections.m[slot];
+			displayModel = widget.wmc.oscDisplay.m[slot];
+		};
+
 		if (index.isNil or: {
-			widget.oscConnectors[index].isNil or: {
-				widget.wmc.oscConnections.m.value[index].notNil
+			oscConnectors[index].isNil or: {
+				connectionsModel.value[index].notNil
 			}
 		}) {
 			connector = widget.addOscConnector;
 			index = connector.index;
 		} {
-			connector = widget.oscConnectors[index];
+			connector = oscConnectors[index];
 		};
 
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
 			if (matching) {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
+				connectionsModel.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
 				"New matching OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
 					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
 				).inform
 			} {
-				widget.wmc.oscConnections.m.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
+				connectionsModel.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
 				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
 					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
 				).inform
 			};
-			widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
-			widget.wmc.oscDisplay.m.value[index].nameField = msg[0];
-			// widget.wmc.oscDisplay.m.value[index].connectorButVal = 1;
-			// widget.wmc.oscDisplay.m.value[index].connect = "disconnect";
-			widget.wmc.oscDisplay.m.value[index].ipField = addr.ip.asSymbol;
-			widget.wmc.oscDisplay.m.value[index].portField = addr.port;
-			widget.wmc.oscDisplay.m.value[index].oscMatching = matching;
-			widget.wmc.oscConnections.m.value[index].argTemplate !? {
-				widget.wmc.oscDisplay.m.value[index].template = widget.wmc.oscConnections.m.value[index].argTemplate.cs
+			connectionsModel.changedPerformKeys(widget.syncKeys, index);
+			displayModel.value[index].nameField = msg[0];
+			// displayModel.value[index].connectorButVal = 1;
+			// displayModel.value[index].connect = "disconnect";
+			displayModel.value[index].ipField = addr.ip.asSymbol;
+			displayModel.value[index].portField = addr.port;
+			displayModel.value[index].oscMatching = matching;
+			connectionsModel.value[index].argTemplate !? {
+				displayModel.value[index].template = connectionsModel.value[index].argTemplate.cs
 			};
-			// widget.wmc.oscConnections.m.value[index].dispatcher !? {
-			// 	widget.wmc.oscDisplay.m.value[index].dispatcher = widget.wmc.oscConnections.m.value[index].dispatcher
+			// connectionsModel.value[index].dispatcher !? {
+			// 	displayModel.value[index].dispatcher = connectionsModel.value[index].dispatcher
 			// };
-			widget.wmc.oscDisplay.m.value[index].learn = false;
-			widget.wmc.oscDisplay.m.value[index].connectState = ["disconnect", Color.white, Color.red];
-			widget.wmc.oscDisplay.m.value[index].connectEnabled = true;
+			displayModel.value[index].learn = false;
+			displayModel.value[index].connectState = ["disconnect", Color.white, Color.red];
+			displayModel.value[index].connectEnabled = true;
 			CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol] ?? {
 				CVWidget.wmc.oscAddrAndCmds.m.value.put(addr.ip.asSymbol, ())
 			};
@@ -144,31 +157,33 @@
 				CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol][addr.port.asSymbol].put(msg[0], msg[1..].size)
 			};
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
-			widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			displayModel.changedPerformKeys(widget.syncKeys, index);
 			thisProcess.removeOSCRecvFunc(learnFunc);
 		};
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
 		thisProcess.addOSCRecvFunc(learnFunc);
-		widget.wmc.oscDisplay.m.value[index].connectState = ["waiting...", Color.white, Color.gray];
-		widget.wmc.oscDisplay.m.value[index].connectEnabled = false;
-		widget.wmc.oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+		displayModel.value[index].connectState = ["waiting...", Color.white, Color.gray];
+		displayModel.value[index].connectEnabled = false;
+		displayModel.changedPerformKeys(widget.syncKeys, index);
 	}
-
 }
 
 +MIDIFunc {
 	// will only work in a CVWidget context
-	learnSync { |widget, index, learnVal=false|
+	learnSync { |widget, slot, index, learnVal=false|
 		var learnFunc;
-		learnFunc = this.learnFuncSync(widget, index, learnVal);
+		learnFunc = this.learnFuncSync(widget, slot, index, learnVal);
 		this.disable;
 		this.init(learnFunc); // keep old args if specified, so we can learn from particular channels, srcs, etc.
 	}
 
 	// cc only for now
-	learnFuncSync { |widget, index, learnVal|
+	learnFuncSync { |widget, slot, index, learnVal|
 		var oldFunc, learnFunc;
+		var m =	switch (widget.class)
+		{ CVWidgetKnob } { widget.wmc.midiDisplay.m }
+		{ CVWidgetMS } { widget.wmc.midiDisplay.m[slot] };
 
 		oldFunc = func;
 		if (msgType === \control) {
@@ -178,15 +193,15 @@
 				this.remove(learnFunc);
 				oldFunc.value(val, num, chan, srcID);// do first action
 				this.init(oldFunc, num, chan, msgType, srcID, if(learnVal, val, nil));
-				widget.wmc.midiDisplay.m.value[index].src = srcID;
-				widget.wmc.midiDisplay.m.value[index].chan = chan;
-				widget.wmc.midiDisplay.m.value[index].ctrl = num;
+				m.value[index].src = srcID;
+				m.value[index].chan = chan;
+				m.value[index].ctrl = num;
 				if (learnVal) {
-					widget.wmc.midiDisplay.m.value[index].template = val
+					m.value[index].template = val
 				} {
-					widget.wmc.midiDisplay.m.value[index].template = nil
+					m.value[index].template = nil
 				};
-				widget.wmc.midiDisplay.m.changedPerformKeys(widget.syncKeys, index);
+				m.changedPerformKeys(widget.syncKeys, index);
 			}
 		}
 	}
