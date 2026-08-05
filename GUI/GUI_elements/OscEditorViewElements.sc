@@ -2,7 +2,6 @@
 
 OscCmdNameField : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 	var connections;
 	var validOsc = "^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$";
 
@@ -145,7 +144,6 @@ OscCmdNameField : ConnectorElementView {
 // TODO: rename to OscMasgIndexBox
 OscMsgIndexBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 	var connections;
 
 	*initClass {
@@ -258,7 +256,6 @@ OscMsgIndexBox : ConnectorElementView {
 
 OscModeSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -342,7 +339,6 @@ OscModeSelect : ConnectorElementView {
 
 OscMatchingCheckBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 	var connections;
 
 	*initClass {
@@ -452,7 +448,6 @@ OscMatchingCheckBox : ConnectorElementView {
 
 OscResolutionBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -535,7 +530,6 @@ OscResolutionBox : ConnectorElementView {
 
 OscSnapDistanceNumBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -619,7 +613,7 @@ OscSnapDistanceNumBox : ConnectorElementView {
 
 OscConstrainterNumBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget, cv, position;
+	var cv, position;
 
 	*initClass {
 		all = ()
@@ -705,7 +699,6 @@ OscConstrainterNumBox : ConnectorElementView {
 
 OscZeroCrossingText : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -788,7 +781,6 @@ OscZeroCrossingText : ConnectorElementView {
 
 OscCalibrationButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -875,7 +867,6 @@ OscCalibrationButton : ConnectorElementView {
 
 OscCalibrationResetButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -961,7 +952,6 @@ OscCalibrationResetButton : ConnectorElementView {
 
 OscConnectButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 	var validOsc = "^/[\\w\\d\\H/]+[\\w\\d\\H]+[^/\\h]$";
 
 	*initClass {

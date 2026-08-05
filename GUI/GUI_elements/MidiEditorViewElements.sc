@@ -6,9 +6,6 @@
 
 MidiLearnButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	// widget must be a getter as it's called
-	// in close(), defined in ConnectorElementView
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -163,7 +160,6 @@ MidiLearnButton : ConnectorElementView {
 
 MidiSrcSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 	var wmc; // models and controllers tied to the class CVWidget
 
 	*initClass {
@@ -308,7 +304,6 @@ MidiSrcSelect : ConnectorElementView {
 
 MidiChanField : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -403,7 +398,6 @@ MidiChanField : ConnectorElementView {
 
 MidiCtrlField : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -498,7 +492,6 @@ MidiCtrlField : ConnectorElementView {
 
 MidiModeSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -582,7 +575,6 @@ MidiModeSelect : ConnectorElementView {
 
 MidiZeroNumberBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -666,7 +658,6 @@ MidiZeroNumberBox : ConnectorElementView {
 
 SnapDistanceNumberBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -750,7 +741,6 @@ SnapDistanceNumberBox : ConnectorElementView {
 
 MidiResolutionNumberBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();
@@ -834,7 +824,6 @@ MidiResolutionNumberBox : ConnectorElementView {
 
 SlidersPerGroupNumberBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var <connector, <widget;
 
 	*initClass {
 		all = ();

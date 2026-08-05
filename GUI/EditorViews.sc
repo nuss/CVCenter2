@@ -9,7 +9,7 @@ OscConnectorsEditorView : CompositeView {
 		all = ();
 	}
 
-	*new { |widget, connectorID=0, parent|
+	*new { |widget, connectorID(0), parent|
 		^super.new.init(widget, connectorID, parent.asView);
 	}
 
@@ -197,7 +197,7 @@ MidiConnectorsEditorView : CompositeView {
 		all = ();
 	}
 
-	*new { |widget, connector=0, parent|
+	*new { |widget, connector(0), parent|
 		^super.new.init(widget, connector, parent.asView);
 	}
 
