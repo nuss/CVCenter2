@@ -1,33 +1,51 @@
-OscSelectsComboView : CompositeView {
+OscSelectsComboView : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var wmc, osc, oscDisplay, states, connectors, connections, syncKey;
-	var <e, <connector, <widget;
+	var wmc, osc, states, syncKey;
+	var oscDisplayM, oscDisplayC;
+	var connectionsM, connectionsC;
+	var <e;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0, layout([[(name: \ipselect, stretch: 20), (name: \colon, stretch: 0), (name: \portselect, stretch: 10)], [(name: \cmdselect), (name: \scanbut), (name: \rreset)]])|
+	*new { |parent, widget, rect, slot, connectorID(0), layout([[(name: \ipselect, stretch: 20), (name: \colon, stretch: 0), (name: \portselect, stretch: 10)], [(name: \cmdselect), (name: \scanbut), (name: \rreset)]])|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID, layout);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID, layout);
 	}
 
-	init { |parentView, wdgt, rect, index, layout|
+	init { |parentView, rect, index, layout|
 		var parent, row;
+		var oscDisplay, connections;
 		var numMsgSlots, n;
 		var conID;
 
-		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
-		connectors = widget.oscConnectors;
+		conModel = widget.wmc.oscConnectors;
 		connections = widget.wmc.oscConnections;
+
+		case
+		{ widget.class === CVWidgetKnob } {
+			oscDisplayM = oscDisplay.m;
+			oscDisplayC = oscDisplay.c;
+			conModel = conModel.m;
+			connectionsM = connections.m;
+			connectionsC = connections.c;
+		}
+		{ widget.class === CVWidgetMS } {
+			oscDisplayM = oscDisplay.m[this.slot];
+			oscDisplayC = oscDisplay.c[this.slot];
+			conModel = conModel.m[this.slot];
+			connectionsM = connections.m[this.slot];
+			connectionsC = connections.c[this.slot];
+		};
 
 		if (parentView.isNil) {
 			parent = Window("%: OSC addresses and commands".format(widget.name), Rect(0, 0, 300, 65));
@@ -35,6 +53,7 @@ OscSelectsComboView : CompositeView {
 			parent = parentView;
 		};
 
+		this.view = View(parentView);
 		this.background_(Color.gray(0.7)).minHeight_(80);
 
 		e = ();
@@ -81,29 +100,29 @@ OscSelectsComboView : CompositeView {
 		e.ipselect.action_({ |sel|
 			conID = connector.index;
 			if (sel.value == 0) {
-				oscDisplay.m.value[conID].ipField = nil;
+				oscDisplayM.value[conID].ipField = nil;
 			} {
-				oscDisplay.m.value[conID].ipField = sel.items[sel.value];
+				oscDisplayM.value[conID].ipField = sel.items[sel.value];
 			};
 			// important! Otherwise port will not be found under given IP
-			oscDisplay.m.value[conID].portField = nil;
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+			oscDisplayM.value[conID].portField = nil;
+			oscDisplayM.changedPerformKeys(widget.syncKeys, conID);
 		});
 		e.portselect.action_({ |sel|
 			conID = connector.index;
 			if (sel.value == 0) {
-				oscDisplay.m.value[conID].portField = nil;
+				oscDisplayM.value[conID].portField = nil;
 			} {
-				oscDisplay.m.value[conID].portField = sel.items[sel.value];
+				oscDisplayM.value[conID].portField = sel.items[sel.value];
 			};
-			oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+			oscDisplayM.changedPerformKeys(widget.syncKeys, conID);
 		});
 		e.cmdselect.action_({ |sel|
 			conID = connector.index;
 			if (sel.value > 0) {
-				oscDisplay.m.value[conID].nameField = sel.items[sel.value];
-				oscDisplay.m.value[conID].connectState = ["connect", Color.white, Color.blue];
-				oscDisplay.m.value[conID].learn = false;
+				oscDisplayM.value[conID].nameField = sel.items[sel.value];
+				oscDisplayM.value[conID].connectState = ["connect", Color.white, Color.blue];
+				oscDisplayM.value[conID].learn = false;
 				// clip message indices to number of messages in incoming OSC
 				numMsgSlots = [];
 				case
@@ -128,10 +147,10 @@ OscSelectsComboView : CompositeView {
 					n = osc.m.value[e.ipselect.item][e.portselect.item.asSymbol].detect { |k, v| v === sel.items[sel.value] };
 					numMsgSlots = numMsgSlots.add(n);
 				};
-				oscDisplay.m.value[conID].numMsgSlots = numMsgSlots.maxValue({ |n| n });
-				oscDisplay.m.changedPerformKeys(widget.syncKeys, conID);
+				oscDisplayM.value[conID].numMsgSlots = numMsgSlots.maxValue({ |n| n });
+				oscDisplayM.changedPerformKeys(widget.syncKeys, conID);
 			};
-			// oscDisplay.m.changedPerformKeys(widget.syncKeys, index);
+			// oscDisplayM.changedPerformKeys(widget.syncKeys, index);
 		});
 		e.rreset.action_({ |bt|
 			case
@@ -161,41 +180,38 @@ OscSelectsComboView : CompositeView {
 		var ipId, portId, cmdId;
 		var cmds;
 
-		connector = connectors[connectorID];
-		if (oscDisplay.m.value[connectorID].ipField.isNil) {
+		connector = conModel[connectorID];
+		if (oscDisplayM.value[connectorID].ipField.isNil) {
 			e.ipselect.value_(0);
 			e.portselect.items_([e.portselect.items[0]]).value_(0);
 			cmds = [];
 			osc.m.value.deepCollect(2, { |k| cmds = cmds ++ k.keys });
 			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds.asSet.asArray.sort).value_(0)
 		} {
-			ipId = e.ipselect.items.indexOf(oscDisplay.m.value[connectorID].ipField);
+			ipId = e.ipselect.items.indexOf(oscDisplayM.value[connectorID].ipField);
 			e.ipselect.value_(ipId);
 			e.portselect.items_([e.portselect.items[0]] ++ osc.m.value[e.ipselect.item].keys.asArray.collect(_.asInteger).sort);
-			if (oscDisplay.m.value[connectorID].portField.notNil) {
-				portId = e.portselect.items.indexOf(oscDisplay.m.value[connectorID].portField);
+			if (oscDisplayM.value[connectorID].portField.notNil) {
+				portId = e.portselect.items.indexOf(oscDisplayM.value[connectorID].portField);
 				e.portselect.value_(portId);
 			} {
 				e.portselect.value_(0)
 			};
-			if (oscDisplay.m.value[connectorID].portField.isNil) {
+			if (oscDisplayM.value[connectorID].portField.isNil) {
 				// select index of command across all port values
 				cmds = osc.m.value[e.ipselect.item].atAll(osc.m.value[e.ipselect.item].keys).asArray.collect { |pairs| pairs.keys.asArray }.flat.sort;
 			} {
 				// select index of command in values under given port
-				cmds = osc.m.value[e.ipselect.item][oscDisplay.m.value[connectorID].portField.asSymbol].keys.asArray.sort;
+				cmds = osc.m.value[e.ipselect.item][oscDisplayM.value[connectorID].portField.asSymbol].keys.asArray.sort;
 			};
 			e.cmdselect.items_([e.cmdselect.items[0]] ++ cmds);
-			e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[connectorID].nameField))
+			e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplayM.value[connectorID].nameField))
 		};
-		this.enabled_(connections.m.value[connectorID].isNil)
+		this.enabled_(connectionsM.value[connectorID].isNil)
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
+	widget_ { |otherWidget, slot|
+		var oscDisplay, connections;
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
@@ -203,24 +219,41 @@ OscSelectsComboView : CompositeView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
+		this.slot_(slot);
 
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
 		oscDisplay = widget.wmc.oscDisplay;
-		connectors = widget.oscConnectors;
+		conModel = widget.wmc.oscConnectors;
 		connections = widget.wmc.oscConnections;
 
-		if (oscDisplay.m.value[0].ipField.isNil) {
+		case
+		{ widget.class === CVWidgetKnob } {
+			oscDisplayM = oscDisplay.m;
+			oscDisplayC = oscDisplay.c;
+			conModel = conModel.m;
+			connectionsM = connections.m;
+			connectionsC = connections.c;
+		}
+		{ widget.class === CVWidgetMS } {
+			oscDisplayM = oscDisplay.m[this.slot];
+			oscDisplayC = oscDisplay.c[this.slot];
+			conModel = conModel.m[this.slot];
+			connectionsM = connections.m[this.slot];
+			connectionsC = connections.c[this.slot];
+		};
+
+		if (oscDisplayM.value[0].ipField.isNil) {
 			e.ipselect.value_(0)
 		} {
-			e.ipselect.value_(e.ipselect.items.indexOf(oscDisplay.m.value[0].ipField));
-			if (oscDisplay.m.value[0].portField.isNil) {
+			e.ipselect.value_(e.ipselect.items.indexOf(oscDisplayM.value[0].ipField));
+			if (oscDisplayM.value[0].portField.isNil) {
 				e.portselect.value_(0)
 			} {
-				e.portselect.value_(e.portselect.items.indexOf(oscDisplay.m.value[0].portField))
+				e.portselect.value_(e.portselect.items.indexOf(oscDisplayM.value[0].portField))
 			}
 		};
-		e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplay.m.value[0].nameField));
+		e.cmdselect.value_(e.cmdselect.items.indexOf(oscDisplayM.value[0].nameField));
 		this.enabled_(connections.m.value[0].isNil);
 		this.index_(0);
 		this.prAddController;
@@ -313,11 +346,11 @@ OscSelectsComboView : CompositeView {
 	prAddOscDisplayController { |syncKey|
 		var conID, cmds, ip, cmdIndex, port;
 
-		oscDisplay.c ?? { oscDisplay.c = SimpleController(oscDisplay.m) };
-		oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
+		oscDisplayC ?? { oscDisplayC = SimpleController(oscDisplayM) };
+		oscDisplayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |selCombo|
-				if (selCombo.connector === connectors[conID]) {
+				if (selCombo.connector === conModel[conID]) {
 					case
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
@@ -378,13 +411,13 @@ OscSelectsComboView : CompositeView {
 	prAddOscConnectionsController { |syncKey|
 		var conID;
 
-		connections.c ?? {
-			connections.c = SimpleController(connections.m);
+		connectionsC ?? {
+			connectionsC = SimpleController(connectionsM);
 		};
-		connections.c.put(syncKey, { |changer, what ... moreArgs|
+		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |selCombo|
-				if (selCombo.connector === connectors[conID]) {
+				if (selCombo.connector === conModel[conID]) {
 					defer { selCombo.enabled_(changer.value[conID].isNil) }
 				}
 			}
@@ -411,7 +444,7 @@ OscSelectsComboView : CompositeView {
 		all[widget].remove(this);
 		try {
 			if (all[widget].notNil and: { all[widget].isEmpty }) {
-				oscDisplay.c.removeAt(syncKey);
+				oscDisplayC.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 			};
 			if (all.isEmpty) {

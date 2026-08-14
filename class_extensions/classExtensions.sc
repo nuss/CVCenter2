@@ -162,6 +162,9 @@
 		};
 		// either collect or learn - we've decided to learn'
 		OSCCommands.collectSync(false);
+		// widget.wmc.oscDisplay.m.value[index].disconnect = "cancel";
+		// widget.wmc.oscConnections.m.changedPerformKeys(widget.syncKeys, index);
+
 		thisProcess.addOSCRecvFunc(learnFunc);
 		displayModel.value[index].connectState = ["waiting...", Color.white, Color.gray];
 		displayModel.value[index].connectEnabled = false;

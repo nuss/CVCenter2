@@ -22,18 +22,24 @@ ConnectorElementView : SCViewHolder {
 
 	prCleanup {
 		this.class.all[this.widget].remove(this);
+
+		// TODO: take care of CVWidgetKnob and CVWidgetMS separation
+
 		if (this.class.all[this.widget].isEmpty) {
 			// FIXME: a remnant from earlier, obsolete considerations?
-			if (mc.size > 2) {
-				mc.do { |v|
-					switch (v.class)
-					{ Event } { v.c.removeAt(syncKey) }
-					// special case: oscInputConstrainters holds two CVs, \lo and \hi
-					{ List } { v.do(_.disconnect) }
-				}
-			} {
-				mc.c.removeAt(syncKey);
-			};
+			// if (mc.size > 2) {
+			// 	mc.do { |v|
+			// 		"mc: %".format(v).postln;
+			// 		switch (v.class)
+			// 		{ Event } { v.c.removeAt(syncKey) }
+			// 		// special case: oscInputConstrainters holds two CVs, \lo and \hi
+			// 		{ List } { v.do(_.disconnect) }
+			// 	}
+			// } {
+			// 	"mc.size: %, mc: %".format(mc.size, mc).postln;
+			// 	mc.c.removeAt(syncKey);
+			// };
+			mc.c.removeAt(syncKey);
 			this.widget.prRemoveSyncKey(syncKey, true);
 		}
 	}
@@ -100,11 +106,13 @@ ConnectorNameField : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
-			conModelM = conModel.m.value
+			mcC = mc.c;
+			conModel = conModel.m.value
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
-			conModelM = conModel.m[this.slot].value
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value
 		};
 
 		this.view = TextField(parentView, rect);
@@ -128,7 +136,7 @@ ConnectorNameField : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModelM[connectorID];
+		connector = conModel[connectorID];
 		mcM.value !? {
 			this.view.string_(mcM.value[connectorID])
 		}
@@ -159,11 +167,13 @@ ConnectorNameField : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
-			conModelM = conModel.m.value
+			mcC = mc.c;
+			conModel = conModel.m.value
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
-			conModelM = conModel.m[this.slot].value };
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value };
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		this.prAddController;
@@ -193,7 +203,7 @@ ConnectorNameField : ConnectorElementView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
-				mc.c.removeAt(syncKey);
+				mcC.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
 			}
@@ -261,11 +271,15 @@ ConnectorSelect : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
-			consM = cons.m
+			mcC = mc.c;
+			consM = cons.m;
+			consC = cons.c;
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
-			consM = cons.m[this.slot]
+			mcC = mc.c[this.slot];
+			consM = cons.m[this.slot];
+			consC = cons.c[this.slot];
 		};
 
 		this.view = PopUpMenu(parentView)
@@ -314,11 +328,14 @@ ConnectorSelect : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
+			mcC = mc.c;
 			consM = cons.m
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
-			consM = cons.m[this.slot]
+			mcC = mc.c[this.slot];
+			consM = cons.m[this.slot];
+			consC = cons.c[this.slot];
 		};
 
 		this.view.items_(mcM.value ++ this.view.items.last);
@@ -426,10 +443,10 @@ ConnectorRemoveButton : ConnectorElementView {
 
 		case
 		{ widget.class === CVWidgetKnob } {
-			conModelM = conModel.m.value
+			conModel = conModel.m.value
 		}
 		{ widget.class === CVWidgetMS } {
-			conModelM = conModel.m[this.slot].value
+			conModel = conModel.m[this.slot].value
 		};
 
 		this.index_(index);
@@ -448,7 +465,7 @@ ConnectorRemoveButton : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModelM[connectorID];
+		connector = conModel[connectorID];
 	}
 
 	widget_ { |otherWidget, slot|
@@ -478,10 +495,10 @@ ConnectorRemoveButton : ConnectorElementView {
 
 		case
 		{ widget.class === CVWidgetKnob } {
-			conModelM = conModel.m.value
+			conModel = conModel.m.value
 		}
 		{ widget.class === CVWidgetMS } {
-			conModelM = conModel.m[this.slot].value
+			conModel = conModel.m[this.slot].value
 		};
 
 		this.index_(0);
@@ -613,13 +630,16 @@ TemplateTextField : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
-			conModel = conModel.m;
-			connectionsM = connections.m.value
+			mcC = mc.c;
+			conModel = conModel.m.value;
+			connectionsM = connections.m;
+			connectionsC = connections.c;
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
 			conModel = conModel.m[this.slot].value;
-			connectionsM = connections.m[this.slot]
+			connectionsM = connections.m[this.slot];
+			connectionsC = connections.c[this.slot];
 		};
 
 		this.view = TextView(parentView)
@@ -684,13 +704,17 @@ TemplateTextField : ConnectorElementView {
 		case
 		{ widget.class === CVWidgetKnob } {
 			mcM = mc.m;
+			mcC = mc.c;
 			conModel = conModel.m.value;
-			connectionsM = connections.m
+			connectionsM = connections.m;
+			connectionsC = connections.c;
 		}
 		{ widget.class === CVWidgetMS } {
 			mcM = mc.m[this.slot];
+			mcC = mc.c[this.slot];
 			conModel = conModel.m[this.slot].value;
-			connectionsM = connections.m[this.slot]
+			connectionsM = connections.m[this.slot];
+			connectionsC = connections.c[this.slot];
 		};
 		// midiConnector at index 0 should always exist (who knows...)
 		this.index_(0);
@@ -718,7 +742,7 @@ TemplateTextField : ConnectorElementView {
 				}
 			}
 		});
-		connections.c.put(syncKey, { |changer, what ... moreArgs|
+		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget][connectorKind].do { |tv|
 				if (tv.connector === conModel[conID]) {
@@ -732,7 +756,7 @@ TemplateTextField : ConnectorElementView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
-				mc.c.removeAt(syncKey);
+				mcC.removeAt(syncKey);
 				connections.c.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
@@ -811,12 +835,14 @@ PlayPauseButton : ConnectorElementView {
 
 		case
 		{ widget.class === CVWidgetKnob } {
-			mcM = widget.wmc.midiConnections.m;
-			conModel = widget.wmc.midiConnectors.m.value;
+			mcM = mc.m;
+			mcC = mc.c;
+			conModel = conModel.m.value;
 		}
 		{ widget.class === CVWidgetMS } {
-			mcM = widget.wmc.midiConnections.m[this.slot];
-			conModel = widget.wmc.midiConnectors.m[this.slot].value;
+			mcM = mc.m[this.slot];
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value;
 		};
 
 		toolTips = [
@@ -961,12 +987,14 @@ PlayPauseButton : ConnectorElementView {
 
 		case
 		{ widget.class === CVWidgetKnob } {
-			mcM = widget.wmc.midiConnections.m;
-			conModel = widget.wmc.midiConnectors.m.value;
+			mcM = mc.m;
+			mcC = mc.c;
+			conModel = conModel.m.value;
 		}
 		{ widget.class === CVWidgetMS } {
-			mcM = widget.wmc.midiConnections.m[this.slot];
-			conModel = widget.wmc.midiConnectors.m[this.slot].value;
+			mcM = mc.m[this.slot];
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value;
 		};
 
 		// midiConnector at index 0 should always exist (who knows...)
@@ -978,14 +1006,14 @@ PlayPauseButton : ConnectorElementView {
 		var conID;
 		var funcEnabled;
 
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
+		mcC ?? {
+			mcC = SimpleController(mcM)
 		};
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		mcC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget][connectorKind].do { |bt|
 				if (bt.connector === conModel[conID]) {
@@ -1016,7 +1044,7 @@ PlayPauseButton : ConnectorElementView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
-				mc.c.removeAt(syncKey);
+				mcC.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
 			}

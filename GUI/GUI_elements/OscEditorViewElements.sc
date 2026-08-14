@@ -977,10 +977,25 @@ OscConnectButton : ConnectorElementView {
 		mc = widget.wmc;
 		conModel = widget.oscConnectors;
 
-		this.view = Button(parentView, rect)
-		.states_([mc.oscDisplay.m.value[index].connectState]);
+		case
+		{ mc.oscDisplay.m.value[index].nameField === '/path/to/cmd' or: {
+			validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
+		}} {
+			defaultState = ["learn", Color.white, Color.blue]
+		}
+		// check https://www.boost.org/doc/libs/1_69_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html
+		{ validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString) } {
+			defaultState = ["connect", Color.black, Color.green]
+		};
+
+		this.view = Button(parentView, rect);
 		this.view.onClose_({ this.close });
 		this.index_(index);
+		this.view.states_([
+			defaultState,
+			[mc.oscDisplay.m.value[index].disconnect, Color.white, Color.red]
+		]);
+
 		this.view.action_({ |bt|
 			conID = connector.index;
 			// "mc.oscConnections.m.value[%].isNil? %".format(conID, mc.oscConnections.m.value[conID].isNil).postln;
@@ -1016,9 +1031,7 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = conModel[connectorID];
-		mc.oscDisplay.m.value[connectorID] !? {
-			this.view.states_([mc.oscDisplay.m.value[connectorID].connectState])
-		}
+		this.view.value_(mc.oscConnections.m.value[connectorID].notNil.asInteger);
 	}
 
 	widget_ { |otherWidget|
@@ -1042,7 +1055,8 @@ OscConnectButton : ConnectorElementView {
 	}
 
 	prAddController {
-		var pos, conID, state0;
+		var pos, conID;
+		var cButFG, cButBG;
 
 		mc.oscOptions.c ?? {
 			mc.oscOptions.c = SimpleController(mc.oscOptions.m)
@@ -1081,13 +1095,27 @@ OscConnectButton : ConnectorElementView {
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
 				if (bt.connector === conModel[conID]) {
-					defer { bt.view.value_(changer.value[conID].notNil.asInteger) }
+					// switch (mc.oscDisplay.m.value[conID].connect)
+					// { "learn" } {
+					// 	cButFG = Color.white;
+					// 	cButBG = Color.blue;
+					// }
+					// { "connect" } {
+					// 	cButFG = Color.black;
+					// 	cButBG = Color.green;
+					// };
+					// defer { bt.value_(changer.value[conID].notNil.asInteger)
+					// 	.states_([
+					// 		[mc.oscDisplay.m.value[conID].connect, cButFG, cButBG],
+					// 		[mc.oscDisplay.m.value[conID].disconnect, Color.white, Color.red]
+					// 	])
+					// }
 				}
 			}
 		})
 	}
 
-		prCleanup {
+prCleanup {
 		all[widget].remove(this);
 		if (all[widget].isEmpty) {
 			mc.oscOptions.c.removeAt(syncKey);

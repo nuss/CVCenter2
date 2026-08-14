@@ -1,7 +1,8 @@
-MappingSelect : CompositeView {
+MappingSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var mc, connectors, syncKey, mappingType;
-	var <connector, <widget, connectorKind;
+	var mappingType;
+	// models, controllers
+	var connectorKind;
 	var <e, bgColor;
 	var defaultEnv;
 
@@ -9,30 +10,28 @@ MappingSelect : CompositeView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0, connectorKind, layout([[\mselect, \mcurve, \mplot], [\menv]])|
+	*new { |parent, widget, rect, slot, connectorID(0), connectorKind, layout([[\mselect, \mcurve, \mplot], [\menv]])|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID, connectorKind, layout);
-	}
-
-	init { |parentView, wdgt, rect, index, kind, layout|
-		var parent, row, i;
-		var ramp, env;
-		var mappingMethod;
-
-		if (kind.isNil) {
+		if (connectorKind.isNil) {
 			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
 		} {
-			connectorKind = kind.asSymbol;
+			connectorKind = connectorKind.asSymbol;
 			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
 				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
 			}
 		};
+		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID, layout);
+	}
+
+	init { |parentView, rect, index, layout|
+		var parent, row, i;
+		var ramp, env;
+		var mappingMethod;
 
 		defaultEnv = Env([0, 1], [1]);
 
-		widget = wdgt;
 		all[widget] ?? { all[widget] = () };
 		all[widget][connectorKind] ?? {
 			all[widget][connectorKind] = List[];
@@ -42,17 +41,29 @@ MappingSelect : CompositeView {
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiOptions;
-			connectors = widget.midiConnectors;
+			conModel = widget.wmc.midiConnectors;
 			bgColor = Color(0.8, alpha: 0.3);
 			mappingType = \midiInputMapping;
 			mappingMethod = \setMidiInputMapping;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscOptions;
-			connectors = widget.wmc.oscConnectors.m.value;
+			conModel = widget.wmc.oscConnectors;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 			mappingType = \oscInputMapping;
 			mappingMethod = \setOscInputMapping;
+		};
+
+		case
+		{ widget.class === CVWidgetKnob } {
+			mcM = mc.m;
+			mcC = mc.c;
+			conModel = conModel.m.value
+		}
+		{ widget.class === CVWidgetMS } {
+			mcM = mc.m[this.slot];
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value
 		};
 
 		// the kind of connector must be known by now, so, index_ should already know
@@ -63,31 +74,32 @@ MappingSelect : CompositeView {
 			parent = parentView;
 		};
 
+		this.view = View(parentView);
 		this.background_(bgColor).minHeight_(80);
 
-		ramp = switch (mc.m.value[index][mappingType].mapping)
-		{ \linenv } { mc.m.value[index][mappingType].env }
-		{ \lincurve } { [\lincurve, mc.m.value[index][mappingType].curve] }
-		{ \linbicurve } { [\linbicurve, mc.m.value[index][mappingType].curve] }
-		{ mc.m.value[index][mappingType].mapping };
+		ramp = switch (mcM.value[index][mappingType].mapping)
+		{ \linenv } { mcM.value[index][mappingType].env }
+		{ \lincurve } { [\lincurve, mcM.value[index][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, mcM.value[index][mappingType].curve] }
+		{ mcM.value[index][mappingType].mapping };
 
 		e = ();
-		e.mplot = RampPlot(parent, ramp: ramp).maxHeight_(25);
-		e.mselect = PopUpMenu(parent).items_([
+		e.mplot = RampPlot(this.view, ramp: ramp).maxHeight_(25);
+		e.mselect = PopUpMenu(this.view).items_([
 			\linlin, \linexp, \explin, \expexp, \lincurve, \linbicurve, \linenv
 		]).minHeight_(25);
-		e.mcurve = NumberBox(parent).clipHi_(12).clipLo_(-12).minHeight_(25);
-		e.menv = TextField(parent).minHeight_(25)
-		.string_((mc.m.value[index][mappingType].env ? Env([0, 1], [1])).asCompileString);
+		e.mcurve = NumberBox(this.view).clipHi_(12).clipLo_(-12).minHeight_(25);
+		e.menv = TextField(this.view).minHeight_(25)
+		.string_((mcM.value[index][mappingType].env ? defaultEnv).asCompileString);
 
 		case
-		{ mc.m.value[index][mappingType].mapping === \lincurve or: {
-			mc.m.value[index][mappingType].mapping === \linbicurve
+		{ mcM.value[index][mappingType].mapping === \lincurve or: {
+			mcM.value[index][mappingType].mapping === \linbicurve
 		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.m.value[index][mappingType].mapping === \linenv } {
+		{ mcM.value[index][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -97,7 +109,10 @@ MappingSelect : CompositeView {
 		};
 
 		if (layout.size > 1) {
+			// "this: %, layout: %, this.widget: %, this.slot: %, this.layout: %".format(this, layout, this.widget, this.slot, this.layout).postln;
+			// FIXME: why does calling layout_ suddenly crash the interpreter???
 			this.layout_(VLayout());
+			// "this.layout: %".format(this.layout).postln;
 			layout.size.do { |i|
 				row = HLayout();
 				layout[i].do { |k| row.add(e[k]) };
@@ -110,10 +125,11 @@ MappingSelect : CompositeView {
 		};
 
 		this.index_(index);
+
 		this.onClose_({ this.close });
 
 		e.mselect.action_({ |sel|
-			i = connectors.indexOf(this.connector);
+			i = conModel.indexOf(this.connector);
 			env = if (e.menv.string.interpret.class == Env) {
 				e.menv.string.interpret
 			} { defaultEnv };
@@ -128,21 +144,21 @@ MappingSelect : CompositeView {
 			{ this.connector.perform(mappingMethod, sel.items[sel.value], nil, nil) }
 		});
 		e.mcurve.action_({ |nb|
-			i = connectors.indexOf(this.connector);
+			i = conModel.indexOf(this.connector);
 			if (e.mselect.value == 4 or: { e.mselect.value == 5 }) {
-				mc.m.value[i][mappingType].curve = nb.value;
-				mc.m.changedPerformKeys(widget.syncKeys, i)
+				mcM.value[i][mappingType].curve = nb.value;
+				mcM.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		e.menv.action_({ |tf|
-			i = connectors.indexOf(this.connector);
+			i = conModel.indexOf(this.connector);
 			env = if (tf.string.interpret.class == Env) {
 				tf.string.interpret
 			} { defaultEnv };
 
 			if (e.mselect.value == 6) {
-				mc.m.value[i][mappingType].env = env;
-				mc.m.changedPerformKeys(widget.syncKeys, i)
+				mcM.value[i][mappingType].env = env;
+				mcM.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		connectorRemovedFuncAdded ?? {
@@ -156,34 +172,34 @@ MappingSelect : CompositeView {
 
 	index_ { |connectorID|
 		// "connectorID: %".format(connectorID).postln;
-		connector = connectors[connectorID];
-		// "mc.m.value[%][%]: %".format(connectorID, mappingType, mc.m.value[connectorID][mappingType]).postln;
-		mc.m.value[connectorID] !? {
-			e.mselect.value_(e.mselect.items.indexOf(mc.m.value[connectorID][mappingType].mapping));
-			e.mcurve.value_(mc.m.value[connectorID][mappingType].curve ? 0);
-			e.menv.string_((mc.m.value[connectorID][mappingType].env ? defaultEnv).asCompileString);
+		connector = conModel[connectorID];
+		// "mcM.value[%][%]: %".format(connectorID, mappingType, mcM.value[connectorID][mappingType]).postln;
+		mcM.value[connectorID] !? {
+			e.mselect.value_(e.mselect.items.indexOf(mcM.value[connectorID][mappingType].mapping));
+			e.mcurve.value_(mcM.value[connectorID][mappingType].curve ? 0);
+			e.menv.string_((mcM.value[connectorID][mappingType].env ? defaultEnv).asCompileString);
 			case
-			{ mc.m.value[connectorID][mappingType].mapping === \lincurve or: {
-				mc.m.value[connectorID][mappingType].mapping === \linbicurve
+			{ mcM.value[connectorID][mappingType].mapping === \lincurve or: {
+				mcM.value[connectorID][mappingType].mapping === \linbicurve
 			}} {
-				e.mplot.draw([mc.m.value[connectorID][mappingType].mapping, mc.m.value[connectorID][mappingType].curve]);
+				e.mplot.draw([mcM.value[connectorID][mappingType].mapping, mcM.value[connectorID][mappingType].curve]);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(true);
 			}
-			{ mc.m.value[connectorID][mappingType].mapping === \linenv } {
-				e.mplot.draw(mc.m.value[connectorID][mappingType].env);
+			{ mcM.value[connectorID][mappingType].mapping === \linenv } {
+				e.mplot.draw(mcM.value[connectorID][mappingType].env);
 				e.menv.enabled_(true);
 				e.mcurve.enabled_(false);
 			}
 			{
-				e.mplot.draw(mc.m.value[connectorID][mappingType].mapping);
+				e.mplot.draw(mcM.value[connectorID][mappingType].mapping);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(false);
 			}
 		}
 	}
 
-	widget_ { |otherWidget|
+	widget_ { |otherWidget, slot|
 		var ramp;
 
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
@@ -200,33 +216,46 @@ MappingSelect : CompositeView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
+		this.slot_(slot);
 
 		case
 		{ connectorKind === \midi } {
 			mc = widget.wmc.midiOptions;
-			connectors = widget.midiConnectors;
+			conModel = widget.midiConnectors;
 			mappingType = \midiInputMapping;
 		}
 		{ connectorKind === \osc } {
 			mc = widget.wmc.oscOptions;
-			connectors = widget.wmc.oscConnectors.m.value;
+			conModel = widget.wmc.oscConnectors;
 			mappingType = \oscInputMapping;
 		};
 
-		ramp = switch (mc.m.value[0][mappingType].mapping)
-		{ \linenv } { mc.m.value[0][mappingType].env }
-		{ \lincurve } { [\lincurve, mc.m.value[0][mappingType].curve] }
-		{ \linbicurve } { [\linbicurve, mc.m.value[0][mappingType].curve] }
-		{ mc.m.value[0][mappingType].mapping };
+		case
+		{ widget.class === CVWidgetKnob } {
+			mcM = mc.m;
+			mcC = mc.c;
+			conModel = conModel.m.value
+		}
+		{ widget.class === CVWidgetMS } {
+			mcM = mc.m[this.slot];
+			mcC = mc.c[this.slot];
+			conModel = conModel.m[this.slot].value
+		};
+
+		ramp = switch (mcM.value[0][mappingType].mapping)
+		{ \linenv } { mcM.value[0][mappingType].env }
+		{ \lincurve } { [\lincurve, mcM.value[0][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, mcM.value[0][mappingType].curve] }
+		{ mcM.value[0][mappingType].mapping };
 
 		case
-		{ mc.m.value[0][mappingType].mapping === \lincurve or: {
-			mc.m.value[0][mappingType].mapping === \linbicurve
+		{ mcM.value[0][mappingType].mapping === \lincurve or: {
+			mcM.value[0][mappingType].mapping === \linbicurve
 		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mc.m.value[0][mappingType].mapping === \linenv } {
+		{ mcM.value[0][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -242,15 +271,15 @@ MappingSelect : CompositeView {
 
 	prAddController {
 		var conID;
-		mc.c ?? { mc.c = SimpleController(mc.m) };
+		mcC ?? { mcC = SimpleController(mcM) };
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		mcC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget][connectorKind].do { |ms, i|
-				if (ms.connector === connectors[conID]) {
+				if (ms.connector === conModel[conID]) {
 					{
 						ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID][mappingType].mapping));
 						case
@@ -298,7 +327,7 @@ MappingSelect : CompositeView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
-				mc.c.removeAt(syncKey);
+				mcC.removeAt(syncKey);
 				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
 			}
@@ -310,7 +339,7 @@ RampPlot : SCViewHolder {
 	var <>background, <>foreground;
 
 	*new { |parent, rect, ramp = \linlin, background(Color.blue(0.3)), foreground(Color.cyan)|
-		^super.newCopyArgs(nil, background, foreground).init(parent, rect, ramp)
+		^super.newCopyArgs(background: background, foreground: foreground).init(parent, rect, ramp)
 	}
 
 	init { |parentView, rect, ramp|
