@@ -9,52 +9,48 @@ OscCmdNameField : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
+	init { |parentView, rect, index|
 		var action, conID;
 
-		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-
+		this.prMCDistinct(\osc);
 		this.view = TextField(parentView, rect);
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		this.view.enabled_(connections.m.value[index].isNil);
+		this.view.enabled_(connectionsM.value[index].isNil);
 		action = { |tf|
 			conID = connector.index;
 			this.connector.setOscCmdName(tf.string);
 			if (tf.string.asSymbol !== '/path/to/cmd') {
 				if (tf.string.size > 0) {
-					mc.m.value[conID].learn = false;
+					displayM.value[conID].learn = false;
 					if (validOsc.matchRegexp(tf.string)) {
 						// "textfield string matching".postln;
-						mc.m.value[conID].connectState = ["connect", Color.white, Color.blue];
-						mc.m.value[conID].connectEnabled = true;
-						mc.m.value[conID].connectWarning = nil;
+						displayM.value[conID].connectState = ["connect", Color.white, Color.blue];
+						displayM.value[conID].connectEnabled = true;
+						displayM.value[conID].connectWarning = nil;
 					} {
 						// "textfield string not matching".postln;
-						mc.m.value[conID].connectState = ["connect", Color.white, Color.gray];
-						mc.m.value[conID].connectEnabled = false;
-						mc.m.value[conID].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
+						displayM.value[conID].connectState = ["connect", Color.white, Color.gray];
+						displayM.value[conID].connectEnabled = false;
+						displayM.value[conID].connectWarning = "The given OSC message is invalid: OSC messages must begin with a slash and must not contain spaces."
 					}
 				} {
-					mc.m.value[conID].learn = true;
-					mc.m.value[conID].connectState = ["learn", Color.yellow, Color.green(0.5)];
-					mc.m.value[conID].connectEnabled = true;
-					mc.m.value[conID].connectWarning = nil;
+					displayM.value[conID].learn = true;
+					displayM.value[conID].connectState = ["learn", Color.yellow, Color.green(0.5)];
+					displayM.value[conID].connectEnabled = true;
+					displayM.value[conID].connectWarning = nil;
 				};
-				mc.m.changedPerformKeys(widget.syncKeys, conID);
+				displayM.changedPerformKeys(widget.syncKeys, conID);
 			};
 		};
 		this.view.focusLostAction_(action);
@@ -69,15 +65,15 @@ OscCmdNameField : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
+		connector = connectors[connectorID];
 		// is this right?
-		mc.m.value[connectorID] !? {
-			this.view.string_(mc.m.value[connectorID].nameField)
+		displayM.value[connectorID] !? {
+			this.view.string_(displayM.value[connectorID].nameField)
 		};
-		this.view.enabled_(connections.m.value[connectorID].isNil)
+		this.view.enabled_(connectionsM.value[connectorID].isNil)
 	}
 
-	widget_ { |otherWidget|
+	widget_ { |otherWidget, slot|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -85,13 +81,13 @@ OscCmdNameField : ConnectorElementView {
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
+
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-		this.view.enabled_(connections.m.value[0].isNil);
+		this.prMCDistinct(\osc);
+		this.slot_(slot);
+		this.view.enabled_(connectionsM.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -99,21 +95,16 @@ OscCmdNameField : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		connections.c ?? {
-			connections.c = SimpleController(connections.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
-				if (tf.connector === conModel[conID]) {
-					// mc.m.value[conID].learn = "connect";
+				if (tf.connector === connectors[conID]) {
+					// displayM.value[conID].learn = "connect";
 					defer {
 						tf.view.string_(changer.value[conID].nameField);
 						tf.view.toolTip_(changer.value[conID].connectWarning);
@@ -121,23 +112,14 @@ OscCmdNameField : ConnectorElementView {
 				}
 			}
 		});
-		connections.c.put(syncKey, { |changer, what ... moreArgs|
+		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
-				if (tf.connector === conModel[conID]) {
+				if (tf.connector === connectors[conID]) {
 					defer { tf.view.enabled_(changer.value[conID].isNil) }
 				}
 			}
 		})
-	}
-
-	prCleanup {
-		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.c.removeAt(syncKey);
-			connections.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
 	}
 }
 
@@ -150,28 +132,24 @@ OscMsgIndexBox : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-
+		this.prMCDistinct(\osc);
 		this.view = NumberBox(parentView, rect)
 		.clipLo_(1).step_(1).scroll_step_(1)
 		.toolTip_("If OSC message conatains more than one value select message slot that shall be read");
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		this.view.enabled_(connections.m.value[index].isNil);
+		this.view.enabled_(connectionsM.value[index].isNil);
 		this.view.action_({ |nb|
 			this.connector.setOscMsgIndex(nb.value)
 		});
@@ -185,14 +163,14 @@ OscMsgIndexBox : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
-			this.view.value_(mc.m.value[connectorID].index)
+		connector = connectors[connectorID];
+		displayM.value[connectorID] !? {
+			this.view.value_(displayM.value[connectorID].index)
 		};
-		this.view.enabled_(connections.m.value[connectorID].isNil);
+		this.view.enabled_(connectionsM.value[connectorID].isNil);
 	}
 
-	widget_ { |otherWidget|
+	widget_ { |otherWidget, slot|
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
 		};
@@ -202,10 +180,9 @@ OscMsgIndexBox : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-		this.view.enabled_(connections.m.value[0].isNil);
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
+		this.view.enabled_(connectionsM.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -213,20 +190,15 @@ OscMsgIndexBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		connections.c ?? {
-			connections.c = SimpleController(connections.c)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer {
 						nb.view.clipHi_(changer.value[conID].numMsgSlots)
 						.value_(changer.value[conID].index)
@@ -234,23 +206,14 @@ OscMsgIndexBox : ConnectorElementView {
 				}
 			}
 		});
-		connections.c.put(syncKey, { |changer, what ... moreArgs|
+		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer { nb.view.enabled_(changer.value[conID].isNil )}
 				}
 			}
 		})
-	}
-
-	prCleanup {
-		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.c.removeAt(syncKey);
-			connections.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
 	}
 }
 
@@ -261,21 +224,18 @@ OscModeSelect : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = PopUpMenu(parentView, rect)
 		.items_(['absolute', 'endless']);
 		this.view.onClose_({ this.close });
@@ -293,25 +253,21 @@ OscModeSelect : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
-			this.view.value_(mc.m.value[connectorID].oscEndless)
-		};
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
+			this.view.value_(optionsM.value[connectorID].oscEndless)
+		}
 	}
 
 
-	widget_ { |otherWidget|
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -319,17 +275,15 @@ OscModeSelect : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscEndless) }
 				}
 			}
@@ -339,33 +293,28 @@ OscModeSelect : ConnectorElementView {
 
 OscMatchingCheckBox : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var connections;
 
 	*initClass {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-
+		this.prMCDistinct(\osc);
 		this.view = CheckBox(parentView, rect)
 		.toolTip_("Create \"matching\" OSCFunc");
 		this.view.onClose_({ this.close });
 		this.index_(index);
-		this.view.enabled_(connections.m.value[index].isNil);
+		this.view.enabled_(connectionsM.value[index].isNil);
 		this.view.action_({ |cb|
 			this.connector.setOscMatching(cb.value)
 		});
@@ -379,28 +328,22 @@ OscMatchingCheckBox : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.value_(connector.getOscMatching)
 		};
-		this.view.enabled_(connections.m.value[connectorID].isNil);
+		this.view.enabled_(connectionsM.value[connectorID].isNil);
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-		connections = widget.wmc.oscConnections;
-		this.view.enabled_(connections.m.value[0].isNil);
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
+		this.view.enabled_(connectionsM.value[0].isNil);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -408,41 +351,27 @@ OscMatchingCheckBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
-		connections.c ?? {
-			connections.c = SimpleController(connections.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscMatching) }
 				}
 			}
 		});
-		connections.c.put(syncKey, { |changer, what ... moreArgs|
+		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |cb|
-				if (cb.connector === conModel[conID]) {
+				if (cb.connector === connectors[conID]) {
 					defer { cb.view.enabled_(changer.value[conID].isNil )}
 				}
 			}
 		})
-	}
-
-	prCleanup {
-		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.c.removeAt(syncKey);
-			connections.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
 	}
 }
 
@@ -453,21 +382,18 @@ OscResolutionBox : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
 		this.index_(index);
@@ -484,25 +410,20 @@ OscResolutionBox : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.value_(connector.getOscResolution)
 		}
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -510,17 +431,15 @@ OscResolutionBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscResolution) }
 				}
 			}
@@ -535,21 +454,18 @@ OscSnapDistanceNumBox : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = NumberBox(parentView, rect).step_(0.1).scroll_step_(0.1).clipLo_(0.0).clipHi_(1.0);
 		this.view.onClose_({ this.close });
 		this.index_(index);
@@ -567,25 +483,20 @@ OscSnapDistanceNumBox : ConnectorElementView {
 
 	// set the view to the specified connector's model value
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.value_(connector.getOscSnapDistance)
 		}
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot;
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -593,17 +504,15 @@ OscSnapDistanceNumBox : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |nb|
-				if (nb.connector === conModel[conID]) {
+				if (nb.connector === connectors[conID]) {
 					defer { nb.view.value_(changer.value[conID].oscSnapDistance) }
 				}
 			}
@@ -619,25 +528,23 @@ OscConstrainterNumBox : ConnectorElementView {
 		all = ()
 	}
 
-	*new { |parent, widget, rect, connectorID=0, position|
+	*new { |parent, widget, rect, slot, connectorID(0), position|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID, position)
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID, position)
 	}
 
-	init { |parentView, wdgt, rect, index, pos|
-		widget = wdgt;
+	init { |parentView, rect, index, pos|
 		position = pos;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscDisplay;
 		cv = switch(position)
 		{ 0 } { widget.wmc.oscInputConstrainters[index].lo }
 		{ 1 } { widget.wmc.oscInputConstrainters[index].hi };
-		conModel = widget.oscConnectors;
 
+		this.prMCDistinct(\osc);
 		this.view = NumberBox(parentView, rect);
 		cv.connect(this.view);
 		this.view.onClose_({ this.close });
@@ -665,8 +572,8 @@ OscConstrainterNumBox : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			cv.disconnect(this.view);
 			cv = switch(position)
 			{ 0 } { widget.wmc.oscInputConstrainters[connectorID].lo }
@@ -675,19 +582,15 @@ OscConstrainterNumBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
+
 		cv.disconnect(this.view);
 		this.prCleanup;
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.index_(0);
 		cv = switch(position)
@@ -704,21 +607,18 @@ OscZeroCrossingText : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = StaticText(parentView, rect)
 		.string_(widget.getOscInputAlwaysPositive(index))
 		.minWidth_(30)
@@ -735,25 +635,20 @@ OscZeroCrossingText : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.string_(connector.getOscInputAlwaysPositive)
 		}
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscDisplay;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -761,17 +656,15 @@ OscZeroCrossingText : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |st|
-				if (st.connector === conModel[conID]) {
+				if (st.connector === connectors[conID]) {
 					defer { st.view.string_(changer.value[conID].alwaysPositive.round(0.01)) }
 				}
 			}
@@ -786,21 +679,18 @@ OscCalibrationButton : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = Button(parentView, rect)
 		.states_([
 			["calibrate", Color.white, Color.red],
@@ -821,13 +711,13 @@ OscCalibrationButton : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.value_(connector.getOscCalibration.asInteger)
 		}
 	}
 
-	widget_ { |otherWidget|
+	widget_ { |otherWidget, slot|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -838,8 +728,8 @@ OscCalibrationButton : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -847,17 +737,14 @@ OscCalibrationButton : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |bt|
-				if (bt.connector === conModel[conID]) {
+				if (bt.connector === connectors[conID]) {
 					defer { bt.view.value_(changer.value[conID].oscCalibration.asInteger) }
 				}
 			}
@@ -872,21 +759,18 @@ OscCalibrationResetButton : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
-		widget = wdgt;
+	init { |parentView, rect, index|
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
-
+		this.prMCDistinct(\osc);
 		this.view = Button(parentView, rect)
 		.states_([
 			["reset", Color.black, Color(0.9, 0.7, 0.14)]
@@ -906,25 +790,20 @@ OscCalibrationResetButton : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		mc.m.value[connectorID] !? {
+		connector = connectors[connectorID];
+		optionsM.value[connectorID] !? {
 			this.view.value_(connector.getOscCalibration.asInteger)
 		}
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
-		};
-
+	widget_ { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc.oscOptions;
-		conModel = widget.oscConnectors;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
 		this.index_(0);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.prAddController;
@@ -932,17 +811,15 @@ OscCalibrationResetButton : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mc.c ?? {
-			mc.c = SimpleController(mc.m)
-		};
+
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.c.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |bt|
-				if (bt.connector === conModel[conID]) {
+				if (bt.connector === connectors[conID]) {
 					defer { bt.view.value_(changer.value[conID].oscCalibration.asInteger) }
 				}
 			}
@@ -958,33 +835,31 @@ OscConnectButton : ConnectorElementView {
 		all = ();
 	}
 
-	*new { |parent, widget, rect, connectorID=0|
+	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
 			Error("arg 'widget' must be a kind of CVWidget").throw
 		};
-		^super.new.init(parent, widget, rect, connectorID);
+		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
 
-	init { |parentView, wdgt, rect, index|
+	init { |parentView, rect, index|
 		var defaultState;
 		var ip, port, addr, cmd, cmdIndex, matching, argTemplate, dispatcher;
 		var conID;
 
-		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		mc = widget.wmc;
-		conModel = widget.oscConnectors;
+		this.prMCDistinct(\osc);
 
 		case
-		{ mc.oscDisplay.m.value[index].nameField === '/path/to/cmd' or: {
-			validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString).not
+		{ displayM.value[index].nameField === '/path/to/cmd' or: {
+			validOsc.matchRegexp(displayM.value[index].nameField.asString).not
 		}} {
 			defaultState = ["learn", Color.white, Color.blue]
 		}
 		// check https://www.boost.org/doc/libs/1_69_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html
-		{ validOsc.matchRegexp(mc.oscDisplay.m.value[index].nameField.asString) } {
+		{ validOsc.matchRegexp(displayM.value[index].nameField.asString) } {
 			defaultState = ["connect", Color.black, Color.green]
 		};
 
@@ -993,16 +868,16 @@ OscConnectButton : ConnectorElementView {
 		this.index_(index);
 		this.view.states_([
 			defaultState,
-			[mc.oscDisplay.m.value[index].disconnect, Color.white, Color.red]
+			[displayM.value[index].disconnect, Color.white, Color.red]
 		]);
 
 		this.view.action_({ |bt|
 			conID = connector.index;
-			// "mc.oscConnections.m.value[%].isNil? %".format(conID, mc.oscConnections.m.value[conID].isNil).postln;
-			if (mc.oscConnections.m.value[conID].isNil) {
-				if (mc.oscDisplay.m.value[conID].ipField.notNil) {
-					ip = mc.oscDisplay.m.value[conID].ipField.asString;
-					port = mc.oscDisplay.m.value[conID].portField;
+			// "connectionsM.value[%].isNil? %".format(conID, connectionsM.value[conID].isNil).postln;
+			if (connectionsM.value[conID].isNil) {
+				if (displayM.value[conID].ipField.notNil) {
+					ip = displayM.value[conID].ipField.asString;
+					port = displayM.value[conID].portField;
 					addr = NetAddr(ip, port);
 				};
 				cmd = this.connector.getOscCmdName;
@@ -1010,7 +885,7 @@ OscConnectButton : ConnectorElementView {
 				matching = this.connector.getOscMatching;
 				argTemplate = this.connector.getOscTemplate;
 				dispatcher = this.connector.getOscDispatcher;
-				if (mc.oscDisplay.m.value[conID].learn) {
+				if (displayM.value[conID].learn) {
 					OSCFunc.cvWidgetLearn(widget, index: conID, matching: matching, port: NetAddr.langPort, argTemplate: argTemplate, dispatcher: dispatcher);
 				} {
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
@@ -1030,11 +905,11 @@ OscConnectButton : ConnectorElementView {
 	}
 
 	index_ { |connectorID|
-		connector = conModel[connectorID];
-		this.view.value_(mc.oscConnections.m.value[connectorID].notNil.asInteger);
+		connector = connectors[connectorID];
+		this.view.value_(connectionsM.value[connectorID].notNil.asInteger);
 	}
 
-	widget_ { |otherWidget|
+	widget_ { |otherWidget, slot|
 		var defaultState;
 
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
@@ -1047,9 +922,9 @@ OscConnectButton : ConnectorElementView {
 		this.prCleanup;
 		// switch after cleanup has finished
 		widget = otherWidget;
-		mc = widget.wmc;
-		conModel = widget.oscConnectors;
-		defaultState = mc.oscDisplay.m.value[0].connect0;
+		this.slot_(slot);
+		this.prMCDistinct(\osc);
+		defaultState = displayM.value[0].connect0;
 		this.index_(0);
 		this.prAddController;
 	}
@@ -1058,31 +933,22 @@ OscConnectButton : ConnectorElementView {
 		var pos, conID;
 		var cButFG, cButBG;
 
-		mc.oscOptions.c ?? {
-			mc.oscOptions.c = SimpleController(mc.oscOptions.m)
-		};
-		mc.oscDisplay.c ?? {
-			mc.oscDisplay.c = SimpleController(mc.oscDisplay.m)
-		};
-		mc.oscConnections.c ?? {
-			mc.oscConnections.c = SimpleController(mc.oscConnections.m)
-		};
 		syncKey = this.class.asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mc.oscOptions.c.put(syncKey, { |changer, what ... moreArgs|
+		// optionsC.put(syncKey, { |changer, what ... moreArgs|
+		// 	conID = moreArgs[0];
+		// 	all[widget].do { |bt, i|
+		// 		if (bt.connector === connectors[conID]) {
+		// 			// "oscOptions controller: % (connector ID: %)".format(changer.value[conID], conID).postln
+		// 		}
+		// 	}
+		// });
+		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |bt, i|
-				if (bt.connector === conModel[conID]) {
-					// "oscOptions controller: % (connector ID: %)".format(changer.value[conID], conID).postln
-				}
-			}
-		});
-		mc.oscDisplay.c.put(syncKey, { |changer, what ... moreArgs|
-			conID = moreArgs[0];
-			all[widget].do { |bt, i|
-				if (bt.connector === conModel[conID]) {
+				if (bt.connector === connectors[conID]) {
 					defer {
 						bt.view.states_([changer.value[conID].connectState]);
 						bt.view.enabled_(changer.value[conID].connectEnabled);
@@ -1091,38 +957,27 @@ OscConnectButton : ConnectorElementView {
 				}
 			}
 		});
-		mc.oscConnections.c.put(syncKey, { |changer, what ... moreArgs|
-			conID = moreArgs[0];
-			all[widget].do { |bt, i|
-				if (bt.connector === conModel[conID]) {
-					// switch (mc.oscDisplay.m.value[conID].connect)
-					// { "learn" } {
-					// 	cButFG = Color.white;
-					// 	cButBG = Color.blue;
-					// }
-					// { "connect" } {
-					// 	cButFG = Color.black;
-					// 	cButBG = Color.green;
-					// };
-					// defer { bt.value_(changer.value[conID].notNil.asInteger)
-					// 	.states_([
-					// 		[mc.oscDisplay.m.value[conID].connect, cButFG, cButBG],
-					// 		[mc.oscDisplay.m.value[conID].disconnect, Color.white, Color.red]
-					// 	])
-					// }
-				}
-			}
-		})
+		// connectionsC.put(syncKey, { |changer, what ... moreArgs|
+		// 	conID = moreArgs[0];
+		// 	all[widget].do { |bt, i|
+		// 		if (bt.connector === connectors[conID]) {
+		// 			// switch (displayM.value[conID].connect)
+		// 			// { "learn" } {
+		// 			// 	cButFG = Color.white;
+		// 			// 	cButBG = Color.blue;
+		// 			// }
+		// 			// { "connect" } {
+		// 			// 	cButFG = Color.black;
+		// 			// 	cButBG = Color.green;
+		// 			// };
+		// 			// defer { bt.value_(changer.value[conID].notNil.asInteger)
+		// 			// 	.states_([
+		// 			// 		[displayM.value[conID].connect, cButFG, cButBG],
+		// 			// 		[displayM.value[conID].disconnect, Color.white, Color.red]
+		// 			// 	])
+		// 			// }
+		// 		}
+		// 	}
+		// })
 	}
-
-prCleanup {
-		all[widget].remove(this);
-		if (all[widget].isEmpty) {
-			mc.oscOptions.c.removeAt(syncKey);
-			mc.oscDisplay.c.removeAt(syncKey);
-			mc.oscConnections.c.removeAt(syncKey);
-			widget.prRemoveSyncKey(syncKey, true);
-		}
-	}
-
 }

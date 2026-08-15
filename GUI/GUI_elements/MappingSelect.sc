@@ -40,33 +40,18 @@ MappingSelect : ConnectorElementView {
 
 		case
 		{ connectorKind === \midi } {
-			mc = widget.wmc.midiOptions;
-			conModel = widget.wmc.midiConnectors;
 			bgColor = Color(0.8, alpha: 0.3);
 			mappingType = \midiInputMapping;
 			mappingMethod = \setMidiInputMapping;
 		}
 		{ connectorKind === \osc } {
-			mc = widget.wmc.oscOptions;
-			conModel = widget.wmc.oscConnectors;
 			bgColor = Color(green: 0.8, blue: 0.5, alpha: 0.3);
 			mappingType = \oscInputMapping;
 			mappingMethod = \setOscInputMapping;
 		};
 
-		case
-		{ widget.class === CVWidgetKnob } {
-			mcM = mc.m;
-			mcC = mc.c;
-			conModel = conModel.m.value
-		}
-		{ widget.class === CVWidgetMS } {
-			mcM = mc.m[this.slot];
-			mcC = mc.c[this.slot];
-			conModel = conModel.m[this.slot].value
-		};
-
 		// the kind of connector must be known by now, so, index_ should already know
+		this.prMCDistinct(connectorKind);
 
 		if (parentView.isNil) {
 			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), Rect(0, 0, 300, 65))
@@ -77,11 +62,11 @@ MappingSelect : ConnectorElementView {
 		this.view = View(parentView);
 		this.background_(bgColor).minHeight_(80);
 
-		ramp = switch (mcM.value[index][mappingType].mapping)
-		{ \linenv } { mcM.value[index][mappingType].env }
-		{ \lincurve } { [\lincurve, mcM.value[index][mappingType].curve] }
-		{ \linbicurve } { [\linbicurve, mcM.value[index][mappingType].curve] }
-		{ mcM.value[index][mappingType].mapping };
+		ramp = switch (optionsM.value[index][mappingType].mapping)
+		{ \linenv } { optionsM.value[index][mappingType].env }
+		{ \lincurve } { [\lincurve, optionsM.value[index][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, optionsM.value[index][mappingType].curve] }
+		{ optionsM.value[index][mappingType].mapping };
 
 		e = ();
 		e.mplot = RampPlot(this.view, ramp: ramp).maxHeight_(25);
@@ -90,16 +75,16 @@ MappingSelect : ConnectorElementView {
 		]).minHeight_(25);
 		e.mcurve = NumberBox(this.view).clipHi_(12).clipLo_(-12).minHeight_(25);
 		e.menv = TextField(this.view).minHeight_(25)
-		.string_((mcM.value[index][mappingType].env ? defaultEnv).asCompileString);
+		.string_((optionsM.value[index][mappingType].env ? defaultEnv).asCompileString);
 
 		case
-		{ mcM.value[index][mappingType].mapping === \lincurve or: {
-			mcM.value[index][mappingType].mapping === \linbicurve
+		{ optionsM.value[index][mappingType].mapping === \lincurve or: {
+			optionsM.value[index][mappingType].mapping === \linbicurve
 		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mcM.value[index][mappingType].mapping === \linenv } {
+		{ optionsM.value[index][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -129,7 +114,7 @@ MappingSelect : ConnectorElementView {
 		this.onClose_({ this.close });
 
 		e.mselect.action_({ |sel|
-			i = conModel.indexOf(this.connector);
+			i = connectors.indexOf(this.connector);
 			env = if (e.menv.string.interpret.class == Env) {
 				e.menv.string.interpret
 			} { defaultEnv };
@@ -144,21 +129,21 @@ MappingSelect : ConnectorElementView {
 			{ this.connector.perform(mappingMethod, sel.items[sel.value], nil, nil) }
 		});
 		e.mcurve.action_({ |nb|
-			i = conModel.indexOf(this.connector);
+			i = connectors.indexOf(this.connector);
 			if (e.mselect.value == 4 or: { e.mselect.value == 5 }) {
-				mcM.value[i][mappingType].curve = nb.value;
-				mcM.changedPerformKeys(widget.syncKeys, i)
+				optionsM.value[i][mappingType].curve = nb.value;
+				optionsM.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		e.menv.action_({ |tf|
-			i = conModel.indexOf(this.connector);
+			i = connectors.indexOf(this.connector);
 			env = if (tf.string.interpret.class == Env) {
 				tf.string.interpret
 			} { defaultEnv };
 
 			if (e.mselect.value == 6) {
-				mcM.value[i][mappingType].env = env;
-				mcM.changedPerformKeys(widget.syncKeys, i)
+				optionsM.value[i][mappingType].env = env;
+				optionsM.changedPerformKeys(widget.syncKeys, i)
 			}
 		});
 		connectorRemovedFuncAdded ?? {
@@ -172,27 +157,27 @@ MappingSelect : ConnectorElementView {
 
 	index_ { |connectorID|
 		// "connectorID: %".format(connectorID).postln;
-		connector = conModel[connectorID];
-		// "mcM.value[%][%]: %".format(connectorID, mappingType, mcM.value[connectorID][mappingType]).postln;
-		mcM.value[connectorID] !? {
-			e.mselect.value_(e.mselect.items.indexOf(mcM.value[connectorID][mappingType].mapping));
-			e.mcurve.value_(mcM.value[connectorID][mappingType].curve ? 0);
-			e.menv.string_((mcM.value[connectorID][mappingType].env ? defaultEnv).asCompileString);
+		connector = connectors[connectorID];
+		// "optionsM.value[%][%]: %".format(connectorID, mappingType, optionsM.value[connectorID][mappingType]).postln;
+		optionsM.value[connectorID] !? {
+			e.mselect.value_(e.mselect.items.indexOf(optionsM.value[connectorID][mappingType].mapping));
+			e.mcurve.value_(optionsM.value[connectorID][mappingType].curve ? 0);
+			e.menv.string_((optionsM.value[connectorID][mappingType].env ? defaultEnv).asCompileString);
 			case
-			{ mcM.value[connectorID][mappingType].mapping === \lincurve or: {
-				mcM.value[connectorID][mappingType].mapping === \linbicurve
+			{ optionsM.value[connectorID][mappingType].mapping === \lincurve or: {
+				optionsM.value[connectorID][mappingType].mapping === \linbicurve
 			}} {
-				e.mplot.draw([mcM.value[connectorID][mappingType].mapping, mcM.value[connectorID][mappingType].curve]);
+				e.mplot.draw([optionsM.value[connectorID][mappingType].mapping, optionsM.value[connectorID][mappingType].curve]);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(true);
 			}
-			{ mcM.value[connectorID][mappingType].mapping === \linenv } {
-				e.mplot.draw(mcM.value[connectorID][mappingType].env);
+			{ optionsM.value[connectorID][mappingType].mapping === \linenv } {
+				e.mplot.draw(optionsM.value[connectorID][mappingType].env);
 				e.menv.enabled_(true);
 				e.mcurve.enabled_(false);
 			}
 			{
-				e.mplot.draw(mcM.value[connectorID][mappingType].mapping);
+				e.mplot.draw(optionsM.value[connectorID][mappingType].mapping);
 				e.menv.enabled_(false);
 				e.mcurve.enabled_(false);
 			}
@@ -217,45 +202,30 @@ MappingSelect : ConnectorElementView {
 		// switch after cleanup has finished
 		widget = otherWidget;
 		this.slot_(slot);
+		this.prMCDistinct(connectorKind);
 
 		case
 		{ connectorKind === \midi } {
-			mc = widget.wmc.midiOptions;
-			conModel = widget.midiConnectors;
 			mappingType = \midiInputMapping;
 		}
 		{ connectorKind === \osc } {
-			mc = widget.wmc.oscOptions;
-			conModel = widget.wmc.oscConnectors;
 			mappingType = \oscInputMapping;
 		};
 
-		case
-		{ widget.class === CVWidgetKnob } {
-			mcM = mc.m;
-			mcC = mc.c;
-			conModel = conModel.m.value
-		}
-		{ widget.class === CVWidgetMS } {
-			mcM = mc.m[this.slot];
-			mcC = mc.c[this.slot];
-			conModel = conModel.m[this.slot].value
-		};
-
-		ramp = switch (mcM.value[0][mappingType].mapping)
-		{ \linenv } { mcM.value[0][mappingType].env }
-		{ \lincurve } { [\lincurve, mcM.value[0][mappingType].curve] }
-		{ \linbicurve } { [\linbicurve, mcM.value[0][mappingType].curve] }
-		{ mcM.value[0][mappingType].mapping };
+		ramp = switch (optionsM.value[0][mappingType].mapping)
+		{ \linenv } { optionsM.value[0][mappingType].env }
+		{ \lincurve } { [\lincurve, optionsM.value[0][mappingType].curve] }
+		{ \linbicurve } { [\linbicurve, optionsM.value[0][mappingType].curve] }
+		{ optionsM.value[0][mappingType].mapping };
 
 		case
-		{ mcM.value[0][mappingType].mapping === \lincurve or: {
-			mcM.value[0][mappingType].mapping === \linbicurve
+		{ optionsM.value[0][mappingType].mapping === \lincurve or: {
+			optionsM.value[0][mappingType].mapping === \linbicurve
 		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ mcM.value[0][mappingType].mapping === \linenv } {
+		{ optionsM.value[0][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -271,15 +241,15 @@ MappingSelect : ConnectorElementView {
 
 	prAddController {
 		var conID;
-		mcC ?? { mcC = SimpleController(mcM) };
+
 		syncKey = (connectorKind ++ this.class.asString).asSymbol;
 		widget.syncKeys.indexOf(syncKey) ?? {
 			widget.prAddSyncKey(syncKey, true)
 		};
-		mcC.put(syncKey, { |changer, what ... moreArgs|
+		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget][connectorKind].do { |ms, i|
-				if (ms.connector === conModel[conID]) {
+				if (ms.connector === connectors[conID]) {
 					{
 						ms.e.mselect.value_(e.mselect.items.indexOf(changer.value[conID][mappingType].mapping));
 						case
@@ -327,7 +297,7 @@ MappingSelect : ConnectorElementView {
 		all[widget][connectorKind].remove(this);
 		try {
 			if (all[widget][connectorKind].notNil and: { all[widget][connectorKind].isEmpty }) {
-				mcC.removeAt(syncKey);
+				this.prRemoveControllers;
 				widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
 			}
