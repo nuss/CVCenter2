@@ -93,7 +93,7 @@ MidiLearnButton : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		var defaultState;
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
@@ -211,7 +211,7 @@ MidiSrcSelect : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -335,7 +335,7 @@ MidiChanField : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -419,7 +419,7 @@ MidiCtrlField : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -496,7 +496,7 @@ MidiModeSelect : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -569,7 +569,7 @@ MidiZeroNumberBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -644,7 +644,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -717,7 +717,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -792,7 +792,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -875,7 +875,7 @@ MidiInitButton : ConnectorElementView {
 
 	index_ {}
 
-	widget_ {}
+	setWidget {}
 
 	prAddController {
 		wmc.midiInitialized.c ?? {

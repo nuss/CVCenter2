@@ -73,7 +73,7 @@ OscCmdNameField : ConnectorElementView {
 		this.view.enabled_(connectionsM.value[connectorID].isNil)
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -170,7 +170,7 @@ OscMsgIndexBox : ConnectorElementView {
 		this.view.enabled_(connectionsM.value[connectorID].isNil);
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
 		};
@@ -260,7 +260,7 @@ OscModeSelect : ConnectorElementView {
 	}
 
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -335,7 +335,7 @@ OscMatchingCheckBox : ConnectorElementView {
 		this.view.enabled_(connectionsM.value[connectorID].isNil);
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -416,7 +416,7 @@ OscResolutionBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -489,7 +489,7 @@ OscSnapDistanceNumBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -582,7 +582,7 @@ OscConstrainterNumBox : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 
@@ -641,7 +641,7 @@ OscZeroCrossingText : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -717,7 +717,7 @@ OscCalibrationButton : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -796,7 +796,7 @@ OscCalibrationResetButton : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -909,7 +909,7 @@ OscConnectButton : ConnectorElementView {
 		this.view.value_(connectionsM.value[connectorID].notNil.asInteger);
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		var defaultState;
 
 		// FIXME: check for CVWidget2D slot (once it's implemented...)

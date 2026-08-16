@@ -9,12 +9,19 @@ MidiConnectorMS : AbstractConnector {
 	}
 
 	*new { |widget, name, slot|
-		if (widget.isNil or: {
-			widget.isKindOf(CVWidget).not
-		}) {
-			Error("An OscConnector can only be created for an existing CVWidget").throw;
+		if (widget.class === Symbol or: { widget.isString }) {
+			widget = CVWidget.all[widget.asSymbol]
 		};
-		^super.newCopyArgs(widget, slot).init(name);
+		if (widget.isNil or: {
+			widget.class !== CVWidgetMS
+		}) {
+			Error("An MidiConnectorMS can only be created for an existing CVWidgetMS").throw;
+		};
+		if (slot.isNil or: { slot.isNumber.not }) {
+			"Please provide a numeric slot for a new MidiConnectorMS!".error;
+			^nil
+		};
+		^super.newCopyArgs(widget, slot.asInteger).init(name);
 	}
 
 	*onConnectorRemove_ { |func|
@@ -22,15 +29,15 @@ MidiConnectorMS : AbstractConnector {
 	}
 
 	init { |name|
-		this.widget.numOscConnectors[this.slot] = this.widget.numOscConnectors[this.slot] + 1;
+		this.widget.numMidiConnectors[this.slot] = this.widget.numMidiConnectors[this.slot] + 1;
 		name ?? {
-			name = "MIDI Connection %".format(this.widget.numOscConnectors[this.slot]).asSymbol;
+			name = "MIDI Connection %".format(this.widget.numMidiConnectors[this.slot]).asSymbol;
 		};
 
 		this.initModels(this.widget.wmc, name);
 
-		this.widget.wmc.oscConnectors.m[this.slot].value_(
-			this.widget.wmc.oscConnectors.m[this.slot].value.add(this)
+		this.widget.wmc.midiConnectors.m[this.slot].value_(
+			this.widget.wmc.midiConnectors.m[this.slot].value.add(this)
 		).changedPerformKeys(this.widget.syncKeys);
 	}
 
@@ -63,7 +70,7 @@ MidiConnectorMS : AbstractConnector {
 			midiInputMapping: CVWidget.inputMapping
 		));
 
-		wmc.midiDisplay ?? { wmc.mididDisplay = () };
+		wmc.midiDisplay ?? { wmc.midiDisplay = () };
 		wmc.midiDisplay.m ?? {
 			wmc.midiDisplay.m = List.newClear(size)
 		};
@@ -171,14 +178,14 @@ MidiConnectorMS : AbstractConnector {
 		mc.midiConnectorNames.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	setOscOption { |option, value|
+	setMidiOption { |option, value|
 		var index = this.index;
 		var mc = this.widget.wmc;
 		mc.midiOptions.m[this.slot].value[index][option] = value;
 		mc.midiOptions.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 	}
 
-	getOscOption { |option|
+	getMidiOption { |option|
 		var index = this.index;
 		^this.widget.wmc.midiOptions.m[this.slot].value[index][option]
 	}

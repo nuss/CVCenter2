@@ -26,24 +26,6 @@ OscSelectsComboView : ConnectorElementView {
 
 		wmc = CVWidget.wmc;
 		osc = wmc.oscAddrAndCmds;
-		// oscDisplay = widget.wmc.oscDisplay;
-		// conModel = widget.wmc.oscConnectors;
-		//
-		// case
-		// { widget.class === CVWidgetKnob } {
-		// 	displayM = oscDisplay.m;
-		// 	displayC = oscDisplay.c;
-		// 	conModel = conModel.m;
-		// 	connectionsM = connections.m;
-		// 	connectionsC = connections.c;
-		// }
-		// { widget.class === CVWidgetMS } {
-		// 	displayM = oscDisplay.m[this.slot];
-		// 	displayC = oscDisplay.c[this.slot];
-		// 	conModel = conModel.m[this.slot];
-		// 	connectionsM = connections.m[this.slot];
-		// 	connectionsC = connections.c[this.slot];
-		// };
 		this.prMCDistinct(\osc);
 
 		if (parentView.isNil) {
@@ -52,7 +34,7 @@ OscSelectsComboView : ConnectorElementView {
 			parent = parentView;
 		};
 
-		this.view = View(parentView);
+		this.view = View(parent);
 		this.background_(Color.gray(0.7)).minHeight_(80);
 
 		e = ();
@@ -209,7 +191,7 @@ OscSelectsComboView : ConnectorElementView {
 		this.enabled_(connectionsM.value[connectorID].isNil)
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 

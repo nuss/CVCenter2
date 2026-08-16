@@ -86,15 +86,6 @@ CVWidgetKnob : CVWidget {
 		^wmc.oscConnectors.m.value
 	}
 
-	// initControllers { |wmc|
-	// 	#[
-	// 		prInitSpecControl,
-	// 		prInitActionsControl
-	// 	].do { |method|
-	// 		this.perform(method, wmc, cv)
-	// 	}
-	// }
-
 	// the CV's ControlSpec
 	setSpec { |spec|
 		if ((spec = spec.asSpec).isKindOf(ControlSpec).not) {
@@ -104,11 +95,11 @@ CVWidgetKnob : CVWidget {
 	}
 
 	midiDialog { |connector(0), parent|
-		^MidiConnectorsEditorView(this, connector, parent).front;
+		^MidiConnectorsEditorView(parent, widget: this, connector: connector).front;
 	}
 
 	oscDialog { |connector(0), parent|
-		^OscConnectorsEditorView(this, connector, parent).front;
+		^OscConnectorsEditorView(parent, widget: this, connector: connector).front;
 	}
 
 	// MIDI

@@ -172,7 +172,7 @@ ConnectorNameField : ConnectorElementView {
 	}
 
 	// setWidget { |otherWidget, slot|
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -293,7 +293,7 @@ ConnectorSelect : ConnectorElementView {
 		this.view.value_(connectorID);
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -412,7 +412,7 @@ ConnectorRemoveButton : ConnectorElementView {
 		connector = connectors[connectorID];
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -478,7 +478,7 @@ ControlSpecText : ConnectorElementView {
 
 	index_ {}
 
-	widget_ { |otherWidget|
+	setWidget { |otherWidget|
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -577,7 +577,7 @@ TemplateTextField : ConnectorElementView {
 		.editable_(connectionsM.value[connectorID].isNil);
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -815,7 +815,7 @@ PlayPauseButton : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]

@@ -1,7 +1,7 @@
-OscConnectorsEditorView : CompositeView {
+OscConnectorsEditorView : SCViewHolder {
 	classvar <all;
-	var <widget, <parent, <cIndex;
-	var <connector;
+	var <widget, <slot, <parent, <cIndex;
+	var <connector, connectors;
 	// GUI elements
 	var <e;
 
@@ -9,63 +9,82 @@ OscConnectorsEditorView : CompositeView {
 		all = ();
 	}
 
-	*new { |widget, connectorID(0), parent|
-		^super.new.init(widget, connectorID, parent.asView);
+	*new { |parent, rect(Rect(0, 0, 300, 600)), widget, slot, connector(0)|
+		^super.newCopyArgs(widget: widget, slot: slot).init(connector, parent, rect);
 	}
 
-	init { |wdgt, index, parentView|
+	init { |index, parentView, rect|
 		var o;
 
-		if (wdgt.oscConnectors.isEmpty) {
-			OscConnector(wdgt)
+		connectors = switch (widget.class)
+		{ CVWidgetKnob } {
+			widget.wmc.oscConnectors.m.value
+		}
+		{ CVWidgetMS } {
+			widget.wmc.oscConnectors.m[this.slot].value
 		};
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = wdgt.oscConnectors.detect { |c| c.name == index }
+			index = connectors.detect { |c| c.name == index }
 		};
 		if (index.class == OscConnector) {
-			index = wdgt.oscConnectors.indexOf(index)
+			index = connectors.indexOf(index)
 		};
+		// fallback if index out of bounds
+		if (index.isNil or: { index > connectors.lastIndex }) { index = 0 };
 
-		e = ();
-
-		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: OSC connections".format(widget.name), Rect(0, 0, 300, 600))
-		} { parent = parentView };
-
-		if (widget.wmc.oscConnectors.m.value.isEmpty) {
-			OscConnector(widget)
+			parent = switch (widget.class)
+			{ CVWidgetKnob } {
+				Window("%: OSC connections".format(widget.name), rect)
+			}
+			{ CVWidgetMS } {
+				Window("%[%]: OSC connections".format(widget.name, this.slot), rect)
+			};
+			this.view = parent.view;
+		} {
+			parent = parentView;
+			this.view = View(parent, rect);
 		};
 
-		// fallback if index out of bounds
-		if (index.isNil or: { index > wdgt.oscConnectors.lastIndex }) { index = 0 };
+		parent.onClose_({ this.close });
 
-		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \osc);
-		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \osc);
-		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, connectorID: index);
-		e.oscCmdTextField = OscCmdNameField(parent, widget, connectorID: index);
-		e.oscMsgIndexNumBox = OscMsgIndexBox(parent, widget, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
-		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, connectorID: index);
-		e.oscModeSelect = OscModeSelect(parent, widget, connectorID: index);
-		e.oscResolutionNumBox = OscResolutionBox(parent, widget, connectorID: index);
-		e.oscSnapDistanceNumBox = OscSnapDistanceNumBox(parent, widget, connectorID: index);
-		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 0);
-		e.inputConstraintsHiNumBox = OscConstrainterNumBox(parent, widget, connectorID: index, position: 1);
-		e.zeroCrossCorrectStaticText = OscZeroCrossingText(parent, widget, connectorID: index);
-		e.calibrationButton = OscCalibrationButton(parent, widget, connectorID: index);
-		e.resetButton = OscCalibrationResetButton(parent, widget, connectorID: index);
+		if (connectors.isEmpty) {
+			switch (widget.class)
+			{ CVWidgetKnob } {
+				OscConnector(widget)
+			}
+			{ CVWidgetMS } {
+				OscConnectorMS(widget, slot: this.slot)
+			}
+		};
+
+		e = ();
+		e.connectorNameField = ConnectorNameField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
+		e.connectorSelect = ConnectorSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
+		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscCmdTextField = OscCmdNameField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscMsgIndexNumBox = OscMsgIndexBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
+		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscModeSelect = OscModeSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscResolutionNumBox = OscResolutionBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscSnapDistanceNumBox = OscSnapDistanceNumBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.inputConstraintsLoNumBox = OscConstrainterNumBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, position: 0);
+		e.inputConstraintsHiNumBox = OscConstrainterNumBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, position: 1);
+		e.zeroCrossCorrectStaticText = OscZeroCrossingText(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.calibrationButton = OscCalibrationButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.resetButton = OscCalibrationResetButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
 		e.specStaticText = ControlSpecText(parent, widget);
-		e.inOutMappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \osc);
-		e.connectorButton = OscConnectButton(parent, widget, connectorID: index);
-		e.oscPlayPauseButton = PlayPauseButton(parent, widget, connectorID: index, connectorKind: \osc);
-		e.removeConnectorButton = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \osc);
+		e.inOutMappingSelect = MappingSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
+		e.connectorButton = OscConnectButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.oscPlayPauseButton = PlayPauseButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
+		e.removeConnectorButton = ConnectorRemoveButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
 
-		parent.layout_(
+		this.view.layout_(
 			VLayout(
 				HLayout(
 					[e.connectorNameField, stretch: 9],
@@ -127,8 +146,8 @@ OscConnectorsEditorView : CompositeView {
 
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.size - 1)) {
-				o = widget.addOscConnector;
-				e.connectorSelect.view.value_(widget.wmc.oscConnectors.m.value.indexOf(o));
+				o = widget.addOscConnector(slot: this.slot);
+				e.connectorSelect.view.value_(connectors.indexOf(o));
 			};
 
 			if (sel.value < (sel.items.size - 1)) {
@@ -137,11 +156,12 @@ OscConnectorsEditorView : CompositeView {
 		})
 	}
 
+	// connector can be a numeric index or a connector object
 	set { |connector|
 		if (connector.isInteger) {
-			connector = widget.wmc.oscConnectors.m.value[connector]
+			connector = connectors[connector]
 		};
-		cIndex = widget.wmc.oscConnectors.m.value.indexOf(connector);
+		cIndex = connectors.indexOf(connector);
 		e.do(_.index_(cIndex));
 	}
 
@@ -149,20 +169,31 @@ OscConnectorsEditorView : CompositeView {
 		parent.front;
 	}
 
-	widget_ { |otherWidget|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+	setWidget { |otherWidget, slot|
+		if (widget.class === CVWidgetMS and: { slot.isNil }) {
+			Error("Setting an OscConnectorsEditorView for a CVWidgetMS requires a numeric slot.").throw;\
 		};
-
 		all[widget].remove(this);
 		widget = otherWidget;
-		connector = widget.oscConnectors[0];
+		connectors = switch (widget.class)
+		{ CVWidgetKnob } {
+			widget.wmc.oscConnectors.m.value
+		}
+		{ CVWidgetMS } {
+			widget.wmc.oscConnectors.m[this.slot].value
+		};
+		connector = connectors[0];
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
-		e.do(_.widget_(widget));
+		e.do(_.setWidget(widget, slot));
 		if (parent.class === Window) {
-			parent.name_("%: OSC connections".format(widget.name))
+			switch (widget.class)
+			{ CVWidgetKnob } {
+				parent.name_("%: OSC connections".format(widget.name))
+			}
+			{ CVWidgetMS } {
+				parent.name_("%[%]: OSC connections".format(widget.name, slot))
+			}
 		}
 	}
 
@@ -186,10 +217,10 @@ OscConnectorsEditorView : CompositeView {
 	}
 }
 
-MidiConnectorsEditorView : CompositeView {
+MidiConnectorsEditorView : SCViewHolder {
 	classvar <all;
-	var <widget, <parent, <index;
-	var <connector;
+	var <widget, <slot, <parent, <index;
+	var <connector, connectors, connections;
 	// GUI elements
 	var <e;
 
@@ -197,56 +228,81 @@ MidiConnectorsEditorView : CompositeView {
 		all = ();
 	}
 
-	*new { |widget, connector(0), parent|
-		^super.new.init(widget, connector, parent.asView);
+	*new { |parent, rect(Rect(0, 0, 300, 440)), widget, slot, connector(0)|
+		^super.newCopyArgs(widget: widget, slot: slot).init(connector, parent, rect);
 	}
 
-	init { |wdgt, index, parentView|
+	init { |index, parentView, rect|
 		var m;
 
-		if (wdgt.midiConnectors.isEmpty) {
-			MidiConnector(wdgt)
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			connectors = widget.wmc.midiConnectors.m.value;
+			connections = widget.wmc.midiConnections.m.value;
+		}
+		{ CVWidgetMS } {
+			connectors = widget.wmc.midiConnectors.m[this.slot].value;
+			connections = widget.wmc.midiConnections.m[this.slot].value;
 		};
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = wdgt.midiConnectors.detect { |c| c.name == index }
+			index = connectors.detect { |c| c.name == index }
 		};
 		if (index.class == MidiConnector) {
-			index = wdgt.midiConnectors.indexOf(index)
+			index = connectors.indexOf(index)
 		};
-		// after all, if index is nil or greater the set it to 0
-		if (index.isNil or: { index > wdgt.midiConnectors.lastIndex }) { index = 0 };
+		// after all, if index is nil or greater than the last index of widget.midiConnectors set it to 0
+		if (index.isNil or: { index > connectors.lastIndex }) { index = 0 };
 
-		widget = wdgt;
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
 		if (parentView.isNil) {
-			parent = Window("%: MIDI connections".format(widget.name), Rect(0, 0, 300, 440))
-		} { parent = parentView };
+			parent = switch (widget.class)
+			{ CVWidgetKnob } {
+				Window("%: MIDI connections".format(widget.name), rect)
+			}
+			{ CVWidgetMS } {
+				Window("%[%]: MIDI connections".format(widget.name, this.slot), rect)
+			};
+			this.view = parent.view;
+		} {
+			parent = parentView;
+			this.view = View(parent, rect);
+		};
 
 		parent.onClose_({ this.close });
 
+		if (connectors.isEmpty) {
+			switch (widget.class)
+			{ CVWidgetKnob } {
+				MidiConnector(widget)
+			}
+			{ CVWidgetMS } {
+				MidiConnector(widget, slot: this.slot)
+			}
+		};
+
 		e = ();
-		e.connectorNameField = ConnectorNameField(parent, widget, connectorID: index, connectorKind: \midi);
-		e.connectorSelect = ConnectorSelect(parent, widget, connectorID: index, connectorKind: \midi);
-		e.midiModeSelect = MidiModeSelect(parent, widget, connectorID: index);
-		e.midiZeroBox = MidiZeroNumberBox(parent, widget, connectorID: index);
-		e.snapDistanceBox = SnapDistanceNumberBox(parent, widget, connectorID: index);
-		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, connectorID: index);
-		e.slidersPerGroupNB = SlidersPerGroupNumberBox(parent, widget, connectorID: index);
-		e.midiLearnButton = MidiLearnButton(parent, widget, connectorID: index);
-		e.midiPlayPauseButton = PlayPauseButton(parent, widget, connectorID: index, connectorKind: \midi);
-		e.midiSrcSelect = MidiSrcSelect(parent, widget, connectorID: index);
-		e.midiChanTF = MidiChanField(parent, widget, connectorID: index);
-		e.midiNumTF = MidiCtrlField(parent, widget, connectorID: index);
-		e.mappingSelect = MappingSelect(parent, widget, connectorID: index, connectorKind: \midi);
+		e.connectorNameField = ConnectorNameField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \midi);
+		e.connectorSelect = ConnectorSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \midi);
+		e.midiModeSelect = MidiModeSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiZeroBox = MidiZeroNumberBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.snapDistanceBox = SnapDistanceNumberBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiResolutionBox = MidiResolutionNumberBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.slidersPerGroupNB = SlidersPerGroupNumberBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiLearnButton = MidiLearnButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiPlayPauseButton = PlayPauseButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \midi);
+		e.midiSrcSelect = MidiSrcSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiChanTF = MidiChanField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.midiNumTF = MidiCtrlField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
+		e.mappingSelect = MappingSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \midi);
 		e.specStaticText = ControlSpecText(parent, widget);
 		e.midiInit = MidiInitButton(parent);
-		e.midiConnectorRemove = ConnectorRemoveButton(parent, widget, connectorID: index, connectorKind: \midi);
+		e.midiConnectorRemove = ConnectorRemoveButton(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \midi);
 
-		parent.layout_(
+		this.view.layout_(
 			VLayout(
 				HLayout(
 					[e.connectorNameField, stretch: 9],
@@ -294,7 +350,7 @@ MidiConnectorsEditorView : CompositeView {
 
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.size - 1)) {
-				m = widget.addMidiConnector;
+				m = widget.addMidiConnector(slot: this.slot);
 				e.connectorSelect.view.value_(widget.midiConnectors.indexOf(m));
 			};
 
@@ -302,7 +358,7 @@ MidiConnectorsEditorView : CompositeView {
 				e.do(_.index_(sel.value));
 				// enable or disable selects for MIDI source, channel and ctrl number based on connection status
 				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
-					elem.view.enabled_(widget.wmc.midiConnections.m.value[sel.value].isNil)
+					elem.view.enabled_(connections[sel.value].isNil)
 				}
 			}
 		})
@@ -312,12 +368,12 @@ MidiConnectorsEditorView : CompositeView {
 		if (connector.isInteger) {
 			index = connector
 		} {
-			index = widget.midiConnectors.indexOf(connector)
+			index = connectors.indexOf(connector)
 		};
 		e.do(_.index_(index));
 	}
 
-	widget_ { |otherWidget|
+	setWidget { |otherWidget, slot|
 		// FIXME: check for CVWidget2D slot (once it's implemented...)
 		if (otherWidget.class !== CVWidgetKnob) {
 			Error("Widget must be a CVWidgetKnob").throw
@@ -325,12 +381,28 @@ MidiConnectorsEditorView : CompositeView {
 
 		all[widget].remove(this);
 		widget = otherWidget;
-		connector = widget.midiConnectors[0];
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			connectors = widget.wmc.midiConnectors.m.value;
+			connections = widget.wmc.midiConnections.m.value;
+		}
+		{ CVWidgetMS } {
+			connectors = widget.wmc.midiConnectors.m[this.slot].value;
+			connections = widget.wmc.midiConnections.m[this.slot].value;
+		};
+		connector = connections[0];
+		index = 0;
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
-		e.do(_.widget_(widget));
+		e.do(_.setWidget(widget));
 		if (parent.class === Window) {
-			parent.name_("%: MIDI connections".format(widget.name))
+			switch (widget.class)
+			{ CVWidgetKnob } {
+				parent.name_("%: MIDI connections".format(widget.name))
+			}
+			{ CVWidgetMS } {
+				parent.name_("%[%]: MIDI connections".format(widget.name, slot))
+			}
 		}
 	}
 

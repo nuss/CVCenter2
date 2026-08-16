@@ -13,6 +13,9 @@ MidiConnector : AbstractConnector {
 	}
 
 	*new { |widget, name|
+		if (widget.class === Symbol or: { widget.isString }) {
+			widget = CVWidget.all[widget.asSymbol]
+		};
 		if (widget.isNil or: {
 			widget.isKindOf(CVWidget).not
 		}) {

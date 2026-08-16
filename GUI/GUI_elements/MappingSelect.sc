@@ -25,7 +25,7 @@ MappingSelect : ConnectorElementView {
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID, layout);
 	}
 
-	init { |parentView, rect, index, layout|
+	init { |parentView, rect(Rect(0, 0, 300, 65)), index, layout|
 		var parent, row, i;
 		var ramp, env;
 		var mappingMethod;
@@ -54,12 +54,12 @@ MappingSelect : ConnectorElementView {
 		this.prMCDistinct(connectorKind);
 
 		if (parentView.isNil) {
-			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), Rect(0, 0, 300, 65))
+			parent = Window("%: % mappings".format(widget.name, connectorKind.asString.toUpper), rect)
 		} {
 			parent = parentView;
 		};
 
-		this.view = View(parentView);
+		this.view = View(parent);
 		this.background_(bgColor).minHeight_(80);
 
 		ramp = switch (optionsM.value[index][mappingType].mapping)
@@ -184,7 +184,7 @@ MappingSelect : ConnectorElementView {
 		}
 	}
 
-	widget_ { |otherWidget, slot|
+	setWidget { |otherWidget, slot|
 		var ramp;
 
 		// FIXME: check for CVWidget2D slot (once it's implemented...)

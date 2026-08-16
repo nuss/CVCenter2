@@ -9,12 +9,19 @@ OscConnectorMS : AbstractConnector {
 	}
 
 	*new { |widget, name, slot|
-		if (widget.isNil or: {
-			widget.isKindOf(CVWidget).not
-		}) {
-			Error("An OscConnector can only be created for an existing CVWidget").throw;
+		if (widget.class === Symbol or: { widget.isString }) {
+			widget = CVWidget.all[widget.asSymbol]
 		};
-		^super.newCopyArgs(widget, slot).init(name);
+		if (widget.isNil or: {
+			widget.class !== CVWidgetMS
+		}) {
+			Error("An OscConnectorMS can only be created for an existing CVWidget").throw;
+		};
+		if (slot.isNil or: { slot.isNumber.not }) {
+			"Please provide a numeric slot for a new OscConnectorMS!".error;
+			^nil
+		};
+		^super.newCopyArgs(widget, slot.asInteger).init(name);
 	}
 
 	*onConnectorRemove_ { |func|
