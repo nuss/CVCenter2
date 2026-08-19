@@ -287,12 +287,13 @@ CVWidgetKnob : CVWidget {
 		};
 		connector = this.getMidiConnector(connector);
 		// pass execution to connector
-		connector.midiConnect(src, chan, num, argTemplate, dispatcher);
+		connector.midiConnect(num, chan, src, argTemplate, dispatcher);
 	}
 
 	midiDisconnect { |connector|
 		connector ?? {
-			Error("No connector given. Don't know which connector to disconnect.").throw;
+			"CVWidgetMS:-midiDisconnect: No connector given. Don't know which connector to disconnect.".error;
+			^nil
 		};
 		connector = this.getMidiConnector(connector);
 		// pass execution to connector

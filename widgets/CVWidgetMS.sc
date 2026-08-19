@@ -138,15 +138,15 @@ CVWidgetMS : CVWidget {
 	// MIDI
 	getMidiConnector { |connector, slot|
 		case
-		{ connector.isNumber and: { slot.notNil }} {
-			"getMidiConnector: connector.isNumber and: { slot.notNil }".postln;
-			^this.midiConnectors[slot][connector.asInteger]
+		{ connector.isNumber and: { slot.isNumber }} {
+			"getMidiConnector: connector.isNumber and: { slot.isNumber }".postln;
+			^this.midiConnectors[slot.asInteger][connector.asInteger]
 		}
 		{ connector.isNumber and: { slot.isNil }} {
 			"getMidiConnector: connector.isNumber and: { slot.isNil }".postln;
 			^this.midiConnectors.collect(_[connector.asInteger])
 		}
-		{ connector.isNil and: { slot.notNil }} {
+		{ connector.isNil and: { slot.isNumber }} {
 			"getMidiConnector: connector.isNil and: { slot.notNil }".postln;
 			^this.midiConnectors[slot]
 		}
@@ -186,7 +186,7 @@ CVWidgetMS : CVWidget {
 	}
 
 	prMidiCasePerformGet { |connector, slot, selector|
-		[connector, slot].postln;
+		// [connector, slot].postln;
 		case
 		{ connector.isNil and: { slot.isNil }} {
 			// "connector.isNil and: { slot.isNil }".postln;
@@ -227,25 +227,6 @@ CVWidgetMS : CVWidget {
 		} {
 			connector = this.getMidiConnector(connector, slot);
 			this.prMidiCasePerformArgsSet(connector, slot, \setMidiMode, mode: mode);
-			// case
-			// { connector.isNil and: { slot.isNil }} {
-			// 	this.midiConnectors.do { |cons| cons.do(_.setMidiMode(mode)) }
-			// }
-			// // if connector is given as a numeric index and no connector
-			// // at that index exists *all* connectors in the given slot
-			// // will be updated as providing a non existing connector is
-			// // the same as providing no connector at all
-			// { connector.isNil and: { slot.notNil }} {
-			// 	this.midiConnectors[slot].do(_.setMidiMode(mode))
-			// }
-			// { connector.notNil and: { slot.isNil }} {
-			// 	this.midiConnectors.do(_.do { |con, i|
-			// 		if (connector[i] === con) { con.setMidiMode(mode) }
-			// 	})
-			// }
-			// { connector.notNil and: { slot.notNil }} {
-			// 	connector.setMidiMode(mode)
-			// }
 		}
 	}
 
@@ -257,24 +238,6 @@ CVWidgetMS : CVWidget {
 		} {
 			connector = this.getMidiConnector(connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiMode);
-			// case
-			// { connector.isNil and: { slot.isNil }} {
-			// 	^this.midiConnectors.collect(_.collect(_.getMidiMode))
-			// }
-			// { connector.isNil and: { slot.notNil }} {
-			// 	^this.midiConnectors[slot].collect(_.getMidiMode)
-			// }
-			// { connector.notNil and: { slot.isNil }} {
-			// 	connector.postln;
-			// 	^this.midiConnectors.collect { |sl, i|
-			// 		sl.select { |con|
-			// 			con === connector[i]
-			// 		}.collect(_.getMidiMode).unbubble
-			// 	}
-			// }
-			// { connector.notNil and: { slot.notNil }} {
-			// 	^connector[slot].getMidiMode
-			// }
 		}
 	}
 
@@ -454,331 +417,80 @@ CVWidgetMS : CVWidget {
 		}
 	}
 
-	midiConnect { |connector, src, chan, num, argTemplate, dispatcher|
-		// create new annonymous connector if none is given
-		connector ?? {
-			if (this.midiConnectors.size == 1 and: {
-				wmc.midiConnections.m.value[0].isNil
-			}) {
-				connector = this.midiConnectors[0]
-			} {
-				connector = MidiConnector(this)
+	midiConnect { |connector, slot, src, chan, num, argTemplate, dispatcher|
+		if (connector.class === MidiConnectorMS and: { connector.widget === this }) {
+			connector.midiConnect(num, chan, src, argTemplate, dispatcher)
+		} {
+			case
+			{ connector.class === MidiConnectorMS } {
+				Error("CVWidgetMS:-midiConnect: The given % doesn't belong to %! Cannot connect.".form(connector, this)).throw
 			}
-		};
-		connector = this.getMidiConnector(connector);
-		// pass execution to connector
-		connector.midiConnect(src, chan, num, argTemplate, dispatcher);
-	}
-
-	midiDisconnect { |connector|
-		connector ?? {
-			Error("No connector given. Don't know which connector to disconnect.").throw;
-		};
-		connector = this.getMidiConnector(connector);
-		// pass execution to connector
-		connector.midiDisconnect
-	}
-
-	// OSC
-	getOscConnector { |connector|
-		if (connector.isInteger) {
-			^this.oscConnectors[connector]
-		};
-		^connector
-	}
-
-	setOscEndless { |boolEndless, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscEndless(boolEndless))
-		} {
-			connector.setOscEndless(boolEndless)
-		}
-	}
-
-	getOscEndless { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscEndless);
-		} {
-			^connector.getOscEndless;
-		}
-	}
-
-	setOscResolution { |resolution, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscResolution(resolution))
-		} {
-			connector.setOscResolution(resolution)
-		}
-	}
-
-	getOscResolution { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscResolution);
-		} {
-			^connector.getOscResolution;
-		}
-	}
-
-	setOscSnapDistance { |distance, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscSnapDistance(distance))
-		} {
-			connector.setOscSnapDistance(distance)
-		}
-	}
-
-	getOscSnapDistance { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscSnapDistance);
-		} {
-			^connector.getOscSnapDistance;
-		}
-	}
-
-	setOscCalibration { |boolCalibration, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscCalibration(boolCalibration))
-		} {
-			connector.setOscCalibration(boolCalibration)
-		}
-	}
-
-	getOscCalibration { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscCalibration)
-		} {
-			^connector.getOscCalibration;
-		}
-	}
-
-	resetOscCalibration { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.resetOscCalibration)
-		} {
-			connector.resetOscCalibration
-		}
-	}
-
-	setOscInputMapping { |mapping, curve, env, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscInputMapping(mapping, curve, env))
-		} {
-			connector.setOscInputMapping(mapping, curve, env)
-		}
-	}
-
-	getOscInputMapping { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscInputMapping);
-		} {
-			^connector.getOscInputMapping;
-		}
-	}
-
-	setOscInputConstraints { |constraintsPair, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscInputConstraints(constraintsPair))
-		} {
-			connector.setOscInputConstraints(constraintsPair)
-		}
-	}
-
-	getOscInputConstraints { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscInputConstraints);
-		} {
-			^connector.getOscInputConstraints;
-		}
-	}
-
-	setOscMatching { |boolMatching, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscMatching(boolMatching))
-		} {
-			connector.setOscMatching(boolMatching)
-		}
-	}
-
-	getOscMatching { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscMatching);
-		} {
-			^connector.getOscMatching;
-		}
-	}
-
-	setOscInputAlwaysPositive { |value, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscInputAlwaysPositive(value))
-		} {
-			connector.setOscInputAlwaysPositive(value)
-		}
-	}
-
-	getOscInputAlwaysPositive { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscInputAlwaysPositive);
-		} {
-			^connector.getOscInputAlwaysPositive;
-		}
-	}
-
-	setOscCmdName { |cmdPath, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscCmdName(cmdPath))
-		} {
-			connector.setOscCmdName(cmdPath)
-		}
-	}
-
-	getOscCmdName { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscCmdName);
-		} {
-			^connector.getOscCmdName;
-		}
-	}
-
-	setOscMsgIndex { |msgIndex, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscMsgIndex(msgIndex))
-		} {
-			connector.setOscMsgIndex(msgIndex)
-		}
-	}
-
-	getOscMsgIndex { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscMsgIndex);
-		} {
-			^connector.getOscMsgIndex;
-		}
-	}
-
-	setOscTemplate { |argTemplate, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscTemplate(argTemplate))
-		} {
-			connector.setOscTemplate(argTemplate)
-		}
-	}
-
-	getOscTemplate { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscTemplate)
-		} {
-			^connector.getOscTemplate
-		}
-	}
-
-	setOscDispatcher { |dispatcher, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOscDispatcher(dispatcher))
-		} {
-			connector.setOscDispatcher(dispatcher)
-		}
-	}
-
-	getOscDispatcher { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOscDispatcher)
-		} {
-			^connector.getOscDispatcher
-		}
-	}
-
-	setOSCFuncEnabled { |boolEnabled, connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			this.oscConnectors.do(_.setOSCFuncEnabled(boolEnabled))
-		} {
-			connector.setOSCFuncEnabled(boolEnabled)
-		}
-	}
-
-	getOSCFuncEnabled { |connector|
-		connector = this.getOscConnector(connector);
-		if (connector.isNil) {
-			^this.oscConnectors.collect(_.getOSCFuncEnabled)
-		} {
-			^connector.getOSCFuncEnabled
-		}
-	}
-
-	oscConnect { |connector, addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
-		// create new annonymous connector if none is given
-		connector ?? {
-			if (this.oscConnectors.size == 1 and: {
-				wmc.oscConnections.m.value[0].isNil
-			}) {
-				connector = this.oscConnectors[0]
-			} {
-				connector = OscConnector(this)
+			{ connector.isNil and: { slot.isNil }} {
+				"You have to either provide a valid MidiConnectorMS or a numeric slot to establish a MIDI connection in CVWidgetMS:-midiConnect".error;
+				^this
 			}
-		};
-		connector = this.getOscConnector(connector);
-		// pass execution to connector
-		connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
-	}
-
-	oscDisconnect { |connector|
-		connector ?? {
-			Error("No connector given. Don't know which connector to disconnect.").throw;
-		};
-		connector = this.getOscConnector(connector);
-		// pass execution to connector
-		connector.oscDisconnect
-	}
-
-	// connections handling
-	addOscConnector { |name, slot|
-		if (slot < this.size) {
-			name !? { name = name.asSymbol };
-			^OscConnectorMS(this, name, slot);
-		} {
-			"Can't add a MidiConnectorMS to a non-existing slot.".error;
-			^nil
+			{ slot.notNil } {
+				if (slot.isNumber.not or: { slot >= this.size }) {
+					"CVWidgetMS:-midiConnect: The given slot is invalied - must be numeric and smaller than the size of %: %.".format(this, this.size).error;
+					^this
+				} {
+					slot = slot.asInteger;
+					if (connector.isNil) {
+						if (this.midiConnectors[slot].size == 1 and: {
+							wmc.midiConnections.m[slot].value[0].isNil
+						}) {
+							connector = this.midiConnectors[slot][0]
+						} {
+							connector = MidiConnectorMS(this, slot: slot)
+						}
+					} {
+						if (connector.isNumber) {
+							if (this.wmc.midiConnections.m[slot].value[connector.asInteger].notNil) {
+								"CVWidgetMS:-midiConnect: Connector % at slot % is already connected. Cannot connect".format(connector.asInteger, slot).error;
+								^this
+							}
+						} {
+							connector = this.getMidiConnector(connector, slot)
+						}
+					};
+					connector.midiConnect(num, chan, src, argTemplate, dispatcher);
+				}
+			}
 		}
 	}
 
-	removeOscConnector { |connector, slot, forceAll = false|
-		if (connector.isInteger) {
-			connector = this.midiConnectors[slot][connector]
-		};
-		connector.remove(forceAll);
+	midiDisconnect { |connector, slot|
+		case
+		{ connector.class === MidiConnectorMS and: {
+			connector.widget === this
+		}} {
+			connector.midiDisconnect
+		}
+		{ connector.isNil and: { slot.isNumber }} {
+			if (slot >= this.size) {
+				"CVWidgetMS:-oscDisconnect: A slot must be given as an integer smaller than the widget's size: %".format(this.size).error
+			} {
+				this.midiConnectors[slot.asInteger].do(_.midiDisconnect)
+			}
+		}
+		{ connector.isNumber and: {slot.isNil }} {
+			this.getMidiConnector(connector.asInteger).do(_.midiDisconnect)
+		}
+		{ connector.isNil and: { slot.isNil }} {
+			this.midiConnectors.collect(_.asArray).flat.do(_.midiDisconnect)
+		}
 	}
 
 	addMidiConnector { |name, slot|
+		slot ?? {
+			"CVWidgetMS:-addMidiConnector: No slot given, cannot add MidiConnector".error;
+			^nil
+		};
 		if (slot < this.size) {
 			name !? { name = name.asSymbol };
-			^MidiConnectorMS(this, name, slot);
+			^MidiConnectorMS(this, name, slot.asInteger);
 		} {
-			"Can't add a OscConnectorMS to a non-existing slot.".error;
+			"Can't add a MidiConnectorMS to a non-existing slot.".error;
 			^nil
 		}
 	}
@@ -790,6 +502,476 @@ CVWidgetMS : CVWidget {
 		connector.remove(forceAll);
 	}
 
+	// OSC
+	getOscConnector { |connector, slot|
+		case
+		{ connector.isNumber and: { slot.isNumber }} {
+			"getOscConnector: connector.isNumber and: { slot.isNumber }".postln;
+			^this.oscConnector[slot.asInteger][connector.asInteger]
+		}
+		{ connector.isNumber and: { slot.isNil }} {
+			"getOscConnector: connector.isNumber and: { slot.isNil }".postln;
+			^this.oscConnector.collect(_[connector.asInteger])
+		}
+		{ connector.isNil and: { slot.isNumber }} {
+			"getOscConnector: connector.isNil and: { slot.notNil }".postln;
+			^this.oscConnector[slot]
+		}
+		{ connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}} {
+			^connector
+		};
+		^nil
+	}
+
+	prOscCasePerformArgsSet { |connector, slot, selector ... args, kwargs|
+		case
+		{ connector.isNil and: { slot.isNil }} {
+			// "connector.isNil and: { slot.isNil }".postln;
+			this.oscConnectors.do { |cons| cons.do(_.performArgs(selector, [], kwargs)) }
+		}
+		// if connector is given as a numeric index and no connector
+		// at that index exists *all* connectors in the given slot
+		// will be updated as providing a non existing connector is
+		// the same as providing no connector at all
+		{ connector.isNil and: { slot.notNil }} {
+			// "connector.isNil and: { slot.notNil }".postln;
+			this.oscConnectors[slot].do(_.performArgs(selector, [], kwargs))
+		}
+		{ connector.notNil and: { slot.isNil }} {
+			// "connector.notNil and: { slot.isNil }".postln;
+			this.oscConnectors.do(_.do { |con, i|
+				if (connector[i] === con) { con.performArgs(selector, [], kwargs) }
+			})
+		}
+		{ connector.notNil and: { slot.notNil }} {
+			// "connector.notNil and: { slot.notNil }".postln;
+			// "connector: %".format(connector).postln;
+			connector.do(_.performArgs(selector, [], kwargs))
+		}
+	}
+
+	prOscCasePerformGet { |connector, slot, selector|
+		// [connector, slot].postln;
+		case
+		{ connector.isNil and: { slot.isNil }} {
+			// "connector.isNil and: { slot.isNil }".postln;
+			^this.oscConnectors.collect { |cons, i| cons.collect(_.perform(selector, i)) }
+		}
+		// even if argument 'connector' has not been given, getMidiConnector should construct
+		// the connector as long as a (vaild) slot has been given and a the call to
+		// prMidiCasePerformGet should never end here
+		{ connector.isNil and: { slot.notNil }} {
+			// "connector.isNil and: { slot.notNil }".postln;
+			// ^this.oscConnectors[slot].select(_.notNil).collect(_.perform(selector, slot))
+			^nil
+		}
+		{ connector.notNil and: { slot.isNil }} {
+			connector.postln;
+			^this.oscConnectors.collect { |sl, i|
+				sl.select { |con|
+					con === connector[i]
+				}.collect(_.perform(selector, i)).unbubble
+			}
+		}
+		{ connector.notNil and: { slot.notNil }} {
+			// "connector.notNil and: { slot.notNil }".postln;
+			// "connector: %".format(connector).postln;
+			if (connector.class === OscConnectorMS) {
+				^connector.perform(selector, slot)
+			} {
+				^connector.collect(_.perform(selector, slot))
+			}
+		}
+	}
+
+	setOscEndless { |boolEndless, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscEndless(boolEndless)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscEndless, boolEndless: boolEndless);
+		}
+	}
+
+	getOscEndless { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscEndless
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscEndless);
+		}
+	}
+
+	setOscResolution { |resolution, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscResolution(resolution)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscResolution, resolution: resolution);
+		}
+	}
+
+	getOscResolution { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscResolution
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscResolution);
+		}
+	}
+
+	setOscSnapDistance { |distance, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscSnapDistance(distance)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscSnapDistance, distance: distance);
+		}
+	}
+
+	getOscSnapDistance { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscSnapDistance
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscSnapDistance);
+		}
+	}
+
+	setOscCalibration { |boolCalibration, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscCalibration(boolCalibration)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscCalibration, boolCalibration: boolCalibration);
+		}
+	}
+
+	getOscCalibration { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscCalibration
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscCalibration);
+		}
+	}
+
+	resetOscCalibration { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.resetOscCalibration
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \resetOscCalibration);
+		}
+	}
+
+	setOscInputMapping { |mapping, curve, env, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscInputMapping(mapping, curve, env)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscInputMapping, mapping: mapping, curve: curve, env: env);
+		}
+	}
+
+	getOscInputMapping { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscInputMapping
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscInputMapping);
+		}
+	}
+
+	setOscInputConstraints { |constraintsPair, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscInputConstraints(constraintsPair)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscInputConstraints, constraintsPair: constraintsPair);
+		}
+	}
+
+	getOscInputConstraints { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscInputConstraints
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscInputConstraints);
+		}
+	}
+
+	setOscMatching { |boolMatching, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscMatching(boolMatching)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscMatching, boolMatching: boolMatching);
+		}
+	}
+
+	getOscMatching { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscMatching
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscMatching);
+		}
+	}
+
+	setOscInputAlwaysPositive { |value, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscInputAlwaysPositive(value)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscInputAlwaysPositive, value: value);
+		}
+	}
+
+	getOscInputAlwaysPositive { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscInputAlwaysPositive
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscInputAlwaysPositive);
+		}
+	}
+
+	setOscCmdName { |cmdPath, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscCmdName(cmdPath)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscCmdName, cmdPath: cmdPath);
+		}
+	}
+
+	getOscCmdName { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscCmdName
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscCmdName);
+		}
+	}
+
+	setOscMsgIndex { |msgIndex, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscMsgIndex(msgIndex)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscMsgIndex, msgIndex: msgIndex);
+		}
+	}
+
+	getOscMsgIndex { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscMsgIndex
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscMsgIndex);
+		}
+	}
+
+	setOscTemplate { |argTemplate, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscTemplate(argTemplate)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscTemplate, msgIndex: argTemplate);
+		}
+	}
+
+	getOscTemplate { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscTemplate
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscTemplate);
+		}
+	}
+
+	setOscDispatcher { |dispatcher, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOscDispatcher(dispatcher)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOscDispatcher, dispatcher: dispatcher);
+		}
+	}
+
+	getOscDispatcher { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOscDispatcher
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOscDispatcher);
+		}
+	}
+
+	setOSCFuncEnabled { |boolEnabled, connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			connector.setOSCFuncEnabled(boolEnabled)
+		} {
+			connector = this.getOscConnector(connector, slot);
+			this.prOscCasePerformArgsSet(connector, slot, \setOSCFuncEnabled, boolEnabled: boolEnabled);
+		}
+	}
+
+	getOSCFuncEnabled { |connector, slot|
+		if (connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}) {
+			^connector.getOSCFuncEnabled
+		} {
+			connector = this.getOscConnector(connector, slot);
+			^this.prOscCasePerformGet(connector, slot, \getOSCFuncEnabled);
+		}
+	}
+
+	oscConnect { |connector, slot, addr, cmdPath, oscMsgIndex(1), recvPort, argTemplate, dispatcher, matching(false)|
+		if (connector.class === OscConnectorMS and: { connector.widget === this }) {
+			connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching)
+		} {
+			case
+			{ connector.class === OscConnectorMS } {
+				Error("CVWidgetMS:-oscConnect: The given % doesn't belong to %! Cannot connect.".form(connector, this)).throw
+			}
+			{ connector.isNil and: { slot.isNil }} {
+				"You have to either provide a valid OscConnectorMS or a numeric slot to establish a OSC connection in CVWidgetMS:-oscConnect".error;
+				^this
+			}
+			{ slot.notNil } {
+				if (slot.isNumber.not or: { slot >= this.size }) {
+					"CVWidgetMS:-oscConnect: The given slot is invalied - must be numeric and smaller than the size of %: %.".format(this, this.size).error;
+					^this
+				} {
+					slot = slot.asInteger;
+					if (connector.isNil) {
+						if (this.oscConnectors[slot].size == 1 and: {
+							wmc.oscConnections.m[slot].value[0].isNil
+						}) {
+							connector = this.oscConnectors[slot][0]
+						} {
+							connector = OscConnectorMS(this, slot: slot)
+						}
+					} {
+						if (connector.isNumber) {
+							if (this.wmc.oscConnections.m[slot].value[connector.asInteger].notNil) {
+								"CVWidgetMS:-oscConnect: Connector % at slot % is already connected. Cannot connect".format(connector.asInteger, slot).error;
+								^this
+							}
+						} {
+							connector = this.getOscConnector(connector, slot)
+						}
+					};
+					connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
+				}
+			}
+		}
+
+	}
+
+	oscDisconnect { |connector, slot|
+		case
+		{ connector.class === OscConnectorMS and: {
+			connector.widget === this
+		}} {
+			connector.oscDisconnect
+		}
+		{ connector.isNil and: { slot.isNumber }} {
+			if (slot >= this.size) {
+				"CVWidgetMS:-oscDisconnect: A slot must be given as an integer smaller than the widget's size: %".format(this.size).error
+			} {
+				this.oscConnectors[slot.asInteger].do(_.oscDisconnect)
+			}
+		}
+		{ connector.isNumber and: {slot.isNil }} {
+			this.getOscConnector(connector.asInteger).do(_.oscDisconnect)
+		}
+		{ connector.isNil and: { slot.isNil }} {
+			this.oscConnectors.collect(_.asArray).flat.do(_.oscDisconnect)
+		}
+	}
+
+	// connections handling
+	addOscConnector { |name, slot|
+		slot ?? {
+			"CVWidgetMS:-addConnector: No slot given, cannot add MidiConnector".error;
+			^nil
+		};
+		if (slot < this.size) {
+			name !? { name = name.asSymbol };
+			^OscConnectorMS(this, name, slot.asInteger);
+		} {
+			"Can't add a OscConnectorMS to a non-existing slot.".error;
+			^nil
+		}
+	}
+
+	removeOscConnector { |connector, slot, forceAll = false|
+		if (connector.isInteger) {
+			connector = this.oscConnectors[slot][connector]
+		};
+		connector.remove(forceAll);
+	}
+
+	// widget specific
+	// TODO
 	remove {
 		this.midiConnectors.reverse.do(_.remove(true));
 		this.oscConnectors.reverse.do(_.remove(true));

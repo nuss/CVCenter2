@@ -29,6 +29,7 @@ CVWidget {
 		this.inputMapping_((mapping: \linlin));
 
 		// all CVWidgets
+		// TODO: all should be separated into 'proto' -> widgets that shouldn't be removed, 'and 'user' -> widgets created by users
 		#all, wmc = ()!2;
 		syncKeysEvent ?? {
 			syncKeysEvent = (proto: List[\default], user: List[])
