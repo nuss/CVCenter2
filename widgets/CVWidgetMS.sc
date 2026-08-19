@@ -507,15 +507,15 @@ CVWidgetMS : CVWidget {
 		case
 		{ connector.isNumber and: { slot.isNumber }} {
 			"getOscConnector: connector.isNumber and: { slot.isNumber }".postln;
-			^this.oscConnector[slot.asInteger][connector.asInteger]
+			^this.oscConnectors[slot.asInteger][connector.asInteger]
 		}
 		{ connector.isNumber and: { slot.isNil }} {
 			"getOscConnector: connector.isNumber and: { slot.isNil }".postln;
-			^this.oscConnector.collect(_[connector.asInteger])
+			^this.oscConnectors.collect(_[connector.asInteger])
 		}
 		{ connector.isNil and: { slot.isNumber }} {
 			"getOscConnector: connector.isNil and: { slot.notNil }".postln;
-			^this.oscConnector[slot]
+			^this.oscConnectors[slot]
 		}
 		{ connector.class === OscConnectorMS and: {
 			connector.widget === this

@@ -190,7 +190,7 @@ MidiConnectorMS : AbstractConnector {
 		^this.widget.wmc.midiOptions.m[this.slot].value[index][option]
 	}
 
-	setMidiInputMapping { |mapping, curve = 0, env(Env([0, 1], [1]))|
+	setMidiInputMapping { |mapping, curve(0), env(Env([0, 1], [1]))|
 		var index = this.index;
 		var mc = this.widget.wmc;
 		mapping = mapping.asSymbol;
