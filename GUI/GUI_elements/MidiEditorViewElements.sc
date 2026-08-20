@@ -41,7 +41,7 @@ MidiLearnButton : ConnectorElementView {
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_({ |bt|
-			conID = connector.index;
+			conID = this.connector.index;
 			displayM.value[conID].learn = bt.states[bt.value][0];
 			displayM.changedPerformKeys(widget.syncKeys, conID);
 			if (displayM.value[conID].learn == "X") {
@@ -359,7 +359,7 @@ MidiChanField : ConnectorElementView {
 		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
-				if (tf.connector === connector[conID]) {
+				if (tf.connector === connectors[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].chan);
 						tf.view.enabled_(connectionsM.value[conID].isNil);

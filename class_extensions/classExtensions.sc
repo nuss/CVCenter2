@@ -87,7 +87,7 @@
 
 +OSCFunc {
 	// usage in a CVWidget context only
-	*cvWidgetLearn { |widget, slot, index, matching=false, port, argTemplate, dispatcher|
+	*cvWidgetLearn { |widget, slot, index, matching(false), port, argTemplate, dispatcher|
 		var learnFunc, connector;
 		var oscConnectors, connectionsModel, displayModel;
 
@@ -122,16 +122,17 @@
 		OscConnector.accum[widget] = widget.cv.input;
 		learnFunc = { |msg, time, addr, recvPort|
 			if (matching) {
-				connectionsModel.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) }, dispatcher ?? { widget.getOscDispatcher(index) });
+				connectionsModel.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index, slot)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index, slot) }, dispatcher ?? { widget.getOscDispatcher(index, slot) });
 				"New matching OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
-					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
+					index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
 				).inform
 			} {
-				connectionsModel.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index) });
+				connectionsModel.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index, slot)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index, slot) });
 				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
-					index, msg[0], widget.getOscMsgIndex(index), addr.ip, addr.port, port ? recvPort
+					index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
 				).inform
 			};
+			"connectionsModel.value[%]: %".format(index, connectionsModel.value[index]).postln;
 			connectionsModel.changedPerformKeys(widget.syncKeys, index);
 			displayModel.value[index].nameField = msg[0];
 			// displayModel.value[index].connectorButVal = 1;
@@ -174,7 +175,7 @@
 
 +MIDIFunc {
 	// will only work in a CVWidget context
-	learnSync { |widget, slot, index, learnVal=false|
+	learnSync { |widget, slot, index, learnVal = false|
 		var learnFunc;
 		learnFunc = this.learnFuncSync(widget, slot, index, learnVal);
 		this.disable;

@@ -262,7 +262,7 @@ OscConnector : AbstractConnector {
 			};
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
 			// "mc.oscConnections.m.value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
-			mc.oscConnections.m.value[index].srcID !? {
+			mc.oscConnections.m.value[index] !? {
 				mc.oscDisplay.m.value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
 				mc.oscDisplay.m.value[index].portField = mc.oscConnections.m.value[index].srcID.port;
 			};

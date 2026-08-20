@@ -269,14 +269,14 @@ OscConnectorMS : AbstractConnector {
 		} { ^true }
 	}
 
-	oscConnect { |addr, cmdPath, oscMsgIndex = 1, recvPort, argTemplate, dispatcher, matching = false|
+	oscConnect { |addr, cmdPath, oscMsgIndex(1), recvPort, argTemplate, dispatcher, matching(false)|
 		var index = this.index;
 		var mc = this.widget.wmc;
 		if (addr.notNil and: { addr.class !== NetAddr }) {
 			"addr is not a valid NetAddr".error;
 			^nil
 		};
-		mc.oscConnections.m[this.slot].value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
+		mc.oscConnections.m[this.slot].value[index] = this.prOSCFunc(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching).postln;
 		mc.oscConnections.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 		addr !? {
 			if (addr.ip != "0.0.0.0" and: { CVWidget.wmc.oscAddrAndCmds.m.value[addr.ip.asSymbol].isNil }) {
@@ -290,15 +290,14 @@ OscConnectorMS : AbstractConnector {
 				}
 			};
 			CVWidget.wmc.oscAddrAndCmds.m.changedPerformKeys(CVWidget.syncKeys);
-			// "mc.oscConnections.m[this.slot].value[%]: %".format(index, mc.oscConnections.m.value[index]).postln;
-			mc.oscConnections.m[this.slot].value[index].srcID !? {
-				mc.oscDisplay.m[this.slot].value[index].ipField = mc.oscConnections.m.value[index].srcID.ip.asSymbol;
-				mc.oscDisplay.m[this.slot].value[index].portField = mc.oscConnections.m.value[index].srcID.port;
+			mc.oscConnections.m[this.slot].value[index] !? {
+				mc.oscDisplay.m[this.slot].value[index].ipField = mc.oscConnections.m[this.slot].value[index].srcID.ip.asSymbol;
+				mc.oscDisplay.m[this.slot].value[index].portField = mc.oscConnections.m[this.slot].value[index].srcID.port;
 			};
 		};
-		mc.oscDisplay.m[this.slot].value[index].nameField = mc.oscConnections.m.value[index].path;
-		mc.oscDisplay.m[this.slot].value[index].template = mc.oscConnections.m.value[index].argTemplate.cs;
-		mc.oscDisplay.m[this.slot].value[index].dispatcher = mc.oscConnections.m.value[index].dispatcher;
+		mc.oscDisplay.m[this.slot].value[index].nameField = mc.oscConnections.m[this.slot].value[index].path;
+		mc.oscDisplay.m[this.slot].value[index].template = mc.oscConnections.m[this.slot].value[index].argTemplate.cs;
+		mc.oscDisplay.m[this.slot].value[index].dispatcher = mc.oscConnections.m[this.slot].value[index].dispatcher;
 		mc.oscDisplay.m[this.slot].value[index].connectState = ["disconnect", Color.white, Color.red];
 		// mc.oscDisplay.m[this.slot].value[index].connectorButVal = 1;
 		// mc.oscDisplay.m[this.slot].value[index].connect = "disconnect";
@@ -514,7 +513,7 @@ OscConnectorMS : AbstractConnector {
 		^if (m) {
 			^OSCFunc.newMatching(this.prOSCFuncAction(mid), c, a, r, t)
 		} {
-			^OSCFunc(this.prOSCFuncAction(mid), c, a, r, t, d)
+			^OSCFunc(this.prOSCFuncAction(mid), c, a, r, t, d).postln
 		}
 	}
 

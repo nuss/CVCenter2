@@ -125,7 +125,7 @@ MidiConnectorMS : AbstractConnector {
 		};
 		mc.midiOptions.c[this.slot] = SimpleController(mc.midiOptions.m[this.slot]);
 		mc.midiOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// var index = mc.midiConnectors.m.value.indexOf(this);
+			// var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
 			// do something...
 		})
 	}
@@ -147,7 +147,7 @@ MidiConnectorMS : AbstractConnector {
 		mc.midiDisplay.c[this.slot] = SimpleController(mc.midiDisplay.m[this.slot]);
 		mc.midiDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
 			// "midiDisplay.c.triggered".postln;
-			// 	var index = mc.midiConnectors.m.value.indexOf(this);
+			// 	var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
 			// 	// "midiDisplay.c - changer.value: %, moreArgs: %".format(changer.value, index).postln;
 			// 	// ...
 		})
@@ -200,7 +200,7 @@ MidiConnectorMS : AbstractConnector {
 		};
 		// special care needs to be taken to NOT set CVWidget.inputMapping
 		// not working, would set CVWidget.inputMapping too:
-		// mc..midiOptions.m.value[index].midiInputMapping.mapping = mapping;
+		// mc.midiOptions.m[this.slot].value[index].midiInputMapping.mapping = mapping;
 		mc.midiOptions.m[this.slot].value[index].midiInputMapping_((mapping: mapping));
 		case
 		{ mapping === \lincurve or: { mapping === \linbicurve }} {
@@ -244,26 +244,26 @@ MidiConnectorMS : AbstractConnector {
 	midiConnect { |num, chan, srcID, argTemplate, dispatcher|
 		var index = this.index;
 		var mc = this.widget.wmc;
-		mc.midiConnections.m.value[index] = this.prMIDIFunc(index, num, chan, srcID, argTemplate, dispatcher);
-		mc.midiConnections.m.changedPerformKeys(this.widget.syncKeys, index);
-		mc.midiDisplay.m.value[index].learn = "X";
-		mc.midiDisplay.m.value[index].toolTip = "Click to disconnect";
-		mc.midiConnections.m.value[index].srcID !? {
-			mc.midiDisplay.m.value[index].src = mc.midiConnections.m.value[index].srcID
+		mc.midiConnections.m[this.slot].value[index] = this.prMIDIFunc(index, num, chan, srcID, argTemplate, dispatcher);
+		mc.midiConnections.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
+		mc.midiDisplay.m[this.slot].value[index].learn = "X";
+		mc.midiDisplay.m[this.slot].value[index].toolTip = "Click to disconnect";
+		mc.midiConnections.m[this.slot].value[index].srcID !? {
+			mc.midiDisplay.m[this.slot].value[index].src = mc.midiConnections.m[this.slot].value[index].srcID
 		};
-		mc.midiConnections.m.value[index].chan !? {
-			mc.midiDisplay.m.value[index].chan = mc.midiConnections.m.value[index].chan
+		mc.midiConnections.m[this.slot].value[index].chan !? {
+			mc.midiDisplay.m[this.slot].value[index].chan = mc.midiConnections.m[this.slot].value[index].chan
 		};
-		mc.midiConnections.m.value[index].msgNum !? {
-			mc.midiDisplay.m.value[index].ctrl = mc.midiConnections.m.value[index].msgNum
+		mc.midiConnections.m[this.slot].value[index].msgNum !? {
+			mc.midiDisplay.m[this.slot].value[index].ctrl = mc.midiConnections.m[this.slot].value[index].msgNum
 		};
-		mc.midiConnections.m.value[index].argTemplate !? {
-			mc.midiDisplay.m.value[index].template = mc.midiConnections.m.value[index].argTemplate.cs
+		mc.midiConnections.m[this.slot].value[index].argTemplate !? {
+			mc.midiDisplay.m[this.slot].value[index].template = mc.midiConnections.m[this.slot].value[index].argTemplate.cs
 		};
-		mc.midiConnections.m.value[index].dispatcher !? {
-			mc.midiDisplay.m.value[index].dispatcher = mc.midiConnections.m.value[index].dispatcher.cs
+		mc.midiConnections.m[this.slot].value[index].dispatcher !? {
+			mc.midiDisplay.m[this.slot].value[index].dispatcher = mc.midiConnections.m[this.slot].value[index].dispatcher.cs
 		};
-		mc.midiDisplay.m.changedPerformKeys(this.widget.syncKeys, index);
+		mc.midiDisplay.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 		// TODO - check settings system
 		CmdPeriod.add({
 			this.widget !? { this.midiDisconnect }
@@ -291,7 +291,7 @@ MidiConnectorMS : AbstractConnector {
 
 	prMIDIFunc { |index, cc, ch, src, t, d|
 		var snapDistance, inputMapping, input;
-		var cv = this.widget.cv, learn;
+		var cv = this.widget.cv;
 		var makeFunc = { |argSrc, argChan, argNum, argTempl, argDispatcher|
 			if (this.widget.wmc.midiConnections.m[this.slot].value[index].isNil or: {
 				this.widget.wmc.midiConnections.m[this.slot].value[index].func.isNil
@@ -318,8 +318,8 @@ MidiConnectorMS : AbstractConnector {
 					input = val/127;
 					snapDistance = this.getMidiSnapDistance;
 					if ((snapDistance <= 0).or(
-						input < (cv.input + (snapDistance)) and: {
-							input > (cv.input - (snapDistance))
+						input < (cv.input[this.slot] + (snapDistance)) and: {
+							input > (cv.input[this.slot] - (snapDistance))
 					})) {
 						case
 						{ inputMapping.mapping === \lincurve } {
@@ -462,12 +462,11 @@ MidiConnectorMS : AbstractConnector {
 			);
 		};
 
-		learn = cc.isNil and: { ch.isNil  and: {src.isNil }};
-		if (learn) {
-			"MIDIFunc at widget.wmc.midiConnections.m.value[%] should learn".format(index).inform;
+		if (cc.isNil and: { ch.isNil  and: {src.isNil }}) {
+			"MIDIFunc at widget.wmc.midiConnections.m[this.slot].value[%] should learn".format(index).inform;
 			makeFunc.().learnSync(this.widget, this.slot, index);
 		} {
-			"MIDIFunc at widget.wmc.midiConnections.m.value[%] was set to src: %, channel: %, number: %".format(
+			"MIDIFunc at widget.wmc.midiConnections.m[this.slot].value[%] was set to src: %, channel: %, number: %".format(
 				index, src, ch, cc
 			).inform;
 			makeFunc.(src, ch, cc, t, d);
@@ -491,7 +490,7 @@ MidiConnectorMS : AbstractConnector {
 			mc.midiConnectors.m[this.slot].value.remove(this);
 			mc.midiConnectors.m[this.slot].changedPerformKeys(this.widget.syncKeys, index);
 			// set editor elements (and other custom elements depending
-			// on mc.midiConnectors.m.value) to suitable connector
+			// on mc.midiConnectors.m[this.slot].value) to suitable connector
 			onConnectorRemove.value(this.widget, index);
 		}
 	}

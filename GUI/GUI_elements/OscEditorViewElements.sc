@@ -394,7 +394,7 @@ OscResolutionBox : ConnectorElementView {
 		all[widget].add(this);
 
 		this.prMCDistinct(\osc);
-		this.view = NumberBox(parentView, rect).clipLo_(0).scroll_step_(0.1).step_(0.1);
+		this.view = NumberBox(parentView, rect).clipLo_(0.01).scroll_step_(0.1).step_(0.1);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		this.view.action_( { |nb|
@@ -621,7 +621,7 @@ OscZeroCrossingText : ConnectorElementView {
 
 		this.prMCDistinct(\osc);
 		this.view = StaticText(parentView, rect)
-		.string_(widget.getOscInputAlwaysPositive(index))
+		.string_(widget.getOscInputAlwaysPositive(index, this.slot))
 		.minWidth_(30)
 		.toolTip_("input zero-crossing correction");
 		this.view.onClose_({ this.close });
@@ -664,9 +664,14 @@ OscZeroCrossingText : ConnectorElementView {
 		};
 		optionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
+			// "OscZeroCrossingText:-prAddController: changer.value[%]: %".format(conID, changer.value[conID]).postln;
 			all[widget].do { |st|
 				if (st.connector === connectors[conID]) {
-					defer { st.view.string_(changer.value[conID].alwaysPositive.round(0.01)) }
+					defer {
+						changer.value[conID].alwaysPositive !? {
+							st.view.string_(changer.value[conID].alwaysPositive.round(0.01))
+						}
+					}
 				}
 			}
 		})

@@ -59,8 +59,7 @@ MappingSelect : ConnectorElementView {
 			parent = parentView;
 		};
 
-		this.view = View(parent);
-		this.background_(bgColor).minHeight_(80);
+		this.view = View(parent).background_(bgColor).maxHeight_(80).minHeight_(80);
 
 		ramp = switch (optionsM.value[index][mappingType].mapping)
 		{ \linenv } { optionsM.value[index][mappingType].env }

@@ -117,8 +117,9 @@ CVWidgetMS : CVWidget {
 			spec = ControlSpec(
 				spec.minval ! this.size,
 				spec.maxval ! this.size,
-				// SegWarp
-				spec.warp ! this.size,
+				// SegWarp - doesn't seem to work here :(
+				// spec.warp ! this.size,
+				spec.warp,
 				spec.step ! this.size,
 				spec.default ! this.size,
 				spec.units, spec.grid
@@ -151,7 +152,7 @@ CVWidgetMS : CVWidget {
 				^connectors[slot.asInteger][connector.asInteger]
 			}
 			{ connector.isNumber and: { slot.isNil }} {
-				"getConnector(%): connector.isNumber and: { slot.isNil }".format(connectorKind).postln;
+				"getConnector(%): connector.isNumber and: { slot.isNil }, connector: %".format(connectorKind, connector).postln;
 				^connectors.collect(_[connector.asInteger])
 			}
 			{ connector.isNil and: { slot.isNumber }} {
@@ -200,25 +201,25 @@ CVWidgetMS : CVWidget {
 	}
 
 	prGetPerform { |connectorKind, connector, slot, selector|
-		var connectors = swictch(connectorKind)
+		var connectors = switch(connectorKind)
 		{ \midi } { this.midiConnectors }
 		{ \osc } { this.oscConnectors };
 
 		case
 		{ connector.isNil and: { slot.isNil }} {
-			// "connector.isNil and: { slot.isNil }".postln;
+			// "prGetPerform: connector.isNil and: { slot.isNil }".postln;
 			^connectors.collect { |cons, i| cons.collect(_.perform(selector, i)) }
 		}
 		// even if argument 'connector' has not been given, getConnector should construct
 		// the connector as long as a (vaild) slot has been given and a the call to
 		// prMidiCasePerformGet should never end here
 		{ connector.isNil and: { slot.notNil }} {
-			// "connector.isNil and: { slot.notNil }".postln;
+			// "prGetPerform: connector.isNil and: { slot.notNil }".postln;
 			// ^connectors[slot].select(_.notNil).collect(_.perform(selector, slot))
 			^nil
 		}
 		{ connector.notNil and: { slot.isNil }} {
-			connector.postln;
+			// "prGetPerform: connector: %, connectors: %".format(connector, connectors).postln;
 			^connectors.collect { |sl, i|
 				sl.select { |con|
 					con === connector[i]
@@ -226,9 +227,9 @@ CVWidgetMS : CVWidget {
 			}
 		}
 		{ connector.notNil and: { slot.notNil }} {
-			// "connector.notNil and: { slot.notNil }".postln;
+			// "prGetPerform: connector.notNil and: { slot.notNil }".postln;
 			// "connector: %".format(connector).postln;
-			if (connector.class === MidiConnectorMS) {
+			if (connector.class === MidiConnectorMS or: { connector.class === OscConnectorMS }) {
 				^connector.perform(selector, slot)
 			} {
 				^connector.collect(_.perform(selector, slot))
@@ -255,7 +256,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiMode
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiMode);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiMode);
 		}
 	}
 
@@ -277,7 +278,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiZero
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiZero);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiZero);
 		}
 	}
 
@@ -299,7 +300,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiSnapDistance
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiSnapDistance);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiSnapDistance);
 		}
 	}
 
@@ -321,7 +322,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiCtrlButtonGroup
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiCtrlButtonGroup);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiCtrlButtonGroup);
 		}
 	}
 
@@ -343,7 +344,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiResolution
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiResolution);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiResolution);
 		}
 	}
 
@@ -365,7 +366,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiInputMapping
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiInputMapping);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiInputMapping);
 		}
 	}
 
@@ -387,7 +388,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiTemplate
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiTemplate);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiTemplate);
 		}
 	}
 
@@ -409,7 +410,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMidiDispatcher
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMidiDispatcher);
+			^this.prGetPerfom(\midi, connector, slot, \getMidiDispatcher);
 		}
 	}
 
@@ -431,7 +432,7 @@ CVWidgetMS : CVWidget {
 			^connector.getMIDIFuncEnabled
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			^this.prMidiCasePerformGet(connector, slot, \getMIDIFuncEnabled);
+			^this.prGetPerfom(\midi, connector, slot, \getMIDIFuncEnabled);
 		}
 	}
 
