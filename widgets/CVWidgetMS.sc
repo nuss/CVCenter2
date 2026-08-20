@@ -141,7 +141,7 @@ CVWidgetMS : CVWidget {
 		if (connectorKind !== \midi and: { connectorKind !== \osc }) {
 			Error("CVWidgetConnector:-getConnector: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.").throw
 		} {
-			connectors = swictch(connectorKind)
+			connectors = switch(connectorKind)
 			{ \midi } { this.midiConnectors }
 			{ \osc } { this.oscConnectors };
 
