@@ -359,6 +359,7 @@ MidiChanField : ConnectorElementView {
 		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |tf|
+				[tf.connector, connector, connector.class].postln;
 				if (tf.connector === connector[conID]) {
 					defer {
 						tf.view.string_(changer.value[conID].chan);

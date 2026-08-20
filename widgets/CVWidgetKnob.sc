@@ -102,16 +102,21 @@ CVWidgetKnob : CVWidget {
 		^OscConnectorsEditorView(parent, widget: this, connector: connector).front;
 	}
 
-	// MIDI
-	getMidiConnector { |connector|
+	//  common OSC and MIDI helpers
+	getConnector { |connectorKind, connector|
+		var connectors = swictch(connectorKind)
+		{ \midi } { this.midiConnectors }
+		{ \osc } { this.oscConnectors };
+
 		if (connector.isInteger) {
-			^this.midiConnectors[connector]
+			^connectors[connector]
 		};
 		^connector
 	}
 
+	// MIDI
 	setMidiMode { |mode, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiMode(mode))
 		} {
@@ -120,7 +125,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiMode { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiMode);
 		} {
@@ -129,7 +134,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiZero { |zeroval, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiZero(zeroval))
 		} {
@@ -138,7 +143,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiZero { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiZero)
 		} {
@@ -147,7 +152,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiSnapDistance { |snapDistance, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiSnapDistance(snapDistance));
 		} {
@@ -156,7 +161,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiSnapDistance { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiSnapDistance);
 		} {
@@ -165,7 +170,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiCtrlButtonGroup { |numButtons, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiCtrlButtonGroup(numButtons));
 		} {
@@ -174,7 +179,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiCtrlButtonGroup { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiCtrlButtonGroup);
 		} {
@@ -183,7 +188,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiResolution { |resolution, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiResolution(resolution));
 		} {
@@ -192,7 +197,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiResolution { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiResolution)
 		} {
@@ -201,7 +206,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiInputMapping { |mapping, curve, env, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiInputMapping(mapping, curve, env))
 		} {
@@ -210,7 +215,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiInputMapping { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiInputMapping)
 		} {
@@ -219,7 +224,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMiditemplate { |argTemplate, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiTemplate(argTemplate))
 		} {
@@ -228,7 +233,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiTemplate { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiTemplate)
 		} {
@@ -237,7 +242,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMidiDispatcher { |dispatcher, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMidiDispatcher(dispatcher))
 		} {
@@ -246,7 +251,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMidiDispatcher { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMidiDispatcher)
 		} {
@@ -255,7 +260,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setMIDIFuncEnabled { |boolEnabled, connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			this.midiConnectors.do(_.setMIDIFuncEnabled(boolEnabled))
 		} {
@@ -264,7 +269,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getMIDIFuncEnabled { |connector|
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		if (connector.isNil) {
 			^this.midiConnectors.collect(_.getMIDIFuncEnabled)
 		} {
@@ -285,7 +290,7 @@ CVWidgetKnob : CVWidget {
 				connector = MidiConnector(this)
 			}
 		};
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		// pass execution to connector
 		connector.midiConnect(num, chan, src, argTemplate, dispatcher);
 	}
@@ -295,7 +300,7 @@ CVWidgetKnob : CVWidget {
 			"CVWidgetMS:-midiDisconnect: No connector given. Don't know which connector to disconnect.".error;
 			^nil
 		};
-		connector = this.getMidiConnector(connector);
+		connector = this.getConnector(\midi, connector);
 		// pass execution to connector
 		connector.midiDisconnect
 	}
@@ -309,7 +314,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscEndless { |boolEndless, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscEndless(boolEndless))
 		} {
@@ -318,7 +323,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscEndless { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscEndless);
 		} {
@@ -327,7 +332,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscResolution { |resolution, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscResolution(resolution))
 		} {
@@ -336,7 +341,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscResolution { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscResolution);
 		} {
@@ -345,7 +350,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscSnapDistance { |distance, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscSnapDistance(distance))
 		} {
@@ -354,7 +359,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscSnapDistance { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscSnapDistance);
 		} {
@@ -363,7 +368,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscCalibration { |boolCalibration, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscCalibration(boolCalibration))
 		} {
@@ -372,7 +377,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscCalibration { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscCalibration)
 		} {
@@ -381,7 +386,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	resetOscCalibration { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.resetOscCalibration)
 		} {
@@ -390,7 +395,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscInputMapping { |mapping, curve, env, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscInputMapping(mapping, curve, env))
 		} {
@@ -399,7 +404,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscInputMapping { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscInputMapping);
 		} {
@@ -408,7 +413,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscInputConstraints { |constraintsPair, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscInputConstraints(constraintsPair))
 		} {
@@ -417,7 +422,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscInputConstraints { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscInputConstraints);
 		} {
@@ -426,7 +431,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscMatching { |boolMatching, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscMatching(boolMatching))
 		} {
@@ -435,7 +440,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscMatching { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscMatching);
 		} {
@@ -444,7 +449,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscInputAlwaysPositive { |value, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscInputAlwaysPositive(value))
 		} {
@@ -453,7 +458,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscInputAlwaysPositive { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscInputAlwaysPositive);
 		} {
@@ -462,7 +467,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscCmdName { |cmdPath, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscCmdName(cmdPath))
 		} {
@@ -471,7 +476,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscCmdName { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscCmdName);
 		} {
@@ -480,7 +485,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscMsgIndex { |msgIndex, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscMsgIndex(msgIndex))
 		} {
@@ -489,7 +494,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscMsgIndex { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscMsgIndex);
 		} {
@@ -498,7 +503,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscTemplate { |argTemplate, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscTemplate(argTemplate))
 		} {
@@ -507,7 +512,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscTemplate { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscTemplate)
 		} {
@@ -516,7 +521,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOscDispatcher { |dispatcher, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOscDispatcher(dispatcher))
 		} {
@@ -525,7 +530,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOscDispatcher { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOscDispatcher)
 		} {
@@ -534,7 +539,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	setOSCFuncEnabled { |boolEnabled, connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			this.oscConnectors.do(_.setOSCFuncEnabled(boolEnabled))
 		} {
@@ -543,7 +548,7 @@ CVWidgetKnob : CVWidget {
 	}
 
 	getOSCFuncEnabled { |connector|
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		if (connector.isNil) {
 			^this.oscConnectors.collect(_.getOSCFuncEnabled)
 		} {
@@ -562,7 +567,7 @@ CVWidgetKnob : CVWidget {
 				connector = OscConnector(this)
 			}
 		};
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		// pass execution to connector
 		connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
 	}
@@ -571,7 +576,7 @@ CVWidgetKnob : CVWidget {
 		connector ?? {
 			Error("No connector given. Don't know which connector to disconnect.").throw;
 		};
-		connector = this.getOscConnector(connector);
+		connector = this.getConnector(\osc, connector);
 		// pass execution to connector
 		connector.oscDisconnect
 	}

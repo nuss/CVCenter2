@@ -127,28 +127,31 @@ CVWidgetMS : CVWidget {
 		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
-	midiDialog { |connector(0), slot(0), parent|
-		^MidiConnectorsEditorView(parent, this, slot, connector).front;
+	midiDialog { |slot(0), connector(0), parent|
+		^MidiConnectorsEditorView(parent, widget: this, slot: slot, connector: connector).front;
 	}
 
-	oscDialog { |connector(0), slot(0), parent|
-		^OscConnectorsEditorView(parent, this, slot, connector).front;
+	oscDialog { |slot(0), connector(0), parent|
+		^OscConnectorsEditorView(parent, widget: this, slot: slot, connector: connector).front;
 	}
 
-	// MIDI
-	getMidiConnector { |connector, slot|
+	getConnector { |connectorKind, connector, slot|
+		var connectors = swictch(connectorKind)
+		{ \midi } { this.midiConnectors }
+		{ \osc } { this.oscConnectors };
+
 		case
 		{ connector.isNumber and: { slot.isNumber }} {
-			"getMidiConnector: connector.isNumber and: { slot.isNumber }".postln;
-			^this.midiConnectors[slot.asInteger][connector.asInteger]
+			"getConnector(%): connector.isNumber and: { slot.isNumber }".format(connectorKind).postln;
+			^connectors[slot.asInteger][connector.asInteger]
 		}
 		{ connector.isNumber and: { slot.isNil }} {
-			"getMidiConnector: connector.isNumber and: { slot.isNil }".postln;
-			^this.midiConnectors.collect(_[connector.asInteger])
+			"getConnector(%): connector.isNumber and: { slot.isNil }".format(connectorKind).postln;
+			^connectors.collect(_[connector.asInteger])
 		}
 		{ connector.isNil and: { slot.isNumber }} {
-			"getMidiConnector: connector.isNil and: { slot.notNil }".postln;
-			^this.midiConnectors[slot]
+			"getMidiConnector(%): connector.isNil and: { slot.notNil }".format(connectorKind).postln;
+			^connectors[slot]
 		}
 		{ connector.class === MidiConnectorMS and: {
 			connector.widget === this
@@ -158,11 +161,16 @@ CVWidgetMS : CVWidget {
 		^nil
 	}
 
-	prMidiCasePerformArgsSet { |connector, slot, selector ... args, kwargs|
+	// common helpers for OSC and MIDI
+	prSetPerformArgs { |connectorKind, connector, slot, selector ... args, kwargs|
+		var connectors = swictch(connectorKind)
+		{ \midi } { this.midiConnectors }
+		{ \osc } { this.oscConnectors };
+
 		case
 		{ connector.isNil and: { slot.isNil }} {
 			// "connector.isNil and: { slot.isNil }".postln;
-			this.midiConnectors.do { |cons| cons.do(_.performArgs(selector, [], kwargs)) }
+			connectors.do { |cons| cons.do(_.performArgs(selector, [], kwargs)) }
 		}
 		// if connector is given as a numeric index and no connector
 		// at that index exists *all* connectors in the given slot
@@ -170,11 +178,11 @@ CVWidgetMS : CVWidget {
 		// the same as providing no connector at all
 		{ connector.isNil and: { slot.notNil }} {
 			// "connector.isNil and: { slot.notNil }".postln;
-			this.midiConnectors[slot].do(_.performArgs(selector, [], kwargs))
+			connectors[slot].do(_.performArgs(selector, [], kwargs))
 		}
 		{ connector.notNil and: { slot.isNil }} {
 			// "connector.notNil and: { slot.isNil }".postln;
-			this.midiConnectors.do(_.do { |con, i|
+			connectors.do(_.do { |con, i|
 				if (connector[i] === con) { con.performArgs(selector, [], kwargs) }
 			})
 		}
@@ -185,24 +193,27 @@ CVWidgetMS : CVWidget {
 		}
 	}
 
-	prMidiCasePerformGet { |connector, slot, selector|
-		// [connector, slot].postln;
+	prGetPerform { |connectorKind, connector, slot, selector|
+		var connectors = swictch(connectorKind)
+		{ \midi } { this.midiConnectors }
+		{ \osc } { this.oscConnectors };
+
 		case
 		{ connector.isNil and: { slot.isNil }} {
 			// "connector.isNil and: { slot.isNil }".postln;
-			^this.midiConnectors.collect { |cons, i| cons.collect(_.perform(selector, i)) }
+			^connectors.collect { |cons, i| cons.collect(_.perform(selector, i)) }
 		}
-		// even if argument 'connector' has not been given, getMidiConnector should construct
+		// even if argument 'connector' has not been given, getConnector should construct
 		// the connector as long as a (vaild) slot has been given and a the call to
 		// prMidiCasePerformGet should never end here
 		{ connector.isNil and: { slot.notNil }} {
 			// "connector.isNil and: { slot.notNil }".postln;
-			// ^this.midiConnectors[slot].select(_.notNil).collect(_.perform(selector, slot))
+			// ^connectors[slot].select(_.notNil).collect(_.perform(selector, slot))
 			^nil
 		}
 		{ connector.notNil and: { slot.isNil }} {
 			connector.postln;
-			^this.midiConnectors.collect { |sl, i|
+			^connectors.collect { |sl, i|
 				sl.select { |con|
 					con === connector[i]
 				}.collect(_.perform(selector, i)).unbubble
@@ -219,14 +230,15 @@ CVWidgetMS : CVWidget {
 		}
 	}
 
+	// MIDI
 	setMidiMode { |mode, connector, slot|
 		if (connector.class === MidiConnectorMS and: {
 			connector.widget === this
 		}) {
 			connector.setMidiMode(mode)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiMode, mode: mode);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiMode, mode: mode);
 		}
 	}
 
@@ -236,7 +248,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiMode
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiMode);
 		}
 	}
@@ -247,8 +259,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiZero(zeroval)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiZero, zeroval: zeroval);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiZero, zeroval: zeroval);
 		}
 	}
 
@@ -258,7 +270,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiZero
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiZero);
 		}
 	}
@@ -269,8 +281,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiSnapDistance(snapDistance)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiMode, snapDistance: snapDistance);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiMode, snapDistance: snapDistance);
 		}
 	}
 
@@ -280,7 +292,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiSnapDistance
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiSnapDistance);
 		}
 	}
@@ -291,8 +303,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiCtrlButtonGroup(numButtons)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiCtrlButtonGroup, numButtons: numButtons);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiCtrlButtonGroup, numButtons: numButtons);
 		}
 	}
 
@@ -302,7 +314,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiCtrlButtonGroup
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiCtrlButtonGroup);
 		}
 	}
@@ -313,8 +325,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiResolution(resolution)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiResolution, resolution: resolution);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiResolution, resolution: resolution);
 		}
 	}
 
@@ -324,7 +336,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiResolution
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiResolution);
 		}
 	}
@@ -335,8 +347,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiInputMapping(mapping, curve, env)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiInputMapping, mapping: mapping, curve: curve, env: env);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiInputMapping, mapping: mapping, curve: curve, env: env);
 		}
 	}
 
@@ -346,7 +358,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiInputMapping
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiInputMapping);
 		}
 	}
@@ -357,8 +369,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMiditemplate(argTemplate)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMiditemplate, argTemplate: argTemplate);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMiditemplate, argTemplate: argTemplate);
 		}
 	}
 
@@ -368,7 +380,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiTemplate
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiTemplate);
 		}
 	}
@@ -379,8 +391,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMidiDispatcher(dispatcher)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMidiDispatcher, dispatcher: dispatcher);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiDispatcher, dispatcher: dispatcher);
 		}
 	}
 
@@ -390,7 +402,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMidiDispatcher
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMidiDispatcher);
 		}
 	}
@@ -401,8 +413,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setMIDIFuncEnabled(boolEnabled)
 		} {
-			connector = this.getMidiConnector(connector, slot);
-			this.prMidiCasePerformArgsSet(connector, slot, \setMIDIFuncEnabled, boolEnabled: boolEnabled);
+			connector = this.getConnector(\midi, connector, slot);
+			this.prSetPerformArgs(\midi, connector, slot, \setMIDIFuncEnabled, boolEnabled: boolEnabled);
 		}
 	}
 
@@ -412,7 +424,7 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getMIDIFuncEnabled
 		} {
-			connector = this.getMidiConnector(connector, slot);
+			connector = this.getConnector(\midi, connector, slot);
 			^this.prMidiCasePerformGet(connector, slot, \getMIDIFuncEnabled);
 		}
 	}
@@ -450,7 +462,7 @@ CVWidgetMS : CVWidget {
 								^this
 							}
 						} {
-							connector = this.getMidiConnector(connector, slot)
+							connector = this.getConnector(\midi, connector, slot)
 						}
 					};
 					connector.midiConnect(num, chan, src, argTemplate, dispatcher);
@@ -474,7 +486,7 @@ CVWidgetMS : CVWidget {
 			}
 		}
 		{ connector.isNumber and: {slot.isNil }} {
-			this.getMidiConnector(connector.asInteger).do(_.midiDisconnect)
+			this.getConnector(\midi, connector.asInteger).do(_.midiDisconnect)
 		}
 		{ connector.isNil and: { slot.isNil }} {
 			this.midiConnectors.collect(_.asArray).flat.do(_.midiDisconnect)
@@ -503,97 +515,14 @@ CVWidgetMS : CVWidget {
 	}
 
 	// OSC
-	getOscConnector { |connector, slot|
-		case
-		{ connector.isNumber and: { slot.isNumber }} {
-			"getOscConnector: connector.isNumber and: { slot.isNumber }".postln;
-			^this.oscConnectors[slot.asInteger][connector.asInteger]
-		}
-		{ connector.isNumber and: { slot.isNil }} {
-			"getOscConnector: connector.isNumber and: { slot.isNil }".postln;
-			^this.oscConnectors.collect(_[connector.asInteger])
-		}
-		{ connector.isNil and: { slot.isNumber }} {
-			"getOscConnector: connector.isNil and: { slot.notNil }".postln;
-			^this.oscConnectors[slot]
-		}
-		{ connector.class === OscConnectorMS and: {
-			connector.widget === this
-		}} {
-			^connector
-		};
-		^nil
-	}
-
-	prOscCasePerformArgsSet { |connector, slot, selector ... args, kwargs|
-		case
-		{ connector.isNil and: { slot.isNil }} {
-			// "connector.isNil and: { slot.isNil }".postln;
-			this.oscConnectors.do { |cons| cons.do(_.performArgs(selector, [], kwargs)) }
-		}
-		// if connector is given as a numeric index and no connector
-		// at that index exists *all* connectors in the given slot
-		// will be updated as providing a non existing connector is
-		// the same as providing no connector at all
-		{ connector.isNil and: { slot.notNil }} {
-			// "connector.isNil and: { slot.notNil }".postln;
-			this.oscConnectors[slot].do(_.performArgs(selector, [], kwargs))
-		}
-		{ connector.notNil and: { slot.isNil }} {
-			// "connector.notNil and: { slot.isNil }".postln;
-			this.oscConnectors.do(_.do { |con, i|
-				if (connector[i] === con) { con.performArgs(selector, [], kwargs) }
-			})
-		}
-		{ connector.notNil and: { slot.notNil }} {
-			// "connector.notNil and: { slot.notNil }".postln;
-			// "connector: %".format(connector).postln;
-			connector.do(_.performArgs(selector, [], kwargs))
-		}
-	}
-
-	prOscCasePerformGet { |connector, slot, selector|
-		// [connector, slot].postln;
-		case
-		{ connector.isNil and: { slot.isNil }} {
-			// "connector.isNil and: { slot.isNil }".postln;
-			^this.oscConnectors.collect { |cons, i| cons.collect(_.perform(selector, i)) }
-		}
-		// even if argument 'connector' has not been given, getMidiConnector should construct
-		// the connector as long as a (vaild) slot has been given and a the call to
-		// prMidiCasePerformGet should never end here
-		{ connector.isNil and: { slot.notNil }} {
-			// "connector.isNil and: { slot.notNil }".postln;
-			// ^this.oscConnectors[slot].select(_.notNil).collect(_.perform(selector, slot))
-			^nil
-		}
-		{ connector.notNil and: { slot.isNil }} {
-			connector.postln;
-			^this.oscConnectors.collect { |sl, i|
-				sl.select { |con|
-					con === connector[i]
-				}.collect(_.perform(selector, i)).unbubble
-			}
-		}
-		{ connector.notNil and: { slot.notNil }} {
-			// "connector.notNil and: { slot.notNil }".postln;
-			// "connector: %".format(connector).postln;
-			if (connector.class === OscConnectorMS) {
-				^connector.perform(selector, slot)
-			} {
-				^connector.collect(_.perform(selector, slot))
-			}
-		}
-	}
-
 	setOscEndless { |boolEndless, connector, slot|
 		if (connector.class === OscConnectorMS and: {
 			connector.widget === this
 		}) {
 			connector.setOscEndless(boolEndless)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscEndless, boolEndless: boolEndless);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscEndless, boolEndless: boolEndless);
 		}
 	}
 
@@ -603,8 +532,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscEndless
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscEndless);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscEndless);
 		}
 	}
 
@@ -614,8 +543,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscResolution(resolution)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscResolution, resolution: resolution);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscResolution, resolution: resolution);
 		}
 	}
 
@@ -625,8 +554,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscResolution
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscResolution);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscResolution);
 		}
 	}
 
@@ -636,8 +565,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscSnapDistance(distance)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscSnapDistance, distance: distance);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscSnapDistance, distance: distance);
 		}
 	}
 
@@ -647,8 +576,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscSnapDistance
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscSnapDistance);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscSnapDistance);
 		}
 	}
 
@@ -658,8 +587,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscCalibration(boolCalibration)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscCalibration, boolCalibration: boolCalibration);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscCalibration, boolCalibration: boolCalibration);
 		}
 	}
 
@@ -669,8 +598,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscCalibration
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscCalibration);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscCalibration);
 		}
 	}
 
@@ -680,8 +609,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.resetOscCalibration
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \resetOscCalibration);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \resetOscCalibration);
 		}
 	}
 
@@ -691,8 +620,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscInputMapping(mapping, curve, env)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscInputMapping, mapping: mapping, curve: curve, env: env);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscInputMapping, mapping: mapping, curve: curve, env: env);
 		}
 	}
 
@@ -702,8 +631,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscInputMapping
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscInputMapping);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscInputMapping);
 		}
 	}
 
@@ -713,8 +642,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscInputConstraints(constraintsPair)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscInputConstraints, constraintsPair: constraintsPair);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscInputConstraints, constraintsPair: constraintsPair);
 		}
 	}
 
@@ -724,8 +653,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscInputConstraints
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscInputConstraints);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscInputConstraints);
 		}
 	}
 
@@ -735,8 +664,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscMatching(boolMatching)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscMatching, boolMatching: boolMatching);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscMatching, boolMatching: boolMatching);
 		}
 	}
 
@@ -746,8 +675,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscMatching
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscMatching);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscMatching);
 		}
 	}
 
@@ -757,8 +686,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscInputAlwaysPositive(value)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscInputAlwaysPositive, value: value);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscInputAlwaysPositive, value: value);
 		}
 	}
 
@@ -768,8 +697,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscInputAlwaysPositive
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscInputAlwaysPositive);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscInputAlwaysPositive);
 		}
 	}
 
@@ -779,8 +708,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscCmdName(cmdPath)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscCmdName, cmdPath: cmdPath);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscCmdName, cmdPath: cmdPath);
 		}
 	}
 
@@ -790,8 +719,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscCmdName
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscCmdName);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscCmdName);
 		}
 	}
 
@@ -801,8 +730,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscMsgIndex(msgIndex)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscMsgIndex, msgIndex: msgIndex);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscMsgIndex, msgIndex: msgIndex);
 		}
 	}
 
@@ -812,8 +741,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscMsgIndex
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscMsgIndex);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscMsgIndex);
 		}
 	}
 
@@ -823,8 +752,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscTemplate(argTemplate)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscTemplate, msgIndex: argTemplate);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscTemplate, msgIndex: argTemplate);
 		}
 	}
 
@@ -834,8 +763,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscTemplate
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscTemplate);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscTemplate);
 		}
 	}
 
@@ -845,8 +774,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOscDispatcher(dispatcher)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOscDispatcher, dispatcher: dispatcher);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOscDispatcher, dispatcher: dispatcher);
 		}
 	}
 
@@ -856,8 +785,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOscDispatcher
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOscDispatcher);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOscDispatcher);
 		}
 	}
 
@@ -867,8 +796,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			connector.setOSCFuncEnabled(boolEnabled)
 		} {
-			connector = this.getOscConnector(connector, slot);
-			this.prOscCasePerformArgsSet(connector, slot, \setOSCFuncEnabled, boolEnabled: boolEnabled);
+			connector = this.getConnector(\osc, connector, slot);
+			this.prSetPerformArgs(\osc, connector, slot, \setOSCFuncEnabled, boolEnabled: boolEnabled);
 		}
 	}
 
@@ -878,8 +807,8 @@ CVWidgetMS : CVWidget {
 		}) {
 			^connector.getOSCFuncEnabled
 		} {
-			connector = this.getOscConnector(connector, slot);
-			^this.prOscCasePerformGet(connector, slot, \getOSCFuncEnabled);
+			connector = this.getConnector(\osc, connector, slot);
+			^this.prGetPerform(\osc, connector, slot, \getOSCFuncEnabled);
 		}
 	}
 
@@ -916,7 +845,7 @@ CVWidgetMS : CVWidget {
 								^this
 							}
 						} {
-							connector = this.getOscConnector(connector, slot)
+							connector = this.getConnector(\osc, connector, slot)
 						}
 					};
 					connector.oscConnect(addr, cmdPath, oscMsgIndex, recvPort, argTemplate, dispatcher, matching);
@@ -988,25 +917,6 @@ CVWidgetMS : CVWidget {
 		};
 		all.removeAt(name);
 	}
-
-	// // init controllers (private)
-	// prInitSpecControl { |wmc, cv|
-	// 	wmc.cvSpec.c ?? {
-	// 		wmc.cvSpec.c = SimpleController(wmc.cvSpec.m);
-	// 	};
-	// 	wmc.cvSpec.c.put(\default, { |changer, what, moreArgs|
-	// 		this.cv.spec_(changer.value);
-	// 	})
-	// }
-	//
-	// prInitActionsControl { |wmc, cv|
-	// 	wmc.actions.c ?? {
-	// 		wmc.actions.c = SimpleController(wmc.actions.m);
-	// 	};
-	// 	wmc.actions.c.put(\default, { |changer, what, moreArgs|
-	// 		// do something with changer.value
-	// 	})
-	// }
 
 	storeOn { |stream|
 		stream << this.class.name << "(" <<* [
