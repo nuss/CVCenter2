@@ -15,6 +15,7 @@ ConnectorElementView : SCViewHolder {
 	var displayM, displayC;
 	var connectors, connectorsM, connectorsC;
 	var connectionsM, connectionsC;
+	var oscInputConstrainters;
 
 	// specific to every element
 	var syncKey;
@@ -57,6 +58,7 @@ ConnectorElementView : SCViewHolder {
 			display = this.widget.wmc.midiDisplay;
 			connectors = this.widget.wmc.midiConnectors;
 			connections = this.widget.wmc.midiConnections;
+
 		}
 		{ \osc } {
 			names = this.widget.wmc.oscConnectorNames;
@@ -79,6 +81,7 @@ ConnectorElementView : SCViewHolder {
 			connectionsM = connections.m;
 			connectionsC = connections.c;
 			connectors = connectors.m.value;
+			oscInputConstrainters = this.widget.wmc.oscInputConstrainters;
 		}
 		{ this.widget.class === CVWidgetMS } {
 			namesM = names.m[this.slot];
@@ -92,6 +95,7 @@ ConnectorElementView : SCViewHolder {
 			connectionsM = connections.m[this.slot];
 			connectionsC = connections.c[this.slot];
 			connectors = connectors.m[this.slot].value;
+			oscInputConstrainters = this.widget.wmc.oscInputConstrainters[this.slot];
 		}
 	}
 
@@ -273,7 +277,7 @@ ConnectorSelect : ConnectorElementView {
 
 		this.prMCDistinct(connectorKind);
 		this.view = PopUpMenu(parentView)
-		.items_(mcM.value ++ [selItem0]);
+		.items_(namesM.value ++ [selItem0]);
 		this.view.onClose_({ this.close });
 		this.index_(index);
 		connectorRemovedFuncAdded ?? {
@@ -321,7 +325,7 @@ ConnectorSelect : ConnectorElementView {
 		connectorsC.put(syncKey, { |changer, what ... moreArgs|
 			all[widget][connectorKind].do { |sel, i|
 				curValue = sel.view.value;
-				sel.view.items_(namesC.value ++ sel.view.items.last)
+				sel.view.items_(namesM.value ++ sel.view.items.last)
 				.value_(curValue);
 			}
 		});

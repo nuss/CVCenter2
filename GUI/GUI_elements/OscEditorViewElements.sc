@@ -540,11 +540,12 @@ OscConstrainterNumBox : ConnectorElementView {
 		all[widget] ?? { all[widget] = List[] };
 		all[widget].add(this);
 
-		cv = switch(position)
-		{ 0 } { widget.wmc.oscInputConstrainters[index].lo }
-		{ 1 } { widget.wmc.oscInputConstrainters[index].hi };
-
 		this.prMCDistinct(\osc);
+
+		cv = switch(position)
+		{ 0 } { oscInputConstrainters[index].lo }
+		{ 1 } { oscInputConstrainters[index].hi };
+
 		this.view = NumberBox(parentView, rect);
 		cv.connect(this.view);
 		this.view.onClose_({ this.close });
@@ -576,8 +577,8 @@ OscConstrainterNumBox : ConnectorElementView {
 		optionsM.value[connectorID] !? {
 			cv.disconnect(this.view);
 			cv = switch(position)
-			{ 0 } { widget.wmc.oscInputConstrainters[connectorID].lo }
-			{ 1 } { widget.wmc.oscInputConstrainters[connectorID].hi };
+			{ 0 } { oscInputConstrainters[connectorID].lo }
+			{ 1 } { oscInputConstrainters[connectorID].hi };
 			cv.connect(this.view);
 		}
 	}
@@ -886,7 +887,7 @@ OscConnectButton : ConnectorElementView {
 				argTemplate = this.connector.getOscTemplate;
 				dispatcher = this.connector.getOscDispatcher;
 				if (displayM.value[conID].learn) {
-					OSCFunc.cvWidgetLearn(widget, index: conID, matching: matching, port: NetAddr.langPort, argTemplate: argTemplate, dispatcher: dispatcher);
+					OSCFunc.cvWidgetLearn(widget, this.slot, conID, matching, NetAddr.langPort, argTemplate, dispatcher);
 				} {
 					this.connector.oscConnect(addr, cmd, cmdIndex, NetAddr.langPort, argTemplate, dispatcher, matching);
 				}

@@ -308,11 +308,10 @@ OscSelectsComboView : ConnectorElementView {
 	prAddOscDisplayController { |syncKey|
 		var conID, cmds, ip, cmdIndex, port;
 
-		displayC ?? { displayC = SimpleController(displayM) };
 		displayC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |selCombo|
-				if (selCombo.connector === conModel[conID]) {
+				if (selCombo.connector === connectors[conID]) {
 					case
 					{ changer.value[conID].ipField.isNil and: {
 						changer.value[conID].portField.isNil
@@ -379,7 +378,7 @@ OscSelectsComboView : ConnectorElementView {
 		connectionsC.put(syncKey, { |changer, what ... moreArgs|
 			conID = moreArgs[0];
 			all[widget].do { |selCombo|
-				if (selCombo.connector === conModel[conID]) {
+				if (selCombo.connector === connectors[conID]) {
 					defer { selCombo.enabled_(changer.value[conID].isNil) }
 				}
 			}

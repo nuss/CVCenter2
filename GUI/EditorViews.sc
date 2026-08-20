@@ -14,19 +14,21 @@ OscConnectorsEditorView : SCViewHolder {
 	}
 
 	init { |index, parentView, rect|
-		var o;
+		var o, oscDisplayValues;
 
-		connectors = switch (widget.class)
+		switch (widget.class)
 		{ CVWidgetKnob } {
-			widget.wmc.oscConnectors.m.value
+			connectors = widget.wmc.oscConnectors.m.value;
+			oscDisplayValues = widget.wmc.oscDisplay.m.value;
 		}
 		{ CVWidgetMS } {
-			widget.wmc.oscConnectors.m[this.slot].value
+			connectors = widget.wmc.oscConnectors.m[this.slot].value;
+			oscDisplayValues = widget.wmc.oscDisplay.m[this.slot].value;
 		};
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = connectors.detect { |c| c.name == index }
+			index = connectors.detectIndex { |c| c.name == index }
 		};
 		if (index.class == OscConnector) {
 			index = connectors.indexOf(index)
@@ -68,7 +70,7 @@ OscConnectorsEditorView : SCViewHolder {
 		e.connectorSelect = ConnectorSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index, connectorKind: \osc);
 		e.addrAndCmdSelect = OscSelectsComboView(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
 		e.oscCmdTextField = OscCmdNameField(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
-		e.oscMsgIndexNumBox = OscMsgIndexBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index).value_(widget.wmc.oscDisplay.m.value[index].index);
+		e.oscMsgIndexNumBox = OscMsgIndexBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index).value_(oscDisplayValues[index].index);
 		e.oscPatternMatchingCheckBox = OscMatchingCheckBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
 		e.oscModeSelect = OscModeSelect(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
 		e.oscResolutionNumBox = OscResolutionBox(parent, widget, slot: slot !? { slot.asInteger }, connectorID: index);
@@ -145,7 +147,7 @@ OscConnectorsEditorView : SCViewHolder {
 		);
 
 		e.connectorSelect.view.action_({ |sel|
-			if (sel.value == (sel.items.size - 1)) {
+			if (sel.value == (sel.items.lastIndex)) {
 				o = widget.addOscConnector(slot: this.slot);
 				e.connectorSelect.view.value_(connectors.indexOf(o));
 			};
@@ -247,7 +249,7 @@ MidiConnectorsEditorView : SCViewHolder {
 
 		// index can be an Integer, a Symbol or a MidiConnector instance
 		if (index.class == Symbol) {
-			index = connectors.detect { |c| c.name == index }
+			index = connectors.detectIndex { |c| c.name == index }
 		};
 		if (index.class == MidiConnector) {
 			index = connectors.indexOf(index)
@@ -349,12 +351,12 @@ MidiConnectorsEditorView : SCViewHolder {
 		);
 
 		e.connectorSelect.view.action_({ |sel|
-			if (sel.value == (sel.items.size - 1)) {
+			if (sel.value == (sel.items.lastIndex)) {
 				m = widget.addMidiConnector(slot: this.slot);
-				e.connectorSelect.view.value_(widget.midiConnectors.indexOf(m));
+				e.connectorSelect.view.value_(connectors.indexOf(m));
 			};
 
-			if (sel.value < (sel.items.size - 1)) {
+			if (sel.value < sel.items.lastIndex) {
 				e.do(_.index_(sel.value));
 				// enable or disable selects for MIDI source, channel and ctrl number based on connection status
 				[e.midiSrcSelect, e.midiChanTF, e.midiNumTF].do { |elem|
@@ -390,7 +392,7 @@ MidiConnectorsEditorView : SCViewHolder {
 			connectors = widget.wmc.midiConnectors.m[this.slot].value;
 			connections = widget.wmc.midiConnections.m[this.slot].value;
 		};
-		connector = connections[0];
+		connector = connectors[0];
 		index = 0;
 		all[widget] ?? { all[widget] = List[] };
 		if (all[widget].includes(this).not) { all[widget].add(this) };
