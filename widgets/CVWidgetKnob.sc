@@ -104,14 +104,20 @@ CVWidgetKnob : CVWidget {
 
 	//  common OSC and MIDI helpers
 	getConnector { |connectorKind, connector|
-		var connectors = swictch(connectorKind)
-		{ \midi } { this.midiConnectors }
-		{ \osc } { this.oscConnectors };
+		var connectors;
 
-		if (connector.isInteger) {
-			^connectors[connector]
-		};
-		^connector
+		if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+			Error("CVWidgetKnob:-getConnector: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.").throw
+		}{
+			connectors = swictch(connectorKind)
+			{ \midi } { this.midiConnectors }
+			{ \osc } { this.oscConnectors };
+
+			if (connector.isInteger) {
+				^connectors[connector]
+			};
+			^connector
+		}
 	}
 
 	// MIDI

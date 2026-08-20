@@ -136,29 +136,35 @@ CVWidgetMS : CVWidget {
 	}
 
 	getConnector { |connectorKind, connector, slot|
-		var connectors = swictch(connectorKind)
-		{ \midi } { this.midiConnectors }
-		{ \osc } { this.oscConnectors };
+		var connectors;
 
-		case
-		{ connector.isNumber and: { slot.isNumber }} {
-			"getConnector(%): connector.isNumber and: { slot.isNumber }".format(connectorKind).postln;
-			^connectors[slot.asInteger][connector.asInteger]
+		if (connectorKind !== \midi and: { connectorKind !== \osc }) {
+			Error("CVWidgetConnector:-getConnector: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.").throw
+		} {
+			connectors = swictch(connectorKind)
+			{ \midi } { this.midiConnectors }
+			{ \osc } { this.oscConnectors };
+
+			case
+			{ connector.isNumber and: { slot.isNumber }} {
+				"getConnector(%): connector.isNumber and: { slot.isNumber }".format(connectorKind).postln;
+				^connectors[slot.asInteger][connector.asInteger]
+			}
+			{ connector.isNumber and: { slot.isNil }} {
+				"getConnector(%): connector.isNumber and: { slot.isNil }".format(connectorKind).postln;
+				^connectors.collect(_[connector.asInteger])
+			}
+			{ connector.isNil and: { slot.isNumber }} {
+				"getMidiConnector(%): connector.isNil and: { slot.notNil }".format(connectorKind).postln;
+				^connectors[slot]
+			}
+			{ connector.class === MidiConnectorMS and: {
+				connector.widget === this
+			}} {
+				^connector
+			};
+			^nil
 		}
-		{ connector.isNumber and: { slot.isNil }} {
-			"getConnector(%): connector.isNumber and: { slot.isNil }".format(connectorKind).postln;
-			^connectors.collect(_[connector.asInteger])
-		}
-		{ connector.isNil and: { slot.isNumber }} {
-			"getMidiConnector(%): connector.isNil and: { slot.notNil }".format(connectorKind).postln;
-			^connectors[slot]
-		}
-		{ connector.class === MidiConnectorMS and: {
-			connector.widget === this
-		}} {
-			^connector
-		};
-		^nil
 	}
 
 	// common helpers for OSC and MIDI
