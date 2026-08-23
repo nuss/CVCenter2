@@ -15,8 +15,13 @@ CVWidgetKnob : CVWidget {
 		name ?? {
 			Error("No name provided for new CVWidgetKnob").throw;
 		};
-
 		name = name.asSymbol;
+
+		if (all[name].isNil) { all.put(name, this) } {
+			"A CVWidgetKnob under the given name '%' already exists. Please choose a differnet name.".format(name).error;
+			^nil
+		};
+
 
 		this.cv ?? { cv = CV.new };
 
@@ -24,7 +29,6 @@ CVWidgetKnob : CVWidget {
 			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
-		all[name] ?? { all.put(name, this) };
 		// an Event to be used for variables defined outside actions
 		env = ();
 		// the functions that will be evaluated by a SimpleController that's added by calling addAction
@@ -76,6 +80,7 @@ CVWidgetKnob : CVWidget {
 		// are added within these classes
 		OscConnector(this);
 		MidiConnector(this);
+		all.changed;
 	}
 
 	midiConnectors {

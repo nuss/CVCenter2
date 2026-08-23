@@ -126,15 +126,10 @@ ConnectorNameField : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), connectorKind|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
 		// ^super.new.init(parent, widget, rect, connectorID, connectorKind)
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID)
@@ -177,6 +172,11 @@ ConnectorNameField : ConnectorElementView {
 
 	// setWidget { |otherWidget, slot|
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -231,13 +231,36 @@ ConnectorNameField : ConnectorElementView {
 			}
 		}
 	}
-
 }
+
+// saved for later... maybe
+// WidgetSelect : ConnectorElementView {
+// 	classvar <all, connectorRemovedFuncAdded;
+// 	classvar selectItems;
+// 	var connectorKind, cclass;
+//
+// 	*initClass {
+// 		all = ();
+// 		selectItems = ();
+// 		CVWidget.all.addDependant({
+// 			CVWidget.all.do { |wdgt|
+// 				switch (wdgt.class)
+// 				{ CVWidgetMS } {
+// 					wdgt.size.do { |slot|
+// 						selectItems.put("%[%]".format(wdgt.name, slot).asSymbol, wdgt -> slot)
+// 					}
+// 				}
+// 				{ CVWidgetKnob } {
+// 					selectItems.put(wdgt.name, wdgt)
+// 				}
+// 			}
+// 		})
+// 	}
+// }
 
 ConnectorSelect : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
-	var cons, connectorKind, cclass;
-	var consM, consC;
+	var connectorKind, cclass;
 	var selItem0;
 
 	*initClass {
@@ -246,17 +269,11 @@ ConnectorSelect : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), connectorKind|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
-		// ^super.new.init(parent, widget, rect, connectorID, connectorKind);
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID)
 	}
 
@@ -290,6 +307,7 @@ ConnectorSelect : ConnectorElementView {
 			connectorRemovedFuncAdded = true
 		};
 		this.prAddController;
+
 	}
 
 	index_ { |connectorID|
@@ -298,6 +316,11 @@ ConnectorSelect : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -366,6 +389,57 @@ ConnectorSelect : ConnectorElementView {
 	}
 }
 
+ConnectorSlotMumBox : ConnectorElementView {
+	classvar <all, connectorRemovedFuncAdded;
+	var connectorKind, cclass;
+
+	*new { |parent, widget, rect, slot, connectorID(0), connectorKind|
+		if (widget.isKindOf(CVWidget).not) {
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
+		};
+		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect)
+	}
+
+	init { |parentView, rect|
+		all[widget] ?? { all[widget] = () };
+		all[widget][connectorKind] ?? {
+			all[widget][connectorKind] = List[]
+		};
+		all[widget][connectorKind].add(this);
+
+		this.prMCDistinct(connectorKind);
+		this.view = NumberBox(parentView, rect)
+		.clipLo_(0).step_(1).scroll_step_(1);
+		switch (this.widget.clsss)
+		{ CVWidgetKnob } {
+			this.view.value_(0).enabled_(false)
+		}
+		{ CVWidgetMS }{
+			this.view.clipHi_(this.widget.size)
+			.enabled_(true).value_(this.slot)
+		};
+		this.view.onClose_({ this.close });
+		connectorRemovedFuncAdded ?? {
+			case
+			{ connectorKind === \midi } { cclass = MidiConnector }
+			{ connectorKind === \osc } { cclass = OscConnector };
+			cclass.onConnectorRemove_({ |widget, id|
+				this.prOnRemoveConnector(widget, id, connectorKind)
+			});
+			connectorRemovedFuncAdded = true
+		}
+	}
+
+	index {}
+
+	setWidget {}
+
+	prAddController {}
+}
+
 ConnectorRemoveButton : ConnectorElementView {
 	classvar <all, connectorRemovedFuncAdded;
 	var connectorKind, cclass;
@@ -376,17 +450,11 @@ ConnectorRemoveButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), connectorKind|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
-		// ^super.new.init(parent, widget, rect, connectorID, connectorKind);
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID)
 	}
 
@@ -417,6 +485,11 @@ ConnectorRemoveButton : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -463,7 +536,7 @@ ControlSpecText : ConnectorElementView {
 
 	*new { |parent, widget, rect|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget).init(parent, rect)
 	}
@@ -483,6 +556,10 @@ ControlSpecText : ConnectorElementView {
 	index_ {}
 
 	setWidget { |otherWidget|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -523,15 +600,10 @@ TemplateTextField : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID=0, connectorKind|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID)
 	}
@@ -582,6 +654,11 @@ TemplateTextField : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]
@@ -662,15 +739,10 @@ PlayPauseButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID=0, connectorKind|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in ConnectorNameField.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID)
 	}
@@ -820,6 +892,11 @@ PlayPauseButton : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {
 			all[otherWidget][connectorKind] = List[]

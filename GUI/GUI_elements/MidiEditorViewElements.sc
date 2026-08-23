@@ -13,7 +13,7 @@ MidiLearnButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -96,6 +96,11 @@ MidiLearnButton : ConnectorElementView {
 	setWidget { |otherWidget, slot|
 		var defaultState;
 
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -159,7 +164,7 @@ MidiSrcSelect : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -212,6 +217,11 @@ MidiSrcSelect : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -293,7 +303,7 @@ MidiChanField : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -336,6 +346,11 @@ MidiChanField : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -379,7 +394,7 @@ MidiCtrlField : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -420,6 +435,11 @@ MidiCtrlField : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -463,7 +483,7 @@ MidiModeSelect : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -497,6 +517,11 @@ MidiModeSelect : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -536,7 +561,7 @@ MidiZeroNumberBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -570,6 +595,11 @@ MidiZeroNumberBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -609,7 +639,7 @@ SnapDistanceNumberBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -645,6 +675,11 @@ SnapDistanceNumberBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -684,7 +719,7 @@ MidiResolutionNumberBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -718,6 +753,11 @@ MidiResolutionNumberBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -757,7 +797,7 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -793,6 +833,11 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;

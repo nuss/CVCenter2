@@ -12,8 +12,12 @@ CVWidgetMS : CVWidget {
 		name ?? {
 			Error("No name provided for new CVWidgetKnob").throw;
 		};
-
 		name = name.asSymbol;
+
+		if (all[name].isNil) { all.put(name, this) } {
+			"A CVWidgetMS under the given name '%' already exists. Please choose a differnet name.".format(name).error;
+			^nil
+		};
 
 		this.cv ?? { cv = CV([0.0!numSliders, 1.0!numSliders].asSpec) };
 
@@ -23,7 +27,6 @@ CVWidgetMS : CVWidget {
 			syncKeysEvent = (proto: List[\default], user: List[])
 		};
 
-		all[name] ?? { all.put[name, this] };
 		// an Event to be used for variables defined outside actions
 		env = ();
 		// the functions that will be evaluated by a SimpleController that's added by calling addAction
@@ -91,7 +94,8 @@ CVWidgetMS : CVWidget {
 		this.size.do { |slot|
 			OscConnectorMS(this, slot: slot);
 			MidiConnectorMS(this, slot: slot);
-		}
+		};
+		all.changed;
 	}
 
 	midiConnectors {

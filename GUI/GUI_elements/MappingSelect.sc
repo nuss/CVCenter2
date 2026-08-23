@@ -12,15 +12,10 @@ MappingSelect : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), connectorKind, layout([[\mselect, \mcurve, \mplot], [\menv]])|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
-		if (connectorKind.isNil) {
-			Error("arg 'connectorKind' in MappingSelect.new must not be nil - must either be 'midi' or 'osc'.").throw
-		} {
-			connectorKind = connectorKind.asSymbol;
-			if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-				Error("arg 'connectorKind' must be a String or Symbol, either 'midi' or 'osc'. Given: %".format(connectorKind)).throw
-			}
+		if ((connectorKind.isNil).or(connectorKind !== \midi and: { connectorKind !== \osc })) {
+			Error("arg 'connectorKind' in % must be given - either 'midi' or 'osc'.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot, connectorKind: connectorKind).init(parent, rect, connectorID, layout);
 	}
@@ -186,10 +181,10 @@ MappingSelect : ConnectorElementView {
 	setWidget { |otherWidget, slot|
 		var ramp;
 
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
 		all[otherWidget] ?? { all[otherWidget] = () };
 		all[otherWidget][connectorKind] ?? {

@@ -11,7 +11,7 @@ OscSelectsComboView : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), layout([[(name: \ipselect, stretch: 20), (name: \colon, stretch: 0), (name: \portselect, stretch: 10)], [(name: \cmdselect), (name: \scanbut), (name: \rreset)]])|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID, layout);
 	}
@@ -192,6 +192,11 @@ OscSelectsComboView : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 

@@ -11,7 +11,7 @@ OscCmdNameField : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -74,10 +74,10 @@ OscCmdNameField : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
@@ -134,7 +134,7 @@ OscMsgIndexBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -171,9 +171,10 @@ OscMsgIndexBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
@@ -226,7 +227,7 @@ OscModeSelect : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -261,6 +262,11 @@ OscModeSelect : ConnectorElementView {
 
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -300,7 +306,7 @@ OscMatchingCheckBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -336,6 +342,11 @@ OscMatchingCheckBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -384,7 +395,7 @@ OscResolutionBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -417,6 +428,11 @@ OscResolutionBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -456,7 +472,7 @@ OscSnapDistanceNumBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -490,6 +506,11 @@ OscSnapDistanceNumBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -530,7 +551,7 @@ OscConstrainterNumBox : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0), position|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID, position)
 	}
@@ -584,6 +605,11 @@ OscConstrainterNumBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 
@@ -610,7 +636,7 @@ OscZeroCrossingText : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -643,6 +669,11 @@ OscZeroCrossingText : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -687,7 +718,7 @@ OscCalibrationButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -724,10 +755,10 @@ OscCalibrationButton : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
@@ -767,7 +798,7 @@ OscCalibrationResetButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -803,6 +834,11 @@ OscCalibrationResetButton : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, slot|
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
 		this.prCleanup;
@@ -843,7 +879,7 @@ OscConnectButton : ConnectorElementView {
 
 	*new { |parent, widget, rect, slot, connectorID(0)|
 		if (widget.isKindOf(CVWidget).not) {
-			Error("arg 'widget' must be a kind of CVWidget").throw
+			Error("%: arg 'widget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
 		^super.newCopyArgs(widget: widget, slot: slot).init(parent, rect, connectorID);
 	}
@@ -918,10 +954,10 @@ OscConnectButton : ConnectorElementView {
 	setWidget { |otherWidget, slot|
 		var defaultState;
 
-		// FIXME: check for CVWidget2D slot (once it's implemented...)
-		if (otherWidget.class !== CVWidgetKnob) {
-			Error("Widget must be a CVWidgetKnob").throw
+		if (otherWidget.isKindOf(CVWidget).not) {
+			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
 		};
+		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
 		all[otherWidget] ?? { all[otherWidget] = List[] };
 		all[otherWidget].add(this);
