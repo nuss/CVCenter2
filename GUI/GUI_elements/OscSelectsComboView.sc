@@ -191,38 +191,36 @@ OscSelectsComboView : ConnectorElementView {
 		this.enabled_(connectionsM.value[connectorID].isNil)
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
+			if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
 		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
-
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
-
-		wmc = CVWidget.wmc;
-		osc = wmc.oscAddrAndCmds;
-
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\osc);
+		this.index_(0);
 
-		if (displayM.value[0].ipField.isNil) {
+		if (displayM.value[this.connector.index].ipField.isNil) {
 			e.ipselect.value_(0)
 		} {
-			e.ipselect.value_(e.ipselect.items.indexOf(displayM.value[0].ipField));
+			e.ipselect.value_(e.ipselect.items.indexOf(displayM.value[this.connector.index].ipField));
 			if (displayM.value[0].portField.isNil) {
 				e.portselect.value_(0)
 			} {
-				e.portselect.value_(e.portselect.items.indexOf(displayM.value[0].portField))
+				e.portselect.value_(e.portselect.items.indexOf(displayM.value[this.connector.index].portField))
 			}
 		};
-		e.cmdselect.value_(e.cmdselect.items.indexOf(displayM.value[0].nameField));
-		this.enabled_(connectionsM.value[0].isNil);
-		this.index_(0);
+		e.cmdselect.value_(e.cmdselect.items.indexOf(displayM.value[this.connector.index].nameField));
+		this.enabled_(connectionsM.value[this.connector.index].isNil);
 		this.prAddController;
 	}
 

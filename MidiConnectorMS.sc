@@ -82,7 +82,8 @@ MidiConnectorMS : AbstractConnector {
 			chan: "chan",
 			ctrl: "ctrl",
 			learn: "L",
-			toolTip: "Click and move hardware slider/knob to connect to"
+			toolTip: "Click and move hardware slider/knob to connect to",
+			slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
 		));
 
 		wmc.midiConnectorNames ?? { wmc.midiConnectorNames = () };
@@ -222,6 +223,10 @@ MidiConnectorMS : AbstractConnector {
 	getMidiDisplay { |displayValueName|
 		var index = this.index;
 		^this.widget.wmc.midiDisplay.m[this.slot].value[index][displayValueName]
+	}
+
+	getSlotToolTip {
+		^this.getMidiDisplay(\slotToolTip)
 	}
 
 	setMIDIFuncEnabled { |boolEnabled|

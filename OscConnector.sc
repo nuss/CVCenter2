@@ -54,7 +54,8 @@ OscConnector : AbstractConnector {
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
 			numOscSlots: 1,
-			alwaysPositive: 0.1
+			alwaysPositive: 0.1,
+			slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
@@ -221,6 +222,10 @@ OscConnector : AbstractConnector {
 	getOscDisplay { |displayValueName|
 		var index = this.index;
 		^this.widget.wmc.oscDisplay.m.value[index][displayValueName]
+	}
+
+	getSlotToolTip {
+		^this.getOscDisplay(\slotToolTip)
 	}
 
 	setOSCFuncEnabled { |boolEnabled|

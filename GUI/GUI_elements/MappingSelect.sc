@@ -178,24 +178,25 @@ MappingSelect : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
+	setWidget { |otherWidget, argSlot|
 		var ramp;
 
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = () };
-		all[otherWidget][connectorKind] ?? {
-			all[otherWidget][connectorKind] = List[];
-		};
-		all[otherWidget][connectorKind].add(this);
+			all[otherWidget] ?? { all[otherWidget] = () };
+			all[otherWidget][connectorKind] ?? {
+				all[otherWidget][connectorKind] = List[];
+			};
+			all[otherWidget][connectorKind].add(this);
 
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(connectorKind);
 
 		case
@@ -212,14 +213,17 @@ MappingSelect : ConnectorElementView {
 		{ \linbicurve } { [\linbicurve, optionsM.value[0][mappingType].curve] }
 		{ optionsM.value[0][mappingType].mapping };
 
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+
 		case
-		{ optionsM.value[0][mappingType].mapping === \lincurve or: {
-			optionsM.value[0][mappingType].mapping === \linbicurve
+		{ optionsM.value[this.connector.index][mappingType].mapping === \lincurve or: {
+			optionsM.value[this.connector.index][mappingType].mapping === \linbicurve
 		}} {
 			e.mcurve.enabled_(true);
 			e.menv.enabled_(false);
 		}
-		{ optionsM.value[0][mappingType].mapping === \linenv } {
+		{ optionsM.value[this.connector.index][mappingType].mapping === \linenv } {
 			e.menv.enabled_(true);
 			e.mcurve.enabled_(false);
 		}
@@ -228,8 +232,6 @@ MappingSelect : ConnectorElementView {
 			e.mcurve.enabled_(false);
 		};
 
-		// midiConnector at index 0 should always exist (who knows...)
-		this.index_(0);
 		this.prAddController;
 	}
 

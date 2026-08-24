@@ -93,33 +93,34 @@ MidiLearnButton : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
+	setWidget { |otherWidget, argSlot|
 		var defaultState;
 
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		if (displayM.value[0].learn == "C") {
+		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		if (displayM.value[this.connector.index].learn == "C") {
 			defaultState = ["C", Color.black, Color.green];
-			displayM.value[0].toolTip = "Connect using selected parameters";
+			displayM.value[this.connector.index].toolTip = "Connect using selected parameters";
 		} {
 			defaultState = ["L", Color.white, Color.blue];
 		};
 		this.view.states_([
 			defaultState,
 			["X", Color.white, Color.red]
-		]).maxWidth_(25).toolTip_(displayM.value[0].toolTip);
-		// midiConnector at index 0 should always exist (who knows...)
-		this.index_(0);
+		]).maxWidth_(25).toolTip_(displayM.value[this.connector.index].toolTip);
 		this.prAddController;
 	}
 
@@ -216,23 +217,24 @@ MidiSrcSelect : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.view.enabled_(displayM.value[0].learn != "X")
-		.items_(['source...'] ++ wmc.m.value.keys.asArray.sort).maxWidth_(100);
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.view.enabled_(displayM.value[this.connector.index].learn != "X")
+		.items_(['source...'] ++ wmc.m.value.keys.asArray.sort).maxWidth_(100);
 		this.prAddController;
 	}
 
@@ -345,22 +347,23 @@ MidiChanField : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.view.enabled_(displayM.value[0].learn != "X");
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.view.enabled_(displayM.value[this.connector.index].learn != "X");
 		this.prAddController;
 	}
 
@@ -434,22 +437,23 @@ MidiCtrlField : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.view.enabled_(displayM.value[0].learn != "X");
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
+		this.view.enabled_(displayM.value[this.connector.index].learn != "X");
 		this.prAddController;
 	}
 
@@ -516,21 +520,22 @@ MidiModeSelect : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
 		this.prAddController;
 	}
 
@@ -594,18 +599,19 @@ MidiZeroNumberBox : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
@@ -674,21 +680,22 @@ SnapDistanceNumberBox : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
 		this.prAddController;
 	}
 
@@ -752,21 +759,23 @@ MidiResolutionNumberBox : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
+			if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
-		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
+		this.index_(0);
 		this.prAddController;
 	}
 
@@ -832,18 +841,19 @@ SlidersPerGroupNumberBox : ConnectorElementView {
 		}
 	}
 
-	setWidget { |otherWidget, slot|
-		if (otherWidget.isKindOf(CVWidget).not) {
-			Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
-		};
-		if (otherWidget.class === CVWidgetMS and: { slot.isNil }) { slot = 0 };
+	setWidget { |otherWidget, argSlot|
+		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
+			if (otherWidget.isKindOf(CVWidget).not) {
+				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
+			};
 
-		all[otherWidget] ?? { all[otherWidget] = List[] };
-		all[otherWidget].add(this);
-		this.prCleanup;
-		// switch after cleanup has finished
-		widget = otherWidget;
-		this.slot_(slot);
+			all[otherWidget] ?? { all[otherWidget] = List[] };
+			all[otherWidget].add(this);
+			this.prCleanup;
+			// switch after cleanup has finished
+			widget = otherWidget;
+		};
+		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\midi);
 		this.index_(0);
 		// midiConnector at index 0 should always exist (who knows...)
