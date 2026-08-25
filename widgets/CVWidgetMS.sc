@@ -506,7 +506,7 @@ CVWidgetMS : CVWidget {
 
 	addMidiConnector { |name, slot|
 		slot ?? {
-			"CVWidgetMS:-addMidiConnector: No slot given, cannot add MidiConnector".error;
+			"%: No slot given, cannot add new MidiConnectorMS".format(thisMethod).error;
 			^nil
 		};
 		if (slot < this.size) {
@@ -891,7 +891,7 @@ CVWidgetMS : CVWidget {
 	// connections handling
 	addOscConnector { |name, slot|
 		slot ?? {
-			"CVWidgetMS:-addConnector: No slot given, cannot add MidiConnector".error;
+			"%: No slot given, cannot add new OscConnectorMS".format(thisMethod).error;
 			^nil
 		};
 		if (slot < this.size) {

@@ -543,7 +543,7 @@ OscConnectorMS : AbstractConnector {
 	}
 
 	storeOn { |stream|
-		stream << this.class.name << "(" <<* [this.widget.name.cs, this.name] << ")"
+		stream << this.class.name << "(" <<* [this.widget.name.cs, this.name, this.slot] << ")"
 	}
 
 	printOn { |stream|

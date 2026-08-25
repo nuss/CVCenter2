@@ -30,7 +30,7 @@ OscConnectorsEditorView : SCViewHolder {
 		if (index.class == Symbol) {
 			index = connectors.detectIndex { |c| c.name == index }
 		};
-		if (index.class == OscConnector) {
+		if (index.class === OscConnector or: { index.class === OscConnectorMS }) {
 			index = connectors.indexOf(index)
 		};
 		// fallback if index out of bounds
@@ -148,9 +148,17 @@ OscConnectorsEditorView : SCViewHolder {
 			)
 		);
 
+		e.slotNumBox.view.action_({ |nb|
+			if (widget.class === CVWidgetMS) {
+				this.setWidget(argSlot: nb.value)
+			}
+		});
+
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.lastIndex)) {
-				o = widget.addOscConnector(slot: this.slot);
+				o = switch (widget.class)
+				{ CVWidgetMS } { widget.addOscConnector(slot: this.slot) }
+				{ CVWidgetKnob } { widget.addOscConnector };
 				e.connectorSelect.view.value_(connectors.indexOf(o));
 			};
 
@@ -177,20 +185,20 @@ OscConnectorsEditorView : SCViewHolder {
 		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
 			all[widget].remove(this);
 			widget = otherWidget;
-			connectors = switch (widget.class)
-			{ CVWidgetKnob } {
-				widget.wmc.oscConnectors.m.value
-			}
-			{ CVWidgetMS } {
-				widget.wmc.oscConnectors.m[argSlot].value
-			};
 			all[widget] ?? { all[widget] = List[] };
 			if (all[widget].includes(this).not) { all[widget].add(this) };
 		};
 		switch (widget.class)
-		{ CVWidgetMS } { slot = (if (argSlot.notNil) { argSlot } { 0 }) }
+		{ CVWidgetMS } { slot = (if (argSlot.notNil) { argSlot.asInteger } { 0 }) }
 		{ CVWidgetKnob } { slot = nil };
 		cIndex = 0;
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			connectors = widget.oscConnectors;
+		}
+		{ CVWidgetMS } {
+			connectors = widget.oscConnectors[this.slot];
+		};
 		connector = connectors[cIndex];
 		e.do(_.setWidget(widget, this.slot));
 		if (parent.class === Window) {
@@ -256,7 +264,7 @@ MidiConnectorsEditorView : SCViewHolder {
 		if (index.class == Symbol) {
 			index = connectors.detectIndex { |c| c.name == index }
 		};
-		if (index.class == MidiConnector) {
+		if (index.class === MidiConnector or: { index.class === MidiConnectorMS}) {
 			index = connectors.indexOf(index)
 		};
 		// after all, if index is nil or greater than the last index of widget.midiConnectors set it to 0
@@ -287,7 +295,7 @@ MidiConnectorsEditorView : SCViewHolder {
 				MidiConnector(widget)
 			}
 			{ CVWidgetMS } {
-				MidiConnector(widget, slot: this.slot)
+				MidiConnectorMS(widget, slot: this.slot)
 			}
 		};
 
@@ -357,9 +365,17 @@ MidiConnectorsEditorView : SCViewHolder {
 			)
 		);
 
+		e.slotNumBox.view.action_({ |nb|
+			if (widget.class === CVWidgetMS) {
+				this.setWidget(argSlot: nb.value)
+			}
+		});
+
 		e.connectorSelect.view.action_({ |sel|
 			if (sel.value == (sel.items.lastIndex)) {
-				m = widget.addMidiConnector(slot: this.slot);
+				m = switch (widget.class)
+				{ CVWidgetMS } { widget.addMidiConnector(slot: this.slot) }
+				{ CVWidgetKnob } { widget.addMidiConnector };
 				e.connectorSelect.view.value_(connectors.indexOf(m));
 			};
 
@@ -386,24 +402,24 @@ MidiConnectorsEditorView : SCViewHolder {
 		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
 			all[widget].remove(this);
 			widget = otherWidget;
-			switch (widget.class)
-			{ CVWidgetKnob } {
-				connectors = widget.wmc.midiConnectors.m.value;
-				connections = widget.wmc.midiConnections.m.value;
-			}
-			{ CVWidgetMS } {
-				connectors = widget.wmc.midiConnectors.m[argSlot].value;
-				connections = widget.wmc.midiConnections.m[argSlot].value;
-			};
 			all[widget] ?? { all[widget] = List[] };
 			if (all[widget].includes(this).not) { all[widget].add(this) };
 		};
-		switch (widget.class)
-		{ CVWidgetMS } { slot = (if (argSlot.notNil) { argSlot } { 0 }) }
+		switch (this.widget.class)
+		{ CVWidgetMS } { slot = (if (argSlot.notNil) { argSlot.asInteger } { 0 }) }
 		{ CVWidgetKnob } { slot = nil };
 		index = 0;
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			connectors = widget.midiConnectors;
+			connections = widget.wmc.midiConnections.m.value;
+		}
+		{ CVWidgetMS } {
+			connectors = widget.midiConnectors[this.slot];
+			connections = widget.wmc.midiConnections.m[this.slot].value;
+		};
 		connector = connectors[index];
-		e.do(_.setWidget(widget, argSlot));
+		e.do(_.setWidget(this.widget, argSlot));
 		if (parent.class === Window) {
 			switch (widget.class)
 			{ CVWidgetKnob } {

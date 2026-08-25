@@ -611,6 +611,8 @@ OscConstrainterNumBox : ConnectorElementView {
 	}
 
 	setWidget { |otherWidget, argSlot|
+		var inputConstrainters;
+
 		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
 			if (otherWidget.isKindOf(CVWidget).not) {
 				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
@@ -627,9 +629,12 @@ OscConstrainterNumBox : ConnectorElementView {
 		this.prMCDistinct(\osc);
 		// oscConnector at index 0 should always exist (who knows...)
 		this.index_(0);
+		inputConstrainters = switch (widget.class)
+		{ CVWidgetKnob } { widget.wmc.oscInputConstrainters }
+		{ CVWidgetMS } { widget.wmc.oscInputConstrainters[this.slot] };
 		cv = switch(position)
-		{ 0 } { widget.wmc.oscInputConstrainters[this.connector.index].lo }
-		{ 1 } { widget.wmc.oscInputConstrainters[this.connector.index].hi };
+		{ 0 } { inputConstrainters[this.connector.index].lo }
+		{ 1 } { inputConstrainters[this.connector.index].hi };
 		cv.connect(this.view);
 	}
 }

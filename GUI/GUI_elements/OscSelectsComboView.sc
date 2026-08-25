@@ -219,7 +219,11 @@ OscSelectsComboView : ConnectorElementView {
 				e.portselect.value_(e.portselect.items.indexOf(displayM.value[this.connector.index].portField))
 			}
 		};
-		e.cmdselect.value_(e.cmdselect.items.indexOf(displayM.value[this.connector.index].nameField));
+		if (displayM.value[this.connector.index].nameField === '/path/to/cmd') {
+			e.cmdselect.value_(0)
+		} {
+			e.cmdselect.value_(e.cmdselect.items.indexOf(displayM.value[this.connector.index].nameField))
+		};
 		this.enabled_(connectionsM.value[this.connector.index].isNil);
 		this.prAddController;
 	}

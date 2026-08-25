@@ -464,6 +464,13 @@ ConnectorSlotMumBox : ConnectorElementView {
 		};
 		this.slot_(if (slot.notNil) { slot } { 0 });
 		this.prMCDistinct(connectorKind);
+		switch (widget.class)
+		{ CVWidgetKnob } {
+			this.view.enabled_(false).value_(0)
+		}
+		{ CVWidgetMS } {
+			this.view.clipHi_(widget.size-1).enabled_(true).value_(slot)
+		};
 		this.index_(0);
 	}
 
@@ -476,6 +483,17 @@ ConnectorSlotMumBox : ConnectorElementView {
 				// this.prRemoveControllers;
 				// widget.prRemoveSyncKey(syncKey, true);
 				all[widget].removeAt(connectorKind);
+			}
+		}
+	}
+
+	prOnRemoveConnector { |widget, index, connectorKind|
+		// if widget has already been removed let it fail
+		try {
+			if (index > 0) {
+				all[widget][connectorKind].do(_.index_(index - 1))
+			} {
+				all[widget][connectorKind].do(_.index_(index))
 			}
 		}
 	}
@@ -606,9 +624,11 @@ ControlSpecText : ConnectorElementView {
 			all[otherWidget] ?? { all[otherWidget] = List[] };
 			all[otherWidget].add(this);
 			this.prCleanup;
+			widget = otherWidget;
 			mc = widget.wmc.cvSpec;
 			this.prAddController;
-		}
+		};
+		this.view.string_("Current ControlSpec:\n%".format(mc.m.value))
 	}
 
 	prAddController {
