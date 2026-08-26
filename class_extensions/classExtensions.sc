@@ -132,7 +132,6 @@
 					index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
 				).inform
 			};
-			"connectionsModel.value[%]: %".format(index, connectionsModel.value[index]).postln;
 			connectionsModel.changedPerformKeys(widget.syncKeys, index);
 			displayModel.value[index].nameField = msg[0];
 			// displayModel.value[index].connectorButVal = 1;

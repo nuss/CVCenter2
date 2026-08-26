@@ -963,12 +963,11 @@ OscConnectButton : ConnectorElementView {
 
 	index_ { |connectorID|
 		connector = connectors[connectorID];
-		this.view.value_(connectionsM.value[connectorID].notNil.asInteger);
+		this.view.states_([displayM.value[connectorID].connectState])
+		.value_(connectionsM.value[connectorID].notNil.asInteger);
 	}
 
 	setWidget { |otherWidget, argSlot|
-		var defaultState;
-
 		if (otherWidget.notNil and: { otherWidget !== this.widget }) {
 			if (otherWidget.isKindOf(CVWidget).not) {
 				Error("%: arg 'otherWidget' must be a kind of CVWidget.".format(thisMethod)).throw
@@ -983,7 +982,7 @@ OscConnectButton : ConnectorElementView {
 		this.slot_(if (argSlot.notNil) { argSlot } { 0 });
 		this.prMCDistinct(\osc);
 		this.index_(0);
-		defaultState = displayM.value[this.connector.index].connect0;
+		this.view.states_([displayM.value[0].connectState]);
 		this.prAddController;
 	}
 
