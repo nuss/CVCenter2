@@ -1,3 +1,0 @@
-CVWidget2D : CVWidget {
-
-}

@@ -95,9 +95,8 @@ CVWidget {
 	// activateAction { this.subclassResponsibility(thisMethod) }
 	// updateAction { this.subclassResponsibility(thisMethod) }
 	// MIDI
-	midiConnectors { this.subclassResponsibility(thisMethod) }
+	// midiConnectors { this.subclassResponsibility(thisMethod) }
 	addMidiConnector { this.subclassResponsibility(thisMethod) }
-	midiDialog { this.subclassResponsibility(thisMethod) }
 	removeMidiConnector { this.subclassResponsibility(thisMethod) }
 	setMidiMode { this.subclassResponsibility(thisMethod) }
 	getMidiMode { this.subclassResponsibility(thisMethod) }
@@ -121,9 +120,8 @@ CVWidget {
 	midiDisconnect { this.subclassResponsibility(thisMethod) }
 
 	// OSC
-	oscConnectors { this.subclassResponsibility(thisMethod) }
+	// oscConnectors { this.subclassResponsibility(thisMethod) }
 	addOscConnector { this.subclassResponsibility(thisMethod) }
-	oscDialog { this.subclassResponsibility(thisMethod) }
 	removeOscConnector { this.subclassResponsibility(thisMethod) }
 	setOscEndless { this.subclassResponsibility(thisMethod) }
 	getOscEndless { this.subclassResponsibility(thisMethod) }

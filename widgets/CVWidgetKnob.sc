@@ -99,14 +99,6 @@ CVWidgetKnob : CVWidget {
 		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
-	midiDialog { |connector(0), parent|
-		^MidiConnectorsEditorView(parent, widget: this, connector: connector).front;
-	}
-
-	oscDialog { |connector(0), parent|
-		^OscConnectorsEditorView(parent, widget: this, connector: connector).front;
-	}
-
 	//  common OSC and MIDI helpers
 	getConnector { |connectorKind, connector|
 		var connectors;

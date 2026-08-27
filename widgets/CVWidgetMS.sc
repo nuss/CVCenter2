@@ -132,14 +132,6 @@ CVWidgetMS : CVWidget {
 		wmc.cvSpec.m.value_(spec).changedPerformKeys(this.syncKeys);
 	}
 
-	midiDialog { |slot(0), connector(0), parent|
-		^MidiConnectorsEditorView(parent, widget: this, slot: slot, connector: connector).front;
-	}
-
-	oscDialog { |slot(0), connector(0), parent|
-		^OscConnectorsEditorView(parent, widget: this, slot: slot, connector: connector).front;
-	}
-
 	getConnector { |connectorKind, connector, slot|
 		var connectors;
 
