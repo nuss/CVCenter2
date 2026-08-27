@@ -83,7 +83,8 @@ TestExtOSCFunc : UnitTest {
 			connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
 			index: 1,
 			numOscSlots: 1,
-			alwaysPositive: 0.1
+			alwaysPositive: 0.1,
+			slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 		), "After calling OSCFunc.cvWidgetLearn widget1.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
 		this.assertEquals(widget1.wmc.oscConnections.m.value, List[nil], "widget1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget1, 0).");
 		this.assertEquals(widget2.wmc.oscConnections.m.value, List[nil], "widget2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget2, 0, true).");
@@ -104,9 +105,9 @@ TestExtOSCFunc : UnitTest {
 				ipField: '127.0.0.1',
 				nameField: '/test',
 				learn: false,
-				alwaysPositive: 0.1
-			), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false,
-			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
+				alwaysPositive: 0.1,
+				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
+			), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false, numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
 			this.assertEquals(widget2.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
 				connectEnabled: true,
@@ -117,9 +118,9 @@ TestExtOSCFunc : UnitTest {
 				ipField: '127.0.0.1',
 				nameField: '/test',
 				learn: false,
-				alwaysPositive: 0.1
-			), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true,
-			numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false)");
+				alwaysPositive: 0.1,
+				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
+			), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true, numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
 			widget1.remove;
 			widget2.remove;
 		};
@@ -144,7 +145,7 @@ TestExtMIDIFunc : UnitTest {
 	}
 
 	test_learnSync {
-		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, 0);
+		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, index: 0);
 		MIDIIn.doControlAction(12345, 1, 1, 64);
 		this.assertEquals([
 			widget.wmc.midiConnections.m.value[0].srcID,
@@ -159,7 +160,7 @@ TestExtMIDIFunc : UnitTest {
 			widget.wmc.midiDisplay.m.value[0].template
 		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction widget.wmc.midiDisplay.m.value[0] should return 12345 for src, 1 for its chan, 1 for ctrl and nil for template.");
 		widget.midiDisconnect(0);
-		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, 0, true);
+		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, index: 0, learnVal: true);
 		MIDIIn.doControlAction(12345, 1, 1, 64);
 		this.assertEquals(widget.wmc.midiConnections.m.value[0].argTemplate, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true the resulting MIDIFunc should return the control value that was sent when learning as its argTemplate.");
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].template, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true widget.wmc.midiDisplay.m.value[0] should return the control value that was sent when learning as its template slot.");

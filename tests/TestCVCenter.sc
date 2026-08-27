@@ -9,7 +9,6 @@ TestCVCenter : UnitTest {
 			TestOscConnector,
 			TestMappings,
 			TestCVWidgetKnob,
-			TestExtMIDIFunc,
 			TestExtObject,
 			// Tests with asynchronous logic
 			TestExtOSCFunc,

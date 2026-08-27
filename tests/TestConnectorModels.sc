@@ -37,10 +37,11 @@ TestMidiConnector : UnitTest {
 				chan: "chan",
 				ctrl: "ctrl",
 				learn: "L",
-				toolTip: "Click and move hardware slider/knob to connect to"
+				toolTip: "Click and move hardware slider/knob to connect to",
+				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 			)
 		};
-		this.assertEquals(vals, [true, true, true], "The values of midiDisplay model declared within the MidiConnectors should default to an Event (src: \"source\", chan: \"chan\", ctrl: \"ctrl\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\")");
+		this.assertEquals(vals, [true, true, true], "The values of midiDisplay model declared within the MidiConnectors should default to an Event (src: \"source\", chan: \"chan\", ctrl: \"ctrl\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\", slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
 	}
 
 	test_name {
@@ -91,7 +92,7 @@ TestMidiConnector : UnitTest {
 		this.assertEquals(widget.wmc.midiDisplay.m.value[0].toolTip, "Click to disconnect", "widget.wmc.midiDisplay.m.value[0].template should equal \"Click to disconnect\"");
 		connector1.midiDisconnect;
 		this.assertEquals(widget.wmc.midiConnections.m.value[0], nil, "After disconnecting a widget's default MidiConnector instance widget.wmc.midiConnections.m.value[0] should hold nil");
-		this.assertEquals(widget.wmc.midiDisplay.m[0].value, (ctrl: "ctrl", chan: "chan", src: 'source...', learn: "L", toolTip: "Click and move hardware slider/knob to connect to"), "After disconnecting a widget's default MidiConnector instance widget.wmc.midiDisplay.m[0].value should hold an Event with the default values: (ctrl: \"ctrl\", chan: \"chan\", src: \"source\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\")");
+		this.assertEquals(widget.wmc.midiDisplay.m.value[0], (ctrl: "ctrl", chan: "chan", src: 'source...', learn: "L", toolTip: "Click and move hardware slider/knob to connect to", slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."), "After disconnecting a widget's default MidiConnector instance widget.wmc.midiDisplay.m[0].value should hold an Event with the default values: (ctrl: \"ctrl\", chan: \"chan\", src: \"source\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\", slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
 		connector1.remove;
 		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "After removing connector1 widget.wmc.midiConnectors.m.value should hold one MidiConnector.");
 		this.assertEquals(widget.wmc.midiConnections.m.value[0].class, MIDIFunc, "After calling connection2.midiConnect(num: 3) and calling connection1.remove widget.wmc.midiConnections.m.value[0] should hold a MIDIFunc");
@@ -128,7 +129,7 @@ TestOscConnector : UnitTest {
 				oscMatching: false
 			);
 		};
-		this.assertEquals(vals, [true, true, true], "The values of oscOptions model declared within the OscConnectors should default to an Event (oscEndless: false, oscResolution: 1, oscCalibration: true, oscSnapDistance: 0.1, oscInputRange: [0.0001, 0.0001], oscInputMapping: (mapping: 'linlin'))");
+		this.assertEquals(vals, [true, true, true], "The values of oscOptions model declared within the OscConnector should default to an Event (oscEndless: false, oscResolution: 1, oscCalibration: true, oscSnapDistance: 0.1, oscInputRange: [0.0001, 0.0001], oscInputMapping: (mapping: 'linlin'))");
 		vals = widget.wmc.oscDisplay.m.value.collect { |v|
 			v == (
 				nameField: '/path/to/cmd',
@@ -137,10 +138,11 @@ TestOscConnector : UnitTest {
 				connectEnabled: true, // default, if no command is given
 				numOscSlots: 1,
 				learn: true,
-				alwaysPositive: 0.1
+				alwaysPositive: 0.1,
+				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 			)
 		};
-		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/path/to/cmd', index: 1, connectorButVal: 0, connect: \"Learn\")");
+		this.assertEquals(vals, [true, true, true], "The values of oscDisplay model declared within the OscConnectors should default to an Event (ipField: nil, portField: nil, nameField: '/path/to/cmd', index: 1, connectorButVal: 0, connect: \"Learn\", slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
 	}
 
 	test_name {
@@ -200,7 +202,8 @@ TestOscConnector : UnitTest {
 			connectState: ["connect", Color.white, Color.blue],
 			connectEnabled: true,
 			learn: false,
-			alwaysPositive: 0.1
+			alwaysPositive: 0.1,
+			slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 		), "After disconnectiong connector1 widget.wmc.oscDisplay.m.value[0] should hold an Event (index: 1, nameField: '/test1', ipField: \"127.0.0.1\", portField: 57120, template: \"[0, 1, 2, 3]\", connectState: [\"connect\", Color.white, Color.blue])");
 		connector1.remove;
 		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "After removing connector1 widget.wmc.oscConnectors.m.value should hold one OscConnector.");
