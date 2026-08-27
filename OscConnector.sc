@@ -411,6 +411,7 @@ OscConnector : AbstractConnector {
 				accum[this.widget] = cv.input;
 				// "accum (non-endless): %".format(accum).postln;
 			} {
+				if (accum.isEmpty) { accum.put(this.widget, cv.input) };
 				accum[this.widget] = accum[this.widget] + (input / constraintsRange / 32 * this.getOscResolution);
 
 				case

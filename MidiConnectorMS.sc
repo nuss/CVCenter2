@@ -417,21 +417,21 @@ MidiConnectorMS : AbstractConnector {
 					{ inputMapping.mapping === \lincurve } {
 						cv.input_(
 							cv.input[..this.slot-1] ++
-							accum[this.widget].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
+							accum[this.widget][this.slot].lincurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
 							cv.input[this.slot+1..]
 						)
 					}
 					{ inputMapping.mapping === \linbicurve } {
 						cv.input_(
 							cv.input[..this.slot-1] ++
-							accum[this.widget].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
+							accum[this.widget][this.slot].linbicurve(inMin: 0.0, inMax: 1.0, outMin: 0.0, outMax: 1.0, curve: inputMapping.curve) ++
 							cv.input[this.slot+1..]
 						)
 					}
 					{ inputMapping.mapping === \linenv } {
 						cv.input_(
 							cv.input[..this.slot-1] ++
-							accum[this.widget].linenv(env: inputMapping.env) ++
+							accum[this.widget][this.slot].linenv(env: inputMapping.env) ++
 							cv.input[this.slot+1..]
 						)
 					}
@@ -453,7 +453,7 @@ MidiConnectorMS : AbstractConnector {
 						} {
 							cv.value_(
 								cv.value[..this.slot-1] ++
-								(accum[this.widget]+1).perform(
+								(accum[this.widget][this.slot]+1).perform(
 									inputMapping.mapping, 1, 2,
 									this.widget.getSpec.minval.asArray.wrapAt(this.slot),
 									this.widget.getSpec.maxval.asArray.wrapAt(this.slot)

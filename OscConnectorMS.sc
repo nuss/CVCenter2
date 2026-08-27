@@ -447,6 +447,8 @@ OscConnectorMS : AbstractConnector {
 				// TODO: what is accum???
 				accum[this.widget] = cv.input;
 			} {
+				// "%: accum: %".format(thisMethod, accum).postln;
+				if (accum.isEmpty) { accum.put(this.widget, cv.input) };
 				accum[this.widget][this.slot] = accum[this.widget][this.slot] + (input / constraintsRange / 32 * this.getOscResolution);
 
 				case
@@ -495,7 +497,7 @@ OscConnectorMS : AbstractConnector {
 					} {
 						cv.value_(
 							cv.input[..this.slot-1] ++
-							(accum[this.widget]+1).perform(
+							(accum[this.widget][this.slot]+1).perform(
 								inputMapping.mapping, 1, 2,
 								this.widget.getSpec.minval.asArray.wrapAt(this.slot),
 								this.widget.getSpec.maxval.asArray.wrapAt(this.slot)

@@ -1,6 +1,6 @@
 +SimpleNumber {
 
-	linbicurve { |inMin = -1, inMax = 1, inCenter, outMin = -1, outMax = 1, outCenter, curve = -4, clip = \minmax|
+	linbicurve { |inMin(-1), inMax(1), inCenter, outMin(-1), outMax(1), outCenter, curve(-4), clip(\minmax)|
 		inCenter = inCenter ?? { inMin + inMax / 2 };
 		outCenter = outCenter ?? { outMin + outMax / 2 };
 
@@ -11,7 +11,7 @@
 		}
 	}
 
-	linenv { |inMin = 0, inMax = 1, outMin = 0, outMax = 1, env, clip = \minmax, resolution = 400|
+	linenv { |inMin(0), inMax(1), outMin(0), outMax(1), env, clip(\minmax), resolution(400)|
 		var envVals;
 		// input indexing must start at index 0 of the env array
 		// if inMin is smaller than 0 we add inMin.neg
