@@ -90,6 +90,7 @@
 	*cvWidgetLearn { |widget, slot, index, matching(false), port, argTemplate, dispatcher|
 		var learnFunc, connector;
 		var oscConnectors, connectionsModel, displayModel;
+		var oscConnectorClass;
 
 		if (widget.isNil or: { widget.isKindOf(CVWidget).not}) {
 			"Cannot connect non-existing or invalid widget".error;
@@ -98,11 +99,13 @@
 
 		switch (widget.class)
 		{ CVWidgetKnob } {
+			oscConnectorClass = OscConnector;
 			oscConnectors = widget.oscConnectors;
 			connectionsModel = widget.wmc.oscConnections.m;
 			displayModel = widget.wmc.oscDisplay.m;
 		}
 		{ CVWidgetMS } {
+			oscConnectorClass = OscConnectorMS;
 			oscConnectors = widget.oscConnectors[slot];
 			connectionsModel = widget.wmc.oscConnections.m[slot];
 			displayModel = widget.wmc.oscDisplay.m[slot];
@@ -119,17 +122,18 @@
 			connector = oscConnectors[index];
 		};
 
-		OscConnector.accum[widget] = widget.cv.input;
+		// oscConnectorClass.accum[widget] = widget.cv.input;
+
 		learnFunc = { |msg, time, addr, recvPort|
 			if (matching) {
 				connectionsModel.value[index] = OSCFunc.newMatching(connector.prOSCFuncAction(widget.getOscMsgIndex(index, slot)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index, slot) }, dispatcher ?? { widget.getOscDispatcher(index, slot) });
-				"New matching OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
-					index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
+				"New matching OSCFunc created for %[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
+					oscConnectorClass, index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
 				).inform
 			} {
 				connectionsModel.value[index] = OSCFunc(connector.prOSCFuncAction(widget.getOscMsgIndex(index, slot)), msg[0], addr, port ? recvPort, argTemplate ?? { widget.getOscTemplate(index, slot) });
-				"New OSCFunc created for OscConnector[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
-					index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
+				"New OSCFunc created for %[%], listening to '%', msg index %, from NetAddr('%', %) on port %".format(
+					oscConnectorClass, index, msg[0], widget.getOscMsgIndex(index, slot), addr.ip, addr.port, port ? recvPort
 				).inform
 			};
 			connectionsModel.changedPerformKeys(widget.syncKeys, index);

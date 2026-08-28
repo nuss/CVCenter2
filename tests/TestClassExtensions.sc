@@ -57,15 +57,18 @@ TestExtCollection : UnitTest {
 }
 
 TestExtOSCFunc : UnitTest {
-	var widget1, widget2;
+	var knob1, knob2;
+	var ms1, ms2;
 
 	setUp {
-		widget1 = CVWidgetKnob(\test1);
-		widget2 = CVWidgetKnob(\test2);
+		knob1 = CVWidgetKnob(\test1);
+		knob2 = CVWidgetKnob(\test2);
+		ms1 = CVWidgetMS(\ms1);
+		ms2 = CVWidgetMS(\ms2);
 	}
 
 	tearDown {
-		// widget1.remove
+		// knob1.remove
 	}
 
 	test_cvWidgetLearn {
@@ -73,56 +76,57 @@ TestExtOSCFunc : UnitTest {
 		var waitDelay = 0.0001;
 		var sigDelay = 0.1;
 
-		OSCFunc.cvWidgetLearn(widget1, index: 0);
-		OSCFunc.cvWidgetLearn(widget2, index: 0, matching: true);
-		this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
+		OSCFunc.cvWidgetLearn(knob1, index: 0);
+		OSCFunc.cvWidgetLearn(knob2, index: 0, matching: true);
+		this.assertEquals(knob1.wmc.oscDisplay.m.value[0], (
 			// connectorButVal: 0,
 			connectEnabled: false,
 			nameField: '/path/to/cmd',
 			learn: true,
 			connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
-			index: 1,
-			numOscSlots: 1,
+			msgSlot: 1,
+			numMsgSlots: 1,
 			alwaysPositive: 0.1,
 			slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
-		), "After calling OSCFunc.cvWidgetLearn widget1.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
-		this.assertEquals(widget1.wmc.oscConnections.m.value, List[nil], "widget1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget1, 0).");
-		this.assertEquals(widget2.wmc.oscConnections.m.value, List[nil], "widget2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(widget2, 0, true).");
-		// NetAddr.localAddr.sendMsg('/test', 6);
+		), "After calling OSCFunc.cvWidgetLearn knob1.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".");
+		this.assertEquals(knob1.wmc.oscConnections.m.value, List[nil], "knob1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(knob1, 0).");
+		this.assertEquals(knob2.wmc.oscConnections.m.value, List[nil], "knob2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(knob2, 0, true).");
 		fork {
 			waitDelay.wait;
-			c.wait({ widget1.wmc.oscConnections.m.value[0].notNil && widget2.wmc.oscConnections.m.value[0].notNil });
-			this.assertEquals(widget1.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
-			this.assertEquals(widget2.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr widget2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+			c.wait({ knob1.wmc.oscConnections.m.value[0].notNil && knob2.wmc.oscConnections.m.value[0].notNil });
+			this.assertEquals(knob1.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr knob1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+			this.assertEquals(knob2.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr knob2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 
-			this.assertEquals(widget1.wmc.oscDisplay.m.value[0], (
+			this.assertEquals(knob1.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
 				connectEnabled: true,
 				portField: 57120,
 				oscMatching: false,
-				numOscSlots: 1,
-				index: 1,
+				numMsgSlots: 1,
+				msgSlot: 1,
 				ipField: '127.0.0.1',
 				nameField: '/test',
 				learn: false,
 				alwaysPositive: 0.1,
 				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
-			), "After creating a new OSCFunc widget1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false, numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
-			this.assertEquals(widget2.wmc.oscDisplay.m.value[0], (
+			), "After creating a new OSCFunc knob1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false, numMsgSlots: 1, msgSlot: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
+			this.assertEquals(knob2.wmc.oscDisplay.m.value[0], (
 				connectState: ["disconnect", Color.white, Color.red],
 				connectEnabled: true,
 				portField: 57120,
 				oscMatching: true,
-				numOscSlots: 1,
-				index: 1,
+				numMsgSlots: 1,
+				msgSlot: 1,
 				ipField: '127.0.0.1',
 				nameField: '/test',
 				learn: false,
 				alwaysPositive: 0.1,
 				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
-			), "After creating a new OSCFunc widget2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true, numOscSlots: 1, index: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
-			widget1.remove;
-			widget2.remove;
+			), "After creating a new OSCFunc knob2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true, numMsgSlots: 1, msgSlot: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
+			knob1.remove;
+			knob2.remove;
+			ms1.remove;
+			ms2.remove;
 		};
 		fork {
 			NetAddr.localAddr.sendMsg('/test', 6);
@@ -130,40 +134,155 @@ TestExtOSCFunc : UnitTest {
 			c.signalOne;
 		}
 	}
+
+	test_cvWidgetLearn_ms {
+		var c = CondVar.new;
+		var waitDelay = 0.0001;
+		var sigDelay = 0.1;
+
+		OSCFunc.cvWidgetLearn(ms1, 2, 0);
+		OSCFunc.cvWidgetLearn(ms2, 2, 0, true);
+
+		[ms1, ms2].do { |ms|
+			this.assertEquals(ms1.wmc.oscDisplay.m[2].value[0], (
+				// connectorButVal: 0,
+				connectEnabled: false,
+				nameField: '/path/to/cmd',
+				learn: true,
+				connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
+				msgSlot: 1,
+				numMsgSlots: 1,
+				alwaysPositive: 0.1,
+				slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+			), "After calling OSCFunc.cvWidgetLearn %.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".".format(ms.name));
+		};
+		this.assertEquals(ms1.wmc.oscConnections.m[2].value, List[nil], "ms1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(ms1, 0).");
+		this.assertEquals(ms2.wmc.oscConnections.m[2].value, List[nil], "ms1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(ms1, 0, true).");
+
+		fork {
+			waitDelay.wait;
+			c.wait({ ms1.wmc.oscConnections.m[2].value[0].notNil && ms2.wmc.oscConnections.m[2].value[0].notNil });
+			this.assertEquals(ms1.wmc.oscConnections.m[2].value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr ms1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+			this.assertEquals(ms2.wmc.oscConnections.m[2].value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr ms2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
+
+			this.assertEquals(ms1.wmc.oscDisplay.m[2].value[0], (
+				connectState: ["disconnect", Color.white, Color.red],
+				connectEnabled: true,
+				portField: 57120,
+				oscMatching: false,
+				numMsgSlots: 1,
+				msgSlot: 1,
+				ipField: '127.0.0.1',
+				nameField: '/test',
+				learn: false,
+				alwaysPositive: 0.1,
+				slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+			), "After creating a new OSCFunc ms1.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: false, numMsgSlots: 1, msgSlot: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
+			[0, 1, 3, 4].do { |i|
+				this.assertEquals(ms1.wmc.oscDisplay.m[i].value[0], (
+					connectEnabled: true,
+					nameField: '/path/to/cmd',
+					learn: true,
+					connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],
+					msgSlot: 1,
+					numMsgSlots: 1,
+					alwaysPositive: 0.1,
+					slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+				), "After creating a new OSCFunc ms1.wmc.oscDisplay.m[%].value[0] should remain at its deafult values.".format(i));
+			};
+			this.assertEquals(ms2.wmc.oscDisplay.m[2].value[0], (
+				connectState: ["disconnect", Color.white, Color.red],
+				connectEnabled: true,
+				portField: 57120,
+				oscMatching: true,
+				numMsgSlots: 1,
+				msgSlot: 1,
+				ipField: '127.0.0.1',
+				nameField: '/test',
+				learn: false,
+				alwaysPositive: 0.1,
+				slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+			), "After creating a new OSCFunc ms2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true, numMsgSlots: 1, msgSlot: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
+			[0, 1, 3, 4].do { |i|
+				this.assertEquals(ms2.wmc.oscDisplay.m[i].value[0], (
+					connectEnabled: true,
+					nameField: '/path/to/cmd',
+					learn: true,
+					connectState: ["learn", Color(1.0, 1.0), Color(0.0, 0.5)],
+					msgSlot: 1,
+					numMsgSlots: 1,
+					alwaysPositive: 0.1,
+					slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+				), "After creating a new OSCFunc ms2.wmc.oscDisplay.m[%].value[0] should remain at its deafult values.".format(i));
+			};
+			knob1.remove;
+			knob2.remove;
+			ms1.remove;
+			ms2.remove;
+		};
+		fork {
+			NetAddr.localAddr.sendMsg('/test', 6);
+			sigDelay.wait;
+			c.signalOne;
+		}
+}
 }
 
 TestExtMIDIFunc : UnitTest {
-	var widget;
+	var knob, ms;
 
 	setUp {
-		widget = CVWidgetKnob(\test);
+		knob = CVWidgetKnob(\knob);
+		ms = CVWidgetMS(\ms);
 		if (MIDIClient.initialized.not) { MIDIClient.init };
 	}
 
 	tearDown {
-		widget.remove
+		knob.remove;
+		ms.remove;
 	}
 
 	test_learnSync {
-		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, index: 0);
+		knob.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(knob, index: 0);
 		MIDIIn.doControlAction(12345, 1, 1, 64);
 		this.assertEquals([
-			widget.wmc.midiConnections.m.value[0].srcID,
-			widget.wmc.midiConnections.m.value[0].chan,
-			widget.wmc.midiConnections.m.value[0].msgNum,
-			widget.wmc.midiConnections.m.value[0].argTemplate
-		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction widget.wmc.midiConnections.m.value[0] should return 12345 for srcID, 1 for its chan, 1 for msgNum and nil for argTemplate.");
+			knob.wmc.midiConnections.m.value[0].srcID,
+			knob.wmc.midiConnections.m.value[0].chan,
+			knob.wmc.midiConnections.m.value[0].msgNum,
+			knob.wmc.midiConnections.m.value[0].argTemplate
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction knob.wmc.midiConnections.m.value[0] should return 12345 for srcID, 1 for its chan, 1 for msgNum and nil for argTemplate.");
 		this.assertEquals([
-			widget.wmc.midiDisplay.m.value[0].src,
-			widget.wmc.midiDisplay.m.value[0].chan,
-			widget.wmc.midiDisplay.m.value[0].ctrl,
-			widget.wmc.midiDisplay.m.value[0].template
-		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction widget.wmc.midiDisplay.m.value[0] should return 12345 for src, 1 for its chan, 1 for ctrl and nil for template.");
-		widget.midiDisconnect(0);
-		widget.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(widget, index: 0, learnVal: true);
+			knob.wmc.midiDisplay.m.value[0].src,
+			knob.wmc.midiDisplay.m.value[0].chan,
+			knob.wmc.midiDisplay.m.value[0].ctrl,
+			knob.wmc.midiDisplay.m.value[0].template
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction knob.wmc.midiDisplay.m.value[0] should return 12345 for src, 1 for its chan, 1 for ctrl and nil for template.");
+		knob.midiDisconnect(0);
+		knob.wmc.midiConnections.m.value[0] = MIDIFunc.cc.learnSync(knob, index: 0, learnVal: true);
 		MIDIIn.doControlAction(12345, 1, 1, 64);
-		this.assertEquals(widget.wmc.midiConnections.m.value[0].argTemplate, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true the resulting MIDIFunc should return the control value that was sent when learning as its argTemplate.");
-		this.assertEquals(widget.wmc.midiDisplay.m.value[0].template, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true widget.wmc.midiDisplay.m.value[0] should return the control value that was sent when learning as its template slot.");
+		this.assertEquals(knob.wmc.midiConnections.m.value[0].argTemplate, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true the resulting MIDIFunc should return the control value that was sent when learning as its argTemplate.");
+		this.assertEquals(knob.wmc.midiDisplay.m.value[0].template, 64, "When calling MIDIFunc.cc.learnSync with arg learnVal set to true knob.wmc.midiDisplay.m.value[0] should return the control value that was sent when learning as its template slot.");
+		ms.wmc.midiConnections.m[0].value[0] = MIDIFunc.cc.learnSync(ms, 0, 0);
+		MIDIIn.doControlAction(12345, 1, 1, 64);
+		this.assertEquals([
+			ms.wmc.midiConnections.m[0].value[0].srcID,
+			ms.wmc.midiConnections.m[0].value[0].chan,
+			ms.wmc.midiConnections.m[0].value[0].msgNum,
+			ms.wmc.midiConnections.m[0].value[0].argTemplate
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction ms.wmc.midiConnections.m[0].value[0] should return 12345 for srcID, 1 for its chan, 1 for msgNum and nil for argTemplate.");
+		ms.wmc.midiConnections.m[1..4].value.do { |val, i|
+			this.assert(val[0].value.isNil, "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction ms.wmc.midiConnections.m[%].value[0] should hold 'nil'".format(i+1))
+		};
+		this.assertEquals([
+			ms.wmc.midiDisplay.m[0].value[0].src,
+			ms.wmc.midiDisplay.m[0].value[0].chan,
+			ms.wmc.midiDisplay.m[0].value[0].ctrl,
+			ms.wmc.midiDisplay.m[0].value[0].template,
+		], [12345, 1, 1, nil], "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction knob.wmc.midiDisplay.m[0].value[0] should return 12345 for src, 1 for its chan, 1 for ctrl and nil for template.");
+		ms.wmc.midiDisplay.m[1..4].value.do { |val, i|
+			this.assert(val[0].value == (src: 'source...', chan: "chan", ctrl: "ctrl", learn: "L", toolTip: "Click and move hardware slider/knob to connect to", slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."), "After calling learnSync on an empty MIDIFunc.cc and executing MIDIIn.doControlAction ms.wmc.midiDisplay.m[%].value[0] should hold an Event (src: 'source...', chan: \"chan\", ctrl: \"ctrl\", learn: \"L\", toolTip: \"Click and move hardware slider/knob to connect to\", slotToolTip: \"Select the the CVWidgetMS's '%' slot (widget has % slots).\")".format(i+1))
+		};
+		ms.midiDisconnect(0, 0);
 	}
 }
 

@@ -172,11 +172,11 @@ AbstractConnector {
 	}
 
 	setOscMsgIndex { |msgIndex|
-		this.setOscDisplay(\index, msgIndex.asInteger)
+		this.setOscDisplay(\msgSlot, msgIndex.asInteger)
 	}
 
 	getOscMsgIndex {
-		^this.getOscDisplay(\index);
+		^this.getOscDisplay(\msgSlot);
 	}
 
 	setOscTemplate { |argTemplate|

@@ -63,11 +63,11 @@ OscConnectorMS : AbstractConnector {
 		};
 		wmc.oscDisplay.m[this.slot].value.add((
 			nameField: '/path/to/cmd',
-			index: 1,
+			msgSlot: 1,
 			connectState: ["learn", Color.yellow, Color.green(0.5)],
 			connectEnabled: true, // default, if no command is given
 			learn: true, // default, no command given
-			numOscSlots: 1,
+			numMsgSlots: 1,
 			alwaysPositive: 0.1,
 			slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
 		));
@@ -444,11 +444,9 @@ OscConnectorMS : AbstractConnector {
 					cv.value_(arrValue);
 					// "cv.value: %\n".format(cv.value).postln;
 				};
-				// TODO: what is accum???
 				accum[this.widget] = cv.input;
 			} {
-				// "%: accum: %".format(thisMethod, accum).postln;
-				if (accum.isEmpty) { accum.put(this.widget, cv.input) };
+				accum[this.widget] ?? { accum.put(this.widget, widget.cv.input.postln) };
 				accum[this.widget][this.slot] = accum[this.widget][this.slot] + (input / constraintsRange / 32 * this.getOscResolution);
 
 				case
