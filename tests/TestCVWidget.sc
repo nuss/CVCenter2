@@ -27,13 +27,16 @@ TestCVWidget : UnitTest {
 	}
 
 	test_extend {
-		widget.extend(\test, { |c, w, m| widget.env.test = c.value }, [\cvSpec]);
-		this.assertEquals(widget.syncKeys, [\default, \test], "Calling the widget's syncKeys method should return the default syncKeys amended by the key given in extend");
+		widget.extend(\spec, { |changer, what ... more| widget.env.spec = changer.value }, [\cvSpec]);
+		widget.extend(\allKeys, { |changer, what ... more| widget.env.test = changer.value });
+		this.assertEquals(widget.syncKeys, [\default, \spec, \allKeys], "Calling the widget's syncKeys method should return the default syncKeys amended by the key given in extend");
 		widget.setSpec(\freq);
+		this.assertEquals(widget.env.spec, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "The function given as second argument to 'extend' should have set widget.env.spec to a ControlSpec(20, 20000, 'exp', 0, 440, \" Hz\")");
 		this.assertEquals(widget.env.test, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "The function given as second argument to 'extend' should have set widget.env.test to a ControlSpec(20, 20000, 'exp', 0, 440, \" Hz\")");
-		widget.env.test = nil;
-		widget.addAction(\test, {});
-		this.assertEquals(widget.env.test, nil, "As extend has only amended 'cvSpec' model widget.env.test should be nil");
+		widget.setMidiMode(1, 0);
+		this.assertEquals(widget.env.spec, ControlSpec(20, 20000, 'exp', 0, 440, " Hz"), "As extend has only amended 'cvSpec' model widget.env.spec should still hold the widget CV's ControlSpec though an action exists that sets it to a string \"test\".");
+		this.assertEquals(widget.env.test, List[(midiMode: 1, midiZero: 64, snapDistance: 0, midiInputMapping: (mapping: \linlin), ctrlButtonGroup: 1, midiResolution: 1)], "widget.env.test should hold an Event List[(midiMode: 1, midiZero: 64, snapDistance: 0, midiInputMapping: (mapping: 'linlin''),
+  ctrlButtonGroup: 1, midiResolution: 1)].");
 	}
 
 	test_reduce {
@@ -61,7 +64,7 @@ TestCVWidgetKnob : UnitTest {
 	test_new {
 		this.assertEquals(widget.class, CVWidgetKnob, "A new CVWidgetKnob should identify itself as a CVWidgetKnob");
 		this.assertEquals(widget.cv.class, CV, "A new CVWidgetKnob for which no CV has been specified should automatically have been created with a new CV");
-		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's CV should equal \unipolar.asSpec");
+		this.assertEquals(widget.cv.spec, \unipolar.asSpec, "A new CVWidgetKnob's spec should equal \unipolar.asSpec");
 		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
 		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
 		this.assertEquals(widget.wmc.keys, Set[
@@ -79,7 +82,7 @@ TestCVWidgetKnob : UnitTest {
 			\midiConnectors,
 			\oscInputConstrainters
 		], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
-		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one OsConnection in 'oscConnectors'");
+		this.assertEquals(widget.wmc.oscConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one OscConnector in 'oscConnectors'");
 		this.assertEquals(widget.wmc.oscConnectors.m.value[0].name, 'OSC Connection 1', "The default OscConnector should be named 'OSC Connection 1'");
 		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "A new CVWidgetKnob should hold one MidiConnector in 'midiConnectors");
 		this.assertEquals(widget.wmc.midiConnectors.m.value[0].name, 'MIDI Connection 1', "The default MidiConnector should be named 'Midi Connection 1'")
@@ -406,22 +409,22 @@ TestCVWidgetKnob : UnitTest {
 	}
 
 	test_addAction {
-		widget.addAction("active", { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
+		widget.addAction("active", { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, true);
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling addAction with arg 'active' set to true");
 		this.assertEquals(widget.widgetActions[\active].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'active'");
-		widget.addAction(\inactive, { |cv, wdgt| wdgt.env.res2_(nil) }, false);
+		widget.addAction(\inactive, { |wdgt| wdgt.env.res2_(nil) }, false);
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one marked as active after calling addAction with arg 'active' set to false");
 		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold a SimpleController as key at key 'inactive'");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'active' should be [0.5, 'test'] after setting the widgets cv's value");
-		widget.addAction(\stringAction, "{ |cv, wdgt| wdgt.env.res3_([cv.value, wdgt.name]) }", true);
+		widget.addAction(\stringAction, "{ |wdgt| wdgt.env.res3_([wdgt.cv.value, wdgt.name]) }", true);
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two marked as active after calling addAction with arg 'active' set to true");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env[\res3], [0.5, \test], "The result of the evaluation of the custom action 'stringAction' should be [0.5, 'test'] after setting the widgets cv's value");
 	}
 
 	test_activateAction {
-		widget.addAction(\inactive, { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, false);
+		widget.addAction(\inactive, { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, false);
 		widget.activateAction(\inactive, true);
 		this.assertEquals(widget.widgetActions[\inactive].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'inactive' after calling activateAction");
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling activateAction with arg 'active' set to true");
@@ -446,13 +449,445 @@ TestCVWidgetKnob : UnitTest {
 	}
 
 	test_updateAction {
-		widget.addAction(\active, { |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }, true);
+		widget.addAction(\active, { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, true);
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after setting the widget cv's value");
-		widget.updateAction(\active, { |cv, wdgt| wdgt.env.res1 = [cv.value, wdgt.getSpec] });
+		widget.updateAction(\active, { |wdgt| wdgt.env.res1 = [wdgt.cv.value, wdgt.getSpec] });
 		widget.cv.value_(0);
 		this.assertEquals(widget.env.res1, [0.0, ControlSpec(0, 1, 'linear', 0.0, 0.0, "")], "widget.env.res1 should equal [0.0, ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
-		widget.updateAction(\active, "{ |cv, wdgt| wdgt.env.res1_([cv.value, wdgt.name]) }");
+		widget.updateAction(\active, "{ |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
+	}
+
+	test_remove {
+		var allModels = [];
+		widget.wmc.do { |it|
+			if (it.class === Event) {
+				it.m.do { |m| /*m.value.postln; */allModels = allModels.add(m.value) }
+			}
+		};
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
+		widget.remove;
+		this.assert(Object.dependantsDictionary.keys.collect(_.value)./*postln.*/includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
+	}
+}
+
+TestCVWidgetMS : UnitTest {
+	var widget, midiConnection, oscConnection;
+	var connection1, connection2;
+
+	setUp {
+		widget = CVWidgetMS(\test);
+	}
+
+	tearDown {
+		widget.remove;
+	}
+
+	test_new {
+		var wSetBySpec = CVWidgetMS(\ms2, CV([1!3, 5!4, \exp].asSpec));
+		var wSetBySize = CVWidgetMS(\ms3, numSliders: 7);
+
+		this.assertEquals(widget.class, CVWidgetMS, "A new CVWidgetMS should identify itself as a CVWidgetMS");
+		this.assertEquals(widget.cv.class, CV, "A new CVWidgetKnob for which no CV has been specified should automatically have been created with a new CV");
+		this.assertEquals(widget.cv.spec, [0!5, 1!5].asSpec, "A new CVWidgetKnob's spec should equal ControlSpec([0, 0, 0, 0, 0], [1, 1, 1, 1, 1], 'linear', 0.0, [0, 0, 0, 0, 0], "")");
+		this.assert(wSetBySpec.size == 4, "CVWidgetMS['ms2'] should have a size of 4");
+		this.assertEquals(wSetBySpec.cv.spec, ControlSpec([1, 1, 1], [5, 5, 5, 5], 'exp', 0.0, [1, 1, 1], ""), "CVWidgetMS['ms2'] should hold a ControlSpec([1, 1, 1], [5, 5, 5, 5], 'exp', 0.0, [1, 1, 1], \"\")");
+		this.assert(wSetBySize.size == 7, "CVWidgetMS['ms3'] should have a size of 7");
+		this.assertEquals(widget.syncKeys, [\default], "A new CVWidgetKnob should initialize the syncKeys array with a single key \default");
+		this.assertEquals(widget.wmc.class, Event, "A new CVWidgetKnob should initialize an Event kept in a variable named wmc");
+		this.assertEquals(widget.wmc.keys, Set[
+			\midiDisplay,
+			\oscDisplay,
+			\midiOptions,
+			\actions,
+			\midiConnectorNames,
+			\oscConnections,
+			\oscConnectors,
+			\oscOptions,
+			\oscConnectorNames,
+			\midiConnections,
+			\cvSpec,
+			\midiConnectors,
+			\oscInputConstrainters
+		], "A CVWidgetKnob's wmc variable (an Event) should by default hold expected keys");
+		this.assertEquals(widget.wmc.oscConnectors.m.collect { |m| m.value.size }, [1, 1, 1, 1, 1], "A new CVWidgetKnob should hold 5 OscConnectors");
+		this.assertEquals(widget.wmc.oscConnectors.m.collect { |m| m.value[0].name }, 'OSC Connection 1'!5, "The default OscConnector should be named 'OSC Connection 1'");
+		this.assertEquals(widget.wmc.midiConnectors.m.collect { |m| m.value.size }, [1, 1, 1, 1, 1], "A new CVWidgetKnob should hold 5 MidiConnectors");
+		this.assertEquals(widget.wmc.midiConnectors.m.collect { |m| m.value[0].name }, 'MIDI Connection 1'!5, "The default MidiConnector should be named 'Midi Connection 1'");
+		wSetBySpec.remove;
+		wSetBySize.remove;
+	}
+
+	// test_setSpec {
+	// 	var testSpec = ControlSpec(1.0, 25.0, \exp, 0.0, 12.0);
+	// 	widget.setSpec(testSpec);
+	// 	this.assertEquals(widget.cv.spec, ControlSpec([1.0, 1.0, 1.0, 1.0, 1.0], [25.0, 25.0, 25.0, 25.0, 25.0], 'exp', [0.0, 0.0, 0.0, 0.0, 0.0], [12.0, 12.0, 12.0, 12.0, 12.0], ""), "The widget's CV should now hold a ControlSpec([1.0, 1.0, 1.0, 1.0, 1.0], [25.0, 25.0, 25.0, 25.0, 25.0], 'exp', [0.0, 0.0, 0.0, 0.0, 0.0], [12.0, 12.0, 12.0, 12.0, 12.0], \"\")");
+	// 	widget.setSpec(\freq.asSpec);
+	// 	this.assertEquals(widget.cv.spec, ControlSpec([20, 20, 20, 20, 20], [20000, 20000, 20000, 20000, 20000], 'exp', [0, 0, 0, 0, 0], [440, 440, 440, 440, 440], " Hz"), "The widget's CV should now hold a new ControlSpec equaling ControlSpec(20.0, 20000.0, \exp, 0.0, 440)");
+	// }
+
+	test_getSpec {
+		// this.assertEquals(widget.getSpec, ControlSpec(0!5, 1!5, \linear, 0.0!5, 0!5), "The widget should have returned a ControlSpec(0, 1, 'linear', 0.0, 0, \"\") on calling getSpec");
+		this.assert(widget.getSpec === widget.cv.spec, "The widget's CV's' spec and the return value of widget.getSpec should be identical");
+	}
+
+	test_add_removeMidiConnector {
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 1, "widget.wmc.midiConnectors.m.value should by default contain one MidiConnector after widget instantiation");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.getMidiMode.size,
+			widget.getMidiZero.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
+			widget.getMidiResolution.size
+		], "(1) The number of MidiConnectors should equal the size of the array returned by widget.getMidiMode");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.wmc.midiDisplay.m.value.size,
+			widget.wmc.midiOptions.m.value.size,
+			widget.wmc.midiConnections.m.value.size,
+			widget.wmc.midiConnectorNames.m.value.size
+		], "(1) The number of MidiConnectors should equal the size of the widget's midiOptions, midiDisplay, midiConnections, midiConnectorNames model value arrays");
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, widget.wmc.midiConnections.m.value.size, "The number of midiConnectors should equal the size of the widget's midiConnections model array: 1");
+		connection1 = widget.addMidiConnector;
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 2, "widget.wmc.midiConnectors.m.value should contain two midiConnectors after calling widget.addMidiConnector");
+		this.assertEquals(connection1.name, 'MIDI Connection 2', "The anonymously added MidiConnector should have been named 'MIDI Connection 2'");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.getMidiMode.size,
+			widget.getMidiZero.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
+			widget.getMidiResolution.size
+		], "(2) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.wmc.midiDisplay.m.value.size,
+			widget.wmc.midiOptions.m.value.size,
+			widget.wmc.midiConnections.m.value.size,
+			widget.wmc.midiConnectorNames.m.value.size
+		], "(2) The number of midiConnectors should equal the size of the widget's midiDisplay, midiOptions, midiConnections, midiConnectorNames model value arrays");
+		connection2 = widget.addMidiConnector(\test);
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 3, "widget.wmc.midiConnectors.m.value should contain three midiConnectors after calling widget.addMidiConnector");
+		this.assertEquals(connection2.name, \test, "The added MidiConnector should have been named 'test'");
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, widget.getMidiMode.size, "The number of the widget's midiConnectors and the size of the array returned by widget.getMidiMode should equal: 3");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.getMidiMode.size,
+			widget.getMidiZero.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
+			widget.getMidiResolution.size
+		], "(3) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.wmc.midiDisplay.m.value.size,
+			widget.wmc.midiOptions.m.value.size,
+			widget.wmc.midiConnections.m.value.size,
+			widget.wmc.midiConnectorNames.m.value.size
+		], "(3) The number of midiConnectors should equal the size of the widget's midiDisplay, midiOptions, midiConnections, midiConnectorNames model value arrays");
+		widget.removeMidiConnector(connection1);
+		this.assertEquals(widget.wmc.midiConnectors.m.value.size, 2, "widget.wmc.midiConnectors.m.value should contain two midiConnectors after removing connection1");
+		this.assertEquals(widget.wmc.midiConnectors.m.value.collect(_.name), ['MIDI Connection 1', \test], "widget.wmc.midiConnectors.m.value should contain two midiConnectors, named 'MIDI Connection 1' and 'test'");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.getMidiMode.size,
+			widget.getMidiZero.size,
+			widget.getMidiSnapDistance.size,
+			widget.getMidiCtrlButtonGroup.size,
+			widget.getMidiResolution.size
+		], "(4) The number of midiConnectors should equal the size of the array returned by widget.getMidiMode");
+		this.assertEquals(Set[widget.wmc.midiConnectors.m.value.size], Set[
+			widget.wmc.midiDisplay.m.value.size,
+			widget.wmc.midiOptions.m.value.size,
+			widget.wmc.midiConnections.m.value.size,
+			widget.wmc.midiConnectorNames.m.value.size
+		], "(4) The number of midiConnectors should equal the size of the widget's midiDisplay, midiOptions, midiConnections, midiConnectorNames model value  arrays");
+	}
+
+	test_set_getMidiMode {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnectors should be set to midiMode 0 by default");
+		widget.setMidiMode(1);
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnectors should have been set to midiMode 1");
+		widget.setMidiMode(0, connection1);
+		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnectors' midiMode should equal [1, 0, 1]");
+		widget.setMidiMode(1, 1);
+		this.assertEquals(widget.getMidiMode, [1, 1, 1], "widget.midiConnectors' midiMode should equal [1, 1, 1]");
+		widget.setMidiMode(0, 1);
+		this.assertEquals(widget.getMidiMode(1), 0, "widget.midiConnectors' midiMode at index 1 should equal 0.");
+		widget.setMidiMode(0, connection2);
+		this.assertEquals(widget.getMidiMode(connection2), 0, "widget.midiConnectors' midiMode for connector2 should equal 0.");
+	}
+
+	test_set_getMidiZero {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiZero, [64, 64, 64], "All widget.midiConnectors should be set to midiZero 64 by default");
+		widget.setMidiZero(0);
+		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.midiConnectors should have been set to midiZero 0");
+		widget.setMidiZero(64, connection1);
+		this.assertEquals(widget.getMidiZero, [0, 64, 0], "widget.midiConnectors' midiZero should equal [0, 63, 0]");
+		widget.setMidiZero(64, 2);
+		this.assertEquals(widget.getMidiZero, [0, 64, 64], "widget.midiConnectors' midiZero should equal [0, 63, 63].");
+		this.assertEquals(widget.getMidiZero(1), 64, "widget.midiConnectors' midiZero at index 1 should equal 63.");
+		this.assertEquals(widget.getMidiZero(connection2), 64, "widget.midiConnectors' midiZero for connection2 should equal 63.");
+	}
+
+	test_set_getMidiSnapDistance {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiSnapDistance, [0, 0, 0], "All widget.midiConnectors should be set to snapDistance 0.1 by default");
+		widget.setMidiSnapDistance(0.5);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to snapDistance 0.5");
+		widget.setMidiSnapDistance(0.1, connection1);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
+		widget.setMidiSnapDistance(0.5, 0);
+		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
+		this.assertEquals(widget.getMidiSnapDistance(1), 0.1, "widget.midiConnectors' snapDistance at index 1 should equal 0.1.");
+		this.assertEquals(widget.getMidiSnapDistance(connection2), 0.5, "widget.midiConnectors' snapDistance for connection2 should equal 0.5.");
+	}
+
+	test_set_getMidiCtrlButtonGroup {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [1, 1, 1], "All widget.midiConnectors should be set to ctrlButtonGroup 1 by default.");
+		widget.setMidiCtrlButtonGroup(16);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "All widget.midiConnectors should have been set to ctrlButtonGroup 16.");
+		widget.setMidiCtrlButtonGroup(1, connection1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 1, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 1, 16].");
+		widget.setMidiCtrlButtonGroup(16, 1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 16, 16].");
+		widget.setMidiCtrlButtonGroup(5, 1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(1), 5, "widget.midiConnectors' ctrlButtonGroup at index 1 should equal 5.");
+		widget.setMidiCtrlButtonGroup(7, connection2);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(connection2), 7, "widget.midiConnectors' ctrlButtonGroup for connection2 should equal 7.");
+	}
+
+	test_set_getMidiResolution {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnectors should be set to midiResolution 1 by default.");
+		widget.setMidiResolution(0.5);
+		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to midiResolution 0.5.");
+		widget.setMidiResolution(1, connection1);
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnectors' midiResolution should equal [0.5, 1, 0.5].");
+		widget.setMidiResolution(1, 2);
+		this.assertEquals(widget.getMidiResolution, [0.5, 1, 1], "widget.midiConnectors' midiResolution should equal [0.5, 1, 1].");
+		this.assertEquals(widget.getMidiResolution(1), 1, "widget.midiConnectors' midiResolution at index 1 should equal 1.");
+		this.assertEquals(widget.getMidiResolution(widget.midiConnectors[0]), 0.5, "widget.midiConnectors' at index 1 should equal 0.5.")
+	}
+
+	test_set_getMidiInputMapping {
+		connection1 = widget.addMidiConnector;
+		connection2 = widget.addMidiConnector;
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.midiConnectors should have been set to (mapping: \linlin) by default.");
+		widget.setMidiInputMapping(\lincurve, curve: 3);
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.midiConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		widget.setMidiInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connection2);
+		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.midiConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		widget.setMidiInputMapping(\linexp, connector: 1);
+		this.assertEquals(widget.getMidiInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.midiConnectors at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getMidiInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.midiConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
+	}
+
+	test_midiConnect {
+		var numConnectors;
+		// MIDIIn.connectAll;
+		numConnectors = widget.wmc.midiConnectors.m.value.size;
+		widget.midiConnect(0, num: 1);
+		this.assert(numConnectors == widget.wmc.midiConnectors.m.value.size, "The number of widget.wmc.midiConnectors.m.value should not have been increased after connecting the widget using the default MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m.value[0].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[0].class should return MIDIFunc");
+		widget.midiConnect(num: 2);
+		this.assert(widget.wmc.midiConnectors.m.value.size == (numConnectors + 1) , "The number of widget.wmc.midiConnectors.m.value should have been increased by 1 after connecting the widget without specifying a MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m.value[1].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[1] should return MIDIFunc");
+		// midi learn
+		widget.midiConnect;
+		MIDIIn.doControlAction(12345, 0, 5, 127);
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].srcID, 12345, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].srcID should return 12345.");
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].chan, 0, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].chan should return 0.");
+		this.assertEquals(widget.wmc.midiConnections.m.value[2].msgNum, 5, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].msgNum should return 5.");
+	}
+
+	test_midiDisconnect {
+		widget.midiConnect(0, num: 1);
+		widget.midiDisconnect(0);
+		this.assertEquals(widget.wmc.midiConnections.m.value[0], nil, "After calling widget.midiDisonnect(0) widget.wmc.midiConnection.m.value[0] should equal nil");
+	}
+
+	test_set_getOscEndless {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscEndless, [false, false, false], "All widget.oscConnectors should have been set to oscEndless equaling false.");
+		widget.setOscEndless(true);
+		this.assertEquals(widget.getOscEndless, [true, true, true], "All widget.oscConnectors should have been set to oscEndless equaling true.");
+		widget.setOscEndless(false, 2);
+		this.assertEquals(widget.getOscEndless, [true, true, false], "widget.oscGetEndless should return [true, true, false] after calling widget.setOscEndless(true, 2).");
+		widget.setOscEndless(false, connection1);
+		this.assertEquals(widget.getOscEndless, [true, false, false], "widget.oscGetEndless should return [true, false, false] after calling widget.setOscEndless(false, connection1).");
+		this.assertEquals(widget.getOscEndless(0), true, "Calling widget.getOscEndless(0) should return true.");
+		this.assertEquals(widget.getOscEndless(connection2), false, "Calling widget.getOscEndless(connection2) should return false.");
+	}
+
+	test_set_getOscResolution {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscResolution, [1, 1, 1], "All widget.oscConnectors should have been set to oscResolution equaling 1.");
+		widget.setOscResolution(0.1);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.1], "All widget.oscConnectors should have been set to oscResolution equaling 0.1.");
+		widget.setOscResolution(0.5, 2);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.5], "widget.getOscResolution should return [0.1, 0.1, 0.5] after calling widget.setOscResolution(0.5, 2).");
+		widget.setOscResolution(0.3, connection1);
+		this.assertEquals(widget.getOscResolution, [0.1, 0.3, 0.5], "widget.getOscResolution should return [0.1, 0.3, 0.5] after calling widget.setOscResolution(0.3, connection1).");
+		this.assertEquals(widget.getOscResolution(0), 0.1, "Calling widget.getOscResolution(0) should return 0.1.");
+		this.assertEquals(widget.getOscResolution(connection2), 0.5, "Calling widget.getOscResolution(connection2) should return 0.5.");
+	}
+
+	test_set_getOscSnapDistance {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscSnapDistance, [0, 0, 0], "All widget.oscConnectors should have been set to snapDistances equaling 0.");
+		widget.setOscSnapDistance(0.5);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.5], "All widget.oscCommecters should have been set to snapDistances equaling 0.5.");
+		widget.setOscSnapDistance(0.1, 2);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.5, 0.1].");
+		widget.setOscSnapDistance(0.3, connection1);
+		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.3, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.3, 0.1].");
+		this.assertEquals(widget.getOscSnapDistance(1), 0.3, "widget.oscConnectors' snapDistance at index 1 should equal 0.3.");
+		this.assertEquals(widget.getOscSnapDistance(connection2), 0.1, "widget.oscConnectors' snapDistance for connection2 should equal 0.1.");
+	}
+
+	test_set_getOscCalibration {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscCalibration, [true, true, true], "All widget.oscConnectors should have been set to oscCalibration equaling true.");
+		widget.setOscCalibration(false);
+		this.assertEquals(widget.getOscCalibration, [false, false, false], "All widget.oscCommecters should have been set to oscCalibartion equaling false.");
+		widget.setOscCalibration(true, 2);
+		this.assertEquals(widget.getOscCalibration, [false, false, true], "widget.oscConnectors' oscCalibration should equal [false, false, true] after calling widget.setOscCalibration(true, 2).");
+		widget.setOscCalibration(true, connection1);
+		this.assertEquals(widget.getOscCalibration, [false, true, true], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscCalibration(true, connection1).");
+		this.assertEquals(widget.getOscCalibration(1), true, "widget.oscConnectors' oscCalibration at index 1 should equal true.");
+		this.assertEquals(widget.getOscCalibration(connection2), true, "widget.oscConnectors' oscCalibration for connection2 should equal true.");
+	}
+
+	test_set_getOscInputMapping {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.oscConnectors should have been set to (mapping: \\linlin) by default.");
+		widget.setOscInputMapping(\lincurve, curve: 3);
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.oscConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		widget.setOscInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connection2);
+		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.oscConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		widget.setOscInputMapping(\linexp, connector: 1);
+		this.assertEquals(widget.getOscInputMapping(connection1), (mapping: \linexp), "'connection1' (widget.oscConnectors at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getOscInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.oscConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
+	}
+
+	test_set_getOscInputConstraints {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputConstraints, [[0.0001, 0.0001], [0.0001, 0.0001], [0.0001, 0.0001]], "All widget.oscConnectors should have been set to oscCalibration equaling [0.0001, 0.0001].");
+		widget.setOscInputConstraints([10, 60]);
+		this.assertEquals(widget.getOscInputConstraints, [[10, 60], [10, 60], [10, 60]], "All widget.oscCommecters should have been set to oscCalibartion equaling [10, 60] after calling widget.setOscInputConstraints([10, 60]).");
+		widget.setOscInputConstraints(-25@25);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [-25, 25]], "All widget.oscCommecters should have been set to oscCalibartion equaling [-25, 25] after calling widget.setOscInputConstraints(-25@25).");
+		widget.setOscInputConstraints(0@100, 2);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [0, 100]], "widget.oscConnectors' oscCalibration should equal [[-25, 25], [-25, 25], [0, 100]] after calling widget.setOscInputConstraints(0@100, 2).");
+		widget.setOscInputConstraints([3, 67], connection1);
+		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [3, 67], [0, 100]], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscInputConstraints(true, connection1).");
+		this.assertEquals(widget.getOscInputConstraints(1), [3, 67], "widget.oscConnectors' oscCalibration at index 1 should equal [3, 67].");
+		this.assertEquals(widget.getOscInputConstraints(connection2), [0, 100], "widget.oscConnectors' oscCalibration for connection2 should equal [0, 100].");
+	}
+
+	test_set_getOscInputAlwaysPositive {
+		connection1 = widget.addOscConnector;
+		connection2 = widget.addOscConnector;
+		this.assertEquals(widget.getOscInputAlwaysPositive, [0.1, 0.1, 0.1], "All widget.oscCommecters should have been set to alwaysPositive equaling 0.1 after widget creation and adding two more OscConnectors.");
+		widget.setOscInputAlwaysPositive(1.0, 0);
+		this.assertEquals(widget.getOscInputAlwaysPositive(0), 1.0, "After calling widget.setOscInputAlwaysPositive(1.0, 0) widget.getOscInputAlwaysPositive(0) should return 1.0.");
+		widget.setOscInputAlwaysPositive(0.5, connection1);
+		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 0.5, 0.1], "After calling widget.setOscInputAlwaysPositive(0.5, connection1) widget.getOscInputAlwaysPositive should return [1.0, 0.5, 0.1].");
+		widget.setOscInputAlwaysPositive(1.0);
+		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 1.0, 1.0], "After calling widget.setOscInputAlwaysPositive(1.0) widget.getOscInputAlwaysPositive should return [1.0, 1.0, 1.0].");
+	}
+
+	test_oscConnect {
+		var c = CondVar(), waitThreadDelay = 1, signalThreadDelay = 2;
+		var numConnectors = widget.wmc.oscConnectors.m.value.size;
+		var localAddr = NetAddr.localAddr;
+		widget.oscConnect(0, localAddr, '/test1');
+		this.assert(numConnectors == widget.wmc.oscConnectors.m.value.size, "The number of widget.wmc.oscConnectors.m.value should not have been increased after connecting the widget using the default OscConnector");
+		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling widget.oscConnect(0, NetAddr.localAddr, '/test1') widget.wmc.oscConnection.m.value[0].class should return OSCFunc.");
+		widget.oscConnect(addr: NetAddr.localAddr, cmdPath: '/test2');
+		this.assert(widget.wmc.oscConnectors.m.value.size == (numConnectors + 1), "The number of widget.wmc.oscConnectors.m.value should have been increased by 1 after connecting the widget without specifying an OscConnector");
+		// not really a unit test - OSCFunc.cvWidgetLearn(widget) seems to work as it should
+		// but I've been unable so far to test the result
+		fork {
+			waitThreadDelay.wait;
+			c.wait({ widget.wmc.oscConnections.m.value.size == 3 });
+			localAddr.sendMsg('/test3', 5);
+			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
+		};
+		fork {
+			signalThreadDelay.wait;
+			OSCFunc.cvWidgetLearn(widget);
+			c.signalOne;
+			// localAddr.sendMsg('/test3', 5);
+			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
+		}
+	}
+
+	test_oscDisconnect {
+		widget.oscConnect(0, NetAddr.localAddr, '/test1');
+		widget.oscDisconnect(0);
+		this.assertEquals(widget.wmc.oscConnections.m.value[0], nil, "widget.wmc.oscConnections.m.value[0] should be nil aftercalling widget.oscDisconnect(0).");
+	}
+
+	test_addAction {
+		widget.addAction("active", { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, true);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling addAction with arg 'active' set to true");
+		this.assertEquals(widget.widgetActions[\active].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'active'");
+		widget.addAction(\inactive, { |wdgt| wdgt.env.res2_(nil) }, false);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one marked as active after calling addAction with arg 'active' set to false");
+		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold a SimpleController as key at key 'inactive'");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'active' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.addAction(\stringAction, "{ |wdgt| wdgt.env.res3_([wdgt.cv.value, wdgt.name]) }", true);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two marked as active after calling addAction with arg 'active' set to true");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env[\res3], [0.5, \test], "The result of the evaluation of the custom action 'stringAction' should be [0.5, 'test'] after setting the widgets cv's value");
+	}
+
+	test_activateAction {
+		widget.addAction(\inactive, { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, false);
+		widget.activateAction(\inactive, true);
+		this.assertEquals(widget.widgetActions[\inactive].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'inactive' after calling activateAction");
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling activateAction with arg 'active' set to true");
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'inactive' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.activateAction(\inactive, false);
+		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold nil as key at key 'inactive' after calling activateAction with arg 'active' set to false");
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 0), "The widget should hold one action and one marked as inactive after calling activateAction with arg 'active' set to false");
+	}
+
+	test_removeAction {
+		widget.addAction("active", {}, true);
+		widget.addAction(\inactive, {}, false);
+		widget.addAction(\stringAction, "{}", true);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two of them should be marked as active");
+		widget.removeAction(\active);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one of them should be marked as active after removing the action 'active'");
+		widget.removeAction(\inactive);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one should be marked as active after removing the action 'inactive'");
+		widget.removeAction(\stringAction);
+		this.assertEquals(widget.wmc.actions.m.value, (numActions: 0, activeActions: 0), "The widget should hold no actions after removing the action 'stringAction'");
+	}
+
+	test_updateAction {
+		widget.addAction(\active, { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, true);
+		widget.cv.value_(0.5);
+		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after setting the widget cv's value");
+		widget.updateAction(\active, { |wdgt| wdgt.env.res1 = [wdgt.cv.value, wdgt.getSpec] });
+		widget.cv.value_(0);
+		this.assertEquals(widget.env.res1, [0.0, ControlSpec(0, 1, 'linear', 0.0, 0.0, "")], "widget.env.res1 should equal [0.0, ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
+		widget.updateAction(\active, "{ |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }");
 		widget.cv.value_(0.5);
 		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
 	}
