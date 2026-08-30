@@ -225,52 +225,44 @@ CVWidget {
 	}
 
 	// extend the API with custom controllers
-	extend { |key, func, controllers, proto=false|
-		var thisKey, thisControllers;
-		thisKey = key.asSymbol;
-		thisControllers = controllers.collect({ |c| c.asSymbol });
-		if (this.syncKeys.includes(thisKey)) {
-			Error("Sync key '%' is already in use!".format(thisKey)).throw
+	extend { |key, func, wmcKeys, proto=false|
+		key ?? { Error("%: No argument 'key' not given.".format(thisMethod)).throw };
+		func ?? { Error("%: No argument 'func' not given.".format(thisMethod)).throw };
+		key = key.asSymbol;
+		wmcKeys = wmcKeys.collect(_.asSymbol);
+		if (this.syncKeys.includes(key)) {
+			Error("Sync key '%' is already in use!".format(key)).throw
 		} {
 			// controllers -> must be a list of existing controllers
-			if (controllers.size == 0) {
+			if (wmcKeys.size == 0) {
 				wmc.pairsDo { |k, v|
-					if (k != \mapConstrainterHi and:{
-						k != \mapConstrainterLo
-					}) {
-						v.c.put(thisKey, func)
+					if (k !== \oscInputConstrainters) {
+						v.c !? { v.c.put(key, func) }
 					}
 				}
 			} {
-				thisControllers.do { |c|
-					if (wmc[c].notNil and: {
-						c != \mapConstrainterHi and: {
-							c != \mapConstrainterLo
-						}
-					}) {
-						wmc[c].c.put(thisKey, func)
-					}
+				wmcKeys.do { |c|
+					wmc[c] !? { wmc[c].c.put(key, func) }
 				}
 			}
 		};
-
-		this.prAddSyncKey(thisKey, proto);
+		this.prAddSyncKey(key, proto);
 	}
 
 	// remove controllers that have been added through CVWidget:-extend
 	reduce { |key, proto = false|
-		var thisKey = key.asSymbol;
-
-		if (key.notNil and: { this.syncKeys.includes(thisKey) }) {
-			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(thisKey)})) {
+		key ?? { Error("%: No argument 'key' not given.".format(thisMethod)).throw };
+		key = key.asSymbol;
+		if (key.notNil and: { this.syncKeys.includes(key) }) {
+			if ((proto).or(proto.not and: { syncKeysEvent.user.includes(key)})) {
 				// recursion.(wmc)
 				wmc.pairsDo { |k, v|
 					if (k !== \oscInputConstrainters) {
-						v.c !? { v.c.removeAt(thisKey) }
+						v.c !? { v.c.removeAt(key) }
 					}
 				}
 			};
-			this.prRemoveSyncKey(thisKey, proto);
+			this.prRemoveSyncKey(key, proto);
 		}
 	}
 
@@ -310,7 +302,7 @@ CVWidget {
 
 		if (active) {
 			widgetActions[name].key = cv.addController({ |cv|
-				widgetActions[name].value[0].interpret.value(cv, this)
+				widgetActions[name].value[0].interpret.value(this)
 			})
 		};
 
@@ -355,7 +347,7 @@ CVWidget {
 				// avoid memory leak, only create new SimpleController if key is nil!
 				widgetActions[name].key ?? {
 					widgetActions[name].key = cv.addController({ |cv|
-						widgetActions[name].value[0].interpret.value(cv, this)
+						widgetActions[name].value[0].interpret.value(this)
 					})
 				}
 			} {
