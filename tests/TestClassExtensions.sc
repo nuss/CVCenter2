@@ -78,6 +78,9 @@ TestExtOSCFunc : UnitTest {
 
 		OSCFunc.cvWidgetLearn(knob1, index: 0);
 		OSCFunc.cvWidgetLearn(knob2, index: 0, matching: true);
+		OSCFunc.cvWidgetLearn(ms1, 2, 0);
+		OSCFunc.cvWidgetLearn(ms2, 2, 0, true);
+
 		this.assertEquals(knob1.wmc.oscDisplay.m.value[0], (
 			// connectorButVal: 0,
 			connectEnabled: false,
@@ -93,7 +96,7 @@ TestExtOSCFunc : UnitTest {
 		this.assertEquals(knob2.wmc.oscConnections.m.value, List[nil], "knob2.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(knob2, 0, true).");
 		fork {
 			waitDelay.wait;
-			c.wait({ knob1.wmc.oscConnections.m.value[0].notNil && knob2.wmc.oscConnections.m.value[0].notNil });
+			c.wait({ knob1.wmc.oscConnections.m.value[0].notNil && knob2.wmc.oscConnections.m.value[0].notNil && ms1.wmc.oscConnections.m[2].value[0].notNil && ms2.wmc.oscConnections.m[2].value[0].notNil });
 			this.assertEquals(knob1.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr knob1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 			this.assertEquals(knob2.wmc.oscConnections.m.value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr knob2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 
@@ -123,45 +126,7 @@ TestExtOSCFunc : UnitTest {
 				alwaysPositive: 0.1,
 				slotToolTip: "CVWidgetKnob '%' holds a single slot - setting not available."
 			), "After creating a new OSCFunc knob2.wmc.oscDisplay.m.value[0] should have been set to: (connectState: [\"disconnect\", Color(1.0, 1.0, 1.0), Color(1.0)], connectEnabled: true, portField: 57120, oscMatching: true, numMsgSlots: 1, msgSlot: 1, ipField: 127.0.0.1, nameField: /test, learn: false, slotToolTip: \"CVWidgetKnob '%' holds a single slot - setting not available.\")");
-			knob1.remove;
-			knob2.remove;
-			ms1.remove;
-			ms2.remove;
-		};
-		fork {
-			NetAddr.localAddr.sendMsg('/test', 6);
-			sigDelay.wait;
-			c.signalOne;
-		}
-	}
 
-	test_cvWidgetLearn_ms {
-		var c = CondVar.new;
-		var waitDelay = 0.0001;
-		var sigDelay = 0.1;
-
-		OSCFunc.cvWidgetLearn(ms1, 2, 0);
-		OSCFunc.cvWidgetLearn(ms2, 2, 0, true);
-
-		[ms1, ms2].do { |ms|
-			this.assertEquals(ms1.wmc.oscDisplay.m[2].value[0], (
-				// connectorButVal: 0,
-				connectEnabled: false,
-				nameField: '/path/to/cmd',
-				learn: true,
-				connectState: ["waiting...", Color(1.0, 1.0, 1.0), Color(0.5, 0.5, 0.5)],
-				msgSlot: 1,
-				numMsgSlots: 1,
-				alwaysPositive: 0.1,
-				slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
-			), "After calling OSCFunc.cvWidgetLearn %.wmc.oscDisplay should have been updated accordingly and the label for the connect button should be \"waiting...\".".format(ms.name));
-		};
-		this.assertEquals(ms1.wmc.oscConnections.m[2].value, List[nil], "ms1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(ms1, 0).");
-		this.assertEquals(ms2.wmc.oscConnections.m[2].value, List[nil], "ms1.wmc.oscConnections.m.value should be a List holding nil at index 0 after calling OSCFunc.cvWidgetLearn(ms1, 0, true).");
-
-		fork {
-			waitDelay.wait;
-			c.wait({ ms1.wmc.oscConnections.m[2].value[0].notNil && ms2.wmc.oscConnections.m[2].value[0].notNil });
 			this.assertEquals(ms1.wmc.oscConnections.m[2].value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr ms1.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 			this.assertEquals(ms2.wmc.oscConnections.m[2].value[0].class, OSCFunc, "After having received an OSC message '/test' from NetAddr.localAddr ms2.wmc.oscConnections.m.value[0] should hold an OSCFunc.");
 
@@ -215,6 +180,7 @@ TestExtOSCFunc : UnitTest {
 					slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
 				), "After creating a new OSCFunc ms2.wmc.oscDisplay.m[%].value[0] should remain at its deafult values.".format(i));
 			};
+
 			knob1.remove;
 			knob2.remove;
 			ms1.remove;
@@ -225,7 +191,7 @@ TestExtOSCFunc : UnitTest {
 			sigDelay.wait;
 			c.signalOne;
 		}
-}
+	}
 }
 
 TestExtMIDIFunc : UnitTest {
