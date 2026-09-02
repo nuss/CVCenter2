@@ -23,24 +23,28 @@
 			Error("No valid envelope given for method 'linenv': %".format(env)).throw;
 		};
 
+		try {
+			envVals = env.asMultichannelSignal(resolution, Array).unbubble.normalize(outMin, outMax);
+			switch(clip,
+				\minmax, {
+					if (this <= inMin) { ^envVals.first };
+					if (this >= inMax) { ^envVals.last };
+				},
+				\min, {
+					if (this <= inMin) { ^envVals.first };
+					if (this > inMax) { ^this };
+				},
+				\max, {
+					if (this < inMin) { ^this };
+					if (this >= inMax) { ^envVals.last };
+				}
+			);
 
-		envVals = env.asMultichannelSignal(resolution, Array).unbubble.normalize(outMin, outMax);
-		switch(clip,
-			\minmax, {
-				if (this <= inMin) { ^envVals.first };
-				if (this >= inMax) { ^envVals.last };
-			},
-			\min, {
-				if (this <= inMin) { ^envVals.first };
-				if (this > inMax) { ^this };
-			},
-			\max, {
-				if (this < inMin) { ^this };
-				if (this >= inMax) { ^envVals.last };
-			}
-		);
-
-		^envVals.blendAt(this + indexCorr / (inMax - inMin) * resolution)
+			^envVals.blendAt(this + indexCorr / (inMax - inMin) * resolution)
+		} { |error|
+			"%: argument env (%, class %) is not valid.".format(thisMethod, env, env.class).error;
+			error.throw
+		}
 	}
 
 }
