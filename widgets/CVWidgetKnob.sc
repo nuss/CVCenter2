@@ -104,7 +104,7 @@ CVWidgetKnob : CVWidget {
 		var connectors;
 
 		if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-			Error("CVWidgetKnob:-getConnector: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.").throw
+			Error("%: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.".format(thisMethod)).throw
 		}{
 			connectors = switch(connectorKind)
 			{ \midi } { this.midiConnectors }

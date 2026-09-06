@@ -136,7 +136,7 @@ CVWidgetMS : CVWidget {
 		var connectors;
 
 		if (connectorKind !== \midi and: { connectorKind !== \osc }) {
-			Error("CVWidgetConnector:-getConnector: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.").throw
+			Error("%: arg 'connectorKind' (first argument) must either be 'midi' or 'osc'.".format(thisMethod)).throw
 		} {
 			connectors = switch(connectorKind)
 			{ \midi } { this.midiConnectors }
@@ -433,24 +433,26 @@ CVWidgetMS : CVWidget {
 	}
 
 	midiConnect { |connector, slot, src, chan, num, argTemplate, dispatcher|
+		if (connector.isNumber and: { slot.isNil }) {
+			Error("If connector is given as number slot must be given as well. Given connector: %. Given slot: %.".format(connector, slot)).throw
+		};
+		connector = this.getConnector(\midi, connector, slot);
 		if (connector.class === MidiConnectorMS and: { connector.widget === this }) {
 			connector.midiConnect(num, chan, src, argTemplate, dispatcher)
 		} {
 			case
 			{ connector.class === MidiConnectorMS } {
-				Error("CVWidgetMS:-midiConnect: The given % doesn't belong to %! Cannot connect.".form(connector, this)).throw
+				Error("%: The given % doesn't belong to %! Cannot connect.".form(thisMethod, connector, this)).throw
 			}
 			{ connector.isNil and: { slot.isNil }} {
-				"You have to either provide a valid MidiConnectorMS or a numeric slot to establish a MIDI connection in CVWidgetMS:-midiConnect".error;
-				^this
+				Error("%: You have to either provide a valid MidiConnectorMS or a numeric slot to establish a MIDI connection.".format(thisMethod)).throw;
 			}
 			{ slot.notNil } {
 				if (slot.isNumber.not or: { slot >= this.size }) {
-					"CVWidgetMS:-midiConnect: The given slot is invalied - must be numeric and smaller than the size of %: %.".format(this, this.size).error;
-					^this
+					Error("%: The given slot is invalid - must be numeric and smaller than the size of %: %.".format(thisMethod, this, this.size)).throw;
 				} {
 					slot = slot.asInteger;
-					if (connector.isNil) {
+					if (connector.isNil or: { connector.class !== MidiConnectorMS }) {
 						if (this.midiConnectors[slot].size == 1 and: {
 							wmc.midiConnections.m[slot].value[0].isNil
 						}) {
@@ -461,8 +463,7 @@ CVWidgetMS : CVWidget {
 					} {
 						if (connector.isNumber) {
 							if (this.wmc.midiConnections.m[slot].value[connector.asInteger].notNil) {
-								"CVWidgetMS:-midiConnect: Connector % at slot % is already connected. Cannot connect".format(connector.asInteger, slot).error;
-								^this
+								Error("%: Connector % at slot % is already connected. Cannot establish connection.".format(thisMethod, connector.asInteger, slot)).throw;
 							}
 						} {
 							connector = this.getConnector(\midi, connector, slot)
@@ -481,9 +482,12 @@ CVWidgetMS : CVWidget {
 		}} {
 			connector.midiDisconnect
 		}
+		{ connector.isNumber and: slot.isNumber } {
+			this.getConnector(\midi, connector, slot).midiDisconnect
+		}
 		{ connector.isNil and: { slot.isNumber }} {
 			if (slot >= this.size) {
-				"CVWidgetMS:-oscDisconnect: A slot must be given as an integer smaller than the widget's size: %".format(this.size).error
+				Error("CVWidgetMS:-oscDisconnect: A slot must be given as an integer smaller than the widget's size: %".format(this.size)).throw
 			} {
 				this.midiConnectors[slot.asInteger].do(_.midiDisconnect)
 			}

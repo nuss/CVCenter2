@@ -706,26 +706,44 @@ TestCVWidgetMS : UnitTest {
 
 	test_midiConnect {
 		var numConnectors;
+		var other;
 		// MIDIIn.connectAll;
-		numConnectors = widget.wmc.midiConnectors.m.value.size;
-		widget.midiConnect(0, num: 1);
-		this.assert(numConnectors == widget.wmc.midiConnectors.m.value.size, "The number of widget.wmc.midiConnectors.m.value should not have been increased after connecting the widget using the default MidiConnector");
-		this.assertEquals(widget.wmc.midiConnections.m.value[0].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[0].class should return MIDIFunc");
-		widget.midiConnect(num: 2);
-		this.assert(widget.wmc.midiConnectors.m.value.size == (numConnectors + 1) , "The number of widget.wmc.midiConnectors.m.value should have been increased by 1 after connecting the widget without specifying a MidiConnector");
-		this.assertEquals(widget.wmc.midiConnections.m.value[1].class, MIDIFunc, "After calling widget.midiConnect(0, num: 1) widget.wmc.midiConnection.m.value[1] should return MIDIFunc");
+		numConnectors = widget.wmc.midiConnectors.m.collect { |sl| sl.value.size };
+		widget.midiConnect(0, 0, num: 1);
+		this.assert(numConnectors[0] == widget.wmc.midiConnectors.m[0].value.size, "The number of widget.wmc.midiConnectors.m[0].value should not have been increased after connecting the widget using the default MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[0].class, MIDIFunc, "After calling widget.midiConnect(0, 0, num: 1) widget.wmc.midiConnection.m.value[0].class should return MIDIFunc");
+		other = (1..4).collectAs({ |i| widget.wmc.midiConnections.m[i].value }, Set);
+		this.assertEquals(other, Set[List[nil]], "No MIDI Connections should exist except from widget.wmc.midiConnections.m[0].value[0].");
+		widget.midiConnect(slot: 0, num: 2);
+		this.assert(widget.wmc.midiConnectors.m[0].value.size == (numConnectors[0] + 1), "The number of widget.wmc.midiConnectors.m.value should have been increased by 1 after connecting the widget without specifying a MidiConnector");
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[1].class, MIDIFunc, "After calling widget.midiConnect(slot: 0, num: 1) widget.wmc.midiConnection.m[0].value[1] should return MIDIFunc");
+		other = (1..4).collectAs({ |i| widget.midiConnectors[i].size }, Set);
+		this.assertEquals(other, Set[1], "All slots in widget.midiConnectors except for slot 0 should hold one MidiConnectorMS");
 		// midi learn
-		widget.midiConnect;
+		widget.midiConnect(slot: 0);
 		MIDIIn.doControlAction(12345, 0, 5, 127);
-		this.assertEquals(widget.wmc.midiConnections.m.value[2].srcID, 12345, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].srcID should return 12345.");
-		this.assertEquals(widget.wmc.midiConnections.m.value[2].chan, 0, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].chan should return 0.");
-		this.assertEquals(widget.wmc.midiConnections.m.value[2].msgNum, 5, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].msgNum should return 5.");
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[2].srcID, 12345, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].srcID should return 12345.");
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[2].chan, 0, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].chan should return 0.");
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[2].msgNum, 5, "After calling widget.midiConnect using MIDIFunc:-learn widget.wmc.midiConnection.m.value[2].msgNum should return 5.");
+		other = (1..4).collectAs({ |i| widget.wmc.midiConnections.m[i].value }, Set);
+		this.assertEquals(other, Set[List[nil]], "No MIDI Connections should exist except from widget.wmc.midiConnections.m[0].value[0].");
 	}
 
 	test_midiDisconnect {
-		widget.midiConnect(0, num: 1);
-		widget.midiDisconnect(0);
-		this.assertEquals(widget.wmc.midiConnections.m.value[0], nil, "After calling widget.midiDisonnect(0) widget.wmc.midiConnection.m.value[0] should equal nil");
+		var allConnections;
+		widget.midiConnect(0, 0, num: 1);
+		widget.midiDisconnect(0, 0);
+		this.assertEquals(widget.wmc.midiConnections.m[0].value[0], nil, "After calling widget.midiDisonnect(0) widget.wmc.midiConnection.m[0].value[0] should equal nil");
+		widget.midiConnect(0, 0, num: 1);
+		widget.midiConnect(slot: 0, num: 3);
+		widget.midiDisconnect(slot: 0);
+		this.assertEquals(widget.wmc.midiConnections.m[0].value.select { |con| con.notNil }, [], "There should be no MIDIFuncs held in widget.wmc.midiConnections.m[0] after calling widget.midiDisconnect(slot: 0).");
+		widget.midiConnect(0, 0, num: 1);
+		widget.midiConnect(0, 1, num: 1);
+		widget.midiConnect(0, 3, num: 1);
+		widget.midiDisconnect;
+		allConnections = widget.wmc.midiConnections.m.collect { |slot| slot.value.select { |con| con.notNil }};
+		this.assertEquals(allConnections, [] ! 5, "Calling widget.midiConnect should have removed all existing MIDIFuncs in widget.wmc.midiConnections.m.")
 	}
 
 	test_set_getOscEndless {
@@ -864,12 +882,12 @@ TestCVWidgetMS : UnitTest {
 		widget.addAction(\inactive, { |wdgt| wdgt.env.res2_(nil) }, false);
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 2, activeActions: 1), "The widget should hold two actions and one marked as active after calling addAction with arg 'active' set to false");
 		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold a SimpleController as key at key 'inactive'");
-		widget.cv.value_(0.5);
-		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'active' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.cv.value_(0.5!5);
+		this.assertEquals(widget.env[\res1], [[0.5, 0.5, 0.5, 0.5, 0.5], \test], "The result of the evaluation of the custom action 'active' should be [[0.5, 0.5, 0.5, 0.5, 0.5], 'test'] after setting the widgets cv's value");
 		widget.addAction(\stringAction, "{ |wdgt| wdgt.env.res3_([wdgt.cv.value, wdgt.name]) }", true);
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 3, activeActions: 2), "The widget should hold three actions and two marked as active after calling addAction with arg 'active' set to true");
-		widget.cv.value_(0.5);
-		this.assertEquals(widget.env[\res3], [0.5, \test], "The result of the evaluation of the custom action 'stringAction' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.cv.value_([0.5, 0.5, 0.5, 0.5, 0.5]);
+		this.assertEquals(widget.env[\res3], [[0.5, 0.5, 0.5, 0.5, 0.5], \test], "The result of the evaluation of the custom action 'stringAction' should be [[0.5, 0.5, 0.5, 0.5, 0.5], 'test'] after setting the widgets cv's value");
 	}
 
 	test_activateAction {
@@ -877,8 +895,8 @@ TestCVWidgetMS : UnitTest {
 		widget.activateAction(\inactive, true);
 		this.assertEquals(widget.widgetActions[\inactive].key.class, SimpleController, "The widget.widgetActions should hold a SimpleController as key at key 'inactive' after calling activateAction");
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 1), "The widget should hold one action and one marked as active after calling activateAction with arg 'active' set to true");
-		widget.cv.value_(0.5);
-		this.assertEquals(widget.env[\res1], [0.5, \test], "The result of the evaluation of the custom action 'inactive' should be [0.5, 'test'] after setting the widgets cv's value");
+		widget.cv.value_(0.5!widget.size);
+		this.assertEquals(widget.env[\res1], [[0.5, 0.5, 0.5, 0.5, 0.5], \test], "The result of the evaluation of the custom action 'inactive' should be [[0.5, 0.5, 0.5, 0.5, 0.5], 'test'] after setting the widgets cv's value");
 		widget.activateAction(\inactive, false);
 		this.assertEquals(widget.widgetActions[\inactive].key, nil, "The widget.widgetActions should hold nil as key at key 'inactive' after calling activateAction with arg 'active' set to false");
 		this.assertEquals(widget.wmc.actions.m.value, (numActions: 1, activeActions: 0), "The widget should hold one action and one marked as inactive after calling activateAction with arg 'active' set to false");
