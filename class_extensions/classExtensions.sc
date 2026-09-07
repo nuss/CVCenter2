@@ -93,8 +93,11 @@
 		var oscConnectorClass;
 
 		if (widget.isNil or: { widget.isKindOf(CVWidget).not}) {
-			"Cannot connect non-existing or invalid widget".error;
-			^nil
+			Error("%: Cannot connect non-existing or invalid widget: % (class: %).".format(thisMethod, widget, widget.class)).throw;
+		};
+
+		if (widget.class === CVWidgetMS and: { slot.isNil }) {
+			Error("%: As thew given widget appears to be a CVWidgetMS arg 'slot' must be given!").throw
 		};
 
 		switch (widget.class)
@@ -116,7 +119,13 @@
 				connectionsModel.value[index].notNil
 			}
 		}) {
-			connector = widget.addOscConnector;
+			switch (widget.class)
+			{ CVWidgetKnob } {
+				connector = widget.addOscConnector
+			}
+			{ CVWidgetMS } {
+				connector = widget.addOscConnector(slot: slot)
+			};
 			index = connector.index;
 		} {
 			connector = oscConnectors[index];

@@ -482,7 +482,7 @@ CVWidgetMS : CVWidget {
 		}} {
 			connector.midiDisconnect
 		}
-		{ connector.isNumber and: slot.isNumber } {
+		{ connector.isNumber and: { slot.isNumber }} {
 			this.getConnector(\midi, connector, slot).midiDisconnect
 		}
 		{ connector.isNil and: { slot.isNumber }} {
@@ -837,7 +837,7 @@ CVWidgetMS : CVWidget {
 					^this
 				} {
 					slot = slot.asInteger;
-					if (connector.isNil) {
+					if (connector.isNil or: { connector.class !== OscConnectorMS }) {
 						if (this.oscConnectors[slot].size == 1 and: {
 							wmc.oscConnections.m[slot].value[0].isNil
 						}) {
@@ -868,6 +868,9 @@ CVWidgetMS : CVWidget {
 			connector.widget === this
 		}} {
 			connector.oscDisconnect
+		}
+		{ connector.isNumber and: { slot.isNumber }} {
+			this.getConnector(\osc, connector, slot).oscDisconnect
 		}
 		{ connector.isNil and: { slot.isNumber }} {
 			if (slot >= this.size) {

@@ -743,7 +743,7 @@ TestCVWidgetMS : UnitTest {
 		widget.midiConnect(0, 3, num: 1);
 		widget.midiDisconnect;
 		allConnections = widget.wmc.midiConnections.m.collect { |slot| slot.value.select { |con| con.notNil }};
-		this.assertEquals(allConnections, [] ! 5, "Calling widget.midiConnect should have removed all existing MIDIFuncs in widget.wmc.midiConnections.m.")
+		this.assertEquals(allConnections, [] ! 5, "Calling widget.midiDisconnect should have removed all existing MIDIFuncs in widget.wmc.midiConnections.m.")
 	}
 
 	test_set_getOscEndless {
@@ -845,24 +845,29 @@ TestCVWidgetMS : UnitTest {
 
 	test_oscConnect {
 		var c = CondVar(), waitThreadDelay = 1, signalThreadDelay = 2;
-		var numConnectors = widget.wmc.oscConnectors.m.value.size;
+		var numConnectors = widget.wmc.oscConnectors.m[0].value.size;
 		var localAddr = NetAddr.localAddr;
-		widget.oscConnect(0, localAddr, '/test1');
-		this.assert(numConnectors == widget.wmc.oscConnectors.m.value.size, "The number of widget.wmc.oscConnectors.m.value should not have been increased after connecting the widget using the default OscConnector");
-		this.assertEquals(widget.wmc.oscConnections.m.value[0].class, OSCFunc, "After calling widget.oscConnect(0, NetAddr.localAddr, '/test1') widget.wmc.oscConnection.m.value[0].class should return OSCFunc.");
-		widget.oscConnect(addr: NetAddr.localAddr, cmdPath: '/test2');
-		this.assert(widget.wmc.oscConnectors.m.value.size == (numConnectors + 1), "The number of widget.wmc.oscConnectors.m.value should have been increased by 1 after connecting the widget without specifying an OscConnector");
+		var other;
+		widget.oscConnect(0, 0, localAddr, '/test1');
+		this.assert(numConnectors == widget.wmc.oscConnectors.m[0].value.size, "The number of widget.wmc.oscConnectors.m.value should not have been increased after connecting the widget using the default OscConnector");
+		this.assertEquals(widget.wmc.oscConnections.m[0].value[0].class, OSCFunc, "After calling widget.oscConnect(0, NetAddr.localAddr, '/test1') widget.wmc.oscConnection.m[0].value[0].class should return OSCFunc.");
+		other = (1..4).collectAs({ |i| widget.wmc.oscConnections.m[i].value }, Set);
+		this.assertEquals(other, Set[List[nil]], "No OSC Connections should exist except from widget.wmc.oscConnections.m[0].value[0].");
+		widget.oscConnect(slot: 0, addr: NetAddr.localAddr, cmdPath: '/test2');
+		this.assert(widget.wmc.oscConnectors.m[0].value.size == (numConnectors + 1), "The number of widget.wmc.oscConnectors.m.value should have been increased by 1 after connecting the widget without specifying an OscConnector");
+		other = (1..4).collectAs({ |i| widget.oscConnectors[i].size }, Set);
+		this.assertEquals(other, Set[1], "All slots in widget.oscConnectors except for slot 0 should hold one OscConnectorMS");
 		// not really a unit test - OSCFunc.cvWidgetLearn(widget) seems to work as it should
 		// but I've been unable so far to test the result
 		fork {
 			waitThreadDelay.wait;
-			c.wait({ widget.wmc.oscConnections.m.value.size == 3 });
+			c.wait({ widget.wmc.oscConnections.m[0].value.size == 3 });
 			localAddr.sendMsg('/test3', 5);
-			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
+			this.assertEquals(widget.wmc.oscConnectors.m[0].value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
 		};
 		fork {
 			signalThreadDelay.wait;
-			OSCFunc.cvWidgetLearn(widget);
+			OSCFunc.cvWidgetLearn(widget,  0);
 			c.signalOne;
 			// localAddr.sendMsg('/test3', 5);
 			// this.assertEquals(widget.wmc.oscConnectors.m.value.size, (numConnectors + 2), "The number of widget.wmc.oscConnectors.m.value should have been increased to 3 after calling OSCFunc.cvWidgetLearn(widget) without specifying a connector");
@@ -870,9 +875,20 @@ TestCVWidgetMS : UnitTest {
 	}
 
 	test_oscDisconnect {
-		widget.oscConnect(0, NetAddr.localAddr, '/test1');
-		widget.oscDisconnect(0);
-		this.assertEquals(widget.wmc.oscConnections.m.value[0], nil, "widget.wmc.oscConnections.m.value[0] should be nil aftercalling widget.oscDisconnect(0).");
+		var allConnections;
+		widget.oscConnect(0, 0, NetAddr.localAddr, '/test1');
+		widget.oscDisconnect(0, 0);
+		this.assertEquals(widget.wmc.oscConnections.m[0].value[0], nil, "widget.wmc.oscConnections.m[0].value[0] should be nil after calling widget.oscDisconnect(0, 0).");
+		widget.oscConnect(0, 0, NetAddr.localAddr, '/test1');
+		widget.oscConnect(slot: 0, addr: NetAddr.localAddr, cmdPath: '/test2');
+		widget.oscDisconnect(slot: 0);
+		this.assertEquals(widget.wmc.oscConnections.m[0].value.select { |con| con.notNil }, [], "There should be no OSCFuncs held in widget.wmc.oscConnections.m[0] after calling widget.oscDisconnect(slot: 0).");
+		widget.oscConnect(0, 0, NetAddr.localAddr, '/test1');
+		widget.oscConnect(0, 1, NetAddr.localAddr, '/test2');
+		widget.oscConnect(0, 3, NetAddr.localAddr, '/test3');
+		widget.oscDisconnect;
+		allConnections = widget.wmc.oscConnections.m.collect { |slot| slot.value.select { |con| con.notNil }};
+		this.assertEquals(allConnections, [] ! 5, "Calling widget.oscDisconnect should have removed all existing OSCFuncs in widget.wmc.oscConnections.m.")
 	}
 
 	test_addAction {
