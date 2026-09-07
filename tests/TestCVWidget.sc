@@ -618,90 +618,111 @@ TestCVWidgetMS : UnitTest {
 	}
 
 	test_set_getMidiMode {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiMode, [0, 0, 0], "All widget.midiConnectors should be set to midiMode 0 by default");
-		widget.setMidiMode(1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "All widget.midiConnectors should have been set to midiMode 1");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiMode(slot: 0), [0, 0, 0], "All widget.midiConnectors[0] should have been set to midiMode 0 by default");
+		widget.setMidiMode(1, slot: 0);
+		this.assertEquals(widget.getMidiMode(slot: 0), [1, 1, 1], "All widget.midiConnectors[0] should have been set to midiMode 1");
 		widget.setMidiMode(0, connector1);
-		this.assertEquals(widget.getMidiMode, [1, 0, 1], "widget.midiConnectors' midiMode should equal [1, 0, 1]");
-		widget.setMidiMode(1, 1);
-		this.assertEquals(widget.getMidiMode, [1, 1, 1], "widget.midiConnectors' midiMode should equal [1, 1, 1]");
-		widget.setMidiMode(0, 1);
-		this.assertEquals(widget.getMidiMode(1), 0, "widget.midiConnectors' midiMode at index 1 should equal 0.");
-		widget.setMidiMode(0, connector2);
-		this.assertEquals(widget.getMidiMode(connector2), 0, "widget.midiConnectors' midiMode for connector2 should equal 0.");
+		this.assertEquals(widget.getMidiMode(slot: 0), [1, 0, 1], "widget.midiConnectors[0]'s midiMode should equal [1, 0, 1]");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiMode(slot: i), [0], "widget.midiConnectors[%]'s midiMode should equal [0]".format(i));
+		};
+		widget.setMidiMode(1, 1, 0);
+		this.assertEquals(widget.getMidiMode(slot: 0), [1, 1, 1], "widget.midiConnectors' midiMode should equal [1, 1, 1]");
+		this.assertEquals(widget.getMidiMode, [[1, 1, 1], [0], [0], [0], [0]], "widget.getMidiMode should return midiMode for all connectors in all slots.");
+		widget.setMidiMode(1);
+		this.assertEquals(widget.getMidiMode, [[1, 1, 1], [1], [1], [1], [1]], "widget.setMidiMode should have set midiMode for all connectors in all slots.");
 	}
 
 	test_set_getMidiZero {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiZero, [64, 64, 64], "All widget.midiConnectors should be set to midiZero 64 by default");
-		widget.setMidiZero(0);
-		this.assertEquals(widget.getMidiZero, [0, 0, 0], "All widget.midiConnectors should have been set to midiZero 0");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiZero(slot: 0), [64, 64, 64], "All widget.midiConnectors in slot 0 should be set to midiZero 64 by default");
+		widget.setMidiZero(0, slot: 0);
+		this.assertEquals(widget.getMidiZero(slot: 0), [0, 0, 0], "All widget.midiConnectors in slot 0 should have been set to midiZero 0");
 		widget.setMidiZero(64, connector1);
-		this.assertEquals(widget.getMidiZero, [0, 64, 0], "widget.midiConnectors' midiZero should equal [0, 63, 0]");
-		widget.setMidiZero(64, 2);
-		this.assertEquals(widget.getMidiZero, [0, 64, 64], "widget.midiConnectors' midiZero should equal [0, 63, 63].");
-		this.assertEquals(widget.getMidiZero(1), 64, "widget.midiConnectors' midiZero at index 1 should equal 63.");
-		this.assertEquals(widget.getMidiZero(connector2), 64, "widget.midiConnectors' midiZero for connector2 should equal 63.");
+		this.assertEquals(widget.getMidiZero(slot: 0), [0, 64, 0], "midiZero for widget.midiConnectors in slot 0 should equal [0, 64, 0]");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiZero(slot: i), [64], "midiZero for widget.midiConnectors in slot % should equal [64]".format(i))
+		};
+		widget.setMidiZero(32, slot: 2);
+		this.assertEquals(widget.getMidiZero, [[0, 64, 0], [64], [32], [64], [64]], "widget.getMidiZero should return midiZero for all connectors in all slots.");
+		widget.setMidiZero(64);
+		this.assertEquals(widget.getMidiZero, [[64, 64, 64], [64], [64], [64], [64]], "widget.setMidiZero(64) should set midiZero for all connectors in all slots to 64.");
 	}
 
 	test_set_getMidiSnapDistance {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiSnapDistance, [0, 0, 0], "All widget.midiConnectors should be set to snapDistance 0.1 by default");
-		widget.setMidiSnapDistance(0.5);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to snapDistance 0.5");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiSnapDistance(slot: 0), [0, 0, 0], "All widget.midiConnectors in slot 0 should have been set to snapDistance 0 by default");
+		widget.setMidiSnapDistance(0.5, slot: 0);
+		this.assertEquals(widget.getMidiSnapDistance(slot: 0), [0.5, 0.5, 0.5], "All widget.midiConnectors in slot 0 should have been set to snapDistance 0.5");
 		widget.setMidiSnapDistance(0.1, connector1);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
-		widget.setMidiSnapDistance(0.5, 0);
-		this.assertEquals(widget.getMidiSnapDistance, [0.5, 0.1, 0.5], "widget.midiConnectors' snapDistance should equal [0.5, 0.1, 0.5]");
-		this.assertEquals(widget.getMidiSnapDistance(1), 0.1, "widget.midiConnectors' snapDistance at index 1 should equal 0.1.");
-		this.assertEquals(widget.getMidiSnapDistance(connector2), 0.5, "widget.midiConnectors' snapDistance for connector2 should equal 0.5.");
+		this.assertEquals(widget.getMidiSnapDistance(slot: 0), [0.5, 0.1, 0.5], "snapDistance for widget.midiConnectors in slot 0 should equal [0.5, 0.1, 0.5]");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiSnapDistance(slot: i), [0], "midiSnapDistance in slot % should equal [0].".format(i))
+		};
+		widget.setMidiSnapDistance(0.5, slot: 3);
+		this.assertEquals(widget.getMidiSnapDistance, [[0.5, 0.1, 0.5], [0], [0], [0.5], [0]], "widget.getMidiSnapDistance should return midiSnapDistance for all connectors in all slots.");
+		widget.setMidiSnapDistance(0.3);
+		this.assertEquals(widget.getMidiSnapDistance, [[0.3, 0.3, 0.3], [0.3], [0.3], [0.3], [0.3]], "widget.setMidiSnapDistance(0.3) should set midiSnapDistance to 0.3 for all connectors in all slots.");
 	}
 
 	test_set_getMidiCtrlButtonGroup {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [1, 1, 1], "All widget.midiConnectors should be set to ctrlButtonGroup 1 by default.");
-		widget.setMidiCtrlButtonGroup(16);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "All widget.midiConnectors should have been set to ctrlButtonGroup 16.");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [[1, 1, 1], [1], [1], [1], [1]], "All widget.midiConnectors should be set to ctrlButtonGroup 1 by default.");
+		this.assertEquals(widget.getMidiCtrlButtonGroup(slot: 0), [1, 1, 1], "All widget.midiConnectors in slot 0 should be set to ctrlButtonGroup 1 by default.");
+		widget.setMidiCtrlButtonGroup(16, slot: 0);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(slot: 0), [16, 16, 16], "All widget.midiConnectors in slot 0 should have been set to ctrlButtonGroup 16.");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiCtrlButtonGroup(slot: i), [1], "All widget.midiConnectors in slot % should have ctrlButtonGroup remained at 1.".format(i))
+		};
 		widget.setMidiCtrlButtonGroup(1, connector1);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 1, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 1, 16].");
-		widget.setMidiCtrlButtonGroup(16, 1);
-		this.assertEquals(widget.getMidiCtrlButtonGroup, [16, 16, 16], "widget.midiConnectors' ctrlButtonGroup should equal [16, 16, 16].");
-		widget.setMidiCtrlButtonGroup(5, 1);
-		this.assertEquals(widget.getMidiCtrlButtonGroup(1), 5, "widget.midiConnectors' ctrlButtonGroup at index 1 should equal 5.");
-		widget.setMidiCtrlButtonGroup(7, connector2);
-		this.assertEquals(widget.getMidiCtrlButtonGroup(connector2), 7, "widget.midiConnectors' ctrlButtonGroup for connector2 should equal 7.");
+		this.assertEquals(widget.getMidiCtrlButtonGroup(slot: 0), [16, 1, 16], "widget.midiConnectors[0]' ctrlButtonGroup should equal [16, 1, 16].");
+		widget.setMidiCtrlButtonGroup(16, 1, 0);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(slot: 0), [16, 16, 16], "widget.midiConnectors[0]' ctrlButtonGroup should equal [16, 16, 16].");
+		widget.setMidiCtrlButtonGroup(5, 0, 1);
+		this.assertEquals(widget.getMidiCtrlButtonGroup(slot: 1), [5], "widget.midiConnectors' ctrlButtonGroup in slot 1 at index 0 should equal 5.");
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [[16, 16, 16], [5], [1], [1], [1]], "widget.getCtrlButtonGroup should return ctrlButtonGroup for all widget.midiConnectors.");
+		widget.setMidiCtrlButtonGroup(12);
+		this.assertEquals(widget.getMidiCtrlButtonGroup, [[12, 12, 12], [12], [12], [12], [12]], "widget.setCtrlButtonGroup(12) should have set ctrlButtonGroup for all widget.midiConnectors.");
 	}
 
 	test_set_getMidiResolution {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiResolution, [1, 1, 1], "All widget.midiConnectors should be set to midiResolution 1 by default.");
-		widget.setMidiResolution(0.5);
-		this.assertEquals(widget.getMidiResolution, [0.5, 0.5, 0.5], "All widget.midiConnectors should have been set to midiResolution 0.5.");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiResolution(slot: 0), [1, 1, 1], "All widget.midiConnectors[0] should be set to midiResolution 1 by default.");
+		widget.setMidiResolution(0.5, slot: 0);
+		this.assertEquals(widget.getMidiResolution(slot: 0), [0.5, 0.5, 0.5], "All widget.midiConnectors[0] should have been set to midiResolution 0.5.");
 		widget.setMidiResolution(1, connector1);
-		this.assertEquals(widget.getMidiResolution, [0.5, 1, 0.5], "widget.midiConnectors' midiResolution should equal [0.5, 1, 0.5].");
-		widget.setMidiResolution(1, 2);
-		this.assertEquals(widget.getMidiResolution, [0.5, 1, 1], "widget.midiConnectors' midiResolution should equal [0.5, 1, 1].");
-		this.assertEquals(widget.getMidiResolution(1), 1, "widget.midiConnectors' midiResolution at index 1 should equal 1.");
-		this.assertEquals(widget.getMidiResolution(widget.midiConnectors[0]), 0.5, "widget.midiConnectors' at index 1 should equal 0.5.")
+		this.assertEquals(widget.getMidiResolution(slot: 0), [0.5, 1, 0.5], "widget.midiConnectors[0] midiResolution should equal [0.5, 1, 0.5].");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiResolution(slot: i), [1], "widget.midiConnectors[%] should equal [1]".format(i))
+		};
+		widget.setMidiResolution(0, 0, 2);
+		this.assertEquals(widget.getMidiResolution, [[0.5, 1, 0.5], [1], [0], [1], [1]], "widget.getMidiResolution should return midiResolution for all connectors in all slots.");
+		widget.setMidiResolution(0.5);
+		this.assertEquals(widget.getMidiResolution, [[0.5, 0.5, 0.5], [0.5], [0.5], [0.5], [0.5]], "widget.setMidiResolution(0.5) should have set midiResolution for all connectors in all slots to 0.5.");
 	}
 
 	test_set_getMidiInputMapping {
-		connector1 = widget.addMidiConnector;
-		connector2 = widget.addMidiConnector;
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.midiConnectors should have been set to (mapping: \linlin) by default.");
-		widget.setMidiInputMapping(\lincurve, curve: 3);
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.midiConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		connector1 = widget.addMidiConnector(slot: 0);
+		connector2 = widget.addMidiConnector(slot: 0);
+		this.assertEquals(widget.getMidiInputMapping, [[(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)]], "All widget.midiConnectors should have been set to (mapping: \linlin) by default.");
+		widget.setMidiInputMapping(\lincurve, curve: 3, slot: 0);
+		this.assertEquals(widget.getMidiInputMapping(slot: 0), [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.midiConnectors[0] should have been set to (mapping: \\lincurve, curve: 3).");
 		widget.setMidiInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connector2);
-		this.assertEquals(widget.getMidiInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.midiConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
-		widget.setMidiInputMapping(\linexp, connector: 1);
-		this.assertEquals(widget.getMidiInputMapping(connector1), (mapping: \linexp), "'connector1' (widget.midiConnectors at index 1) should have been set to (mapping: \\linexp.");
-		this.assertEquals(widget.getMidiInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.midiConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
+		this.assertEquals(widget.getMidiInputMapping(slot: 0), [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.midiConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		(1..4).do { |i|
+			this.assertEquals(widget.getMidiInputMapping(slot: i), [(mapping: \linlin)], "widget.midiConnectors[%] should be left at its default value [(mapping: \linlin)]".format(i));
+		};
+		widget.setMidiInputMapping(\linexp, connector: connector1);
+		this.assertEquals(widget.getMidiInputMapping(connector1), (mapping: \linexp), "'connector1' (widget.midiConnectors[0] at index 1) should have been set to (mapping: \\linexp.");
+		this.assertEquals(widget.getMidiInputMapping, [[(mapping: \lincurve, curve: 3), (mapping: \linexp), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)]], "widget.getMidiInputMapping should return MIDI input mapping for all widget.midiConnectors.");
+		widget.setMidiInputMapping(\linlin);
+		this.assertEquals(widget.getMidiInputMapping, [[(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)],[ (mapping: \linlin)], [(mapping: \linlin)]], "widget.setMidiInputMapping(\linlin) should have set mapping for all connectors in all slots.");
 	}
 
 	test_midiConnect {
@@ -789,17 +810,20 @@ TestCVWidgetMS : UnitTest {
 	}
 
 	test_set_getOscCalibration {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscCalibration, [true, true, true], "All widget.oscConnectors should have been set to oscCalibration equaling true.");
-		widget.setOscCalibration(false);
-		this.assertEquals(widget.getOscCalibration, [false, false, false], "All widget.oscCommecters should have been set to oscCalibartion equaling false.");
-		widget.setOscCalibration(true, 2);
-		this.assertEquals(widget.getOscCalibration, [false, false, true], "widget.oscConnectors' oscCalibration should equal [false, false, true] after calling widget.setOscCalibration(true, 2).");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscCalibration(slot: 0), [true, true, true], "All widget.oscConnectors in slot 0 should have been set to oscCalibration equaling true.");
+		widget.setOscCalibration(false, slot:0);
+		this.assertEquals(widget.getOscCalibration(slot: 0), [false, false, false], "All widget.oscCommecters in slot 0 should have been set to oscCalibartion equaling false.");
 		widget.setOscCalibration(true, connector1);
-		this.assertEquals(widget.getOscCalibration, [false, true, true], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscCalibration(true, connector1).");
-		this.assertEquals(widget.getOscCalibration(1), true, "widget.oscConnectors' oscCalibration at index 1 should equal true.");
-		this.assertEquals(widget.getOscCalibration(connector2), true, "widget.oscConnectors' oscCalibration for connector2 should equal true.");
+		this.assertEquals(widget.getOscCalibration(slot: 0), [false, true, false], "widget.oscCommecters in slot 0 should have been set to oscCalibartion equaling [false, true, false].");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscCalibration(slot: i), [true], "oscCalibration for widget.oscConnectors in slot % should equal [true].".format(i))
+		};
+		widget.setOscCalibration(false, slot: 2);
+		this.assertEquals(widget.getOscCalibration, [[false, true, false], [true], [false], [true], [true]], "widget.getOscCalibration should return oscCalibration for all connectors in all slots.");
+		widget.setOscCalibration(true);
+		this.assertEquals(widget.getOscCalibration, [[true, true, true], [true], [true], [true], [true]], "widget.setOscCalibration(true) should have set oscCalbration to true for all oscConnectors in all slots.");
 	}
 
 	test_set_getOscInputMapping {
@@ -947,11 +971,11 @@ TestCVWidgetMS : UnitTest {
 		var allModels = [];
 		widget.wmc.do { |it|
 			if (it.class === Event) {
-				it.m.do { |m| /*m.value.postln; */allModels = allModels.add(m.value) }
+				it.m.do { |m| m.value; allModels = allModels.add(m.value) }
 			}
 		};
-		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc");
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc.");
 		widget.remove;
-		this.assert(Object.dependantsDictionary.keys.collect(_.value)./*postln.*/includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
+		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
 	}
 }

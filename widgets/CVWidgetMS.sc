@@ -166,7 +166,7 @@ CVWidgetMS : CVWidget {
 
 	// common helpers for OSC and MIDI
 	prSetPerformArgs { |connectorKind, connector, slot, selector ... args, kwargs|
-		var connectors = swictch(connectorKind)
+		var connectors = switch(connectorKind)
 		{ \midi } { this.midiConnectors }
 		{ \osc } { this.oscConnectors };
 
@@ -285,7 +285,7 @@ CVWidgetMS : CVWidget {
 			connector.setMidiSnapDistance(snapDistance)
 		} {
 			connector = this.getConnector(\midi, connector, slot);
-			this.prSetPerformArgs(\midi, connector, slot, \setMidiMode, snapDistance: snapDistance);
+			this.prSetPerformArgs(\midi, connector, slot, \setMidiSnapDistance, snapDistance: snapDistance);
 		}
 	}
 
@@ -502,8 +502,7 @@ CVWidgetMS : CVWidget {
 
 	addMidiConnector { |name, slot|
 		slot ?? {
-			"%: No slot given, cannot add new MidiConnectorMS".format(thisMethod).error;
-			^nil
+			Error("%: No slot given, cannot add new MidiConnectorMS".format(thisMethod)).throw
 		};
 		if (slot < this.size) {
 			name !? { name = name.asSymbol };
@@ -890,8 +889,7 @@ CVWidgetMS : CVWidget {
 	// connections handling
 	addOscConnector { |name, slot|
 		slot ?? {
-			"%: No slot given, cannot add new OscConnectorMS".format(thisMethod).error;
-			^nil
+			Error("%: No slot given, cannot add new OscConnectorMS".format(thisMethod)).throw
 		};
 		if (slot < this.size) {
 			name !? { name = name.asSymbol };
@@ -910,20 +908,28 @@ CVWidgetMS : CVWidget {
 	}
 
 	// widget specific
-	// TODO
 	remove {
-		this.midiConnectors.reverse.do(_.remove(true));
-		this.oscConnectors.reverse.do(_.remove(true));
+		[this.midiConnectors, this.oscConnectors].do { |cons|
+			cons.do { |list| list.reverse.do(_.remove(true)) }
+		};
 		// SimpleControllers should be removed explicitely
 		this.widgetActions.do { |asoc|
 			asoc.key.remove;
 		};
 		// remove the widget's controllers from Object.dependantsDictionary
 		this.wmc.do { |val|
-			if (val.class === Event) { val.c.remove };
-			if (val.class === List) { val.do { |it|
-				it.pairsDo { |k, v| v.release };
-			}}
+			if (val.class === Event) {
+				switch (val.c.class)
+				{ List } { val.c.reverse.do(_.remove) }
+				{ SimpleController } { val.c.remove }
+			};
+			if (val.class === List) {
+				val.do { |list|
+					list.do {|it|
+						it.pairsDo { |k, v| v.release }
+					}
+				}
+			};
 		};
 		all.removeAt(name);
 	}
