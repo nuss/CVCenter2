@@ -15,7 +15,7 @@ MidiConnectorMS : AbstractConnector {
 		if (widget.isNil or: {
 			widget.class !== CVWidgetMS
 		}) {
-			Error("An MidiConnectorMS can only be created for an existing CVWidgetMS").throw;
+			Error("A MidiConnectorMS can only be created for an existing CVWidgetMS").throw;
 		};
 		if (slot.isNil or: { slot.isNumber.not }) {
 			"Please provide a numeric slot for a new MidiConnectorMS!".error;
@@ -83,7 +83,7 @@ MidiConnectorMS : AbstractConnector {
 			ctrl: "ctrl",
 			learn: "L",
 			toolTip: "Click and move hardware slider/knob to connect to",
-			slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+			slotToolTip: "Select the CVWidgetMS's '%' slot (widget has % slots)."
 		));
 
 		wmc.midiConnectorNames ?? { wmc.midiConnectorNames = () };

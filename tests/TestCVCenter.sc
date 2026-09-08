@@ -7,6 +7,8 @@ TestCVCenter : UnitTest {
 			TestCVWidget,
 			TestMidiConnector,
 			TestOscConnector,
+			TestMidiConnectorMS,
+			TestOscConnectorMS,
 			TestMappings,
 			TestCVWidgetKnob,
 			TestExtObject,

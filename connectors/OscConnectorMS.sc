@@ -69,7 +69,7 @@ OscConnectorMS : AbstractConnector {
 			learn: true, // default, no command given
 			numMsgSlots: 1,
 			alwaysPositive: 0.1,
-			slotToolTip: "Select the the CVWidgetMS's '%' slot (widget has % slots)."
+			slotToolTip: "Select the CVWidgetMS's '%' slot (widget has % slots)."
 		));
 
 		wmc.oscOptions ?? { wmc.oscOptions = () };
