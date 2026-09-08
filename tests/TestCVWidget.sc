@@ -768,45 +768,59 @@ TestCVWidgetMS : UnitTest {
 	}
 
 	test_set_getOscEndless {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscEndless, [false, false, false], "All widget.oscConnectors should have been set to oscEndless equaling false.");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscEndless(slot: 0), [false, false, false], "All widget.oscConnectors in slot 0 should have been set to oscEndless equaling false.");
+		widget.setOscEndless(true, slot: 0);
+		this.assertEquals(widget.getOscEndless(slot: 0), [true, true, true], "All widget.oscConnectors in slot 0 should have been set to oscEndless equaling true.");
+		widget.setOscEndless(false, 2, slot: 0);
+		this.assertEquals(widget.getOscEndless(slot: 0), [true, true, false], "widget.oscGetEndless should return [true, true, false] for slot 0 after calling widget.setOscEndless(true, 2).");
+		widget.setOscEndless(false, connector1, slot: 0);
+		this.assertEquals(widget.getOscEndless(slot: 0), [true, false, false], "widget.oscGetEndless should return [true, false, false] for slot 0 after calling widget.setOscEndless(false, connector1).");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscEndless(slot: i), [false], "oscEndless for widget.oscConnectors in slot % should equal [false].".format(i))
+		};
+		this.assertEquals(widget.getOscEndless, [[true, false, false], [false], [false], [false], [false]], "Calling widget.getOscEndless should return oscEndless for all widget.oscConnectors in all slots.");
 		widget.setOscEndless(true);
-		this.assertEquals(widget.getOscEndless, [true, true, true], "All widget.oscConnectors should have been set to oscEndless equaling true.");
-		widget.setOscEndless(false, 2);
-		this.assertEquals(widget.getOscEndless, [true, true, false], "widget.oscGetEndless should return [true, true, false] after calling widget.setOscEndless(true, 2).");
-		widget.setOscEndless(false, connector1);
-		this.assertEquals(widget.getOscEndless, [true, false, false], "widget.oscGetEndless should return [true, false, false] after calling widget.setOscEndless(false, connector1).");
-		this.assertEquals(widget.getOscEndless(0), true, "Calling widget.getOscEndless(0) should return true.");
-		this.assertEquals(widget.getOscEndless(connector2), false, "Calling widget.getOscEndless(connector2) should return false.");
+		this.assertEquals(widget.getOscEndless, [[true, true, true], [true], [true], [true], [true]], "Calling widget.setOscEndless(true) should have set oscEndless to true for all widget.oscConnectors in all slots.");
 	}
 
 	test_set_getOscResolution {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscResolution, [1, 1, 1], "All widget.oscConnectors should have been set to oscResolution equaling 1.");
-		widget.setOscResolution(0.1);
-		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.1], "All widget.oscConnectors should have been set to oscResolution equaling 0.1.");
-		widget.setOscResolution(0.5, 2);
-		this.assertEquals(widget.getOscResolution, [0.1, 0.1, 0.5], "widget.getOscResolution should return [0.1, 0.1, 0.5] after calling widget.setOscResolution(0.5, 2).");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscResolution(slot: 0), [1, 1, 1], "All widget.oscConnectors in slot 0should have been set to oscResolution equaling 1.");
+		widget.setOscResolution(0.1, slot:0);
+		this.assertEquals(widget.getOscResolution(slot: 0), [0.1, 0.1, 0.1], "All widget.oscConnectors in slot 0 should have been set to oscResolution equaling 0.1.");
+		widget.setOscResolution(0.5, 2, 0);
+		this.assertEquals(widget.getOscResolution(slot: 0), [0.1, 0.1, 0.5], "widget.getOscResolution(slot: 0) should return [0.1, 0.1, 0.5] after calling widget.setOscResolution(0.5, 2, 0).");
 		widget.setOscResolution(0.3, connector1);
-		this.assertEquals(widget.getOscResolution, [0.1, 0.3, 0.5], "widget.getOscResolution should return [0.1, 0.3, 0.5] after calling widget.setOscResolution(0.3, connector1).");
-		this.assertEquals(widget.getOscResolution(0), 0.1, "Calling widget.getOscResolution(0) should return 0.1.");
-		this.assertEquals(widget.getOscResolution(connector2), 0.5, "Calling widget.getOscResolution(connector2) should return 0.5.");
+		this.assertEquals(widget.getOscResolution(slot: 0), [0.1, 0.3, 0.5], "widget.getOscResolution should return [0.1, 0.3, 0.5] after calling widget.setOscResolution(0.3, connector1).");
+		this.assertEquals(widget.getOscResolution(connector1), 0.3, "Calling widget.getOscResolution(connector1) should return 0.1.");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscResolution(slot: i), [1], "oscResolution for widget.oscConnectors in slot % should equal [1].".format(i))
+		};
+		this.assertEquals(widget.getOscResolution, [[0.1, 0.3, 0.5], [1], [1], [1], [1]], "widget.getOscResolution should return oscResolution for all connectors in all slots.");
+		widget.setOscResolution(0.5);
+		this.assertEquals(widget.getOscResolution, [[0.5, 0.5, 0.5], [0.5], [0.5], [0.5], [0.5]], "widget.setOscResolution(0.5) should have set oscResolution to 0.5 for all oscConnectors in all slots.");
 	}
 
 	test_set_getOscSnapDistance {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscSnapDistance, [0, 0, 0], "All widget.oscConnectors should have been set to snapDistances equaling 0.");
-		widget.setOscSnapDistance(0.5);
-		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.5], "All widget.oscCommecters should have been set to snapDistances equaling 0.5.");
-		widget.setOscSnapDistance(0.1, 2);
-		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.5, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.5, 0.1].");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscSnapDistance(slot: 0), [0, 0, 0], "All widget.oscConnectors in slot 0 should have been set to snapDistances equaling 0.");
+		widget.setOscSnapDistance(0.5, slot: 0);
+		this.assertEquals(widget.getOscSnapDistance(slot: 0), [0.5, 0.5, 0.5], "All widget.oscCommecters in slot 0should have been set to snapDistances equaling 0.5.");
+		widget.setOscSnapDistance(0.1, 2, 0);
+		this.assertEquals(widget.getOscSnapDistance(slot: 0), [0.5, 0.5, 0.1], "widget.setSnapDistance(0.1, 2, 0) should have set snapDistances in slot 0 to [0.5, 0.5, 0.1].");
 		widget.setOscSnapDistance(0.3, connector1);
-		this.assertEquals(widget.getOscSnapDistance, [0.5, 0.3, 0.1], "widget.oscConnectors' snapDistances should equal [0.5, 0.3, 0.1].");
-		this.assertEquals(widget.getOscSnapDistance(1), 0.3, "widget.oscConnectors' snapDistance at index 1 should equal 0.3.");
-		this.assertEquals(widget.getOscSnapDistance(connector2), 0.1, "widget.oscConnectors' snapDistance for connector2 should equal 0.1.");
+		this.assertEquals(widget.getOscSnapDistance(slot: 0), [0.5, 0.3, 0.1], "widget.setOscSnapDistance(0.3, connector1) should have set snapDistances in slot 0 to [0.5, 0.3, 0.1].");
+		this.assertEquals(widget.getOscSnapDistance(connector1), 0.3, "widget.getOscSnapDistance(connector1) should have returned 0.3.");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscSnapDistance(slot: i), [0], "oscSnapDistance for widget.oscConnectors in slot % should equal [0].".format(i))
+		};
+		this.assertEquals(widget.getOscSnapDistance, [[0.5, 0.3, 0.1], [0], [0], [0], [0]], "widget.getOscSnapDistance should return oscSnapDistances for all connectors in all slots.");
+		widget.setOscSnapDistance(0.6);
+		this.assertEquals(widget.getOscSnapDistance, [[0.6, 0.6, 0.6], [0.6], [0.6], [0.6], [0.6]], "widget.setOscSnapDistance(0.6) should have set oscSnapDistance to 0.6 for all oscConnectors in all slots.");
 	}
 
 	test_set_getOscCalibration {
@@ -827,44 +841,59 @@ TestCVWidgetMS : UnitTest {
 	}
 
 	test_set_getOscInputMapping {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscInputMapping, [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.oscConnectors should have been set to (mapping: \\linlin) by default.");
-		widget.setOscInputMapping(\lincurve, curve: 3);
-		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.oscConnectors should have been set to (mapping: \\lincurve, curve: 3).");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscInputMapping(slot: 0), [(mapping: \linlin), (mapping: \linlin), (mapping: \linlin)], "All widget.oscConnectors in slot 0 should have been set to (mapping: \\linlin) by default.");
+		widget.setOscInputMapping(\lincurve, curve: 3, slot: 0);
+		this.assertEquals(widget.getOscInputMapping(slot: 0), [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3)], "All widget.oscConnectors in slot 0 should have been set to (mapping: \\lincurve, curve: 3).");
 		widget.setOscInputMapping(\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]), connector: connector2);
-		this.assertEquals(widget.getOscInputMapping, [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.oscConnectors at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
-		widget.setOscInputMapping(\linexp, connector: 1);
-		this.assertEquals(widget.getOscInputMapping(connector1), (mapping: \linexp), "'connector1' (widget.oscConnectors at index 1) should have been set to (mapping: \\linexp.");
-		this.assertEquals(widget.getOscInputMapping(2), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])), "widget.oscConnectors' midiMapping at index 2 should equal (mapping: 'linenv', env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4])).");
+		this.assertEquals(widget.getOscInputMapping(slot: 0), [(mapping: \lincurve, curve: 3), (mapping: \lincurve, curve: 3), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], "widget.oscConnectors in slot 0 at index 2 should have been set to (mapping: \\linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]).");
+		widget.setOscInputMapping(\linexp, connector: 1, slot: 0);
+		this.assertEquals(widget.getOscInputMapping(connector1), (mapping: \linexp), "'connector1' (widget.oscConnectors at index 1 in slot 0) should have been set to (mapping: \\linexp.");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscInputMapping(slot: i), [(mapping: \linlin)], "oscCalibration for widget.oscConnectors in slot % should equal [(mapping: \\linlin)].".format(i))
+		};
+		this.assertEquals(widget.getOscInputMapping, [[(mapping: \lincurve, curve: 3), (mapping: \linexp), (mapping: \linenv, env: Env([0, 0.2, 1], [0.5, 0.3], [-4, 4]))], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)], [(mapping: \linlin)]], "widget.getOscInputMapping should return oscInputMapping for all widget.oscConnectors in all slots.");
+		widget.setOscInputMapping(mapping: \linenv, env: Env([0, 1], [1]));
+		this.assertEquals(widget.getOscInputMapping, [[(mapping: \linenv, env: Env([0, 1], [1])), (mapping: \linenv, env: Env([0, 1], [1])), (mapping: \linenv, env: Env([0, 1], [1]))], [(mapping: \linenv, env: Env([0, 1], [1]))], [(mapping: \linenv, env: Env([0, 1], [1]))], [(mapping: \linenv, env: Env([0, 1], [1]))], [(mapping: \linenv, env: Env([0, 1], [1]))]], "widget.setOscInputMapping(mapping: \linenv, env: Env([0, 1], [1])) should have set oscInputMapping for all widget.oscConnectors in all slots.")
 	}
 
 	test_set_getOscInputConstraints {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscInputConstraints, [[0.0001, 0.0001], [0.0001, 0.0001], [0.0001, 0.0001]], "All widget.oscConnectors should have been set to oscCalibration equaling [0.0001, 0.0001].");
-		widget.setOscInputConstraints([10, 60]);
-		this.assertEquals(widget.getOscInputConstraints, [[10, 60], [10, 60], [10, 60]], "All widget.oscCommecters should have been set to oscCalibartion equaling [10, 60] after calling widget.setOscInputConstraints([10, 60]).");
-		widget.setOscInputConstraints(-25@25);
-		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [-25, 25]], "All widget.oscCommecters should have been set to oscCalibartion equaling [-25, 25] after calling widget.setOscInputConstraints(-25@25).");
-		widget.setOscInputConstraints(0@100, 2);
-		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [-25, 25], [0, 100]], "widget.oscConnectors' oscCalibration should equal [[-25, 25], [-25, 25], [0, 100]] after calling widget.setOscInputConstraints(0@100, 2).");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscInputConstraints(slot: 0), [[0.0001, 0.0001], [0.0001, 0.0001], [0.0001, 0.0001]], "All widget.oscConnectors in slot 0 should have been set to oscInputConstraints equaling [0.0001, 0.0001].");
+		widget.setOscInputConstraints([10, 60], slot: 0);
+		this.assertEquals(widget.getOscInputConstraints(slot: 0), [[10, 60], [10, 60], [10, 60]], "All widget.oscCommecters in slot 0 should have been set to oscInputConstraints equaling [10, 60] after calling widget.setOscInputConstraints([10, 60], slot: 0).");
+		widget.setOscInputConstraints(-25@25, slot: 0);
+		this.assertEquals(widget.getOscInputConstraints(slot: 0), [[-25, 25], [-25, 25], [-25, 25]], "All widget.oscCommecters in slot 0 should have been set to oscInputConstraints equaling [-25, 25] after calling widget.setOscInputConstraints(-25@25, slot: 0).");
+		widget.setOscInputConstraints(0@100, 2, 0);
+		this.assertEquals(widget.getOscInputConstraints(slot: 0), [[-25, 25], [-25, 25], [0, 100]], "oscInputConstraints for widget.oscConnectors in slot 0 should equal [[-25, 25], [-25, 25], [0, 100]] after calling widget.setOscInputConstraints(0@100, 2, 0).");
 		widget.setOscInputConstraints([3, 67], connector1);
-		this.assertEquals(widget.getOscInputConstraints, [[-25, 25], [3, 67], [0, 100]], "widget.oscConnectors' oscCalibration should equal [false, true, true] after calling widget.setOscInputConstraints(true, connector1).");
-		this.assertEquals(widget.getOscInputConstraints(1), [3, 67], "widget.oscConnectors' oscCalibration at index 1 should equal [3, 67].");
-		this.assertEquals(widget.getOscInputConstraints(connector2), [0, 100], "widget.oscConnectors' oscCalibration for connector2 should equal [0, 100].");
+		this.assertEquals(widget.getOscInputConstraints(slot: 0), [[-25, 25], [3, 67], [0, 100]], "oscInputConstraints widget.oscConnectors in slot 0 should equal [[-25, 25], [3, 67], [0, 100]] after calling widget.setOscInputConstraints([3, 67], connector1).");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscInputConstraints(slot: i), [[0.0001, 0.0001]], "oscInputConstraints for widget.oscConnectors in slot % should equal [[0.0001, 0.0001]].".format(i))
+		};
+		this.assertEquals(widget.getOscInputConstraints, [[[-25, 25], [3, 67], [0, 100]], [[0.0001, 0.0001]], [[0.0001, 0.0001]], [[0.0001, 0.0001]], [[0.0001, 0.0001]]], "widget.getOscInputConstraints should have returned oscInputConstarints for all widget.oscConnectors in all slots.");
+		widget.setOscInputConstraints([-2, 2]);
+		this.assertEquals(widget.getOscInputConstraints, [[[-2, 2], [-2, 2], [-2, 2]], [[-2, 2]], [[-2, 2]], [[-2, 2]], [[-2, 2]]], "widget.setOscInputConstraints should have set oscInputConstraints to [-2, 2] for all widgetoscConnectors in all slots.");
 	}
 
 	test_set_getOscInputAlwaysPositive {
-		connector1 = widget.addOscConnector;
-		connector2 = widget.addOscConnector;
-		this.assertEquals(widget.getOscInputAlwaysPositive, [0.1, 0.1, 0.1], "All widget.oscCommecters should have been set to alwaysPositive equaling 0.1 after widget creation and adding two more OscConnectors.");
-		widget.setOscInputAlwaysPositive(1.0, 0);
-		this.assertEquals(widget.getOscInputAlwaysPositive(0), 1.0, "After calling widget.setOscInputAlwaysPositive(1.0, 0) widget.getOscInputAlwaysPositive(0) should return 1.0.");
+		connector1 = widget.addOscConnector(slot: 0);
+		connector2 = widget.addOscConnector(slot: 0);
+		this.assertEquals(widget.getOscInputAlwaysPositive(slot: 0), [0.1, 0.1, 0.1], "All widget.oscCommecters in slot 0 should have been set to alwaysPositive equaling 0.1 after widget creation and adding two more OscConnectors.");
+		widget.setOscInputAlwaysPositive(1.0, slot: 0);
+		this.assertEquals(widget.getOscInputAlwaysPositive(slot: 0), [1.0, 1.0, 1.0], "After calling widget.setOscInputAlwaysPositive(1.0, slot: 0) widget.getOscInputAlwaysPositive(slot: 0) should return [1.0, 1.0, 1.0].");
 		widget.setOscInputAlwaysPositive(0.5, connector1);
-		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 0.5, 0.1], "After calling widget.setOscInputAlwaysPositive(0.5, connector1) widget.getOscInputAlwaysPositive should return [1.0, 0.5, 0.1].");
-		widget.setOscInputAlwaysPositive(1.0);
-		this.assertEquals(widget.getOscInputAlwaysPositive, [1.0, 1.0, 1.0], "After calling widget.setOscInputAlwaysPositive(1.0) widget.getOscInputAlwaysPositive should return [1.0, 1.0, 1.0].");
+		this.assertEquals(widget.getOscInputAlwaysPositive(slot: 0), [1.0, 0.5, 1.0], "After calling widget.setOscInputAlwaysPositive(0.5, connector1) widget.getOscInputAlwaysPositive(slot: 0) should return [1.0, 0.5, 1.0].");
+		widget.setOscInputAlwaysPositive(0.3, 0, 0);
+		this.assertEquals(widget.getOscInputAlwaysPositive(slot: 0), [0.3, 0.5, 1.0], "After calling widget.setOscInputAlwaysPositive(0.3, 0, 0) widget.getOscInputAlwaysPositive should return [0.3, 0.5, 1.0].");
+		(1..4).do { |i|
+			this.assertEquals(widget.getOscInputAlwaysPositive(slot: i), [0.1], "oscInputAlwaysPositive for widget.oscConnectors in slot % should equal [0.1].".format(i))
+		};
+		this.assertEquals(widget.getOscInputAlwaysPositive, [[0.3, 0.5, 1.0], [0.1], [0.1], [0.1], [0.1]], "widget.getOscInputAlwaysPositive should return oscInputAlwaysPositive for all widget.oscConnectors in all slots.");
+		widget.setOscInputAlwaysPositive(2.0);
+		this.assertEquals(widget.getOscInputAlwaysPositive, [[2.0, 2.0, 2.0], [2.0], [2.0], [2.0], [2.0]], "widget.setOscInputAlwaysPositive(2.0) should have set oscInputAlwaysPositive for all widget.oscConnectors in all slots to 2.0.")
 	}
 
 	test_oscConnect {
@@ -957,25 +986,27 @@ TestCVWidgetMS : UnitTest {
 
 	test_updateAction {
 		widget.addAction(\active, { |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }, true);
-		widget.cv.value_(0.5);
-		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after setting the widget cv's value");
+		widget.cv.value_(0.5!5);
+		this.assertEquals(widget.env.res1, [[0.5, 0.5, 0.5, 0.5, 0.5], \test], "widget.env.res1 should equal [[0.5, 0.5, 0.5, 0.5, 0.5], 'test'] after setting the widget cv's value");
 		widget.updateAction(\active, { |wdgt| wdgt.env.res1 = [wdgt.cv.value, wdgt.getSpec] });
-		widget.cv.value_(0);
-		this.assertEquals(widget.env.res1, [0.0, ControlSpec(0, 1, 'linear', 0.0, 0.0, "")], "widget.env.res1 should equal [0.0, ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
+		widget.cv.value_(0!5);
+		this.assertEquals(widget.env.res1, [[0.0, 0.0, 0.0, 0.0, 0.0], ControlSpec([0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0], 'linear', 0.0, [0.0, 0.0, 0.0, 0.0, 0.0], "")], "widget.env.res1 should equal [[0.0, 0.0, 0.0, 0.0, 0.0], ControlSpec(0.0, 1.0, 'linear', 0.0, 0.0, "")] after having updated the action and setting the widget cv's value to 0");
 		widget.updateAction(\active, "{ |wdgt| wdgt.env.res1_([wdgt.cv.value, wdgt.name]) }");
-		widget.cv.value_(0.5);
-		this.assertEquals(widget.env.res1, [0.5, \test], "widget.env.res1 should equal [0.5, 'test'] after having updated the action and setting the widget cv's value");
+		widget.cv.value_(0.5!5);
+		this.assertEquals(widget.env.res1, [[0.5, 0.5, 0.5, 0.5, 0.5], \test], "widget.env.res1 should equal [[0.5, 0.5, 0.5, 0.5, 0.5], 'test'] after having updated the action and setting the widget cv's value");
 	}
 
 	test_remove {
 		var allModels = [];
 		widget.wmc.do { |it|
 			if (it.class === Event) {
-				it.m.do { |m| m.value; allModels = allModels.add(m.value) }
+				it.m.do { |m| allModels = allModels.add(m.value) }
 			}
 		};
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesAllEqual(allModels), "Before removing a CVWidgetKnob Object.dependantsDictionary.keys should contain all models held in widget.wmc.");
+		// Object.dependantsDictionary.pairsDo { |k, v| "%: %\n".format(k, v).warn };
 		widget.remove;
 		this.assert(Object.dependantsDictionary.keys.collect(_.value).includesNoneEqual(allModels), "After removing a CVWidgetKnob Object.dependantsDictionary.keys should hold none of the models previously held in widget.wmc");
+		// Object.dependantsDictionary.pairsDo { |k, v| "%: %\n".format(k, v).warn };
 	}
 }

@@ -71,7 +71,7 @@ CVWidgetMS : CVWidget {
 		}
 	}
 
-	initModels { |wmc|
+	initModels {
 		// models, not tied to connectors, global to all
 		// MIDI and OSC connections
 		wmc.cvSpec = (m: Ref(this.cv.spec));
