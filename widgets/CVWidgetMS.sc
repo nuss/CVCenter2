@@ -918,16 +918,15 @@ CVWidgetMS : CVWidget {
 		};
 		// remove the widget's controllers from Object.dependantsDictionary
 		this.wmc.do { |val|
-			if (val.class === Event) {
+			switch (val.class)
+			{ Event } {
 				switch (val.c.class)
 				{ List } { val.c.reverse.do(_.remove) }
-				{ SimpleController } { val.c.remove }
-			};
-			if (val.class === List) {
+				{ SimpleController } { val.c.remove };
+			}
+			{ List } {
 				val.do { |list|
-					list.do {|it|
-						it.pairsDo { |k, v| v.release }
-					}
+					list.do(_.pairsDo { |k, v| v.releaseDependants })
 				}
 			};
 		};

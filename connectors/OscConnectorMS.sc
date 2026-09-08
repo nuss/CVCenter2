@@ -128,10 +128,12 @@ OscConnectorMS : AbstractConnector {
 		mc.oscConnectors.c ?? {
 			mc.oscConnectors.c = List.newClear(this.widget.size)
 		};
-		mc.oscConnectors.c[this.slot] = SimpleController(mc.oscConnectors.m[this.slot]);
-		mc.oscConnectors.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.oscConnectors.c[this.slot] ?? {
+			mc.oscConnectors.c[this.slot] = SimpleController(mc.oscConnectors.m[this.slot]);
+			mc.oscConnectors.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 
@@ -139,40 +141,48 @@ OscConnectorMS : AbstractConnector {
 		mc.oscConnections.c ?? {
 			mc.oscConnections.c = List.newClear(this.widget.size)
 		};
-		mc.oscConnections.c[this.slot] = SimpleController(mc.oscConnections.m[this.slot]);
-		mc.oscConnections.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.oscConnections.c[this.slot] ?? {
+			mc.oscConnections.c[this.slot] = SimpleController(mc.oscConnections.m[this.slot]);
+			mc.oscConnections.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 	prInitOscDisplay { |mc, cv|
 		mc.oscDisplay.c ?? {
 			mc.oscDisplay.c = List.newClear(this.widget.size)
 		};
-		mc.oscDisplay.c[this.slot] = SimpleController(mc.oscDisplay.m[this.slot]);
-		mc.oscDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.oscDisplay.c[this.slot] ?? {
+			mc.oscDisplay.c[this.slot] = SimpleController(mc.oscDisplay.m[this.slot]);
+			mc.oscDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 	prInitOscOptions { |mc, cv|
 		mc.oscOptions.c ?? {
 			mc.oscOptions.c = List.newClear(this.widget.size)
 		};
-		mc.oscOptions.c[this.slot] = SimpleController(mc.oscOptions.m[this.slot]);
-		mc.oscOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.oscOptions.c[this.slot] ?? {
+			mc.oscOptions.c[this.slot] = SimpleController(mc.oscOptions.m[this.slot]);
+			mc.oscOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 	prInitOscConnectorNames { |mc, cv|
 		mc.oscConnectorNames.c ?? {
 			mc.oscConnectorNames.c = List.newClear(this.widget.size)
 		};
-		mc.oscConnectorNames.c[this.slot] = SimpleController(mc.oscConnectorNames.m[this.slot]);
-		mc.oscConnectorNames.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.oscConnectorNames.c[this.slot] ?? {
+			mc.oscConnectorNames.c[this.slot] = SimpleController(mc.oscConnectorNames.m[this.slot]);
+			mc.oscConnectorNames.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 	index {
@@ -524,7 +534,6 @@ OscConnectorMS : AbstractConnector {
 
 	remove { |forceAll = false|
 		var mc = this.widget.wmc;
-		// var wmc = CVWidget.wmc;
 		var index = this.index;
 
 		if (mc.oscConnectors.m[this.slot].value.size > 1 or: { forceAll }) {

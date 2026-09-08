@@ -114,54 +114,64 @@ MidiConnectorMS : AbstractConnector {
 		mc.midiConnectors.c ?? {
 			mc.midiConnectors.c = List.newClear(this.widget.size)
 		};
-		mc.midiConnectors.c[this.slot] = SimpleController(mc.midiConnectors.m[this.slot]);
-		mc.midiConnectors.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// blablabla, do something...
-		})
+		mc.midiConnectors.c[this.slot] ?? {
+			mc.midiConnectors.c[this.slot] = SimpleController(mc.midiConnectors.m[this.slot]);
+			mc.midiConnectors.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// blablabla, do something...
+			})
+		}
 	}
 
 	prInitMidiOptions { |mc, cv|
 		mc.midiOptions.c ?? {
 			mc.midiOptions.c = List.newClear(this.widget.size)
 		};
-		mc.midiOptions.c[this.slot] = SimpleController(mc.midiOptions.m[this.slot]);
-		mc.midiOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
-			// do something...
-		})
+		mc.midiOptions.c[this.slot] ?? {
+			mc.midiOptions.c[this.slot] = SimpleController(mc.midiOptions.m[this.slot]);
+			mc.midiOptions.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
+				// do something...
+			})
+		}
 	}
 
 	prInitMidiConnection { |mc, cv|
 		mc.midiConnections.c ?? {
 			mc.midiConnections.c = List.newClear(this.widget.size)
 		};
-		mc.midiConnections.c[this.slot] = SimpleController(mc.midiConnections.m[this.slot]);
-		mc.midiConnections.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// do something...
-		})
+		mc.midiConnections.c[this.slot] ?? {
+			mc.midiConnections.c[this.slot] = SimpleController(mc.midiConnections.m[this.slot]);
+			mc.midiConnections.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// do something...
+			})
+		}
 	}
 
 	prInitMidiDisplay { |mc, cv|
 		mc.midiDisplay.c ?? {
 			mc.midiDisplay.c = List.newClear(this.widget.size)
 		};
-		mc.midiDisplay.c[this.slot] = SimpleController(mc.midiDisplay.m[this.slot]);
-		mc.midiDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// "midiDisplay.c.triggered".postln;
-			// 	var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
-			// 	// "midiDisplay.c - changer.value: %, moreArgs: %".format(changer.value, index).postln;
-			// 	// ...
-		})
+		mc.midiDisplay.c[this.slot] ?? {
+			mc.midiDisplay.c[this.slot] = SimpleController(mc.midiDisplay.m[this.slot]);
+			mc.midiDisplay.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// "midiDisplay.c.triggered".postln;
+				// 	var index = mc.midiConnectors.m[this.slot].value.indexOf(this);
+				// 	// "midiDisplay.c - changer.value: %, moreArgs: %".format(changer.value, index).postln;
+				// 	// ...
+			})
+		}
 	}
 
 	prInitMidiConnectorNames { |mc, cv|
 		mc.midiConnectorNames.c ?? {
 			mc.midiConnectorNames.c = List.newClear(this.widget.size)
 		};
-		mc.midiConnectorNames.c[this.slot] = SimpleController(mc.midiConnectorNames.m[this.slot]);
-		mc.midiConnectorNames.c[this.slot].put(\default, { |changer, what ... moreArgs|
-			// 	"midiConnectorNames.c triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
-		})
+		mc.midiConnectorNames.c[this.slot] ?? {
+			mc.midiConnectorNames.c[this.slot] = SimpleController(mc.midiConnectorNames.m[this.slot]);
+			mc.midiConnectorNames.c[this.slot].put(\default, { |changer, what ... moreArgs|
+				// 	"midiConnectorNames.c triggered:\n\t%\n\t%\n\t%".format(changer.value, what, moreArgs).postln;
+			})
+		}
 	}
 
 	index {
